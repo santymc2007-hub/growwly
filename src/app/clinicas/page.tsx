@@ -1,0 +1,111 @@
+import { createClient } from "@/lib/supabase/server";
+import { ClinicCard } from "@/components/clinics/clinic-card";
+import { ClinicFilters } from "@/components/clinics/clinic-filters";
+import { SiteHeader } from "@/components/site-header";
+
+type SearchParams = {
+  ciudad?: string;
+  tecnica?: string;
+  idioma?: string;
+};
+
+export default async function ClinicasPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const { ciudad, tecnica, idioma } = await searchParams;
+
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("clinics")
+    .select("*")
+    .order("nombre", { ascending: true });
+  const clinicas = data ?? [];
+
+  const filtradas = clinicas.filter((c) => {
+    if (ciudad && c.ciudad !== ciudad) return false;
+    if (tecnica && !c.tecnicas.includes(tecnica)) return false;
+    if (idioma && !c.idiomas.includes(idioma)) return false;
+    return true;
+  });
+
+  const ciudades = uniqueSorted(clinicas.map((c) => c.ciudad));
+  const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
+  const idiomas = uniqueSorted(clinicas.flatMap((c) => c.idiomas));
+
+  return (
+    <main className="flex-1">
+      <SiteHeader />
+
+      <header className="bg-teal text-paper">
+        <div className="mx-auto max-w-6xl px-6 py-12">
+          <h1 className="font-display text-4xl sm:text-5xl">
+            Clínicas <em className="text-cyan not-italic">capilares</em> en
+            España
+          </h1>
+          <p className="mt-3 max-w-xl text-paper/80">
+            Compara clínicas por ciudad, técnica e idioma antes de pedir cita.
+          </p>
+        </div>
+        <WaveDivider />
+      </header>
+
+      <div className="mx-auto max-w-6xl px-6 py-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-sm text-ink-soft">
+            {filtradas.length}{" "}
+            {filtradas.length === 1
+              ? "clínica encontrada"
+              : "clínicas encontradas"}
+          </p>
+          <ClinicFilters
+            ciudades={ciudades}
+            tecnicas={tecnicas}
+            idiomas={idiomas}
+          />
+        </div>
+
+        {filtradas.length > 0 ? (
+          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {filtradas.map((clinic) => (
+              <ClinicCard key={clinic.id} clinic={clinic} />
+            ))}
+          </div>
+        ) : (
+          <div className="mt-16 rounded-2xl border border-dashed border-line py-16 text-center">
+            <p className="font-display text-xl text-teal-dark">
+              Sin resultados
+            </p>
+            <p className="mt-2 text-sm text-ink-soft">
+              No hay clínicas que encajen con estos filtros. Prueba a quitar
+              alguno.
+            </p>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}
+
+function uniqueSorted(values: (string | null)[]): string[] {
+  return Array.from(new Set(values.filter((v): v is string => Boolean(v)))).sort(
+    (a, b) => a.localeCompare(b, "es"),
+  );
+}
+
+function WaveDivider() {
+  return (
+    <svg
+      viewBox="0 0 400 12"
+      preserveAspectRatio="none"
+      className="block h-3 w-full text-paper"
+      aria-hidden
+    >
+      <path
+        d="M0 6 C 25 0, 75 12, 100 6 S 175 0, 200 6 S 275 12, 300 6 S 375 0, 400 6 V12 H0 Z"
+        fill="currentColor"
+      />
+    </svg>
+  );
+}

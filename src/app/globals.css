@@ -1,0 +1,62 @@
+@import "tailwindcss";
+
+:root {
+  /* Superficie */
+  --color-paper: #ffffff;
+  --color-paper-dim: #eef6f1;
+
+  /* Texto: gris pizarra oscuro con un punto verde-azulado (marca) */
+  --color-ink: #33403f;
+  --color-ink-soft: #66756f;
+
+  /* Marca: teal profundo (fondos de cabecera, nav) */
+  --color-teal: #00768f;
+  --color-teal-dark: #005a6e;
+
+  /* Acento: cian vivo (CTAs, enlaces activos) */
+  --color-cyan: #00c2d6;
+  --color-cyan-dark: #0098a8;
+
+  /* Verde del logo (degradado "wly"): del check de verificación a detalles */
+  --color-green: #2fbf6b;
+  --color-mint: #9fffba;
+
+  /* Apoyo: verde salvia pálido para tags */
+  --color-sage: #cfebdc;
+  --color-sage-ink: #1f6b43;
+
+  /* Líneas y bordes */
+  --color-line: #e1e8e6;
+
+  /* Estado de error (no es un color de marca, es semántico) */
+  --color-error: #dc2626;
+  --color-error-dark: #991b1b;
+}
+
+@theme inline {
+  --color-paper: var(--color-paper);
+  --color-paper-dim: var(--color-paper-dim);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-teal: var(--color-teal);
+  --color-teal-dark: var(--color-teal-dark);
+  --color-cyan: var(--color-cyan);
+  --color-cyan-dark: var(--color-cyan-dark);
+  --color-green: var(--color-green);
+  --color-mint: var(--color-mint);
+  --color-sage: var(--color-sage);
+  --color-sage-ink: var(--color-sage-ink);
+  --color-line: var(--color-line);
+  --color-error: var(--color-error);
+  --color-error-dark: var(--color-error-dark);
+
+  --font-display: "Poppins", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  --font-sans: "Montserrat", -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}

@@ -1,0 +1,169 @@
+"use server";
+
+import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { slugify } from "@/lib/slugify";
+import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
+import type { Database } from "@/lib/supabase/database.types";
+
+type ClinicWrite = Omit<
+  Database["public"]["Tables"]["clinics"]["Insert"],
+  "id" | "slug" | "created_at" | "updated_at" | "fotos"
+>;
+
+function isRealFile(value: FormDataEntryValue): value is File {
+  return value instanceof File && value.size > 0;
+}
+
+function readClinicFields(formData: FormData): ClinicWrite {
+  const num = (key: string) => {
+    const value = formData.get(key);
+    return value && String(value).trim() !== "" ? Number(value) : null;
+  };
+  const str = (key: string) => {
+    const value = formData.get(key);
+    return value && String(value).trim() !== "" ? String(value).trim() : null;
+  };
+
+  const redesSociales: Record<string, string> = {};
+  for (const key of ["instagram", "facebook", "tiktok"]) {
+    const value = formData.get(`red_${key}`);
+    if (value && String(value).trim() !== "") {
+      redesSociales[key] = String(value).trim();
+    }
+  }
+
+  return {
+    nombre: String(formData.get("nombre") ?? "").trim(),
+    descripcion: str("descripcion"),
+    comunidad_autonoma: str("comunidad_autonoma"),
+    provincia: str("provincia"),
+    ciudad: str("ciudad"),
+    zona: str("zona"),
+    lat: num("lat"),
+    lng: num("lng"),
+    telefono: str("telefono"),
+    email: str("email"),
+    web: str("web"),
+    redes_sociales: redesSociales,
+    tecnicas: formData.getAll("tecnicas").map(String),
+    idiomas: formData.getAll("idiomas").map(String),
+    financiacion: formData.get("financiacion") === "on",
+    primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
+    verificado: formData.get("verificado") === "on",
+  };
+}
+
+export async function createClinic(formData: FormData) {
+  const fields = readClinicFields(formData);
+
+  if (!fields.nombre) {
+    redirect(
+      `/admin/clinicas/nueva?error=${encodeURIComponent("El nombre es obligatorio.")}`,
+    );
+  }
+
+  const supabase = createAdminClient();
+
+  let fotos: string[] = [];
+  try {
+    const nuevas = formData.getAll("fotos_nuevas").filter(isRealFile);
+    fotos = await uploadClinicPhotos(supabase, nuevas);
+  } catch (uploadError) {
+    const message =
+      uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
+    redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(message)}`);
+  }
+
+  const { error } = await supabase.from("clinics").insert({
+    ...fields,
+    slug: slugify(fields.nombre),
+    fotos,
+  });
+
+  if (error) {
+    redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(error.message)}`);
+  }
+
+  revalidatePath("/admin/clinicas");
+  revalidatePath("/clinicas");
+  redirect("/admin/clinicas");
+}
+
+export async function deleteClinic(id: string) {
+  const supabase = createAdminClient();
+
+  const { data: clinic } = await supabase
+    .from("clinics")
+    .select("fotos")
+    .eq("id", id)
+    .single();
+
+  const { error } = await supabase.from("clinics").delete().eq("id", id);
+
+  if (error) {
+    redirect(`/admin/clinicas?error=${encodeURIComponent(error.message)}`);
+  }
+
+  if (clinic?.fotos?.length) {
+    try {
+      await deleteClinicPhotos(supabase, clinic.fotos);
+    } catch {
+      // La clínica ya se borró; si sobran archivos huérfanos en el
+      // Storage no es crítico, se pueden limpiar luego a mano.
+    }
+  }
+
+  revalidatePath("/admin/clinicas");
+  revalidatePath("/clinicas");
+}
+
+export async function updateClinic(id: string, formData: FormData) {
+  const fields = readClinicFields(formData);
+
+  if (!fields.nombre) {
+    redirect(
+      `/admin/clinicas/${id}/editar?error=${encodeURIComponent("El nombre es obligatorio.")}`,
+    );
+  }
+
+  const supabase = createAdminClient();
+
+  const fotosActuales: string[] = JSON.parse(
+    String(formData.get("fotos_actuales") ?? "[]"),
+  );
+  const aEliminar = formData.getAll("fotos_eliminar").map(String);
+  const conservadas = fotosActuales.filter((url) => !aEliminar.includes(url));
+
+  let nuevas: string[] = [];
+  try {
+    const archivos = formData.getAll("fotos_nuevas").filter(isRealFile);
+    nuevas = await uploadClinicPhotos(supabase, archivos);
+  } catch (uploadError) {
+    const message =
+      uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
+    redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(message)}`);
+  }
+
+  if (aEliminar.length > 0) {
+    await deleteClinicPhotos(supabase, aEliminar);
+  }
+
+  // El slug no se toca aquí: se generó al crear la clínica y no queremos
+  // romper enlaces existentes a /clinicas/[slug] al editar otros campos.
+  const { error } = await supabase
+    .from("clinics")
+    .update({ ...fields, fotos: [...conservadas, ...nuevas] })
+    .eq("id", id);
+
+  if (error) {
+    redirect(
+      `/admin/clinicas/${id}/editar?error=${encodeURIComponent(error.message)}`,
+    );
+  }
+
+  revalidatePath("/admin/clinicas");
+  revalidatePath("/clinicas");
+  redirect("/admin/clinicas");
+}
