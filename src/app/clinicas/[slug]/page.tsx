@@ -130,6 +130,26 @@ export default async function ClinicaPage({
             {clinic.verificado && <VerifiedBadge />}
           </div>
 
+          {(clinic.rating_google != null || clinic.rating_doctoralia != null) && (
+            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-soft">
+              {clinic.rating_google != null && (
+                <span>
+                  <strong className="text-ink">★ {clinic.rating_google.toFixed(1)}</strong>{" "}
+                  Google
+                  {clinic.resenas_google != null && ` (${clinic.resenas_google} reseñas)`}
+                </span>
+              )}
+              {clinic.rating_doctoralia != null && (
+                <span>
+                  <strong className="text-ink">★ {clinic.rating_doctoralia.toFixed(1)}</strong>{" "}
+                  Doctoralia
+                  {clinic.resenas_doctoralia != null &&
+                    ` (${clinic.resenas_doctoralia} reseñas)`}
+                </span>
+              )}
+            </div>
+          )}
+
           {clinic.descripcion && (
             <p className="mt-6 text-ink-soft">{clinic.descripcion}</p>
           )}
@@ -238,6 +258,46 @@ export default async function ClinicaPage({
               </li>
             )}
           </ul>
+
+          {clinic.direccion && (
+            <>
+              <h2 className="mt-6 font-display text-lg text-teal-dark">
+                Dirección
+              </h2>
+              <p className="mt-2 text-sm text-ink-soft">{clinic.direccion}</p>
+            </>
+          )}
+
+          {clinic.horarios && (
+            <>
+              <h2 className="mt-6 font-display text-lg text-teal-dark">
+                Horarios
+              </h2>
+              <p className="mt-2 text-sm text-ink-soft">{clinic.horarios}</p>
+            </>
+          )}
+
+          {clinic.rango_precios && (
+            <>
+              <h2 className="mt-6 font-display text-lg text-teal-dark">
+                Precios
+              </h2>
+              <p className="mt-2 text-sm text-ink-soft">
+                {clinic.rango_precios}
+              </p>
+            </>
+          )}
+
+          {clinic.accesibilidad && (
+            <>
+              <h2 className="mt-6 font-display text-lg text-teal-dark">
+                Accesibilidad
+              </h2>
+              <p className="mt-2 text-sm text-ink-soft">
+                {clinic.accesibilidad}
+              </p>
+            </>
+          )}
 
           {socialLinks.length > 0 && (
             <>

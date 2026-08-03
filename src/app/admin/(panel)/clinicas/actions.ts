@@ -52,6 +52,14 @@ function readClinicFields(formData: FormData): ClinicWrite {
     financiacion: formData.get("financiacion") === "on",
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
     verificado: formData.get("verificado") === "on",
+    direccion: str("direccion"),
+    rango_precios: str("rango_precios"),
+    accesibilidad: str("accesibilidad"),
+    horarios: str("horarios"),
+    rating_google: num("rating_google"),
+    resenas_google: num("resenas_google"),
+    rating_doctoralia: num("rating_doctoralia"),
+    resenas_doctoralia: num("resenas_doctoralia"),
   };
 }
 

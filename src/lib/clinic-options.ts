@@ -1,6 +1,7 @@
 export const TECNICAS_DISPONIBLES = [
   "Injerto FUE",
   "Injerto DHI",
+  "Injerto FUT",
   "Injerto sin afeitado",
   "Mesoterapia capilar",
   "PRP",
