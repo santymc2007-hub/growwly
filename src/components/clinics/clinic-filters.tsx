@@ -40,10 +40,31 @@ export function ClinicFilters({
     router.push(query ? `${pathname}?${query}` : pathname);
   }
 
-  const hasActiveFilters = FIELDS.some(({ key }) => searchParams.get(key));
+  const hasActiveFilters =
+    FIELDS.some(({ key }) => searchParams.get(key)) ||
+    Boolean(searchParams.get("ubicacion"));
 
   return (
     <div className="flex flex-wrap items-center gap-3">
+      <div className="relative">
+        <select
+          value={searchParams.get("ubicacion") ?? ""}
+          onChange={(e) => updateFilter("ubicacion", e.target.value)}
+          aria-label="Ubicación"
+          className="appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30"
+        >
+          <option value="">Palma y pueblos</option>
+          <option value="palma">Solo Palma</option>
+          <option value="pueblo">Solo pueblos</option>
+        </select>
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft"
+        >
+          ⌄
+        </span>
+      </div>
+
       {FIELDS.map(({ key, label }) => (
         <div key={key} className="relative">
           <select

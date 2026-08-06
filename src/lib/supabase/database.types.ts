@@ -50,6 +50,12 @@ export interface Database {
           resenas_google: number | null;
           rating_doctoralia: number | null;
           resenas_doctoralia: number | null;
+          tipo_negocio: string | null;
+          servicios_adicionales: string[];
+          tiene_oferta: boolean;
+          detalle_oferta: string | null;
+          destacado: boolean;
+          orden: number;
           created_at: string;
           updated_at: string;
         };
@@ -82,6 +88,12 @@ export interface Database {
           resenas_google?: number | null;
           rating_doctoralia?: number | null;
           resenas_doctoralia?: number | null;
+          tipo_negocio?: string | null;
+          servicios_adicionales?: string[];
+          tiene_oferta?: boolean;
+          detalle_oferta?: string | null;
+          destacado?: boolean;
+          orden?: number;
           created_at?: string;
           updated_at?: string;
         };
@@ -114,6 +126,48 @@ export interface Database {
           resenas_google?: number | null;
           rating_doctoralia?: number | null;
           resenas_doctoralia?: number | null;
+          tipo_negocio?: string | null;
+          servicios_adicionales?: string[];
+          tiene_oferta?: boolean;
+          detalle_oferta?: string | null;
+          destacado?: boolean;
+          orden?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      profiles: {
+        Row: {
+          id: string;
+          email: string | null;
+          nombre: string | null;
+          apellidos: string | null;
+          telefono: string | null;
+          edad: number | null;
+          role: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id: string;
+          email?: string | null;
+          nombre?: string | null;
+          apellidos?: string | null;
+          telefono?: string | null;
+          edad?: number | null;
+          role?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          email?: string | null;
+          nombre?: string | null;
+          apellidos?: string | null;
+          telefono?: string | null;
+          edad?: number | null;
+          role?: string;
           created_at?: string;
           updated_at?: string;
         };
@@ -126,3 +180,4 @@ export interface Database {
 }
 
 export type Clinic = Database["public"]["Tables"]["clinics"]["Row"];
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];

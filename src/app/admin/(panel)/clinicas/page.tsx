@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { DeleteClinicButton } from "./delete-button";
+import { OrderControls } from "./order-controls";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 
 type SearchParams = { error?: string };
@@ -16,8 +17,16 @@ export default async function AdminClinicasPage({
   const { data } = await supabase
     .from("clinics")
     .select("*")
-    .order("updated_at", { ascending: false });
+    .order("destacado", { ascending: false })
+    .order("orden", { ascending: true })
+    .order("nombre", { ascending: true });
   const clinicas = data ?? [];
+
+  function groupPosition(id: string, destacado: boolean) {
+    const group = clinicas.filter((c) => c.destacado === destacado);
+    const idx = group.findIndex((c) => c.id === id);
+    return { isFirst: idx === 0, isLast: idx === group.length - 1 };
+  }
 
   return (
     <div>
@@ -47,6 +56,7 @@ export default async function AdminClinicasPage({
         <table className="w-full text-left text-sm">
           <thead className="bg-paper-dim text-ink-soft">
             <tr>
+              <th className="px-4 py-3 font-medium">Orden</th>
               <th className="px-4 py-3 font-medium">Nombre</th>
               <th className="px-4 py-3 font-medium">Ciudad</th>
               <th className="px-4 py-3 font-medium">Verificada</th>
@@ -55,39 +65,53 @@ export default async function AdminClinicasPage({
             </tr>
           </thead>
           <tbody>
-            {clinicas.map((clinic) => (
-              <tr key={clinic.id} className="border-t border-line">
-                <td className="px-4 py-3 font-medium text-ink">
-                  {clinic.nombre}
-                </td>
-                <td className="px-4 py-3 text-ink-soft">
-                  {clinic.ciudad ?? "—"}
-                </td>
-                <td className="px-4 py-3">
-                  {clinic.verificado ? (
-                    <VerifiedBadge />
-                  ) : (
-                    <span className="rounded-full bg-paper-dim px-2.5 py-1 text-xs font-medium text-ink-soft">
-                      Pendiente
-                    </span>
-                  )}
-                </td>
-                <td className="px-4 py-3 text-ink-soft">
-                  {new Date(clinic.updated_at).toLocaleDateString("es-ES")}
-                </td>
-                <td className="px-4 py-3 text-right">
-                  <div className="flex justify-end gap-3">
-                    <Link
-                      href={`/admin/clinicas/${clinic.id}/editar`}
-                      className="font-medium text-cyan hover:text-cyan-dark"
-                    >
-                      Editar
-                    </Link>
-                    <DeleteClinicButton id={clinic.id} nombre={clinic.nombre} />
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {clinicas.map((clinic) => {
+              const { isFirst, isLast } = groupPosition(
+                clinic.id,
+                clinic.destacado,
+              );
+              return (
+                <tr key={clinic.id} className="border-t border-line">
+                  <td className="px-4 py-3">
+                    <OrderControls
+                      id={clinic.id}
+                      destacado={clinic.destacado}
+                      isFirst={isFirst}
+                      isLast={isLast}
+                    />
+                  </td>
+                  <td className="px-4 py-3 font-medium text-ink">
+                    {clinic.nombre}
+                  </td>
+                  <td className="px-4 py-3 text-ink-soft">
+                    {clinic.ciudad ?? "—"}
+                  </td>
+                  <td className="px-4 py-3">
+                    {clinic.verificado ? (
+                      <VerifiedBadge />
+                    ) : (
+                      <span className="rounded-full bg-paper-dim px-2.5 py-1 text-xs font-medium text-ink-soft">
+                        Pendiente
+                      </span>
+                    )}
+                  </td>
+                  <td className="px-4 py-3 text-ink-soft">
+                    {new Date(clinic.updated_at).toLocaleDateString("es-ES")}
+                  </td>
+                  <td className="px-4 py-3 text-right">
+                    <div className="flex justify-end gap-3">
+                      <Link
+                        href={`/admin/clinicas/${clinic.id}/editar`}
+                        className="font-medium text-cyan hover:text-cyan-dark"
+                      >
+                        Editar
+                      </Link>
+                      <DeleteClinicButton id={clinic.id} nombre={clinic.nombre} />
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>

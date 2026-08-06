@@ -270,6 +270,42 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
               className={inputClass}
             />
           </div>
+          <div>
+            <label className={labelClass} htmlFor="tipo_negocio">
+              Tipo de negocio
+            </label>
+            <input
+              id="tipo_negocio"
+              name="tipo_negocio"
+              placeholder="Ej. Especializada en capilar / Estética general con capilar"
+              defaultValue={clinic?.tipo_negocio ?? undefined}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="servicios_adicionales">
+              Otros servicios (separados por coma)
+            </label>
+            <input
+              id="servicios_adicionales"
+              name="servicios_adicionales"
+              placeholder="Ej. Medicina estética facial, Cirugía plástica"
+              defaultValue={clinic?.servicios_adicionales?.join(", ") ?? undefined}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="detalle_oferta">
+              Oferta activa (déjalo vacío si no tiene)
+            </label>
+            <input
+              id="detalle_oferta"
+              name="detalle_oferta"
+              placeholder="Ej. 20% de descuento en primera sesión"
+              defaultValue={clinic?.detalle_oferta ?? undefined}
+              className={inputClass}
+            />
+          </div>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -444,6 +480,18 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
           />
           Verificada por Growwly{" "}
           <span className="text-xs text-ink-soft">(solo uso interno)</span>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="destacado"
+            defaultChecked={clinic?.destacado}
+          />
+          Destacada{" "}
+          <span className="text-xs text-ink-soft">
+            (aparece primero en el listado; también puedes marcarla desde la
+            tabla)
+          </span>
         </label>
       </section>
 

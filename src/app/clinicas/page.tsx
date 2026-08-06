@@ -2,11 +2,13 @@ import { createClient } from "@/lib/supabase/server";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { SiteHeader } from "@/components/site-header";
+import { WaveDivider } from "@/components/wave-divider";
 
 type SearchParams = {
   ciudad?: string;
   tecnica?: string;
   idioma?: string;
+  ubicacion?: string;
 };
 
 export default async function ClinicasPage({
@@ -14,12 +16,14 @@ export default async function ClinicasPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { ciudad, tecnica, idioma } = await searchParams;
+  const { ciudad, tecnica, idioma, ubicacion } = await searchParams;
 
   const supabase = await createClient();
   const { data } = await supabase
     .from("clinics")
     .select("*")
+    .order("destacado", { ascending: false })
+    .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
   const clinicas = data ?? [];
 
@@ -27,6 +31,8 @@ export default async function ClinicasPage({
     if (ciudad && c.ciudad !== ciudad) return false;
     if (tecnica && !c.tecnicas.includes(tecnica)) return false;
     if (idioma && !c.idiomas.includes(idioma)) return false;
+    if (ubicacion === "palma" && c.ciudad !== "Palma") return false;
+    if (ubicacion === "pueblo" && c.ciudad === "Palma") return false;
     return true;
   });
 
@@ -91,21 +97,5 @@ export default async function ClinicasPage({
 function uniqueSorted(values: (string | null)[]): string[] {
   return Array.from(new Set(values.filter((v): v is string => Boolean(v)))).sort(
     (a, b) => a.localeCompare(b, "es"),
-  );
-}
-
-function WaveDivider() {
-  return (
-    <svg
-      viewBox="0 0 400 12"
-      preserveAspectRatio="none"
-      className="block h-3 w-full text-paper"
-      aria-hidden
-    >
-      <path
-        d="M0 6 C 25 0, 75 12, 100 6 S 175 0, 200 6 S 275 12, 300 6 S 375 0, 400 6 V12 H0 Z"
-        fill="currentColor"
-      />
-    </svg>
   );
 }

@@ -30,6 +30,21 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
         {clinic.verificado && (
           <VerifiedBadge variant="photo" className="absolute left-3 top-3" />
         )}
+
+        {(clinic.destacado || clinic.tiene_oferta) && (
+          <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
+            {clinic.destacado && (
+              <span className="rounded-full bg-teal px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                ★ Destacada
+              </span>
+            )}
+            {clinic.tiene_oferta && (
+              <span className="rounded-full bg-cyan px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                Oferta
+              </span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-1 flex-col gap-3 p-5">
@@ -39,6 +54,11 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
           </h3>
           {ubicacion && (
             <p className="mt-0.5 text-sm text-ink-soft">{ubicacion}</p>
+          )}
+          {clinic.tipo_negocio && (
+            <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-soft/70">
+              {clinic.tipo_negocio}
+            </p>
           )}
         </div>
 

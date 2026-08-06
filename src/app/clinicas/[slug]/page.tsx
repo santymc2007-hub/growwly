@@ -126,6 +126,11 @@ export default async function ClinicaPage({
                 {clinic.nombre}
               </h1>
               {ubicacion && <p className="mt-1 text-ink-soft">{ubicacion}</p>}
+              {clinic.tipo_negocio && (
+                <p className="mt-1 text-xs uppercase tracking-wide text-ink-soft/70">
+                  {clinic.tipo_negocio}
+                </p>
+              )}
             </div>
             {clinic.verificado && <VerifiedBadge />}
           </div>
@@ -172,6 +177,24 @@ export default async function ClinicaPage({
             </section>
           )}
 
+          {clinic.servicios_adicionales.length > 0 && (
+            <section className="mt-8">
+              <h2 className="font-display text-lg text-teal-dark">
+                Otros servicios
+              </h2>
+              <div className="mt-3 flex flex-wrap gap-2">
+                {clinic.servicios_adicionales.map((servicio) => (
+                  <span
+                    key={servicio}
+                    className="rounded-full border border-line px-3 py-1 text-sm text-ink-soft"
+                  >
+                    {servicio}
+                  </span>
+                ))}
+              </div>
+            </section>
+          )}
+
           {clinic.idiomas.length > 0 && (
             <section className="mt-8">
               <h2 className="font-display text-lg text-teal-dark">
@@ -190,15 +213,22 @@ export default async function ClinicaPage({
             </section>
           )}
 
-          {(clinic.primera_consulta_gratis || clinic.financiacion) && (
-            <section className="mt-8 flex flex-wrap gap-3 text-sm text-ink-soft">
+          {(clinic.primera_consulta_gratis ||
+            clinic.financiacion ||
+            clinic.tiene_oferta) && (
+            <section className="mt-8 flex flex-wrap gap-3 text-sm">
+              {clinic.tiene_oferta && (
+                <span className="rounded-full bg-cyan px-3 py-1 font-medium text-white">
+                  {clinic.detalle_oferta || "Oferta activa"}
+                </span>
+              )}
               {clinic.primera_consulta_gratis && (
-                <span className="rounded-full border border-line px-3 py-1">
+                <span className="rounded-full border border-line px-3 py-1 text-ink-soft">
                   1ª consulta gratis
                 </span>
               )}
               {clinic.financiacion && (
-                <span className="rounded-full border border-line px-3 py-1">
+                <span className="rounded-full border border-line px-3 py-1 text-ink-soft">
                   Financiación disponible
                 </span>
               )}

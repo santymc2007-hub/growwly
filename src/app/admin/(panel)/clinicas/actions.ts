@@ -52,6 +52,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     financiacion: formData.get("financiacion") === "on",
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
     verificado: formData.get("verificado") === "on",
+    destacado: formData.get("destacado") === "on",
     direccion: str("direccion"),
     rango_precios: str("rango_precios"),
     accesibilidad: str("accesibilidad"),
@@ -60,6 +61,13 @@ function readClinicFields(formData: FormData): ClinicWrite {
     resenas_google: num("resenas_google"),
     rating_doctoralia: num("rating_doctoralia"),
     resenas_doctoralia: num("resenas_doctoralia"),
+    tipo_negocio: str("tipo_negocio"),
+    servicios_adicionales: String(formData.get("servicios_adicionales") ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean),
+    tiene_oferta: Boolean(str("detalle_oferta")),
+    detalle_oferta: str("detalle_oferta"),
   };
 }
 
@@ -174,4 +182,49 @@ export async function updateClinic(id: string, formData: FormData) {
   revalidatePath("/admin/clinicas");
   revalidatePath("/clinicas");
   redirect("/admin/clinicas");
+}
+
+export async function toggleDestacado(id: string, next: boolean) {
+  const supabase = createAdminClient();
+  const { error } = await supabase
+    .from("clinics")
+    .update({ destacado: next })
+    .eq("id", id);
+
+  if (!error) {
+    revalidatePath("/admin/clinicas");
+    revalidatePath("/clinicas");
+  }
+}
+
+export async function moveClinic(id: string, direction: "up" | "down") {
+  const supabase = createAdminClient();
+  const { data } = await supabase
+    .from("clinics")
+    .select("id, destacado")
+    .order("destacado", { ascending: false })
+    .order("orden", { ascending: true })
+    .order("nombre", { ascending: true });
+
+  const list = data ?? [];
+  const index = list.findIndex((c) => c.id === id);
+  if (index === -1) return;
+
+  const swapIndex = direction === "up" ? index - 1 : index + 1;
+  if (swapIndex < 0 || swapIndex >= list.length) return;
+  // No cruzar entre el grupo de destacadas y el resto.
+  if (list[index].destacado !== list[swapIndex].destacado) return;
+
+  [list[index], list[swapIndex]] = [list[swapIndex], list[index]];
+
+  // Reasignamos un orden secuencial a toda la lista: así el movimiento
+  // funciona siempre, aunque varias filas partieran con el mismo valor.
+  await Promise.all(
+    list.map((c, i) =>
+      supabase.from("clinics").update({ orden: i }).eq("id", c.id),
+    ),
+  );
+
+  revalidatePath("/admin/clinicas");
+  revalidatePath("/clinicas");
 }

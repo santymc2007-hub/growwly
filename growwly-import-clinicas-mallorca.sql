@@ -1,0 +1,37 @@
+-- Campos adicionales para clínicas, a partir de los datos que Santy
+-- ya tenía recopilados (dirección completa, rango de precios,
+-- accesibilidad, horarios y ratings de Google/Doctoralia).
+alter table public.clinics
+  add column if not exists direccion text,
+  add column if not exists rango_precios text,
+  add column if not exists accesibilidad text,
+  add column if not exists horarios text,
+  add column if not exists rating_google numeric(2,1),
+  add column if not exists resenas_google integer,
+  add column if not exists rating_doctoralia numeric(2,1),
+  add column if not exists resenas_doctoralia integer;
+
+comment on column public.clinics.direccion is 'Dirección postal completa';
+comment on column public.clinics.rango_precios is 'Texto libre: precios o rango de precios de los tratamientos';
+comment on column public.clinics.accesibilidad is 'Notas sobre accesibilidad del local (texto libre)';
+comment on column public.clinics.horarios is 'Horario de atención (texto libre)';
+comment on column public.clinics.rating_google is 'Nota media en Google (0.0 a 5.0)';
+comment on column public.clinics.resenas_google is 'Número de reseñas en Google';
+comment on column public.clinics.rating_doctoralia is 'Nota media en Doctoralia (0.0 a 5.0)';
+comment on column public.clinics.resenas_doctoralia is 'Número de reseñas en Doctoralia';
+-- Alta masiva de las 8 clínicas reales de Mallorca (limpiadas a partir
+-- del Excel de Santy). Pega esto en el SQL Editor de Supabase y dale a Run.
+insert into public.clinics (
+  slug, nombre, descripcion, direccion, comunidad_autonoma, provincia,
+  ciudad, zona, lat, lng, telefono, web, tecnicas, idiomas,
+  rango_precios, financiacion, accesibilidad, rating_google,
+  resenas_google, rating_doctoralia, resenas_doctoralia, horarios, verificado
+) values
+  ('clinica-capilar-nadal', 'Clínica Capilar Nadal', 'Clínica especializada en trasplante capilar y tratamientos de recuperación capilar.', 'Avinguda del Comte de Sallent, 20, Nord, 07003 Palma, Illes Balears, Spain', 'Illes Balears', 'Illes Balears', 'Palma', 'Nord', 39.5784526, 2.649904, '+34 971 72 74 58', 'https://clinicacapilarnadal.com/', '{"Injerto FUE","Injerto sin afeitado"}', '{"Español","Inglés"}', null, false, null, 4.8, 76, null, null, 'Lunes a jueves de 10:00 a 14:00 y de 15:00 a 19:00. Viernes de 10:00 a 17:00.', false),
+  ('clinica-injerto-capilar-mas-pelo-mallorca-mas-pelo-medicina-capilar-estetica', 'Clínica Injerto Capilar Más Pelo Mallorca (Mas Pelo - Medicina Capilar & Estetica)', 'Clínica especializada en Injerto Capilar y tratamientos capilares.', 'Carrer Can Pastilla, 68, Playa de Palma, 07610 Ca''n Pastilla, Balearic Islands, Spain', 'Illes Balears', 'Illes Balears', 'Palma', 'Ca''n Pastilla / Playa de Palma', 39.528481, 2.719089, '+34 622 71 23 96', 'https://clinicacapilarmallorca.com/', '{"Injerto FUE","Mesoterapia capilar"}', '{"Español"}', null, false, null, 4.9, 59, null, null, 'Cierra, abre a las 9 AM (se asume horario de Lunes a Viernes 9:00 - 17:00 o similar, se necesita verificar).', false),
+  ('unidad-de-tricologia-y-trasplante-capilar-clinica-rotger', 'Unidad de Tricología y Trasplante Capilar (Clínica Rotger)', 'Unidad de Tricología y Trasplante Capilar dentro de un hospital privado (Quirónsalud).', 'Via Roma, 3, Centre, 07012 Palma, Illes Balears, Spain (Ubicación de la Clínica Rotger, la unidad está en la Planta 2)', 'Illes Balears', 'Illes Balears', 'Palma', 'Centre', 39.5755271, 2.6473065, '+34 971 44 85 00', 'https://www.clinicarotger.com/especialidades-clinica-rotger-hospital-mallorca/unidad-de-tricologia-y-trasplante-capilar-clinica-rotger/', '{"Injerto FUE"}', '{"Español"}', null, false, 'Se asume accesibilidad de hospital (Hospital Quirónsalud).', 3.3, 1719, null, null, 'Lunes a Viernes de 8:00 a 20:00 (Horario de la Unidad de Tricología, según la web). El hospital está abierto 24 horas.', false),
+  ('centro-capilar-imd-instituto-medico-dermatologico', 'Centro capilar IMD (Instituto Médico Dermatológico)', 'Clínica especializada en Injerto Capilar y tratamientos capilares.', 'Carrer de Gilabert de Centelles, 4, entresuelo 1, Levante, 07005 Palma, Balearic Islands, Spain', 'Illes Balears', 'Illes Balears', 'Palma', 'Levante', 39.5738627, 2.6571205, '+34 911 23 07 12', 'https://imdermatologico.com/', '{"Injerto FUE","Mesoterapia capilar","PRP"}', '{"Español"}', null, true, null, 4.8, 541, null, null, 'Cierra, abre a las 10 AM (se asume horario de Lunes a Viernes 10:00 - 18:00 o similar, se necesita verificar).', false),
+  ('svenson-clinica-capilar-en-palma-de-mallorca', 'Svenson - Clínica capilar en Palma de Mallorca', 'Clínica capilar, líder en soluciones capilares.', 'Av. de Jaume III, 8, Centre, 07012 Principal, Illes Balears, Spain', 'Illes Balears', 'Illes Balears', 'Palma', 'Centre', 39.5719753, 2.6455969, '+34 971 72 48 87', 'https://www.svenson.es/centros-capilares/centro-capilar-palma-de-mallorca/', '{"Injerto FUE","Injerto FUT"}', '{"Español"}', null, false, null, 4.2, 68, null, null, 'Cierra, abre a las 9:30 AM (se asume horario de Lunes a Viernes 9:30 - 18:00 o similar, se necesita verificar).', false),
+  ('dr-jose-maria-mir-injerto-capilar-mallorca-asociado-a-tricologiamir-unidad-de-tricologia-medico-quirurgica', 'Dr José María Mir - Injerto Capilar Mallorca (Asociado a TricologiaMir | Unidad de Tricología Médico-Quirúrgica)', 'Injerto Capilar, Tricología Médico-Quirúrgica.', 'Clínica Salvà, Camí de Son Rapinya, 1, Poniente, 07013 Palma, Balearic Islands, Spain', 'Illes Balears', 'Illes Balears', 'Palma', 'Poniente / Camí de Son Rapinya', 39.5792153, 2.6259444, '+34 971 94 09 85', 'https://injertocapilarmallorca.es/', '{"Injerto FUE","Injerto DHI"}', '{"Español"}', null, false, null, 5.0, 18, null, 1, 'Cerrado ⋅ Abre 9 AM (se asume horario de Lunes a Viernes 9:00 - 18:00 o similar, se necesita verificar).', false),
+  ('asensi-hair-clinic-injerto-capilar-en-mallorca', 'Asensi Hair Clinic Injerto Capilar en Mallorca', 'Clínica de trasplante capilar, especialista en técnica FUE Long Hair (sin rasurado).', 'Carrer de la República Dominicana, 3, local 1, Poniente, 07014 Palma, Balearic Islands, Spain', 'Illes Balears', 'Illes Balears', 'Palma', 'Poniente', 39.5776316, 2.6075938, '+34 971 28 28 28', 'https://www.asensiclinic.com/', '{"Injerto FUE","Injerto sin afeitado"}', '{"Español"}', 'Precios por sesión o por tipo de intervención. Microinyecciones con dutasteride liposomado: 2.50€/sesión. Barba: 5.00€. Longhair: 5.00€. Cejas: 5.00€. Reconstructivas: 3.00€. Afro: 3.5€.', false, null, 4.4, 41, null, null, 'Cerrado ⋅ Abre 9 AM (se asume horario de Lunes a Viernes 9:00 - 18:00 o similar, se necesita verificar).', false),
+  ('juaneda-plastica-y-estetica-mallorca-unidad-de-cirugia-plastica-reparadora-y-estetica-dentro-de-clinica-juaneda', 'Juaneda plástica y estética Mallorca (Unidad de Cirugía Plástica, Reparadora y Estética dentro de Clínica Juaneda)', 'Cirugía Plástica, Reparadora y Estética. Ofrecen trasplantes capilares.', 'Carrer Company, 30, Poniente, 07014 Palma, Balearic Islands, Spain (Dirección de Clínica Juaneda)', 'Illes Balears', 'Illes Balears', 'Palma', 'Poniente', 39.5773284, 2.6272001, '+34 971 73 16 47', 'https://www.juaneda.es/plastica-y-estetica/', '{"Injerto FUE","Injerto FUT"}', '{"Español"}', null, false, null, 4.4, 2185, 4.4, 231, 'Abierto 24 horas (Clínica Juaneda).', false);
