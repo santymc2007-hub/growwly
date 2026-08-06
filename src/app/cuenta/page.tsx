@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
@@ -26,6 +27,12 @@ export default async function CuentaPage({
     .select("*")
     .eq("id", user.id)
     .maybeSingle();
+
+  const { data: estudios } = await supabase
+    .from("estudios_capilares")
+    .select("id, estado, norwood_estimado, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
 
   return (
     <main className="flex-1">
@@ -56,7 +63,53 @@ export default async function CuentaPage({
           </p>
         )}
 
-        <form action={actualizarPerfil} className="mt-8 flex flex-col gap-4">
+        <section className="mt-8 rounded-xl border border-line bg-white p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-lg text-teal-dark">
+              Mi análisis capilar
+            </h2>
+            <Link
+              href="/cuenta/analisis/nuevo"
+              className="rounded-lg bg-teal px-3 py-1.5 text-xs font-medium text-paper hover:bg-teal-dark"
+            >
+              + Nuevo análisis
+            </Link>
+          </div>
+
+          {estudios && estudios.length > 0 ? (
+            <ul className="mt-4 flex flex-col gap-2">
+              {estudios.map((e) => (
+                <li key={e.id}>
+                  <Link
+                    href={`/cuenta/analisis/${e.id}`}
+                    className="flex items-center justify-between rounded-lg border border-line px-3 py-2 text-sm hover:border-teal/40"
+                  >
+                    <span className="text-ink">
+                      {new Date(e.created_at).toLocaleDateString("es-ES")}
+                      {e.norwood_estimado && ` · ${e.norwood_estimado}`}
+                    </span>
+                    <span className="text-xs text-ink-soft">
+                      {e.estado === "listo"
+                        ? "Ver resultado →"
+                        : e.estado === "procesando"
+                          ? "Procesando…"
+                          : "Error"}
+                    </span>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-ink-soft">
+              Todavía no has subido fotos para un análisis orientativo.
+            </p>
+          )}
+        </section>
+
+        <h2 className="mt-8 font-display text-lg text-teal-dark">
+          Mis datos
+        </h2>
+        <form action={actualizarPerfil} className="mt-4 flex flex-col gap-4">
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label

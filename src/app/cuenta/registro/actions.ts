@@ -25,6 +25,7 @@ export async function registrarPaciente(formData: FormData) {
   }
 
   const supabase = await createClient();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -35,6 +36,7 @@ export async function registrarPaciente(formData: FormData) {
         telefono,
         edad: edadRaw,
       },
+      ...(siteUrl && { emailRedirectTo: `${siteUrl}/auth/callback` }),
     },
   });
 
