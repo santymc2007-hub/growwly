@@ -72,7 +72,30 @@ export default async function HomePage() {
         <WaveDivider />
       </section>
 
-      <section className="mx-auto max-w-3xl px-6 py-14 text-center">
+      <section className="mx-auto max-w-3xl px-6 py-14">
+        <div className="flex flex-col items-center gap-4 rounded-2xl border border-line bg-sage/40 px-6 py-10 text-center sm:px-12">
+          <span className="rounded-full bg-cyan px-3 py-1 text-xs font-medium text-white">
+            Gratis · 2 minutos
+          </span>
+          <h2 className="font-display text-2xl text-teal-dark sm:text-3xl">
+            ¿No sabes por dónde empezar?
+          </h2>
+          <p className="max-w-md text-sm text-ink-soft">
+            Sube 5 fotos de tu cabello (frontal, coronilla, nuca y ambos
+            perfiles) y recibe una primera impresión orientativa en
+            minutos — no es un diagnóstico, pero te ayuda a entender qué
+            clínicas encajan con tu caso.
+          </p>
+          <Link
+            href="/cuenta/analisis/nuevo"
+            className="mt-2 inline-block rounded-lg bg-cyan px-6 py-3 text-sm font-medium text-white transition hover:bg-cyan-dark"
+          >
+            Analizar mis fotos →
+          </Link>
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-3xl px-6 pb-14 text-center">
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
           <div>
             <p className="font-display text-2xl text-teal-dark">

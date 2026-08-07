@@ -94,7 +94,7 @@ export async function crearEstudio(formData: FormData) {
 
     const resultado = await analizarFotosCapilares(fotosParaAnalizar);
 
-    await supabase
+    const { error: updateError } = await supabase
       .from("estudios_capilares")
       .update({
         resultado_texto: resultado.resultado_texto,
@@ -103,6 +103,8 @@ export async function crearEstudio(formData: FormData) {
         estado: "listo",
       })
       .eq("id", estudio.id);
+
+    if (updateError) throw updateError;
   } catch {
     await supabase
       .from("estudios_capilares")
