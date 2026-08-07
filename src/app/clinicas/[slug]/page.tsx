@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getSocialLinks } from "@/lib/social-links";
+import { formatearPrecio } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { SiteHeader } from "@/components/site-header";
 
@@ -307,14 +308,27 @@ export default async function ClinicaPage({
             </>
           )}
 
-          {clinic.rango_precios && (
+          {(clinic.precio_desde !== null ||
+            clinic.precio_hasta !== null ||
+            clinic.rango_precios) && (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
                 Precios
               </h2>
-              <p className="mt-2 text-sm text-ink-soft">
-                {clinic.rango_precios}
-              </p>
+              {(clinic.precio_desde !== null || clinic.precio_hasta !== null) && (
+                <p className="mt-2 text-sm font-medium text-ink">
+                  {clinic.precio_desde !== null && clinic.precio_hasta !== null
+                    ? `${formatearPrecio(clinic.precio_desde)} - ${formatearPrecio(clinic.precio_hasta)}`
+                    : clinic.precio_desde !== null
+                      ? `Desde ${formatearPrecio(clinic.precio_desde)}`
+                      : `Hasta ${formatearPrecio(clinic.precio_hasta!)}`}
+                </p>
+              )}
+              {clinic.rango_precios && (
+                <p className="mt-1 text-sm text-ink-soft">
+                  {clinic.rango_precios}
+                </p>
+              )}
             </>
           )}
 

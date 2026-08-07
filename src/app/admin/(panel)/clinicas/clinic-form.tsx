@@ -1,5 +1,10 @@
 import Image from "next/image";
-import { TECNICAS_DISPONIBLES, IDIOMAS_DISPONIBLES } from "@/lib/clinic-options";
+import {
+  TECNICAS_DISPONIBLES,
+  IDIOMAS_DISPONIBLES,
+  PRECIO_OPCIONES,
+  formatearPrecio,
+} from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
 
@@ -238,8 +243,59 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
         <h2 className="font-display text-lg text-teal-dark">Otros datos</h2>
         <div className="mt-4 grid gap-4">
           <div>
+            <label className={labelClass}>Rango de precios</label>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label
+                  htmlFor="precio_desde"
+                  className="block text-xs text-ink-soft"
+                >
+                  Desde
+                </label>
+                <select
+                  id="precio_desde"
+                  name="precio_desde"
+                  defaultValue={clinic?.precio_desde ?? ""}
+                  className={inputClass}
+                >
+                  <option value="">Sin especificar</option>
+                  {PRECIO_OPCIONES.map((valor) => (
+                    <option key={valor} value={valor}>
+                      {formatearPrecio(valor)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div>
+                <label
+                  htmlFor="precio_hasta"
+                  className="block text-xs text-ink-soft"
+                >
+                  Hasta
+                </label>
+                <select
+                  id="precio_hasta"
+                  name="precio_hasta"
+                  defaultValue={clinic?.precio_hasta ?? ""}
+                  className={inputClass}
+                >
+                  <option value="">Sin especificar</option>
+                  {PRECIO_OPCIONES.map((valor) => (
+                    <option key={valor} value={valor}>
+                      {formatearPrecio(valor)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+          <div>
             <label className={labelClass} htmlFor="rango_precios">
-              Rango de precios
+              Notas de precio{" "}
+              <span className="text-xs text-ink-soft">
+                (opcional — para casos que no encajan en un rango simple, ej.
+                "precio por sesión")
+              </span>
             </label>
             <input
               id="rango_precios"

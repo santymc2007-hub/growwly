@@ -44,6 +44,8 @@ export interface Database {
           verificado: boolean;
           direccion: string | null;
           rango_precios: string | null;
+          precio_desde: number | null;
+          precio_hasta: number | null;
           accesibilidad: string | null;
           horarios: string | null;
           rating_google: number | null;
@@ -82,6 +84,8 @@ export interface Database {
           verificado?: boolean;
           direccion?: string | null;
           rango_precios?: string | null;
+          precio_desde?: number | null;
+          precio_hasta?: number | null;
           accesibilidad?: string | null;
           horarios?: string | null;
           rating_google?: number | null;
@@ -120,6 +124,8 @@ export interface Database {
           verificado?: boolean;
           direccion?: string | null;
           rango_precios?: string | null;
+          precio_desde?: number | null;
+          precio_hasta?: number | null;
           accesibilidad?: string | null;
           horarios?: string | null;
           rating_google?: number | null;

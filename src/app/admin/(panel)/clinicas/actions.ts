@@ -55,6 +55,8 @@ function readClinicFields(formData: FormData): ClinicWrite {
     destacado: formData.get("destacado") === "on",
     direccion: str("direccion"),
     rango_precios: str("rango_precios"),
+    precio_desde: num("precio_desde"),
+    precio_hasta: num("precio_hasta"),
     accesibilidad: str("accesibilidad"),
     horarios: str("horarios"),
     rating_google: num("rating_google"),
