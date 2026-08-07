@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { actualizarPerfil, cerrarSesionPaciente } from "./actions";
+import { BorrarEstudioButton } from "./analisis/[id]/borrar-estudio-button";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -79,10 +80,13 @@ export default async function CuentaPage({
           {estudios && estudios.length > 0 ? (
             <ul className="mt-4 flex flex-col gap-2">
               {estudios.map((e) => (
-                <li key={e.id}>
+                <li
+                  key={e.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-sm"
+                >
                   <Link
                     href={`/cuenta/analisis/${e.id}`}
-                    className="flex items-center justify-between rounded-lg border border-line px-3 py-2 text-sm hover:border-teal/40"
+                    className="flex flex-1 items-center justify-between hover:text-teal"
                   >
                     <span className="text-ink">
                       {new Date(e.created_at).toLocaleDateString("es-ES")}
@@ -96,6 +100,7 @@ export default async function CuentaPage({
                           : "Error"}
                     </span>
                   </Link>
+                  <BorrarEstudioButton id={e.id} />
                 </li>
               ))}
             </ul>

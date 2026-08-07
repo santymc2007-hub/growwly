@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { SiteHeader } from "@/components/site-header";
+import { BorrarEstudioButton } from "./borrar-estudio-button";
 
 type Params = { id: string };
 
@@ -48,9 +49,12 @@ export default async function ResultadoAnalisisPage({
           ← Volver a mi cuenta
         </Link>
 
-        <h1 className="mt-4 font-display text-2xl text-teal-dark">
-          Tu análisis orientativo
-        </h1>
+        <div className="mt-4 flex items-center justify-between">
+          <h1 className="font-display text-2xl text-teal-dark">
+            Tu análisis orientativo
+          </h1>
+          <BorrarEstudioButton id={estudio.id} />
+        </div>
 
         {estudio.estado === "procesando" && (
           <div className="mt-6 rounded-xl border border-line bg-white p-6 text-center">
@@ -65,6 +69,11 @@ export default async function ResultadoAnalisisPage({
             <p className="text-sm text-error-dark">
               No hemos podido completar el análisis esta vez.
             </p>
+            {estudio.error_detalle && (
+              <p className="mt-2 rounded-lg bg-paper-dim px-3 py-2 text-xs text-ink-soft">
+                {estudio.error_detalle}
+              </p>
+            )}
             <Link
               href="/cuenta/analisis/nuevo"
               className="mt-3 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"

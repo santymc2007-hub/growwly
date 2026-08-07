@@ -1,16 +1,17 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
-import { subirFotoEstudio } from "@/lib/supabase/estudios-storage";
+import { subirFotoEstudio, borrarFotosEstudio } from "@/lib/supabase/estudios-storage";
 import { analizarFotosCapilares } from "@/lib/ai/analizar-fotos";
 
 const ANGULOS = [
-  "frontal",
-  "donante",
-  "coronilla",
-  "perfil_derecho",
-  "perfil_izquierdo",
+  { key: "frontal", etiqueta: "Vista frontal" },
+  { key: "donante", etiqueta: "Zona donante / nuca" },
+  { key: "coronilla", etiqueta: "Coronilla" },
+  { key: "perfil_derecho", etiqueta: "Perfil derecho" },
+  { key: "perfil_izquierdo", etiqueta: "Perfil izquierdo" },
 ] as const;
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
@@ -27,29 +28,41 @@ export async function crearEstudio(formData: FormData) {
     redirect("/cuenta/login");
   }
 
-  const archivos: Record<(typeof ANGULOS)[number], File> = {} as never;
-  for (const angulo of ANGULOS) {
-    const file = formData.get(angulo);
-    if (!isRealFile(file)) {
-      redirect(
-        `/cuenta/analisis/nuevo?error=${encodeURIComponent(
-          "Sube las 5 fotos — todas hacen falta para el análisis.",
-        )}`,
-      );
-    }
-    archivos[angulo] = file;
+  // Las 5 fotos guiadas son opcionales; se sube la que se haya rellenado.
+  const archivosAngulo = ANGULOS.map(({ key, etiqueta }) => {
+    const file = formData.get(key);
+    return isRealFile(file) ? { key, etiqueta, file } : null;
+  }).filter((f): f is NonNullable<typeof f> => f !== null);
+
+  const archivosAdicionales = formData.getAll("adicionales").filter(isRealFile);
+
+  if (archivosAngulo.length === 0 && archivosAdicionales.length === 0) {
+    redirect(
+      `/cuenta/analisis/nuevo?error=${encodeURIComponent(
+        "Sube al menos una foto para poder analizarla.",
+      )}`,
+    );
   }
 
-  // Subir las 5 fotos en paralelo
-  let rutas: Record<(typeof ANGULOS)[number], string>;
+  // Subir todas las fotos en paralelo
+  let rutasAngulo: Record<string, string>;
+  let rutasAdicionales: string[];
   try {
-    const entradas = await Promise.all(
-      ANGULOS.map(async (angulo) => [
-        angulo,
-        await subirFotoEstudio(supabase, user.id, angulo, archivos[angulo]),
-      ] as const),
-    );
-    rutas = Object.fromEntries(entradas) as typeof rutas;
+    const [entradasAngulo, entradasAdicionales] = await Promise.all([
+      Promise.all(
+        archivosAngulo.map(async ({ key, file }) => [
+          key,
+          await subirFotoEstudio(supabase, user.id, key, file),
+        ] as const),
+      ),
+      Promise.all(
+        archivosAdicionales.map((file, i) =>
+          subirFotoEstudio(supabase, user.id, `adicional-${i}`, file),
+        ),
+      ),
+    ]);
+    rutasAngulo = Object.fromEntries(entradasAngulo);
+    rutasAdicionales = entradasAdicionales;
   } catch (e) {
     redirect(
       `/cuenta/analisis/nuevo?error=${encodeURIComponent(
@@ -62,11 +75,12 @@ export async function crearEstudio(formData: FormData) {
     .from("estudios_capilares")
     .insert({
       user_id: user.id,
-      foto_frontal: rutas.frontal,
-      foto_donante: rutas.donante,
-      foto_coronilla: rutas.coronilla,
-      foto_perfil_derecho: rutas.perfil_derecho,
-      foto_perfil_izquierdo: rutas.perfil_izquierdo,
+      foto_frontal: rutasAngulo.frontal ?? null,
+      foto_donante: rutasAngulo.donante ?? null,
+      foto_coronilla: rutasAngulo.coronilla ?? null,
+      foto_perfil_derecho: rutasAngulo.perfil_derecho ?? null,
+      foto_perfil_izquierdo: rutasAngulo.perfil_izquierdo ?? null,
+      fotos_adicionales: rutasAdicionales,
       estado: "procesando",
     })
     .select()
@@ -81,16 +95,24 @@ export async function crearEstudio(formData: FormData) {
   }
 
   try {
-    const fotosParaAnalizar = await Promise.all(
-      ANGULOS.map(async (angulo) => {
-        const buffer = Buffer.from(await archivos[angulo].arrayBuffer());
+    const fotosParaAnalizar = await Promise.all([
+      ...archivosAngulo.map(async ({ etiqueta, file }) => {
+        const buffer = Buffer.from(await file.arrayBuffer());
         return {
-          angulo,
+          etiqueta,
           base64: buffer.toString("base64"),
-          mediaType: archivos[angulo].type || "image/jpeg",
+          mediaType: file.type || "image/jpeg",
         };
       }),
-    );
+      ...archivosAdicionales.map(async (file, i) => {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        return {
+          etiqueta: `Foto adicional ${i + 1}`,
+          base64: buffer.toString("base64"),
+          mediaType: file.type || "image/jpeg",
+        };
+      }),
+    ]);
 
     const resultado = await analizarFotosCapilares(fotosParaAnalizar);
 
@@ -105,12 +127,55 @@ export async function crearEstudio(formData: FormData) {
       .eq("id", estudio.id);
 
     if (updateError) throw updateError;
-  } catch {
+  } catch (e) {
     await supabase
       .from("estudios_capilares")
-      .update({ estado: "error" })
+      .update({
+        estado: "error",
+        error_detalle: e instanceof Error ? e.message : String(e),
+      })
       .eq("id", estudio.id);
   }
 
   redirect(`/cuenta/analisis/${estudio.id}`);
+}
+
+export async function borrarEstudio(id: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/cuenta/login");
+  }
+
+  const { data: estudio } = await supabase
+    .from("estudios_capilares")
+    .select(
+      "foto_frontal, foto_donante, foto_coronilla, foto_perfil_derecho, foto_perfil_izquierdo, fotos_adicionales",
+    )
+    .eq("id", id)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  await supabase
+    .from("estudios_capilares")
+    .delete()
+    .eq("id", id)
+    .eq("user_id", user.id);
+
+  if (estudio) {
+    await borrarFotosEstudio(supabase, [
+      estudio.foto_frontal,
+      estudio.foto_donante,
+      estudio.foto_coronilla,
+      estudio.foto_perfil_derecho,
+      estudio.foto_perfil_izquierdo,
+      ...estudio.fotos_adicionales,
+    ]);
+  }
+
+  revalidatePath("/cuenta");
+  redirect("/cuenta");
 }

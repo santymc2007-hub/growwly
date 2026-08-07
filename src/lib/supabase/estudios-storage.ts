@@ -40,3 +40,14 @@ export async function urlFirmadaFoto(
     .createSignedUrl(path, 3600);
   return data?.signedUrl ?? null;
 }
+
+/** Borra del bucket privado las rutas de fotos indicadas (ignora nulos). */
+export async function borrarFotosEstudio(
+  supabase: SupabaseClient<Database>,
+  rutas: Array<string | null | undefined>,
+): Promise<void> {
+  const paths = rutas.filter((r): r is string => Boolean(r));
+  if (paths.length > 0) {
+    await supabase.storage.from(BUCKET).remove(paths);
+  }
+}

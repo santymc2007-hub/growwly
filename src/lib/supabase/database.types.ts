@@ -186,6 +186,8 @@ export interface Database {
           norwood_estimado: string | null;
           es_alopecia_tratable: boolean | null;
           estado: string;
+          fotos_adicionales: string[];
+          error_detalle: string | null;
           created_at: string;
         };
         Insert: {
@@ -200,6 +202,8 @@ export interface Database {
           norwood_estimado?: string | null;
           es_alopecia_tratable?: boolean | null;
           estado?: string;
+          fotos_adicionales?: string[];
+          error_detalle?: string | null;
           created_at?: string;
         };
         Update: {
@@ -214,6 +218,8 @@ export interface Database {
           norwood_estimado?: string | null;
           es_alopecia_tratable?: boolean | null;
           estado?: string;
+          fotos_adicionales?: string[];
+          error_detalle?: string | null;
           created_at?: string;
         };
         Relationships: [];
