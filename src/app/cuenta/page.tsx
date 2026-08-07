@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { actualizarPerfil, cerrarSesionPaciente } from "./actions";
 import { BorrarEstudioButton } from "./analisis/[id]/borrar-estudio-button";
+import { BorrarSolicitudButton } from "./solicitud/[id]/borrar-solicitud-button";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -32,6 +33,12 @@ export default async function CuentaPage({
   const { data: estudios } = await supabase
     .from("estudios_capilares")
     .select("id, estado, norwood_estimado, created_at")
+    .eq("user_id", user.id)
+    .order("created_at", { ascending: false });
+
+  const { data: solicitudes } = await supabase
+    .from("solicitudes_presupuesto")
+    .select("id, estado, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -107,6 +114,48 @@ export default async function CuentaPage({
           ) : (
             <p className="mt-3 text-sm text-ink-soft">
               Todavía no has subido fotos para un análisis orientativo.
+            </p>
+          )}
+        </section>
+
+        <section className="mt-6 rounded-xl border border-line bg-white p-5">
+          <div className="flex items-center justify-between">
+            <h2 className="font-display text-lg text-teal-dark">
+              Mis solicitudes de presupuesto
+            </h2>
+            <Link
+              href="/cuenta/solicitud/nueva"
+              className="rounded-lg bg-cyan px-3 py-1.5 text-xs font-medium text-white hover:bg-cyan-dark"
+            >
+              + Pedir presupuesto
+            </Link>
+          </div>
+
+          {solicitudes && solicitudes.length > 0 ? (
+            <ul className="mt-4 flex flex-col gap-2">
+              {solicitudes.map((s) => (
+                <li
+                  key={s.id}
+                  className="flex items-center justify-between gap-3 rounded-lg border border-line px-3 py-2 text-sm"
+                >
+                  <Link
+                    href={`/cuenta/solicitud/${s.id}`}
+                    className="flex flex-1 items-center justify-between hover:text-teal"
+                  >
+                    <span className="text-ink">
+                      {new Date(s.created_at).toLocaleDateString("es-ES")}
+                    </span>
+                    <span className="text-xs capitalize text-ink-soft">
+                      {s.estado}
+                    </span>
+                  </Link>
+                  <BorrarSolicitudButton id={s.id} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="mt-3 text-sm text-ink-soft">
+              Todavía no has pedido presupuesto a ninguna clínica.
             </p>
           )}
         </section>

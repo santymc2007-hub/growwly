@@ -117,15 +117,14 @@ export default async function ResultadoAnalisisPage({
               <div className="rounded-xl bg-teal p-5 text-paper">
                 <p className="font-display text-lg">¿Quieres presupuesto?</p>
                 <p className="mt-1 text-sm text-paper/85">
-                  Muy pronto podrás pedir presupuesto directo a nuestras
-                  clínicas desde aquí. Mientras tanto, échale un vistazo al
-                  directorio.
+                  Pide presupuesto directo a nuestras clínicas — tardas menos
+                  de 2 minutos.
                 </p>
                 <Link
-                  href="/clinicas"
+                  href="/cuenta/solicitud/nueva"
                   className="mt-4 inline-block rounded-lg bg-white px-4 py-2 text-sm font-medium text-teal-dark hover:bg-paper-dim"
                 >
-                  Ver clínicas →
+                  Pedir presupuesto →
                 </Link>
               </div>
             ) : (
