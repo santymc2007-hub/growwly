@@ -173,6 +173,51 @@ export interface Database {
         };
         Relationships: [];
       };
+      estudios_capilares: {
+        Row: {
+          id: string;
+          user_id: string;
+          foto_frontal: string | null;
+          foto_donante: string | null;
+          foto_coronilla: string | null;
+          foto_perfil_derecho: string | null;
+          foto_perfil_izquierdo: string | null;
+          resultado_texto: string | null;
+          norwood_estimado: string | null;
+          es_alopecia_tratable: boolean | null;
+          estado: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          foto_frontal?: string | null;
+          foto_donante?: string | null;
+          foto_coronilla?: string | null;
+          foto_perfil_derecho?: string | null;
+          foto_perfil_izquierdo?: string | null;
+          resultado_texto?: string | null;
+          norwood_estimado?: string | null;
+          es_alopecia_tratable?: boolean | null;
+          estado?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          foto_frontal?: string | null;
+          foto_donante?: string | null;
+          foto_coronilla?: string | null;
+          foto_perfil_derecho?: string | null;
+          foto_perfil_izquierdo?: string | null;
+          resultado_texto?: string | null;
+          norwood_estimado?: string | null;
+          es_alopecia_tratable?: boolean | null;
+          estado?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -181,3 +226,5 @@ export interface Database {
 
 export type Clinic = Database["public"]["Tables"]["clinics"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type EstudioCapilar =
+  Database["public"]["Tables"]["estudios_capilares"]["Row"];
