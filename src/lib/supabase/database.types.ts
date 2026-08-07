@@ -244,6 +244,8 @@ export interface Database {
           consentimiento_datos_en: string | null;
           consentimiento_compartir_en: string | null;
           estado: string;
+          clinicas_notificadas: number | null;
+          notificacion_error: string | null;
           created_at: string;
         };
         Insert: {
@@ -262,6 +264,8 @@ export interface Database {
           consentimiento_datos_en?: string | null;
           consentimiento_compartir_en?: string | null;
           estado?: string;
+          clinicas_notificadas?: number | null;
+          notificacion_error?: string | null;
           created_at?: string;
         };
         Update: {
@@ -280,6 +284,8 @@ export interface Database {
           consentimiento_datos_en?: string | null;
           consentimiento_compartir_en?: string | null;
           estado?: string;
+          clinicas_notificadas?: number | null;
+          notificacion_error?: string | null;
           created_at?: string;
         };
         Relationships: [];

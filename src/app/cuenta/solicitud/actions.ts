@@ -63,12 +63,33 @@ export async function crearSolicitud(
     return { error: error?.message ?? "No se pudo crear la solicitud." };
   }
 
+  const supabaseAdmin = createAdminClient();
   try {
-    const supabaseAdmin = createAdminClient();
-    await notificarClinicasDeSolicitud(supabaseAdmin, solicitud.id);
-  } catch {
+    const { candidatas, notificadas, ultimoError } =
+      await notificarClinicasDeSolicitud(supabaseAdmin, solicitud.id);
+    await supabaseAdmin
+      .from("solicitudes_presupuesto")
+      .update({
+        clinicas_notificadas: notificadas,
+        notificacion_error:
+          notificadas === 0 && candidatas > 0
+            ? (ultimoError ?? "Había clínicas candidatas pero ninguna se pudo avisar.")
+            : notificadas === 0 && candidatas === 0
+              ? "No se encontró ninguna clínica que encajara con esa ciudad/técnica."
+              : null,
+      })
+      .eq("id", solicitud.id);
+  } catch (e) {
     // No bloqueamos al paciente si falla el aviso a las clínicas — la
-    // solicitud ya está guardada y se puede reintentar el aviso luego.
+    // solicitud ya está guardada. Guardamos el motivo para poder
+    // diagnosticarlo sin bucear en logs.
+    await supabaseAdmin
+      .from("solicitudes_presupuesto")
+      .update({
+        clinicas_notificadas: 0,
+        notificacion_error: e instanceof Error ? e.message : String(e),
+      })
+      .eq("id", solicitud.id);
   }
 
   return { id: solicitud.id };

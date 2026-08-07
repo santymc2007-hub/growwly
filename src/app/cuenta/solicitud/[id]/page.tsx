@@ -68,12 +68,22 @@ export default async function SolicitudDetallePage({
 
         <div className="mt-4 rounded-xl bg-sage p-5">
           <p className="font-display text-lg text-sage-ink">
-            ¡Solicitud recibida!
+            ¡Solicitud enviada!
           </p>
           <p className="mt-1 text-sm text-sage-ink">
-            Muy pronto la haremos llegar a las clínicas que mejor encajen
-            con lo que buscas. Te avisaremos cuando tengas propuestas.
+            {solicitud.clinicas_notificadas === null
+              ? "La estamos haciendo llegar a las clínicas que mejor encajen con lo que buscas."
+              : solicitud.clinicas_notificadas > 0
+                ? `Se la hemos hecho llegar a ${solicitud.clinicas_notificadas} ${
+                    solicitud.clinicas_notificadas === 1 ? "clínica" : "clínicas"
+                  }. Te avisaremos cuando tengas propuestas.`
+                : "No hemos encontrado clínicas que encajen exactamente con esa ciudad o técnica todavía — puedes revisar tu solicitud o ampliar tus preferencias."}
           </p>
+          {solicitud.notificacion_error && (
+            <p className="mt-2 rounded-lg bg-white/60 px-3 py-2 text-xs text-sage-ink">
+              Detalle técnico: {solicitud.notificacion_error}
+            </p>
+          )}
         </div>
 
         <div className="mt-6 flex items-center justify-between">

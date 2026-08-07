@@ -31,14 +31,16 @@ const PRESUPUESTO_LABEL: Record<string, string> = {
 export async function notificarClinicasDeSolicitud(
   supabaseAdmin: SupabaseClient<Database>,
   solicitudId: string,
-): Promise<{ notificadas: number }> {
+): Promise<{ candidatas: number; notificadas: number; ultimoError: string | null }> {
   const { data: solicitud } = await supabaseAdmin
     .from("solicitudes_presupuesto")
     .select("*")
     .eq("id", solicitudId)
     .maybeSingle();
 
-  if (!solicitud) return { notificadas: 0 };
+  if (!solicitud) {
+    return { candidatas: 0, notificadas: 0, ultimoError: "Solicitud no encontrada" };
+  }
 
   let resumenIA: string | null = null;
   if (solicitud.estudio_id) {
@@ -56,7 +58,7 @@ export async function notificarClinicasDeSolicitud(
     .not("email", "is", null);
 
   if (solicitud.donde_tratamiento === "solo_ciudad" && solicitud.ciudad) {
-    query = query.eq("ciudad", solicitud.ciudad);
+    query = query.ilike("ciudad", solicitud.ciudad.trim());
   }
 
   if (!solicitud.dejar_decidir_medico && solicitud.tratamientos_interes.length > 0) {
@@ -66,7 +68,9 @@ export async function notificarClinicasDeSolicitud(
   const { data: clinicas } = await query;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
+  const candidatas = (clinicas ?? []).filter((c) => c.email).length;
   let notificadas = 0;
+  let ultimoError: string | null = null;
 
   for (const clinica of clinicas ?? []) {
     if (!clinica.email) continue;
@@ -109,12 +113,14 @@ export async function notificarClinicasDeSolicitud(
         html,
       });
       notificadas++;
-    } catch {
-      // Si falla el envío a una clínica en concreto, seguimos con el resto.
+    } catch (e) {
+      // Si falla el envío a una clínica en concreto, seguimos con el
+      // resto, pero guardamos el motivo para poder diagnosticarlo.
+      ultimoError = e instanceof Error ? e.message : String(e);
     }
   }
 
-  return { notificadas };
+  return { candidatas, notificadas, ultimoError };
 }
 
 function construirHtmlEmail(datos: {
