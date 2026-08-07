@@ -176,7 +176,8 @@ export interface Database {
       estudios_capilares: {
         Row: {
           id: string;
-          user_id: string;
+          user_id: string | null;
+          claim_token: string;
           foto_frontal: string | null;
           foto_donante: string | null;
           foto_coronilla: string | null;
@@ -192,7 +193,8 @@ export interface Database {
         };
         Insert: {
           id?: string;
-          user_id: string;
+          user_id?: string | null;
+          claim_token?: string;
           foto_frontal?: string | null;
           foto_donante?: string | null;
           foto_coronilla?: string | null;
@@ -208,7 +210,8 @@ export interface Database {
         };
         Update: {
           id?: string;
-          user_id?: string;
+          user_id?: string | null;
+          claim_token?: string;
           foto_frontal?: string | null;
           foto_donante?: string | null;
           foto_coronilla?: string | null;

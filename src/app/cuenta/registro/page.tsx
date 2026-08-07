@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { registrarPaciente } from "./actions";
 
-type SearchParams = { error?: string };
+type SearchParams = { error?: string; claim?: string };
 
 export default async function RegistroPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { error } = await searchParams;
+  const { error, claim } = await searchParams;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-12">
@@ -19,10 +19,13 @@ export default async function RegistroPage({
         Crea tu cuenta
       </h1>
       <p className="mt-1 text-sm text-ink-soft">
-        Para guardar tu análisis y pedir presupuesto a clínicas.
+        {claim
+          ? "Un último paso para ver tu análisis capilar."
+          : "Para guardar tu análisis y pedir presupuesto a clínicas."}
       </p>
 
       <form action={registrarPaciente} className="mt-8 flex flex-col gap-4">
+        {claim && <input type="hidden" name="claim" value={claim} />}
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label htmlFor="nombre" className="text-sm font-medium text-ink">
@@ -135,7 +138,10 @@ export default async function RegistroPage({
 
       <p className="mt-6 text-center text-sm text-ink-soft">
         ¿Ya tienes cuenta?{" "}
-        <Link href="/cuenta/login" className="font-medium text-cyan hover:text-cyan-dark">
+        <Link
+          href={claim ? `/cuenta/login?claim=${claim}` : "/cuenta/login"}
+          className="font-medium text-cyan hover:text-cyan-dark"
+        >
           Inicia sesión
         </Link>
       </p>

@@ -345,7 +345,7 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                 pero ayudan mucho a que las clínicas valoren tu caso.
               </p>
               <a
-                href="/cuenta/analisis/nuevo"
+                href="/analisis/nuevo"
                 className="mt-2 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
               >
                 Subir fotos ahora →

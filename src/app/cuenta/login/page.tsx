@@ -1,14 +1,14 @@
 import Link from "next/link";
 import { iniciarSesionPaciente } from "./actions";
 
-type SearchParams = { error?: string };
+type SearchParams = { error?: string; claim?: string };
 
 export default async function CuentaLoginPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { error } = await searchParams;
+  const { error, claim } = await searchParams;
 
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
@@ -18,11 +18,17 @@ export default async function CuentaLoginPage({
       <h1 className="mt-2 font-display text-2xl text-teal-dark">
         Inicia sesión
       </h1>
+      {claim && (
+        <p className="mt-1 text-sm text-ink-soft">
+          Un último paso para ver tu análisis capilar.
+        </p>
+      )}
 
       <form
         action={iniciarSesionPaciente}
         className="mt-8 flex flex-col gap-4"
       >
+        {claim && <input type="hidden" name="claim" value={claim} />}
         <div>
           <label htmlFor="email" className="text-sm font-medium text-ink">
             Email
@@ -66,7 +72,7 @@ export default async function CuentaLoginPage({
       <p className="mt-6 text-center text-sm text-ink-soft">
         ¿Todavía no tienes cuenta?{" "}
         <Link
-          href="/cuenta/registro"
+          href={claim ? `/cuenta/registro?claim=${claim}` : "/cuenta/registro"}
           className="font-medium text-cyan hover:text-cyan-dark"
         >
           Regístrate

@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { SiteHeader } from "@/components/site-header";
 import { BorrarEstudioButton } from "./borrar-estudio-button";
@@ -35,7 +36,13 @@ export default async function ResultadoAnalisisPage({
     notFound();
   }
 
-  const fotoFrontalUrl = await urlFirmadaFoto(supabase, estudio.foto_frontal);
+  // Las fotos viven en una carpeta por token de estudio, no por user_id,
+  // así que para la URL firmada usamos el cliente admin (la comprobación
+  // de que este estudio es suyo ya se hizo arriba).
+  const fotoFrontalUrl = await urlFirmadaFoto(
+    createAdminClient(),
+    estudio.foto_frontal,
+  );
 
   return (
     <main className="flex-1">
@@ -75,7 +82,7 @@ export default async function ResultadoAnalisisPage({
               </p>
             )}
             <Link
-              href="/cuenta/analisis/nuevo"
+              href="/analisis/nuevo"
               className="mt-3 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
             >
               Inténtalo de nuevo →

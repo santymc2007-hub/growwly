@@ -47,7 +47,6 @@ export default async function ClinicasPage({
 
   const ciudades = uniqueSorted(clinicas.map((c) => c.ciudad));
   const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
-  const idiomas = uniqueSorted(clinicas.flatMap((c) => c.idiomas));
 
   return (
     <main className="flex-1">
@@ -74,11 +73,7 @@ export default async function ClinicasPage({
               ? "clínica encontrada"
               : "clínicas encontradas"}
           </p>
-          <ClinicFilters
-            ciudades={ciudades}
-            tecnicas={tecnicas}
-            idiomas={idiomas}
-          />
+          <ClinicFilters ciudades={ciudades} tecnicas={tecnicas} />
         </div>
 
         {filtradas.length > 0 ? (

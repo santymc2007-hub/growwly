@@ -87,7 +87,7 @@ export default async function HomePage() {
             clínicas encajan con tu caso.
           </p>
           <Link
-            href="/cuenta/analisis/nuevo"
+            href="/analisis/nuevo"
             className="mt-2 inline-block rounded-lg bg-cyan px-6 py-3 text-sm font-medium text-white transition hover:bg-cyan-dark"
           >
             Analizar mis fotos →
