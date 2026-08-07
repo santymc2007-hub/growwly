@@ -9,6 +9,9 @@ type SearchParams = {
   tecnica?: string;
   idioma?: string;
   ubicacion?: string;
+  rating?: string;
+  verificado?: string;
+  financiacion?: string;
 };
 
 export default async function ClinicasPage({
@@ -16,7 +19,8 @@ export default async function ClinicasPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { ciudad, tecnica, idioma, ubicacion } = await searchParams;
+  const { ciudad, tecnica, idioma, ubicacion, rating, verificado, financiacion } =
+    await searchParams;
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -27,12 +31,17 @@ export default async function ClinicasPage({
     .order("nombre", { ascending: true });
   const clinicas = data ?? [];
 
+  const ratingMinimo = rating ? Number(rating) : null;
+
   const filtradas = clinicas.filter((c) => {
     if (ciudad && c.ciudad !== ciudad) return false;
     if (tecnica && !c.tecnicas.includes(tecnica)) return false;
     if (idioma && !c.idiomas.includes(idioma)) return false;
     if (ubicacion === "palma" && c.ciudad !== "Palma") return false;
     if (ubicacion === "pueblo" && c.ciudad === "Palma") return false;
+    if (ratingMinimo && (c.rating_google ?? 0) < ratingMinimo) return false;
+    if (verificado === "1" && !c.verificado) return false;
+    if (financiacion === "1" && !c.financiacion) return false;
     return true;
   });
 

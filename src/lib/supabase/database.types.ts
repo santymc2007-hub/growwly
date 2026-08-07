@@ -229,6 +229,7 @@ export interface Database {
           id: string;
           user_id: string;
           estudio_id: string | null;
+          ciudad: string | null;
           progresion_perdida: string | null;
           antecedentes_familiares: string | null;
           medicacion_actual: string | null;
@@ -246,6 +247,7 @@ export interface Database {
           id?: string;
           user_id: string;
           estudio_id?: string | null;
+          ciudad?: string | null;
           progresion_perdida?: string | null;
           antecedentes_familiares?: string | null;
           medicacion_actual?: string | null;
@@ -263,6 +265,7 @@ export interface Database {
           id?: string;
           user_id?: string;
           estudio_id?: string | null;
+          ciudad?: string | null;
           progresion_perdida?: string | null;
           antecedentes_familiares?: string | null;
           medicacion_actual?: string | null;
@@ -275,6 +278,39 @@ export interface Database {
           consentimiento_compartir_en?: string | null;
           estado?: string;
           created_at?: string;
+        };
+        Relationships: [];
+      };
+      leads_clinica: {
+        Row: {
+          id: string;
+          solicitud_id: string;
+          clinic_id: string;
+          token: string;
+          estado: string;
+          enviado_en: string;
+          visto_en: string | null;
+          desbloqueado_en: string | null;
+        };
+        Insert: {
+          id?: string;
+          solicitud_id: string;
+          clinic_id: string;
+          token?: string;
+          estado?: string;
+          enviado_en?: string;
+          visto_en?: string | null;
+          desbloqueado_en?: string | null;
+        };
+        Update: {
+          id?: string;
+          solicitud_id?: string;
+          clinic_id?: string;
+          token?: string;
+          estado?: string;
+          enviado_en?: string;
+          visto_en?: string | null;
+          desbloqueado_en?: string | null;
         };
         Relationships: [];
       };

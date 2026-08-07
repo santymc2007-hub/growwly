@@ -42,6 +42,7 @@ export function SolicitudWizard({ profile, estudios }: Props) {
 
   const [cuandoTratamiento, setCuandoTratamiento] = useState("");
   const [dondeTratamiento, setDondeTratamiento] = useState("");
+  const [ciudad, setCiudad] = useState("");
   const [presupuestoRango, setPresupuestoRango] = useState("");
 
   const [consentimientoDatos, setConsentimientoDatos] = useState(false);
@@ -68,6 +69,7 @@ export function SolicitudWizard({ profile, estudios }: Props) {
     setErrorEnvio(null);
     const resultado = await crearSolicitud({
       estudioId,
+      ciudad,
       progresionPerdida,
       antecedentesFamiliares,
       medicacionActual,
@@ -275,6 +277,19 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                   Lo estoy pensando — este año
                 </option>
               </select>
+            </div>
+            <div>
+              <label className={labelClass}>¿En qué ciudad estás?</label>
+              <input
+                type="text"
+                value={ciudad}
+                onChange={(e) => setCiudad(e.target.value)}
+                placeholder="Ej. Palma"
+                className={inputClass}
+              />
+              <p className="mt-1 text-xs text-ink-soft">
+                Nos ayuda a avisar a las clínicas correctas.
+              </p>
             </div>
             <div>
               <label className={labelClass}>¿Dónde te lo realizarías?</label>

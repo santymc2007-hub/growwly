@@ -2,9 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { notificarClinicasDeSolicitud } from "@/lib/leads/notificar-clinicas";
 
 export type DatosSolicitud = {
   estudioId: string | null;
+  ciudad: string;
   progresionPerdida: string;
   antecedentesFamiliares: string;
   medicacionActual: string;
@@ -40,6 +43,7 @@ export async function crearSolicitud(
     .insert({
       user_id: user.id,
       estudio_id: datos.estudioId,
+      ciudad: datos.ciudad || null,
       progresion_perdida: datos.progresionPerdida || null,
       antecedentes_familiares: datos.antecedentesFamiliares || null,
       medicacion_actual: datos.medicacionActual || null,
@@ -57,6 +61,14 @@ export async function crearSolicitud(
 
   if (error || !solicitud) {
     return { error: error?.message ?? "No se pudo crear la solicitud." };
+  }
+
+  try {
+    const supabaseAdmin = createAdminClient();
+    await notificarClinicasDeSolicitud(supabaseAdmin, solicitud.id);
+  } catch {
+    // No bloqueamos al paciente si falla el aviso a las clínicas — la
+    // solicitud ya está guardada y se puede reintentar el aviso luego.
   }
 
   return { id: solicitud.id };

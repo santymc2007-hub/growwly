@@ -84,6 +84,7 @@ export default async function SolicitudDetallePage({
         </div>
 
         <dl className="mt-4 divide-y divide-line rounded-xl border border-line bg-white text-sm">
+          {solicitud.ciudad && <Row label="Ciudad" value={solicitud.ciudad} />}
           {solicitud.progresion_perdida && (
             <Row
               label="Progresión de la pérdida"
