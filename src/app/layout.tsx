@@ -9,8 +9,16 @@ import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
 
+// ⚠️ NOINDEX TEMPORAL — la web todavía no está lista para lanzar.
+// Cuando Santy confirme que ya se puede indexar de verdad, borrar este
+// bloque "robots" (o ponerlo a index:true, follow:true) y avisarme para
+// hacer lo mismo en robots.ts.
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
+  robots: {
+    index: false,
+    follow: false,
+  },
   title: {
     default: "Growwly — Directorio de clínicas capilares en España",
     template: "%s | Growwly",
