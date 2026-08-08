@@ -338,6 +338,48 @@ export interface Database {
         };
         Relationships: [];
       };
+      blog_posts: {
+        Row: {
+          id: string;
+          slug: string;
+          titulo: string;
+          resumen: string | null;
+          contenido: string;
+          imagen_portada: string | null;
+          autor: string;
+          publicado: boolean;
+          publicado_en: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          titulo: string;
+          resumen?: string | null;
+          contenido?: string;
+          imagen_portada?: string | null;
+          autor?: string;
+          publicado?: boolean;
+          publicado_en?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          titulo?: string;
+          resumen?: string | null;
+          contenido?: string;
+          imagen_portada?: string | null;
+          autor?: string;
+          publicado?: boolean;
+          publicado_en?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -348,3 +390,4 @@ export type Clinic = Database["public"]["Tables"]["clinics"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type EstudioCapilar =
   Database["public"]["Tables"]["estudios_capilares"]["Row"];
+export type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"];
