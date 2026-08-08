@@ -1,12 +1,20 @@
 import Image from "next/image";
 import Link from "next/link";
 import { logout } from "./actions";
+import { createClient } from "@/lib/supabase/server";
 
-export default function PanelLayout({
+export default async function PanelLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const supabase = await createClient();
+  const { count: pendientes } = await supabase
+    .from("profiles")
+    .select("id", { count: "exact", head: true })
+    .eq("role", "clinic")
+    .eq("clinic_status", "pendiente");
+
   return (
     <div className="min-h-screen bg-paper-dim">
       <header className="border-b border-line bg-teal text-paper">
@@ -26,6 +34,17 @@ export default function PanelLayout({
             <nav className="flex gap-4 text-sm">
               <Link href="/admin/clinicas" className="hover:text-cyan">
                 Clínicas
+              </Link>
+              <Link
+                href="/admin/clinicas-cuentas"
+                className="flex items-center gap-1.5 hover:text-cyan"
+              >
+                Cuentas de clínica
+                {Boolean(pendientes) && (
+                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
+                    {pendientes}
+                  </span>
+                )}
               </Link>
             </nav>
           </div>

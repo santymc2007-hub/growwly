@@ -152,6 +152,8 @@ export interface Database {
           telefono: string | null;
           edad: number | null;
           role: string;
+          clinic_id: string | null;
+          clinic_status: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -163,6 +165,8 @@ export interface Database {
           telefono?: string | null;
           edad?: number | null;
           role?: string;
+          clinic_id?: string | null;
+          clinic_status?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -174,6 +178,8 @@ export interface Database {
           telefono?: string | null;
           edad?: number | null;
           role?: string;
+          clinic_id?: string | null;
+          clinic_status?: string | null;
           created_at?: string;
           updated_at?: string;
         };
