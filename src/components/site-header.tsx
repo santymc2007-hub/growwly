@@ -15,12 +15,16 @@ export function SiteHeader() {
             priority
           />
         </Link>
-        <nav className="flex gap-6 text-sm font-medium text-ink-soft">
+        <nav className="flex items-center gap-6 text-sm font-medium text-ink-soft">
           <Link href="/clinicas" className="hover:text-teal">
             Clínicas
           </Link>
           <Link href="/cuenta" className="hover:text-teal">
             Mi cuenta
+          </Link>
+          <span className="h-4 w-px bg-line" aria-hidden />
+          <Link href="/clinica/login" className="text-xs text-ink-soft/70 hover:text-cyan">
+            Acceso clínicas
           </Link>
         </nav>
       </div>

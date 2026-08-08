@@ -128,6 +128,24 @@ export default async function HomePage() {
           Ver todas las clínicas →
         </Link>
       </section>
+
+      <section className="border-t border-line bg-paper-dim">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-6 py-10 text-center">
+          <p className="text-sm font-medium text-ink">
+            ¿Tienes una clínica capilar?
+          </p>
+          <p className="max-w-md text-sm text-ink-soft">
+            Reclama tu ficha en el directorio y recibe solicitudes de
+            presupuesto de pacientes reales.
+          </p>
+          <Link
+            href="/clinica/registro"
+            className="text-sm font-medium text-cyan hover:text-cyan-dark"
+          >
+            Únete como clínica →
+          </Link>
+        </div>
+      </section>
     </main>
   );
 }
