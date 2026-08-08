@@ -30,13 +30,21 @@ export async function generateMetadata({
   const clinic = await findClinic(slug);
   if (!clinic) return {};
 
+  const descripcion =
+    clinic.descripcion ??
+    `Información, técnicas, idiomas y contacto de ${clinic.nombre}${
+      clinic.ciudad ? ` en ${clinic.ciudad}` : ""
+    }.`;
+
   return {
-    title: `${clinic.nombre} — Growwly`,
-    description:
-      clinic.descripcion ??
-      `Información, técnicas, idiomas y contacto de ${clinic.nombre}${
-        clinic.ciudad ? ` en ${clinic.ciudad}` : ""
-      }.`,
+    title: `${clinic.nombre}${clinic.ciudad ? ` en ${clinic.ciudad}` : ""}`,
+    description: descripcion,
+    alternates: { canonical: `/clinicas/${clinic.slug}` },
+    openGraph: {
+      title: clinic.nombre,
+      description: descripcion,
+      images: clinic.fotos.length > 0 ? [clinic.fotos[0]] : undefined,
+    },
   };
 }
 
@@ -69,8 +77,49 @@ export default async function ClinicaPage({
     day: "numeric",
   });
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "MedicalBusiness",
+    name: clinic.nombre,
+    description: clinic.descripcion ?? undefined,
+    url: `${siteUrl}/clinicas/${clinic.slug}`,
+    image: clinic.fotos.length > 0 ? clinic.fotos : undefined,
+    telephone: clinic.telefono ?? undefined,
+    address: {
+      "@type": "PostalAddress",
+      streetAddress: clinic.direccion ?? undefined,
+      addressLocality: clinic.ciudad ?? undefined,
+      addressRegion: clinic.comunidad_autonoma ?? undefined,
+      addressCountry: "ES",
+    },
+    ...(clinic.lat != null &&
+      clinic.lng != null && {
+        geo: {
+          "@type": "GeoCoordinates",
+          latitude: clinic.lat,
+          longitude: clinic.lng,
+        },
+      }),
+    ...(clinic.rating_google != null &&
+      clinic.resenas_google != null && {
+        aggregateRating: {
+          "@type": "AggregateRating",
+          ratingValue: clinic.rating_google,
+          reviewCount: clinic.resenas_google,
+        },
+      }),
+  };
+
   return (
     <main className="flex-1">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteHeader />
 
       <div className="mx-auto max-w-4xl px-6 pt-8">

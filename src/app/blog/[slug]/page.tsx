@@ -28,8 +28,16 @@ export async function generateMetadata({
   const post = await findPost(slug);
   if (!post) return {};
   return {
-    title: `${post.titulo} | Growwly`,
+    title: post.titulo,
     description: post.resumen ?? undefined,
+    alternates: { canonical: `/blog/${post.slug}` },
+    openGraph: {
+      title: post.titulo,
+      description: post.resumen ?? undefined,
+      type: "article",
+      publishedTime: post.publicado_en ?? undefined,
+      images: post.imagen_portada ? [post.imagen_portada] : undefined,
+    },
   };
 }
 
@@ -45,8 +53,28 @@ export default async function BlogPostPage({
     notFound();
   }
 
+  const siteUrl =
+    process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BlogPosting",
+    headline: post.titulo,
+    description: post.resumen ?? undefined,
+    image: post.imagen_portada ?? undefined,
+    author: { "@type": "Organization", name: post.autor },
+    datePublished: post.publicado_en ?? undefined,
+    dateModified: post.updated_at,
+    url: `${siteUrl}/blog/${post.slug}`,
+  };
+
   return (
     <main className="flex-1">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <SiteHeader />
 
       <article className="mx-auto max-w-2xl px-6 py-12">

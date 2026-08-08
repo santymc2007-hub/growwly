@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { SiteHeader } from "@/components/site-header";
 import { WaveDivider } from "@/components/wave-divider";
+
+export const metadata: Metadata = {
+  title: "Clínicas capilares en España",
+  description:
+    "Directorio de clínicas capilares en España: compara técnicas, precios, valoraciones e idiomas por ciudad.",
+  alternates: { canonical: "/clinicas" },
+};
 
 type SearchParams = {
   ciudad?: string;

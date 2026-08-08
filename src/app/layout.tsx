@@ -7,10 +7,24 @@ import "@fontsource/montserrat/500.css";
 import "@fontsource/montserrat/600.css";
 import "./globals.css";
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+
 export const metadata: Metadata = {
-  title: "Growwly — Directorio de clínicas capilares en España",
+  metadataBase: new URL(siteUrl),
+  title: {
+    default: "Growwly — Directorio de clínicas capilares en España",
+    template: "%s | Growwly",
+  },
   description:
     "Encuentra y compara clínicas capilares en España: injertos y tratamientos, ubicación, técnicas, idiomas y financiación.",
+  openGraph: {
+    siteName: "Growwly",
+    type: "website",
+    locale: "es_ES",
+  },
+  twitter: {
+    card: "summary_large_image",
+  },
 };
 
 export default function RootLayout({
