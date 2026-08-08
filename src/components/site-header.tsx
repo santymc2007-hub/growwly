@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { User, Store } from "lucide-react";
 
 export function SiteHeader() {
   return (
@@ -19,11 +20,16 @@ export function SiteHeader() {
           <Link href="/clinicas" className="hover:text-teal">
             Clínicas
           </Link>
-          <Link href="/cuenta" className="hover:text-teal">
+          <Link href="/cuenta" className="flex items-center gap-1.5 hover:text-teal">
+            <User size={16} aria-hidden />
             Mi cuenta
           </Link>
           <span className="h-4 w-px bg-line" aria-hidden />
-          <Link href="/clinica/login" className="text-xs text-ink-soft/70 hover:text-cyan">
+          <Link
+            href="/clinica/login"
+            className="flex items-center gap-1.5 text-xs text-ink-soft/70 hover:text-cyan"
+          >
+            <Store size={14} aria-hidden />
             Acceso clínicas
           </Link>
         </nav>
