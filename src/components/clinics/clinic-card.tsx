@@ -10,7 +10,11 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
   return (
     <Link
       href={`/clinicas/${clinic.slug}`}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white/60 transition hover:border-teal/40 hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+      className={`group flex flex-col overflow-hidden rounded-2xl border transition hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
+        clinic.destacado
+          ? "border-cyan/50 bg-cyan/5 hover:border-cyan"
+          : "border-line bg-white/60 hover:border-teal/40"
+      }`}
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-sage">
         {foto ? (
@@ -31,11 +35,16 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
           <VerifiedBadge variant="photo" className="absolute left-3 top-3" />
         )}
 
-        {(clinic.destacado || clinic.tiene_oferta) && (
+        {(clinic.destacado || clinic.tiene_oferta || clinic.plan === "premium") && (
           <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
             {clinic.destacado && (
               <span className="rounded-full bg-teal px-2.5 py-1 text-xs font-medium text-white shadow-sm">
                 ★ Destacada
+              </span>
+            )}
+            {clinic.plan === "premium" && (
+              <span className="rounded-full bg-cyan-dark px-2.5 py-1 text-xs font-medium text-white shadow-sm">
+                ✦ Premium
               </span>
             )}
             {clinic.tiene_oferta && (

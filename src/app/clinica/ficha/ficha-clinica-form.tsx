@@ -338,6 +338,106 @@ export function FichaClinicaForm({ clinic, action }: Props) {
         </div>
       </section>
 
+      {clinic.plan === "premium" && (
+        <section className="mt-2 rounded-xl border border-cyan/30 bg-cyan/5 p-4">
+          <h2 className="font-display text-lg text-teal-dark">
+            Contenido Premium
+          </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Solo visible para clínicas con plan Premium.
+          </p>
+
+          <div className="mt-4">
+            <p className={labelClass}>Fotos antes / después (hasta 3 pares)</p>
+            {[0, 1, 2].map((i) => {
+              const par = Array.isArray(clinic.fotos_antes_despues)
+                ? (clinic.fotos_antes_despues as { antes?: string; despues?: string }[])[i]
+                : undefined;
+              return (
+                <div key={i} className="mt-2 grid grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor={`antes_${i}`} className="block text-xs text-ink-soft">
+                      Antes {i + 1}
+                    </label>
+                    <input
+                      id={`antes_${i}`}
+                      name={`antes_${i}`}
+                      type="file"
+                      accept="image/*"
+                      className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+                    />
+                    {par?.antes && (
+                      <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor={`despues_${i}`} className="block text-xs text-ink-soft">
+                      Después {i + 1}
+                    </label>
+                    <input
+                      id={`despues_${i}`}
+                      name={`despues_${i}`}
+                      type="file"
+                      accept="image/*"
+                      className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+                    />
+                    {par?.despues && (
+                      <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6">
+            <p className={labelClass}>Opiniones de pacientes (hasta 3)</p>
+            {[0, 1, 2].map((i) => {
+              const opinion = Array.isArray(clinic.opiniones)
+                ? (clinic.opiniones as { autor?: string; texto?: string }[])[i]
+                : undefined;
+              return (
+                <div key={i} className="mt-2 rounded-lg border border-line bg-white p-3">
+                  <input
+                    name={`opinion_autor_${i}`}
+                    placeholder="Nombre del paciente"
+                    defaultValue={opinion?.autor ?? undefined}
+                    className={inputClass}
+                  />
+                  <textarea
+                    name={`opinion_texto_${i}`}
+                    rows={2}
+                    placeholder="Lo que dijo..."
+                    defaultValue={opinion?.texto ?? undefined}
+                    className={`${inputClass} mt-2`}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6">
+            <label htmlFor="certificados" className={labelClass}>
+              Diplomas / certificados
+            </label>
+            {clinic.certificados.length > 0 && (
+              <p className="mt-1 text-xs text-ink-soft">
+                Ya tienes {clinic.certificados.length} subido(s). Lo que subas
+                aquí se añade a esos, no los sustituye.
+              </p>
+            )}
+            <input
+              id="certificados"
+              name="certificados"
+              type="file"
+              accept="image/*"
+              multiple
+              className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
+            />
+          </div>
+        </section>
+      )}
+
       <div className="flex gap-3 border-t border-line pt-6">
         <button
           type="submit"

@@ -54,6 +54,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     verificado: formData.get("verificado") === "on",
     publicado: formData.get("publicado") === "on",
     destacado: formData.get("destacado") === "on",
+    plan: str("plan") ?? "basico",
     direccion: str("direccion"),
     rango_precios: str("rango_precios"),
     precio_desde: num("precio_desde"),
@@ -171,9 +172,17 @@ export async function updateClinic(id: string, formData: FormData) {
 
   // El slug no se toca aquí: se generó al crear la clínica y no queremos
   // romper enlaces existentes a /clinicas/[slug] al editar otros campos.
+  // Guardar desde aquí resuelve cualquier solicitud pendiente de la
+  // clínica (tanto si la aprobaste marcando la casilla, como si la
+  // rechazaste dejándola desmarcada).
   const { error } = await supabase
     .from("clinics")
-    .update({ ...fields, fotos: [...conservadas, ...nuevas] })
+    .update({
+      ...fields,
+      fotos: [...conservadas, ...nuevas],
+      destacado_solicitado: false,
+      plan_solicitado: null,
+    })
     .eq("id", id);
 
   if (error) {

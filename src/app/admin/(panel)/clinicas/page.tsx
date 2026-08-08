@@ -135,6 +135,22 @@ export default async function AdminClinicasPage({
                           De baja
                         </span>
                       )}
+                      {clinic.destacado_solicitado && (
+                        <Link
+                          href={`/admin/clinicas/${clinic.id}/editar`}
+                          className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
+                        >
+                          ★ Solicita destacado
+                        </Link>
+                      )}
+                      {clinic.plan_solicitado && (
+                        <Link
+                          href={`/admin/clinicas/${clinic.id}/editar`}
+                          className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
+                        >
+                          ✦ Solicita {clinic.plan_solicitado}
+                        </Link>
+                      )}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-ink-soft">

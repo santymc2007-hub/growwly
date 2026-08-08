@@ -60,6 +60,8 @@ export default async function ClinicaPage({
     notFound();
   }
 
+  const esPremium = clinic.plan === "premium";
+
   const ubicacion = [
     clinic.zona,
     clinic.ciudad,
@@ -87,10 +89,10 @@ export default async function ClinicaPage({
     description: clinic.descripcion ?? undefined,
     url: `${siteUrl}/clinicas/${clinic.slug}`,
     image: clinic.fotos.length > 0 ? clinic.fotos : undefined,
-    telephone: clinic.telefono ?? undefined,
+    telephone: esPremium ? (clinic.telefono ?? undefined) : undefined,
     address: {
       "@type": "PostalAddress",
-      streetAddress: clinic.direccion ?? undefined,
+      streetAddress: esPremium ? (clinic.direccion ?? undefined) : undefined,
       addressLocality: clinic.ciudad ?? undefined,
       addressRegion: clinic.comunidad_autonoma ?? undefined,
       addressCountry: "ES",
@@ -228,7 +230,7 @@ export default async function ClinicaPage({
             </section>
           )}
 
-          {clinic.servicios_adicionales.length > 0 && (
+          {esPremium && clinic.servicios_adicionales.length > 0 && (
             <section className="mt-8">
               <h2 className="font-display text-lg text-teal-dark">
                 Otros servicios
@@ -266,9 +268,9 @@ export default async function ClinicaPage({
 
           {(clinic.primera_consulta_gratis ||
             clinic.financiacion ||
-            clinic.tiene_oferta) && (
+            (esPremium && clinic.tiene_oferta)) && (
             <section className="mt-8 flex flex-wrap gap-3 text-sm">
-              {clinic.tiene_oferta && (
+              {esPremium && clinic.tiene_oferta && (
                 <span className="rounded-full bg-cyan px-3 py-1 font-medium text-white">
                   {clinic.detalle_oferta || "Oferta activa"}
                 </span>
@@ -286,6 +288,69 @@ export default async function ClinicaPage({
             </section>
           )}
 
+          {esPremium && Array.isArray(clinic.fotos_antes_despues) && clinic.fotos_antes_despues.length > 0 && (
+            <section className="mt-8">
+              <h2 className="font-display text-lg text-teal-dark">
+                Antes y después
+              </h2>
+              <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
+                {(clinic.fotos_antes_despues as { antes: string; despues: string }[]).map(
+                  (par, i) => (
+                    <div key={i} className="grid grid-cols-2 gap-1.5">
+                      <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
+                        <Image
+                          src={par.antes}
+                          alt={`${clinic.nombre} antes ${i + 1}`}
+                          fill
+                          sizes="200px"
+                          className="object-cover"
+                        />
+                        <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                          Antes
+                        </span>
+                      </div>
+                      <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
+                        <Image
+                          src={par.despues}
+                          alt={`${clinic.nombre} después ${i + 1}`}
+                          fill
+                          sizes="200px"
+                          className="object-cover"
+                        />
+                        <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                          Después
+                        </span>
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            </section>
+          )}
+
+          {esPremium && Array.isArray(clinic.opiniones) && clinic.opiniones.length > 0 && (
+            <section className="mt-8">
+              <h2 className="font-display text-lg text-teal-dark">
+                Opiniones de pacientes
+              </h2>
+              <div className="mt-3 flex flex-col gap-3">
+                {(clinic.opiniones as { autor: string; texto: string }[]).map(
+                  (opinion, i) => (
+                    <blockquote
+                      key={i}
+                      className="rounded-xl border border-line bg-white/60 p-4 text-sm"
+                    >
+                      <p className="text-ink-soft">&ldquo;{opinion.texto}&rdquo;</p>
+                      <footer className="mt-2 font-medium text-ink">
+                        — {opinion.autor}
+                      </footer>
+                    </blockquote>
+                  ),
+                )}
+              </div>
+            </section>
+          )}
+
           <p className="mt-10 text-xs text-ink-soft">
             Última actualización: {actualizado}
           </p>
@@ -293,54 +358,80 @@ export default async function ClinicaPage({
 
         <aside className="h-fit rounded-2xl border border-line bg-white/60 p-6">
           <h2 className="font-display text-lg text-teal-dark">Contacto</h2>
-          <ul className="mt-4 space-y-3 text-sm">
-            {clinic.telefono && (
-              <li>
-                <a
-                  href={`tel:${clinic.telefono}`}
-                  className="text-ink hover:text-cyan"
-                >
-                  {clinic.telefono}
-                </a>
-              </li>
-            )}
-            {clinic.email && (
-              <li>
-                <a
-                  href={`mailto:${clinic.email}`}
-                  className="text-ink hover:text-cyan"
-                >
-                  {clinic.email}
-                </a>
-              </li>
-            )}
-            {clinic.web && (
-              <li>
+
+          {esPremium ? (
+            <ul className="mt-4 space-y-3 text-sm">
+              {clinic.telefono && (
+                <li>
+                  <a
+                    href={`tel:${clinic.telefono}`}
+                    className="text-ink hover:text-cyan"
+                  >
+                    {clinic.telefono}
+                  </a>
+                </li>
+              )}
+              {clinic.email && (
+                <li>
+                  <a
+                    href={`mailto:${clinic.email}`}
+                    className="text-ink hover:text-cyan"
+                  >
+                    {clinic.email}
+                  </a>
+                </li>
+              )}
+              {clinic.web && (
+                <li>
+                  <a
+                    href={clinic.web}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-ink hover:text-cyan"
+                  >
+                    Sitio web ↗
+                  </a>
+                </li>
+              )}
+              {clinic.lat != null && clinic.lng != null && (
+                <li>
+                  <a
+                    href={`https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-ink hover:text-cyan"
+                  >
+                    Ver en el mapa ↗
+                  </a>
+                </li>
+              )}
+            </ul>
+          ) : (
+            <div className="mt-4">
+              <p className="text-sm text-ink-soft">
+                Pide presupuesto a través de Growwly y esta clínica te
+                responderá directamente.
+              </p>
+              <Link
+                href="/cuenta/solicitud/nueva"
+                className="mt-3 inline-block rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper hover:bg-teal-dark"
+              >
+                Pedir presupuesto →
+              </Link>
+              {clinic.web && (
                 <a
                   href={clinic.web}
                   target="_blank"
                   rel="noreferrer"
-                  className="text-ink hover:text-cyan"
+                  className="mt-3 block text-sm text-ink hover:text-cyan"
                 >
                   Sitio web ↗
                 </a>
-              </li>
-            )}
-            {clinic.lat != null && clinic.lng != null && (
-              <li>
-                <a
-                  href={`https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="text-ink hover:text-cyan"
-                >
-                  Ver en el mapa ↗
-                </a>
-              </li>
-            )}
-          </ul>
+              )}
+            </div>
+          )}
 
-          {clinic.direccion && (
+          {esPremium && clinic.direccion && (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
                 Dirección
@@ -393,7 +484,7 @@ export default async function ClinicaPage({
             </>
           )}
 
-          {socialLinks.length > 0 && (
+          {esPremium && socialLinks.length > 0 && (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
                 Redes sociales
@@ -412,6 +503,33 @@ export default async function ClinicaPage({
                   </li>
                 ))}
               </ul>
+            </>
+          )}
+
+          {esPremium && clinic.certificados.length > 0 && (
+            <>
+              <h2 className="mt-6 font-display text-lg text-teal-dark">
+                Diplomas y certificados
+              </h2>
+              <div className="mt-3 grid grid-cols-3 gap-2">
+                {clinic.certificados.map((url, i) => (
+                  <a
+                    key={url}
+                    href={url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="relative aspect-square overflow-hidden rounded-lg border border-line bg-white"
+                  >
+                    <Image
+                      src={url}
+                      alt={`Certificado ${i + 1}`}
+                      fill
+                      sizes="90px"
+                      className="object-cover"
+                    />
+                  </a>
+                ))}
+              </div>
             </>
           )}
         </aside>

@@ -569,6 +569,27 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
             tabla)
           </span>
         </label>
+
+        <div className="mt-4">
+          <label className={labelClass} htmlFor="plan">
+            Plan
+          </label>
+          <select
+            id="plan"
+            name="plan"
+            defaultValue={clinic?.plan ?? "basico"}
+            className={inputClass}
+          >
+            <option value="basico">Básico</option>
+            <option value="premium">Premium</option>
+          </select>
+          {clinic?.plan_solicitado && (
+            <p className="mt-1 text-xs text-cyan-dark">
+              Ha solicitado pasar a {clinic.plan_solicitado} — pendiente de
+              aprobación.
+            </p>
+          )}
+        </div>
       </section>
 
       <div className="mt-10 flex gap-3">

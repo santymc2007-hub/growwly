@@ -58,6 +58,12 @@ export interface Database {
           detalle_oferta: string | null;
           destacado: boolean;
           publicado: boolean;
+          destacado_solicitado: boolean;
+          plan: string;
+          plan_solicitado: string | null;
+          fotos_antes_despues: Json;
+          opiniones: Json;
+          certificados: string[];
           orden: number;
           created_at: string;
           updated_at: string;
@@ -99,6 +105,12 @@ export interface Database {
           detalle_oferta?: string | null;
           destacado?: boolean;
           publicado?: boolean;
+          destacado_solicitado?: boolean;
+          plan?: string;
+          plan_solicitado?: string | null;
+          fotos_antes_despues?: Json;
+          opiniones?: Json;
+          certificados?: string[];
           orden?: number;
           created_at?: string;
           updated_at?: string;
@@ -140,6 +152,12 @@ export interface Database {
           detalle_oferta?: string | null;
           destacado?: boolean;
           publicado?: boolean;
+          destacado_solicitado?: boolean;
+          plan?: string;
+          plan_solicitado?: string | null;
+          fotos_antes_despues?: Json;
+          opiniones?: Json;
+          certificados?: string[];
           orden?: number;
           created_at?: string;
           updated_at?: string;
