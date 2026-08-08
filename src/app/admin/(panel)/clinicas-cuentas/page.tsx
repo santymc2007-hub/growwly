@@ -1,8 +1,10 @@
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { AprobarRechazarButtons } from "./botones";
 
+export const dynamic = "force-dynamic";
+
 export default async function ClinicasCuentasPage() {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
 
   const { data: pendientes } = await supabase
     .from("profiles")

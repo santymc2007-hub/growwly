@@ -1,14 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import { logout } from "./actions";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+
+export const dynamic = "force-dynamic";
 
 export default async function PanelLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const supabase = await createClient();
+  const supabase = createAdminClient();
   const { count: pendientes } = await supabase
     .from("profiles")
     .select("id", { count: "exact", head: true })
