@@ -16,6 +16,7 @@ async function findClinic(slug: string) {
     .from("clinics")
     .select("*")
     .eq("slug", slug)
+    .eq("publicado", true)
     .maybeSingle();
   return data;
 }

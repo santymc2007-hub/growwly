@@ -14,7 +14,8 @@ export default async function HomePage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("clinics")
-    .select("ciudad, tecnicas, verificado");
+    .select("ciudad, tecnicas, verificado")
+    .eq("publicado", true);
   const clinicas = data ?? [];
 
   const totalClinicas = clinicas.length;

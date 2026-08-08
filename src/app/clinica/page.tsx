@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { cerrarSesionClinica } from "./actions";
+import { ClinicaNav } from "./clinica-nav";
 
 const ESTADO_LABEL: Record<string, string> = {
   enviado: "Nuevo",
@@ -90,8 +91,11 @@ export default async function ClinicaPanelPage() {
       <SiteHeader />
       <div className="mx-auto max-w-3xl px-6 py-12">
         {cabecera}
+        <div className="mt-8">
+          <ClinicaNav activo="solicitudes" />
+        </div>
 
-        <h2 className="mt-8 font-display text-lg text-teal-dark">
+        <h2 className="font-display text-lg text-teal-dark">
           Solicitudes de presupuesto
         </h2>
 

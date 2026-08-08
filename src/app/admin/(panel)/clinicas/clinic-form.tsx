@@ -540,6 +540,18 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
+            name="publicado"
+            defaultChecked={clinic?.publicado ?? true}
+          />
+          Publicada{" "}
+          <span className="text-xs text-ink-soft">
+            (visible en el directorio — la propia clínica también puede
+            desactivarlo desde su panel)
+          </span>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
             name="destacado"
             defaultChecked={clinic?.destacado}
           />

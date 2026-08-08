@@ -57,6 +57,7 @@ export interface Database {
           tiene_oferta: boolean;
           detalle_oferta: string | null;
           destacado: boolean;
+          publicado: boolean;
           orden: number;
           created_at: string;
           updated_at: string;
@@ -97,6 +98,7 @@ export interface Database {
           tiene_oferta?: boolean;
           detalle_oferta?: string | null;
           destacado?: boolean;
+          publicado?: boolean;
           orden?: number;
           created_at?: string;
           updated_at?: string;
@@ -137,6 +139,7 @@ export interface Database {
           tiene_oferta?: boolean;
           detalle_oferta?: string | null;
           destacado?: boolean;
+          publicado?: boolean;
           orden?: number;
           created_at?: string;
           updated_at?: string;

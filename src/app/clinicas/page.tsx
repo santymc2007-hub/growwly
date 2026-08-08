@@ -26,6 +26,7 @@ export default async function ClinicasPage({
   const { data } = await supabase
     .from("clinics")
     .select("*")
+    .eq("publicado", true)
     .order("destacado", { ascending: false })
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
