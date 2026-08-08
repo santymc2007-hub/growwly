@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { registrarClinica } from "./actions";
+import { AuthCard } from "@/components/auth/auth-card";
 
 type SearchParams = { error?: string };
 
@@ -29,10 +30,7 @@ export default async function RegistroClinicaPage({
   );
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-12">
-      <p className="text-sm uppercase tracking-[0.2em] text-ink-soft">
-        Growwly para clínicas
-      </p>
+    <AuthCard variant="clinica">
       <h1 className="mt-2 font-display text-2xl text-teal-dark">
         Reclama tu clínica
       </h1>
@@ -132,6 +130,6 @@ export default async function RegistroClinicaPage({
           Inicia sesión
         </Link>
       </p>
-    </main>
+    </AuthCard>
   );
 }

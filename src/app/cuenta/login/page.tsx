@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { iniciarSesionPaciente } from "./actions";
+import { AuthCard } from "@/components/auth/auth-card";
 
 type SearchParams = { error?: string; claim?: string };
 
@@ -11,10 +12,7 @@ export default async function CuentaLoginPage({
   const { error, claim } = await searchParams;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6">
-      <p className="text-sm uppercase tracking-[0.2em] text-ink-soft">
-        Growwly
-      </p>
+    <AuthCard variant="paciente">
       <h1 className="mt-2 font-display text-2xl text-teal-dark">
         Inicia sesión
       </h1>
@@ -78,6 +76,6 @@ export default async function CuentaLoginPage({
           Regístrate
         </Link>
       </p>
-    </main>
+    </AuthCard>
   );
 }

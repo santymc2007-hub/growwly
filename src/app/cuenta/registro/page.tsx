@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { registrarPaciente } from "./actions";
+import { AuthCard } from "@/components/auth/auth-card";
 
 type SearchParams = { error?: string; claim?: string };
 
@@ -11,10 +12,7 @@ export default async function RegistroPage({
   const { error, claim } = await searchParams;
 
   return (
-    <main className="mx-auto flex min-h-screen max-w-sm flex-col justify-center px-6 py-12">
-      <p className="text-sm uppercase tracking-[0.2em] text-ink-soft">
-        Growwly
-      </p>
+    <AuthCard variant="paciente">
       <h1 className="mt-2 font-display text-2xl text-teal-dark">
         Crea tu cuenta
       </h1>
@@ -145,6 +143,6 @@ export default async function RegistroPage({
           Inicia sesión
         </Link>
       </p>
-    </main>
+    </AuthCard>
   );
 }
