@@ -4,6 +4,7 @@ import {
   TECNICAS_DISPONIBLES,
   IDIOMAS_DISPONIBLES,
   PRECIO_OPCIONES,
+  MUNICIPIOS_MALLORCA,
   formatearPrecio,
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
@@ -88,12 +89,19 @@ export function FichaClinicaForm({ clinic, action }: Props) {
               <label className={labelClass} htmlFor="ciudad">
                 Ciudad
               </label>
-              <input
+              <select
                 id="ciudad"
                 name="ciudad"
-                defaultValue={clinic.ciudad ?? undefined}
+                defaultValue={clinic.ciudad ?? ""}
                 className={inputClass}
-              />
+              >
+                <option value="">Selecciona un municipio</option>
+                {MUNICIPIOS_MALLORCA.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
               <label className={labelClass} htmlFor="zona">

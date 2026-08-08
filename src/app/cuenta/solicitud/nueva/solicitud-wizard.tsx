@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearSolicitud } from "../actions";
 import { TRATAMIENTOS_INFO } from "@/lib/tratamientos-info";
+import { MUNICIPIOS_MALLORCA } from "@/lib/clinic-options";
 import type { Profile, EstudioCapilar } from "@/lib/supabase/database.types";
 
 type Props = {
@@ -280,13 +281,18 @@ export function SolicitudWizard({ profile, estudios }: Props) {
             </div>
             <div>
               <label className={labelClass}>¿En qué ciudad estás?</label>
-              <input
-                type="text"
+              <select
                 value={ciudad}
                 onChange={(e) => setCiudad(e.target.value)}
-                placeholder="Ej. Palma"
                 className={inputClass}
-              />
+              >
+                <option value="">Selecciona un municipio</option>
+                {MUNICIPIOS_MALLORCA.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
               <p className="mt-1 text-xs text-ink-soft">
                 Nos ayuda a avisar a las clínicas correctas.
               </p>
