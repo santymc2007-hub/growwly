@@ -23,6 +23,30 @@ export async function iniciarSesionPaciente(formData: FormData) {
     );
   }
 
+  const { data: profile } = await supabase
+    .from("profiles")
+    .select("role")
+    .eq("id", data.user.id)
+    .maybeSingle();
+
+  if (profile?.role === "clinic") {
+    await supabase.auth.signOut();
+    redirect(
+      `/clinica/login?error=${encodeURIComponent(
+        "Esta cuenta es de clínica. Inicia sesión aquí.",
+      )}`,
+    );
+  }
+
+  if (profile?.role === "admin") {
+    await supabase.auth.signOut();
+    redirect(
+      `/admin/login?error=${encodeURIComponent(
+        "Esta cuenta es de administrador. Inicia sesión aquí.",
+      )}`,
+    );
+  }
+
   if (claim && data.user) {
     const estudioId = await reclamarEstudio(data.user.id, claim);
     if (estudioId) {

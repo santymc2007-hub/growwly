@@ -27,6 +27,24 @@ export async function login(formData: FormData) {
     .eq("id", data.user.id)
     .maybeSingle();
 
+  if (profile?.role === "patient") {
+    await supabase.auth.signOut();
+    redirect(
+      `/cuenta/login?error=${encodeURIComponent(
+        "Esta cuenta es de paciente. Inicia sesión aquí.",
+      )}`,
+    );
+  }
+
+  if (profile?.role === "clinic") {
+    await supabase.auth.signOut();
+    redirect(
+      `/clinica/login?error=${encodeURIComponent(
+        "Esta cuenta es de clínica. Inicia sesión aquí.",
+      )}`,
+    );
+  }
+
   if (profile?.role !== "admin") {
     await supabase.auth.signOut();
     redirect(
