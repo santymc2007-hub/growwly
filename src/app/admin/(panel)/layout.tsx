@@ -37,6 +37,9 @@ export default async function PanelLayout({
               <Link href="/admin/clinicas" className="hover:text-cyan">
                 Clínicas
               </Link>
+              <Link href="/admin/leads" className="hover:text-cyan">
+                Leads
+              </Link>
               <Link
                 href="/admin/clinicas-cuentas"
                 className="flex items-center gap-1.5 hover:text-cyan"

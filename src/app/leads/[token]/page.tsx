@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
+import { DesbloquearButton } from "./desbloquear-button";
 
 type Params = { token: string };
 
@@ -53,13 +55,46 @@ export default async function LeadPage({
   }
 
   let resumenIA: string | null = null;
+  let fotoUrls: string[] = [];
   if (solicitud.estudio_id) {
     const { data: estudio } = await supabase
       .from("estudios_capilares")
-      .select("resultado_texto")
+      .select(
+        "resultado_texto, foto_frontal, foto_donante, foto_coronilla, foto_perfil_derecho, foto_perfil_izquierdo, fotos_adicionales",
+      )
       .eq("id", solicitud.estudio_id)
       .maybeSingle();
     resumenIA = estudio?.resultado_texto ?? null;
+
+    if (lead.estado === "desbloqueado" && estudio) {
+      const rutas = [
+        estudio.foto_frontal,
+        estudio.foto_donante,
+        estudio.foto_coronilla,
+        estudio.foto_perfil_derecho,
+        estudio.foto_perfil_izquierdo,
+        ...estudio.fotos_adicionales,
+      ].filter((r): r is string => Boolean(r));
+      const urls = await Promise.all(
+        rutas.map((r) => urlFirmadaFoto(supabase, r)),
+      );
+      fotoUrls = urls.filter((u): u is string => Boolean(u));
+    }
+  }
+
+  let paciente: {
+    nombre: string | null;
+    apellidos: string | null;
+    telefono: string | null;
+    email: string | null;
+  } | null = null;
+  if (lead.estado === "desbloqueado") {
+    const { data } = await supabase
+      .from("profiles")
+      .select("nombre, apellidos, telefono, email")
+      .eq("id", solicitud.user_id)
+      .maybeSingle();
+    paciente = data ?? null;
   }
 
   if (lead.estado === "enviado") {
@@ -143,16 +178,54 @@ export default async function LeadPage({
           </div>
         )}
 
-        <div className="mt-8 rounded-xl border border-dashed border-line bg-white p-6 text-center">
-          <p className="font-display text-lg text-teal-dark">
-            Desbloquear perfil completo
-          </p>
-          <p className="mt-1 text-sm text-ink-soft">
-            Muy pronto podrás desbloquear los datos de contacto del paciente
-            aquí mismo, con pago por lead. Mientras tanto, escríbenos y te lo
-            gestionamos a mano.
-          </p>
-        </div>
+        {lead.estado === "desbloqueado" ? (
+          <div className="mt-8 rounded-xl bg-sage p-6">
+            <p className="font-display text-lg text-sage-ink">
+              Perfil completo
+            </p>
+            <dl className="mt-4 divide-y divide-sage-ink/10 text-sm">
+              {paciente?.nombre && (
+                <Row
+                  label="Nombre"
+                  value={`${paciente.nombre} ${paciente.apellidos ?? ""}`.trim()}
+                />
+              )}
+              {paciente?.telefono && (
+                <Row label="Teléfono" value={paciente.telefono} />
+              )}
+              {paciente?.email && <Row label="Email" value={paciente.email} />}
+            </dl>
+
+            {fotoUrls.length > 0 && (
+              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+                {fotoUrls.map((url) => (
+                  <div
+                    key={url}
+                    className="relative aspect-square overflow-hidden rounded-lg border border-line bg-white"
+                  >
+                    <Image
+                      src={url}
+                      alt="Foto del paciente"
+                      fill
+                      sizes="120px"
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="mt-8 rounded-xl border border-dashed border-line bg-white p-6 text-center">
+            <p className="font-display text-lg text-teal-dark">
+              Desbloquear perfil completo
+            </p>
+            <p className="mt-1 text-sm text-ink-soft">
+              Verás el nombre, teléfono, email y fotos del paciente.
+            </p>
+            <DesbloquearButton token={token} />
+          </div>
+        )}
       </div>
     </main>
   );
