@@ -1,9 +1,9 @@
-import { AuthCard } from "@/components/auth/auth-card";
+import { Modal } from "@/components/auth/modal";
 import { RegistroPacienteForm } from "@/components/auth/forms/registro-paciente-form";
 
 type SearchParams = { error?: string; claim?: string };
 
-export default async function RegistroPage({
+export default async function RegistroPacienteModal({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
@@ -11,8 +11,8 @@ export default async function RegistroPage({
   const { error, claim } = await searchParams;
 
   return (
-    <AuthCard variant="paciente">
+    <Modal variant="paciente">
       <RegistroPacienteForm error={error} claim={claim} />
-    </AuthCard>
+    </Modal>
   );
 }

@@ -1,9 +1,9 @@
-import { AuthCard } from "@/components/auth/auth-card";
+import { Modal } from "@/components/auth/modal";
 import { RegistroClinicaForm } from "@/components/auth/forms/registro-clinica-form";
 
 type SearchParams = { error?: string };
 
-export default async function RegistroClinicaPage({
+export default async function RegistroClinicaModal({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
@@ -11,8 +11,8 @@ export default async function RegistroClinicaPage({
   const { error } = await searchParams;
 
   return (
-    <AuthCard variant="clinica">
+    <Modal variant="clinica">
       <RegistroClinicaForm error={error} />
-    </AuthCard>
+    </Modal>
   );
 }
