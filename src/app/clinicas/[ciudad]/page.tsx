@@ -139,7 +139,7 @@ export default async function CiudadPage({
         ) : (
           <Link
             href="/clinicas"
-            className="inline-block rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-paper hover:bg-teal-dark"
+            className="inline-block rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper hover:bg-teal-dark"
           >
             Ver todas las clínicas →
           </Link>

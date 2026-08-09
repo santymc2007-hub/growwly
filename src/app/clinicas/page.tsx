@@ -5,7 +5,6 @@ import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { WaveDivider } from "@/components/wave-divider";
 import { slugifyCiudad } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
@@ -64,17 +63,16 @@ export default async function ClinicasPage({
     <main className="flex-1">
       <SiteHeader />
 
-      <header className="bg-teal text-paper">
+      <header className="bg-gradient-to-br from-sage via-sage/50 to-cyan/20">
         <div className="mx-auto max-w-[1600px] px-6 py-12">
-          <h1 className="font-display text-4xl sm:text-5xl">
-            Clínicas <em className="text-cyan not-italic">capilares</em> en
+          <h1 className="font-display text-4xl text-ink sm:text-5xl">
+            Clínicas <span className="text-teal-dark">capilares</span> en
             España
           </h1>
-          <p className="mt-3 max-w-xl text-paper/80">
+          <p className="mt-3 max-w-xl text-ink-soft">
             Compara clínicas por ciudad, técnica e idioma antes de pedir cita.
           </p>
         </div>
-        <WaveDivider />
       </header>
 
       <div className="mx-auto max-w-[1600px] px-6 py-10">
@@ -110,7 +108,7 @@ export default async function ClinicasPage({
             ))}
           </div>
         ) : (
-          <div className="mt-16 rounded-2xl border border-dashed border-line py-16 text-center">
+          <div className="mt-16 rounded-3xl border border-dashed border-line bg-paper-dim/50 py-16 text-center">
             <p className="font-display text-xl text-teal-dark">
               Sin resultados
             </p>
