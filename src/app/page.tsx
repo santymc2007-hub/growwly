@@ -1,139 +1,152 @@
 import Link from "next/link";
+import { ScanSearch, Send, FileCheck2, CalendarCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { WaveDivider } from "@/components/wave-divider";
-import { HeroSearch } from "@/components/home/hero-search";
+import { ClinicCard } from "@/components/clinics/clinic-card";
 
-function uniqueSorted(values: (string | null)[]): string[] {
-  return Array.from(new Set(values.filter((v): v is string => Boolean(v)))).sort(
-    (a, b) => a.localeCompare(b, "es"),
-  );
-}
+const PASOS = [
+  {
+    icono: ScanSearch,
+    titulo: "Evaluación inicial",
+    texto: "Completa tu perfil y sube fotos para una evaluación personalizada.",
+  },
+  {
+    icono: Send,
+    titulo: "Solicita propuesta",
+    texto: "Enviamos tu evaluación a las clínicas que se adaptan a tus necesidades.",
+  },
+  {
+    icono: FileCheck2,
+    titulo: "Recibe ofertas",
+    texto: "Las clínicas te envían propuestas adaptadas a tus necesidades.",
+  },
+  {
+    icono: CalendarCheck,
+    titulo: "Reserva tu cita",
+    texto: "Elige la mejor opción y agenda tu intervención de forma segura.",
+  },
+];
 
 export default async function HomePage() {
   const supabase = await createClient();
   const { data } = await supabase
     .from("clinics")
-    .select("ciudad, tecnicas, verificado")
-    .eq("publicado", true);
-  const clinicas = data ?? [];
-
-  const totalClinicas = clinicas.length;
-  const totalVerificadas = clinicas.filter((c) => c.verificado).length;
-  const ciudades = uniqueSorted(clinicas.map((c) => c.ciudad));
-  const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
+    .select("*")
+    .eq("publicado", true)
+    .order("destacado", { ascending: false })
+    .order("orden", { ascending: true })
+    .limit(4);
+  const destacadas = data ?? [];
 
   return (
     <main className="flex-1">
       <SiteHeader />
 
-      <section className="bg-teal text-paper">
-        <div className="mx-auto max-w-[1600px] px-6 py-16 text-center sm:py-20">
-          {totalClinicas > 0 && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-1.5 text-sm">
-              ✨ {totalClinicas}{" "}
-              {totalClinicas === 1
-                ? "clínica en el directorio"
-                : "clínicas en el directorio"}
-            </span>
-          )}
+      {/* Héroe */}
+      <section className="relative overflow-hidden bg-gradient-to-br from-sage via-sage/60 to-cyan/25">
+        <div className="mx-auto grid max-w-[1600px] items-center gap-10 px-6 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16">
+          <div>
+            <h1 className="font-display text-4xl leading-tight text-ink sm:text-5xl">
+              Tu{" "}
+              <span className="inline-block -rotate-1 bg-yellow px-2 text-ink">
+                valoración con IA
+              </span>{" "}
+              en un par de clics.
+            </h1>
+            <p className="mt-3 font-display text-2xl text-teal-dark sm:text-3xl">
+              ¡Ah! Y con presupuesto personalizado.
+            </p>
 
-          <h1 className="mt-5 font-display text-4xl leading-tight sm:text-5xl">
-            El crecimiento de tu cabello{" "}
-            <em className="text-cyan not-italic">empieza aquí</em>
-          </h1>
+            <Link
+              href="/analisis/nuevo"
+              className="mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 text-base font-bold text-ink shadow-lg shadow-orange/20 transition hover:opacity-90"
+            >
+              Subir fotos
+            </Link>
 
-          <p className="mt-4 text-paper/85">
-            Compara especialistas, lee reseñas reales y encuentra el mejor
-            tratamiento capilar.
-          </p>
-          <p className="font-display text-lg">Hair we go!</p>
-
-          <div className="mt-8">
-            <HeroSearch ciudades={ciudades} tecnicas={tecnicas} />
+            <p className="mt-4 text-sm text-ink-soft">
+              Gratis · 2 minutos · No es un diagnóstico médico
+            </p>
           </div>
 
-          {tecnicas.length > 0 && (
-            <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
-              <span className="text-sm text-paper/70">
-                Búsquedas populares:
-              </span>
-              {tecnicas.slice(0, 4).map((t) => (
-                <Link
-                  key={t}
-                  href={`/clinicas?tecnica=${encodeURIComponent(t)}`}
-                  className="rounded-full bg-white/10 px-3 py-1 text-sm transition hover:bg-white/20"
-                >
-                  {t}
-                </Link>
+          <div className="relative mx-auto aspect-[4/3] w-full max-w-lg">
+            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white to-sage/70 shadow-xl" />
+            <div className="absolute inset-10 rounded-2xl border-2 border-dashed border-cyan/40" />
+            <div className="absolute right-5 top-5 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-dark shadow-md">
+              ✨ AI
+            </div>
+            <div className="absolute inset-0 flex items-center justify-center px-10 text-center text-sm text-ink-soft">
+              Foto pendiente — aquí irá la imagen final
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Cómo funciona */}
+      <section id="como-funciona" className="mx-auto max-w-[1600px] px-6 py-16">
+        <h2 className="font-display text-3xl text-teal-dark">
+          ¿Cómo funciona Growwly?
+        </h2>
+        <p className="mt-2 max-w-2xl text-ink-soft">
+          Un proceso simple y transparente que te conecta con las mejores
+          clínicas especializadas en tratamientos capilares.
+        </p>
+
+        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          {PASOS.map((paso, i) => {
+            const Icono = paso.icono;
+            return (
+              <div key={paso.titulo} className="relative">
+                <div className="h-full rounded-2xl border-2 border-sage bg-white p-6">
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sage/60 text-teal-dark">
+                    <Icono size={22} aria-hidden />
+                  </div>
+                  <h3 className="mt-4 font-display text-lg text-teal-dark">
+                    {paso.titulo}
+                  </h3>
+                  <p className="mt-2 text-sm text-ink-soft">{paso.texto}</p>
+                </div>
+                {i < PASOS.length - 1 && (
+                  <span
+                    aria-hidden
+                    className="absolute -right-4 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-cyan text-lg font-bold text-white lg:flex"
+                  >
+                    ›
+                  </span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Clínicas destacadas */}
+      {destacadas.length > 0 && (
+        <section className="border-t border-line bg-paper-dim">
+          <div className="mx-auto max-w-[1600px] px-6 py-16">
+            <h2 className="font-display text-3xl text-teal-dark">
+              Clínicas destacadas
+            </h2>
+            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              {destacadas.map((clinic) => (
+                <ClinicCard key={clinic.id} clinic={clinic} />
               ))}
             </div>
-          )}
-        </div>
-        <WaveDivider />
-      </section>
-
-      <section className="mx-auto max-w-[1600px] px-6 py-14">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 rounded-2xl border border-line bg-sage/40 px-6 py-10 text-center sm:px-12">
-          <span className="rounded-full bg-cyan px-3 py-1 text-xs font-medium text-white">
-            Gratis · 2 minutos
-          </span>
-          <h2 className="font-display text-2xl text-teal-dark sm:text-3xl">
-            ¿No sabes por dónde empezar?
-          </h2>
-          <p className="max-w-md text-sm text-ink-soft">
-            Sube 5 fotos de tu cabello (frontal, coronilla, nuca y ambos
-            perfiles) y recibe una primera impresión orientativa en
-            minutos — no es un diagnóstico, pero te ayuda a entender qué
-            clínicas encajan con tu caso.
-          </p>
-          <Link
-            href="/analisis/nuevo"
-            className="mt-2 inline-block rounded-lg bg-cyan px-6 py-3 text-sm font-medium text-white transition hover:bg-cyan-dark"
-          >
-            Analizar mis fotos →
-          </Link>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-[1600px] px-6 pb-14 text-center">
-        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-8 sm:grid-cols-3">
-          <div>
-            <p className="font-display text-2xl text-teal-dark">
-              {totalVerificadas}
-            </p>
-            <p className="mt-1 text-sm text-ink-soft">
-              {totalVerificadas === 1
-                ? "clínica verificada por Growwly"
-                : "clínicas verificadas por Growwly"}
-            </p>
+            <Link
+              href="/clinicas"
+              className="mt-8 inline-block rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark"
+            >
+              Ver todas las clínicas →
+            </Link>
           </div>
-          <div>
-            <p className="font-display text-2xl text-teal-dark">Gratis</p>
-            <p className="mt-1 text-sm text-ink-soft">
-              comparar clínicas, sin compromiso
-            </p>
-          </div>
-          <div>
-            <p className="font-display text-2xl text-teal-dark">Directo</p>
-            <p className="mt-1 text-sm text-ink-soft">
-              contacta con la clínica sin intermediarios
-            </p>
-          </div>
-        </div>
+        </section>
+      )}
 
-        <Link
-          href="/clinicas"
-          className="mt-10 inline-block rounded-lg bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark"
-        >
-          Ver todas las clínicas →
-        </Link>
-      </section>
-
-      <section className="border-t border-line bg-paper-dim">
-        <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-3 px-6 py-10 text-center">
-          <p className="text-sm font-medium text-ink">
+      {/* CTA clínicas */}
+      <section className="border-t border-line bg-gradient-to-br from-sage/50 to-cyan/10">
+        <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-3 px-6 py-14 text-center">
+          <p className="font-display text-2xl text-teal-dark">
             ¿Tienes una clínica capilar?
           </p>
           <p className="max-w-md text-sm text-ink-soft">
@@ -142,7 +155,7 @@ export default async function HomePage() {
           </p>
           <Link
             href="/clinica/registro"
-            className="text-sm font-medium text-cyan hover:text-cyan-dark"
+            className="mt-2 inline-block rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark"
           >
             Únete como clínica →
           </Link>

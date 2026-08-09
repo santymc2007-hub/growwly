@@ -23,6 +23,20 @@ export function MobileMenu() {
         <div className="absolute inset-x-0 top-full z-40 border-b border-line bg-white px-6 py-4 shadow-lg">
           <nav className="flex flex-col gap-1 text-sm font-medium text-ink-soft">
             <Link
+              href="/"
+              className="rounded-lg px-3 py-2.5 hover:bg-paper-dim hover:text-teal"
+              onClick={() => setAbierto(false)}
+            >
+              Inicio
+            </Link>
+            <Link
+              href="/#como-funciona"
+              className="rounded-lg px-3 py-2.5 hover:bg-paper-dim hover:text-teal"
+              onClick={() => setAbierto(false)}
+            >
+              Como Funciona
+            </Link>
+            <Link
               href="/clinicas"
               className="rounded-lg px-3 py-2.5 hover:bg-paper-dim hover:text-teal"
               onClick={() => setAbierto(false)}

@@ -23,9 +23,9 @@ export default async function PanelLayout({
         <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4">
           <div className="flex items-center gap-5">
             <Image
-              src="/brand/growwly-logo-dark-bg.png"
+              src="/brand/growwly-logo-white.png"
               alt="Growwly"
-              width={130}
+              width={97}
               height={33}
               className="h-7 w-auto"
               priority

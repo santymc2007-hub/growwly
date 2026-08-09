@@ -109,9 +109,9 @@ export default async function LeadPage({
       <header className="border-b border-line bg-white">
         <div className="mx-auto flex max-w-2xl items-center px-6 py-3">
           <Image
-            src="/brand/growwly-logo-light-bg.png"
+            src="/brand/growwly-logo-gradient.png"
             alt="Growwly"
-            width={140}
+            width={102}
             height={35}
             className="h-8 w-auto"
           />

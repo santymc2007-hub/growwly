@@ -26,6 +26,10 @@
   --color-sage: #cfebdc;
   --color-sage-ink: #1f6b43;
 
+  /* CTA principal (botón "Subir fotos" y similares): degradado cálido */
+  --color-yellow: #ffd54a;
+  --color-orange: #ff9a1f;
+
   /* Líneas y bordes */
   --color-line: #e1e8e6;
 
@@ -47,6 +51,8 @@
   --color-mint: var(--color-mint);
   --color-sage: var(--color-sage);
   --color-sage-ink: var(--color-sage-ink);
+  --color-yellow: var(--color-yellow);
+  --color-orange: var(--color-orange);
   --color-line: var(--color-line);
   --color-error: var(--color-error);
   --color-error-dark: var(--color-error-dark);

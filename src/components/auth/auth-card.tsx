@@ -40,9 +40,9 @@ export function AuthCard({
     >
       <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl shadow-teal/5">
         <Image
-          src="/brand/growwly-logo-light-bg.png"
+          src="/brand/growwly-logo-gradient.png"
           alt="Growwly"
-          width={130}
+          width={97}
           height={33}
           className="h-7 w-auto"
         />
