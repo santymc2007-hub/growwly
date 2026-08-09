@@ -7,6 +7,7 @@ import { getSocialLinks } from "@/lib/social-links";
 import { formatearPrecio } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 type Params = { slug: string };
 
@@ -534,6 +535,7 @@ export default async function ClinicaPage({
           )}
         </aside>
       </div>
+      <SiteFooter />
     </main>
   );
 }

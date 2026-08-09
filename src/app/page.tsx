@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { WaveDivider } from "@/components/wave-divider";
 import { HeroSearch } from "@/components/home/hero-search";
 
@@ -147,6 +148,7 @@ export default async function HomePage() {
           </Link>
         </div>
       </section>
+      <SiteFooter />
     </main>
   );
 }

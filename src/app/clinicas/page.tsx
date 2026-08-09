@@ -3,6 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 import { WaveDivider } from "@/components/wave-divider";
 
 export const metadata: Metadata = {
@@ -103,6 +104,7 @@ export default async function ClinicasPage({
           </div>
         )}
       </div>
+      <SiteFooter />
     </main>
   );
 }

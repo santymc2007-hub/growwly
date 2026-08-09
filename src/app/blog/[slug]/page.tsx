@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { SiteFooter } from "@/components/site-footer";
 
 type Params = { slug: string };
 
@@ -114,6 +115,7 @@ export default async function BlogPostPage({
           <ReactMarkdown>{post.contenido}</ReactMarkdown>
         </div>
       </article>
+      <SiteFooter />
     </main>
   );
 }
