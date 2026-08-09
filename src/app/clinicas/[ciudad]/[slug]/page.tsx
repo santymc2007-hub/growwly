@@ -73,6 +73,16 @@ export default async function ClinicaPage({
 
   const esPremium = clinic.plan === "premium";
 
+  const supabase = await createClient();
+  const { data: tratamientosPublicados } = await supabase
+    .from("tratamientos")
+    .select("slug, tecnica_relacionada")
+    .eq("publicado", true)
+    .not("tecnica_relacionada", "is", null);
+  const tratamientoSlugPorTecnica = new Map(
+    (tratamientosPublicados ?? []).map((t) => [t.tecnica_relacionada as string, t.slug]),
+  );
+
   const ubicacion = [
     clinic.zona,
     clinic.ciudad,
@@ -273,14 +283,24 @@ export default async function ClinicaPage({
                 Técnicas
               </h2>
               <div className="mt-3 flex flex-wrap gap-2">
-                {clinic.tecnicas.map((tecnica) => (
-                  <span
-                    key={tecnica}
-                    className="rounded-full bg-sage px-3 py-1 text-sm font-medium text-sage-ink"
-                  >
-                    {tecnica}
-                  </span>
-                ))}
+                {clinic.tecnicas.map((tecnica) =>
+                  tratamientoSlugPorTecnica.has(tecnica) ? (
+                    <Link
+                      key={tecnica}
+                      href={`/tratamientos/${tratamientoSlugPorTecnica.get(tecnica)}`}
+                      className="rounded-full bg-sage px-3 py-1 text-sm font-medium text-sage-ink hover:bg-cyan hover:text-white"
+                    >
+                      {tecnica}
+                    </Link>
+                  ) : (
+                    <span
+                      key={tecnica}
+                      className="rounded-full bg-sage px-3 py-1 text-sm font-medium text-sage-ink"
+                    >
+                      {tecnica}
+                    </span>
+                  ),
+                )}
               </div>
             </section>
           )}

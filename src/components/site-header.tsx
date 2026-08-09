@@ -23,6 +23,9 @@ export function SiteHeader() {
           <Link href="/blog" className="hover:text-teal">
             Blog
           </Link>
+          <Link href="/tratamientos" className="hover:text-teal">
+            Tratamientos
+          </Link>
           <Link href="/cuenta" className="flex items-center gap-1.5 hover:text-teal">
             <User size={16} aria-hidden />
             Mi cuenta

@@ -8,7 +8,7 @@ const siteUrl =
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
 
-  const [{ data: clinicas }, { data: posts }] = await Promise.all([
+  const [{ data: clinicas }, { data: posts }, { data: tratamientos }] = await Promise.all([
     supabase
       .from("clinics")
       .select("slug, ciudad, updated_at")
@@ -17,12 +17,17 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       .from("blog_posts")
       .select("slug, updated_at")
       .eq("publicado", true),
+    supabase
+      .from("tratamientos")
+      .select("slug, updated_at")
+      .eq("publicado", true),
   ]);
 
   const paginasEstaticas: MetadataRoute.Sitemap = [
     { url: siteUrl, changeFrequency: "weekly", priority: 1 },
     { url: `${siteUrl}/clinicas`, changeFrequency: "daily", priority: 0.9 },
     { url: `${siteUrl}/blog`, changeFrequency: "daily", priority: 0.7 },
+    { url: `${siteUrl}/tratamientos`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${siteUrl}/analisis/nuevo`, changeFrequency: "monthly", priority: 0.6 },
   ];
 
@@ -55,10 +60,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.6,
   }));
 
+  const paginasTratamientos: MetadataRoute.Sitemap = (tratamientos ?? []).map((t) => ({
+    url: `${siteUrl}/tratamientos/${t.slug}`,
+    lastModified: t.updated_at,
+    changeFrequency: "monthly",
+    priority: 0.7,
+  }));
+
   return [
     ...paginasEstaticas,
     ...paginasCiudad,
     ...paginasClinicas,
     ...paginasBlog,
+    ...paginasTratamientos,
   ];
 }

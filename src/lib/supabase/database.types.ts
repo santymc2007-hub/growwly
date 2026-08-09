@@ -398,6 +398,51 @@ export interface Database {
         };
         Relationships: [];
       };
+      tratamientos: {
+        Row: {
+          id: string;
+          slug: string;
+          nombre: string;
+          tecnica_relacionada: string | null;
+          resumen: string | null;
+          contenido: string;
+          duracion_orientativa: string | null;
+          preguntas_frecuentes: Json;
+          imagen_portada: string | null;
+          publicado: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          nombre: string;
+          tecnica_relacionada?: string | null;
+          resumen?: string | null;
+          contenido?: string;
+          duracion_orientativa?: string | null;
+          preguntas_frecuentes?: Json;
+          imagen_portada?: string | null;
+          publicado?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          nombre?: string;
+          tecnica_relacionada?: string | null;
+          resumen?: string | null;
+          contenido?: string;
+          duracion_orientativa?: string | null;
+          preguntas_frecuentes?: Json;
+          imagen_portada?: string | null;
+          publicado?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -409,3 +454,4 @@ export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type EstudioCapilar =
   Database["public"]["Tables"]["estudios_capilares"]["Row"];
 export type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"];
+export type Tratamiento = Database["public"]["Tables"]["tratamientos"]["Row"];
