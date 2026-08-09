@@ -168,78 +168,80 @@ export default async function TratamientoPage({
       )}
       <SiteHeader />
 
-      <article className="mx-auto max-w-3xl px-6 py-12">
-        <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
-          <Link href="/tratamientos" className="hover:text-cyan">
-            Tratamientos
-          </Link>
-          <span aria-hidden>/</span>
-          <span className="text-ink">{tratamiento.nombre}</span>
-        </nav>
+      <article className="mx-auto max-w-[1600px] px-6 py-12">
+        <div className="mx-auto max-w-3xl">
+          <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
+            <Link href="/tratamientos" className="hover:text-cyan">
+              Tratamientos
+            </Link>
+            <span aria-hidden>/</span>
+            <span className="text-ink">{tratamiento.nombre}</span>
+          </nav>
 
-        <h1 className="mt-3 font-display text-3xl text-teal-dark">
-          {tratamiento.nombre}
-        </h1>
-        {tratamiento.duracion_orientativa && (
-          <p className="mt-2 text-sm text-ink-soft">
-            Duración orientativa: {tratamiento.duracion_orientativa}
-          </p>
-        )}
+          <h1 className="mt-3 font-display text-3xl text-teal-dark">
+            {tratamiento.nombre}
+          </h1>
+          {tratamiento.duracion_orientativa && (
+            <p className="mt-2 text-sm text-ink-soft">
+              Duración orientativa: {tratamiento.duracion_orientativa}
+            </p>
+          )}
 
-        {(precioMin !== null || precioMax !== null) && (
-          <p className="mt-2 inline-block rounded-full bg-sage px-4 py-1.5 text-sm font-medium text-sage-ink">
-            Precio orientativo en el directorio:{" "}
-            {precioMin !== null && precioMax !== null
-              ? `${formatearPrecio(precioMin)} - ${formatearPrecio(precioMax)}`
-              : precioMin !== null
-                ? `desde ${formatearPrecio(precioMin)}`
-                : `hasta ${formatearPrecio(precioMax!)}`}
-          </p>
-        )}
+          {(precioMin !== null || precioMax !== null) && (
+            <p className="mt-2 inline-block rounded-full bg-sage px-4 py-1.5 text-sm font-medium text-sage-ink">
+              Precio orientativo en el directorio:{" "}
+              {precioMin !== null && precioMax !== null
+                ? `${formatearPrecio(precioMin)} - ${formatearPrecio(precioMax)}`
+                : precioMin !== null
+                  ? `desde ${formatearPrecio(precioMin)}`
+                  : `hasta ${formatearPrecio(precioMax!)}`}
+            </p>
+          )}
 
-        {tratamiento.imagen_portada && (
-          <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-xl border border-line bg-sage">
-            <Image
-              src={tratamiento.imagen_portada}
-              alt={tratamiento.nombre}
-              fill
-              sizes="700px"
-              className="object-cover"
-            />
-          </div>
-        )}
-
-        <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-          <ReactMarkdown>{tratamiento.contenido}</ReactMarkdown>
-        </div>
-
-        {faqs.length > 0 && (
-          <section className="mt-10">
-            <h2 className="font-display text-xl text-teal-dark">
-              Preguntas frecuentes
-            </h2>
-            <div className="mt-4 flex flex-col gap-3">
-              {faqs.map((f, i) => (
-                <details
-                  key={i}
-                  className="rounded-lg border border-line bg-white p-4"
-                >
-                  <summary className="cursor-pointer font-medium text-ink">
-                    {f.pregunta}
-                  </summary>
-                  <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
-                </details>
-              ))}
+          {tratamiento.imagen_portada && (
+            <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-xl border border-line bg-sage">
+              <Image
+                src={tratamiento.imagen_portada}
+                alt={tratamiento.nombre}
+                fill
+                sizes="700px"
+                className="object-cover"
+              />
             </div>
-          </section>
-        )}
+          )}
+
+          <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
+            <ReactMarkdown>{tratamiento.contenido}</ReactMarkdown>
+          </div>
+
+          {faqs.length > 0 && (
+            <section className="mt-10">
+              <h2 className="font-display text-xl text-teal-dark">
+                Preguntas frecuentes
+              </h2>
+              <div className="mt-4 flex flex-col gap-3">
+                {faqs.map((f, i) => (
+                  <details
+                    key={i}
+                    className="rounded-lg border border-line bg-white p-4"
+                  >
+                    <summary className="cursor-pointer font-medium text-ink">
+                      {f.pregunta}
+                    </summary>
+                    <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
+        </div>
 
         {clinicasConTecnica.length > 0 && (
           <section className="mt-10">
             <h2 className="font-display text-xl text-teal-dark">
               Clínicas que ofrecen {tratamiento.nombre.toLowerCase()}
             </h2>
-            <div className="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
               {clinicasConTecnica.map((c) => (
                 <ClinicCard key={c.id} clinic={c} />
               ))}

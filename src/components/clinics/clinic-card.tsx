@@ -60,7 +60,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
         )}
       </div>
 
-      <div className="flex flex-1 flex-col gap-3 p-5">
+      <div className="flex flex-1 flex-col gap-2.5 p-4">
         <div>
           <h3 className="font-display text-lg leading-snug text-teal-dark">
             {clinic.nombre}

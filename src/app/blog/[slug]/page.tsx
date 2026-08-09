@@ -78,41 +78,43 @@ export default async function BlogPostPage({
       />
       <SiteHeader />
 
-      <article className="mx-auto max-w-2xl px-6 py-12">
-        <Link
-          href="/blog"
-          className="text-sm font-medium text-cyan hover:text-cyan-dark"
-        >
-          ← Volver al blog
-        </Link>
+      <article className="mx-auto max-w-[1600px] px-6 py-12">
+        <div className="mx-auto max-w-3xl">
+          <Link
+            href="/blog"
+            className="text-sm font-medium text-cyan hover:text-cyan-dark"
+          >
+            ← Volver al blog
+          </Link>
 
-        <h1 className="mt-4 font-display text-3xl text-teal-dark">
-          {post.titulo}
-        </h1>
-        <p className="mt-2 text-sm text-ink-soft">
-          {post.autor}
-          {post.publicado_en &&
-            ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
-              day: "numeric",
-              month: "long",
-              year: "numeric",
-            })}`}
-        </p>
+          <h1 className="mt-4 font-display text-3xl text-teal-dark">
+            {post.titulo}
+          </h1>
+          <p className="mt-2 text-sm text-ink-soft">
+            {post.autor}
+            {post.publicado_en &&
+              ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
+                day: "numeric",
+                month: "long",
+                year: "numeric",
+              })}`}
+          </p>
 
-        {post.imagen_portada && (
-          <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-xl border border-line bg-sage">
-            <Image
-              src={post.imagen_portada}
-              alt={post.titulo}
-              fill
-              sizes="700px"
-              className="object-cover"
-            />
+          {post.imagen_portada && (
+            <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-xl border border-line bg-sage">
+              <Image
+                src={post.imagen_portada}
+                alt={post.titulo}
+                fill
+                sizes="700px"
+                className="object-cover"
+              />
+            </div>
+          )}
+
+          <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
+            <ReactMarkdown>{post.contenido}</ReactMarkdown>
           </div>
-        )}
-
-        <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-          <ReactMarkdown>{post.contenido}</ReactMarkdown>
         </div>
       </article>
       <SiteFooter />

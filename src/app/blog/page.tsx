@@ -24,7 +24,7 @@ export default async function BlogPage() {
     <main className="flex-1">
       <SiteHeader />
 
-      <div className="mx-auto max-w-4xl px-6 py-12">
+      <div className="mx-auto max-w-[1600px] px-6 py-12">
         <h1 className="font-display text-3xl text-teal-dark">Blog</h1>
         <p className="mt-2 text-ink-soft">
           Consejos, novedades y todo lo que hay que saber sobre salud
@@ -36,7 +36,7 @@ export default async function BlogPage() {
             Todavía no hay entradas publicadas.
           </p>
         ) : (
-          <div className="mt-10 grid grid-cols-1 gap-8 sm:grid-cols-2">
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {posts.map((post) => (
               <Link
                 key={post.id}
@@ -54,7 +54,7 @@ export default async function BlogPage() {
                     />
                   )}
                 </div>
-                <div className="flex flex-1 flex-col p-5">
+                <div className="flex flex-1 flex-col p-4">
                   {post.publicado_en && (
                     <p className="text-xs uppercase tracking-wide text-ink-soft">
                       {new Date(post.publicado_en).toLocaleDateString(

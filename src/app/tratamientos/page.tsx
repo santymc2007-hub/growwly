@@ -25,7 +25,7 @@ export default async function TratamientosPage() {
     <main className="flex-1">
       <SiteHeader />
 
-      <div className="mx-auto max-w-4xl px-6 py-12">
+      <div className="mx-auto max-w-[1600px] px-6 py-12">
         <h1 className="font-display text-3xl text-teal-dark">
           Tratamientos capilares
         </h1>
@@ -34,7 +34,7 @@ export default async function TratamientosPage() {
           explicado antes de que pidas presupuesto a ninguna clínica.
         </p>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2">
+        <div className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {tratamientos.map((t) => (
             <Link
               key={t.id}
@@ -52,7 +52,7 @@ export default async function TratamientosPage() {
                   />
                 )}
               </div>
-              <div className="flex flex-1 flex-col p-5">
+              <div className="flex flex-1 flex-col p-4">
                 <h2 className="font-display text-lg text-teal-dark group-hover:text-cyan">
                   {t.nombre}
                 </h2>

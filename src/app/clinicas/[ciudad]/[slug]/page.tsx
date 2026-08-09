@@ -180,7 +180,7 @@ export default async function ClinicaPage({
       />
       <SiteHeader />
 
-      <div className="mx-auto max-w-4xl px-6 pt-8">
+      <div className="mx-auto max-w-[1600px] px-6 pt-8">
         <nav aria-label="Migas de pan" className="flex flex-wrap items-center gap-1.5 text-sm text-ink-soft">
           <Link href="/clinicas" className="hover:text-cyan">
             Clínicas
@@ -198,7 +198,7 @@ export default async function ClinicaPage({
         </nav>
       </div>
 
-      <div className="mx-auto mt-4 max-w-4xl px-6">
+      <div className="mx-auto mt-4 max-w-[1600px] px-6">
         {portada ? (
           <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-sage">
             <Image
@@ -236,7 +236,7 @@ export default async function ClinicaPage({
         )}
       </div>
 
-      <div className="mx-auto grid max-w-4xl gap-10 px-6 py-10 lg:grid-cols-[1fr_280px]">
+      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[1fr_320px]">
         <div>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>

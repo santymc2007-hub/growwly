@@ -29,7 +29,7 @@ export default async function HomePage() {
       <SiteHeader />
 
       <section className="bg-teal text-paper">
-        <div className="mx-auto max-w-3xl px-6 py-16 text-center sm:py-20">
+        <div className="mx-auto max-w-[1600px] px-6 py-16 text-center sm:py-20">
           {totalClinicas > 0 && (
             <span className="inline-flex items-center gap-1.5 rounded-full bg-white/10 px-4 py-1.5 text-sm">
               ✨ {totalClinicas}{" "}
@@ -74,8 +74,8 @@ export default async function HomePage() {
         <WaveDivider />
       </section>
 
-      <section className="mx-auto max-w-3xl px-6 py-14">
-        <div className="flex flex-col items-center gap-4 rounded-2xl border border-line bg-sage/40 px-6 py-10 text-center sm:px-12">
+      <section className="mx-auto max-w-[1600px] px-6 py-14">
+        <div className="mx-auto flex max-w-3xl flex-col items-center gap-4 rounded-2xl border border-line bg-sage/40 px-6 py-10 text-center sm:px-12">
           <span className="rounded-full bg-cyan px-3 py-1 text-xs font-medium text-white">
             Gratis · 2 minutos
           </span>
@@ -97,8 +97,8 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-3xl px-6 pb-14 text-center">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-3">
+      <section className="mx-auto max-w-[1600px] px-6 pb-14 text-center">
+        <div className="mx-auto grid max-w-3xl grid-cols-1 gap-8 sm:grid-cols-3">
           <div>
             <p className="font-display text-2xl text-teal-dark">
               {totalVerificadas}
@@ -132,7 +132,7 @@ export default async function HomePage() {
       </section>
 
       <section className="border-t border-line bg-paper-dim">
-        <div className="mx-auto flex max-w-3xl flex-col items-center gap-3 px-6 py-10 text-center">
+        <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-3 px-6 py-10 text-center">
           <p className="text-sm font-medium text-ink">
             ¿Tienes una clínica capilar?
           </p>

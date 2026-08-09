@@ -104,7 +104,7 @@ export default async function ClinicasPage({
         )}
 
         {filtradas.length > 0 ? (
-          <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filtradas.map((clinic) => (
               <ClinicCard key={clinic.id} clinic={clinic} />
             ))}
