@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { WaveDivider } from "@/components/wave-divider";
+import { slugifyCiudad } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
   title: "Clínicas capilares en España",
@@ -85,6 +87,21 @@ export default async function ClinicasPage({
           </p>
           <ClinicFilters ciudades={ciudades} tecnicas={tecnicas} />
         </div>
+
+        {ciudades.length > 1 && (
+          <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
+            <span>Explora por ciudad:</span>
+            {ciudades.map((c) => (
+              <Link
+                key={c}
+                href={`/clinicas/${slugifyCiudad(c)}`}
+                className="text-cyan hover:text-cyan-dark"
+              >
+                {c}
+              </Link>
+            ))}
+          </p>
+        )}
 
         {filtradas.length > 0 ? (
           <div className="mt-8 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

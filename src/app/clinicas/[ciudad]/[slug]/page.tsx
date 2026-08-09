@@ -1,15 +1,15 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { getSocialLinks } from "@/lib/social-links";
-import { formatearPrecio } from "@/lib/clinic-options";
+import { formatearPrecio, slugifyCiudad } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-type Params = { slug: string };
+type Params = { ciudad: string; slug: string };
 
 async function findClinic(slug: string) {
   const supabase = await createClient();
@@ -37,10 +37,12 @@ export async function generateMetadata({
       clinic.ciudad ? ` en ${clinic.ciudad}` : ""
     }.`;
 
+  const ciudadSlug = clinic.ciudad ? slugifyCiudad(clinic.ciudad) : "clinica";
+
   return {
     title: `${clinic.nombre}${clinic.ciudad ? ` en ${clinic.ciudad}` : ""}`,
     description: descripcion,
-    alternates: { canonical: `/clinicas/${clinic.slug}` },
+    alternates: { canonical: `/clinicas/${ciudadSlug}/${clinic.slug}` },
     openGraph: {
       title: clinic.nombre,
       description: descripcion,
@@ -54,11 +56,19 @@ export default async function ClinicaPage({
 }: {
   params: Promise<Params>;
 }) {
-  const { slug } = await params;
+  const { ciudad, slug } = await params;
   const clinic = await findClinic(slug);
 
   if (!clinic) {
     notFound();
+  }
+
+  // La ciudad de la URL debe coincidir con la ciudad real de la clínica —
+  // si no, redirige a la URL correcta (evita contenido duplicado y
+  // corrige enlaces desactualizados).
+  const ciudadSlugReal = clinic.ciudad ? slugifyCiudad(clinic.ciudad) : null;
+  if (ciudadSlugReal && ciudad !== ciudadSlugReal) {
+    redirect(`/clinicas/${ciudadSlugReal}/${clinic.slug}`);
   }
 
   const esPremium = clinic.plan === "premium";
@@ -88,7 +98,7 @@ export default async function ClinicaPage({
     "@type": "MedicalBusiness",
     name: clinic.nombre,
     description: clinic.descripcion ?? undefined,
-    url: `${siteUrl}/clinicas/${clinic.slug}`,
+    url: `${siteUrl}/clinicas/${ciudad}/${clinic.slug}`,
     image: clinic.fotos.length > 0 ? clinic.fotos : undefined,
     telephone: esPremium ? (clinic.telefono ?? undefined) : undefined,
     address: {
@@ -116,6 +126,36 @@ export default async function ClinicaPage({
       }),
   };
 
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
+      {
+        "@type": "ListItem",
+        position: 2,
+        name: "Clínicas",
+        item: `${siteUrl}/clinicas`,
+      },
+      ...(clinic.ciudad
+        ? [
+            {
+              "@type": "ListItem",
+              position: 3,
+              name: clinic.ciudad,
+              item: `${siteUrl}/clinicas/${ciudad}`,
+            },
+          ]
+        : []),
+      {
+        "@type": "ListItem",
+        position: clinic.ciudad ? 4 : 3,
+        name: clinic.nombre,
+        item: `${siteUrl}/clinicas/${ciudad}/${clinic.slug}`,
+      },
+    ],
+  };
+
   return (
     <main className="flex-1">
       <script
@@ -123,15 +163,29 @@ export default async function ClinicaPage({
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <SiteHeader />
 
       <div className="mx-auto max-w-4xl px-6 pt-8">
-        <Link
-          href="/clinicas"
-          className="text-sm font-medium text-cyan hover:text-cyan-dark"
-        >
-          ← Volver al listado
-        </Link>
+        <nav aria-label="Migas de pan" className="flex flex-wrap items-center gap-1.5 text-sm text-ink-soft">
+          <Link href="/clinicas" className="hover:text-cyan">
+            Clínicas
+          </Link>
+          {clinic.ciudad && (
+            <>
+              <span aria-hidden>/</span>
+              <Link href={`/clinicas/${ciudad}`} className="hover:text-cyan">
+                {clinic.ciudad}
+              </Link>
+            </>
+          )}
+          <span aria-hidden>/</span>
+          <span className="text-ink">{clinic.nombre}</span>
+        </nav>
       </div>
 
       <div className="mx-auto mt-4 max-w-4xl px-6">

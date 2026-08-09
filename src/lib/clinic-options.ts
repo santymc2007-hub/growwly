@@ -1,3 +1,5 @@
+import { slugify } from "./slugify";
+
 export const TECNICAS_DISPONIBLES = [
   "Injerto FUE",
   "Injerto DHI",
@@ -87,3 +89,15 @@ export const MUNICIPIOS_MALLORCA = [
   "Valldemossa",
   "Vilafranca de Bonany",
 ] as const;
+
+/** "Sant Llorenç des Cardassar" -> "sant-llorenc-des-cardassar" */
+export function slugifyCiudad(ciudad: string): string {
+  return slugify(ciudad);
+}
+
+/** A partir del slug de la URL, encuentra el nombre real del municipio (o null). */
+export function municipioDesdeSlug(slug: string): string | null {
+  return (
+    MUNICIPIOS_MALLORCA.find((m) => slugifyCiudad(m) === slug) ?? null
+  );
+}

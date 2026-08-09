@@ -1,15 +1,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Clinic } from "@/lib/supabase/database.types";
+import { slugifyCiudad } from "@/lib/clinic-options";
 import { VerifiedBadge } from "./verified-badge";
 
 export function ClinicCard({ clinic }: { clinic: Clinic }) {
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
   const foto = clinic.fotos[0];
+  const href = clinic.ciudad
+    ? `/clinicas/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
+    : `/clinicas/sin-ciudad/${clinic.slug}`;
 
   return (
     <Link
-      href={`/clinicas/${clinic.slug}`}
+      href={href}
       className={`group flex flex-col overflow-hidden rounded-2xl border transition hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
         clinic.destacado
           ? "border-cyan/50 bg-cyan/5 hover:border-cyan"
