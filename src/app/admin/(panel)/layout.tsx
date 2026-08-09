@@ -20,7 +20,7 @@ export default async function PanelLayout({
   return (
     <div className="min-h-screen bg-paper-dim">
       <header className="border-b border-line bg-teal text-paper">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+        <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4">
           <div className="flex items-center gap-5">
             <Image
               src="/brand/growwly-logo-dark-bg.png"
@@ -70,7 +70,7 @@ export default async function PanelLayout({
         </div>
       </header>
 
-      <main className="mx-auto max-w-5xl px-6 py-10">{children}</main>
+      <main className="mx-auto max-w-[1600px] px-6 py-10">{children}</main>
     </div>
   );
 }

@@ -99,7 +99,7 @@ export default async function CiudadPage({
       />
       <SiteHeader />
 
-      <div className="mx-auto max-w-6xl px-6 pt-8">
+      <div className="mx-auto max-w-[1600px] px-6 pt-8">
         <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
           <Link href="/clinicas" className="hover:text-cyan">
             Clínicas
@@ -129,7 +129,7 @@ export default async function CiudadPage({
         </p>
       </div>
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-[1600px] px-6 py-10">
         {clinicas.length > 0 ? (
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {clinicas.map((clinic) => (

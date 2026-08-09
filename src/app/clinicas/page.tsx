@@ -65,7 +65,7 @@ export default async function ClinicasPage({
       <SiteHeader />
 
       <header className="bg-teal text-paper">
-        <div className="mx-auto max-w-6xl px-6 py-12">
+        <div className="mx-auto max-w-[1600px] px-6 py-12">
           <h1 className="font-display text-4xl sm:text-5xl">
             Clínicas <em className="text-cyan not-italic">capilares</em> en
             España
@@ -77,7 +77,7 @@ export default async function ClinicasPage({
         <WaveDivider />
       </header>
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-[1600px] px-6 py-10">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-sm text-ink-soft">
             {filtradas.length}{" "}

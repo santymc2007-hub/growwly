@@ -46,7 +46,7 @@ export default async function CuentaPage({
     <main className="flex-1">
       <SiteHeader />
 
-      <div className="mx-auto max-w-6xl px-6 py-10">
+      <div className="mx-auto max-w-[1600px] px-6 py-10">
         <div className="flex items-center justify-between">
           <div>
             <h1 className="font-display text-2xl text-teal-dark">

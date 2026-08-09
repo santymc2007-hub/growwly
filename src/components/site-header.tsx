@@ -1,11 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { User, Store } from "lucide-react";
+import { MobileMenu } from "./mobile-menu";
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-line bg-white">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
+    <header className="relative border-b border-line bg-white">
+      <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center">
           <Image
             src="/brand/growwly-logo-light-bg.png"
@@ -16,7 +17,7 @@ export function SiteHeader() {
             priority
           />
         </Link>
-        <nav className="flex items-center gap-6 text-sm font-medium text-ink-soft">
+        <nav className="hidden items-center gap-6 text-sm font-medium text-ink-soft md:flex">
           <Link href="/clinicas" className="hover:text-teal">
             Clínicas
           </Link>
@@ -39,6 +40,7 @@ export function SiteHeader() {
             Acceso clínicas
           </Link>
         </nav>
+        <MobileMenu />
       </div>
     </header>
   );
