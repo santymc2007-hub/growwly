@@ -73,12 +73,12 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="relative mx-auto aspect-[1114/889] w-full max-w-[440px] self-end sm:max-w-none">
+          <div className="relative -mx-6 aspect-[1114/889] w-full self-end sm:mx-auto sm:max-w-none">
             <Image
               src="/brand/hero-persona.png"
               alt="Persona haciéndose una foto para el análisis capilar"
               fill
-              sizes="(min-width: 1024px) 900px, 60vw"
+              sizes="100vw"
               className="object-contain object-bottom"
               priority
             />
