@@ -69,7 +69,7 @@ export default async function AnalisisPendientePage({
               </div>
             </div>
 
-            <div className="relative -mx-6 aspect-[1400/905] w-full md:mx-0 md:max-w-none">
+            <div className="relative -mx-6 aspect-[917/608] w-full md:mx-0 md:max-w-none">
               <Image
                 src="/analisis/pareja-analisis-listo.png"
                 alt=""
