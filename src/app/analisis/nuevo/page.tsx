@@ -1,15 +1,9 @@
+import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { crearEstudio } from "../actions";
 import { BotonAnalizar } from "./boton-analizar";
-import {
-  IconoFrontal,
-  IconoTrasera,
-  IconoCoronilla,
-  IconoPerfilDerecho,
-  IconoPerfilIzquierdo,
-} from "@/components/analisis/iconos-orientacion";
 
 // Subir 5 fotos + analizarlas con IA puede superar los 10s por defecto
 // de las funciones de Vercel.
@@ -22,31 +16,31 @@ const SLOTS = [
     name: "frontal",
     label: "Frontal",
     hint: "De frente, mirando a cámara, con el pelo apartado de la frente.",
-    Icono: IconoFrontal,
+    imagen: "/analisis/orientacion-frontal.png",
   },
   {
     name: "donante",
     label: "Trasera / zona donante",
     hint: "La nuca, de donde normalmente se extraen los injertos.",
-    Icono: IconoTrasera,
+    imagen: "/analisis/orientacion-trasera.png",
   },
   {
     name: "coronilla",
     label: "Coronilla",
     hint: "Vista desde arriba, mirando hacia abajo o con la cabeza inclinada.",
-    Icono: IconoCoronilla,
+    imagen: "/analisis/orientacion-coronilla.png",
   },
   {
     name: "perfil_derecho",
     label: "Perfil derecho",
     hint: "De lado, mostrando la línea del pelo por el lado derecho.",
-    Icono: IconoPerfilDerecho,
+    imagen: "/analisis/orientacion-perfil-derecho.png",
   },
   {
     name: "perfil_izquierdo",
     label: "Perfil izquierdo",
     hint: "De lado, mostrando la línea del pelo por el lado izquierdo.",
-    Icono: IconoPerfilIzquierdo,
+    imagen: "/analisis/orientacion-perfil-izquierdo.png",
   },
 ] as const;
 
@@ -94,14 +88,20 @@ export default async function NuevoAnalisisPage({
 
         <form action={crearEstudio} className="mt-8 flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SLOTS.map(({ name, label, hint, Icono }) => (
+            {SLOTS.map(({ name, label, hint, imagen }) => (
               <div
                 key={name}
                 className="rounded-2xl border border-line bg-white p-4"
               >
                 <div className="flex items-start gap-3">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-sage/60 text-teal-dark">
-                    <Icono className="h-7 w-7" />
+                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-sage/40">
+                    <Image
+                      src={imagen}
+                      alt=""
+                      fill
+                      sizes="64px"
+                      className="object-cover"
+                    />
                   </div>
                   <div>
                     <label htmlFor={name} className="text-sm font-medium text-ink">
