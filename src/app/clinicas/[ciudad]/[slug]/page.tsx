@@ -200,7 +200,7 @@ export default async function ClinicaPage({
 
       <div className="mx-auto mt-4 max-w-[1600px] px-6">
         {portada ? (
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-sage">
+          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl bg-sage">
             <Image
               src={portada}
               alt={clinic.nombre}
@@ -211,7 +211,7 @@ export default async function ClinicaPage({
             />
           </div>
         ) : (
-          <div className="flex aspect-[16/9] w-full items-center justify-center rounded-2xl bg-sage text-sage-ink">
+          <div className="flex aspect-[16/9] w-full items-center justify-center rounded-3xl bg-sage text-sage-ink">
             Sin fotos todavía
           </div>
         )}
@@ -431,7 +431,7 @@ export default async function ClinicaPage({
           </p>
         </div>
 
-        <aside className="h-fit rounded-2xl border border-line bg-white/60 p-6">
+        <aside className="h-fit rounded-3xl border border-line bg-gradient-to-b from-sage/20 to-white p-6">
           <h2 className="font-display text-lg text-teal-dark">Contacto</h2>
 
           {esPremium ? (
@@ -489,7 +489,7 @@ export default async function ClinicaPage({
               </p>
               <Link
                 href="/cuenta/solicitud/nueva"
-                className="mt-3 inline-block rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper hover:bg-teal-dark"
+                className="mt-3 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-ink shadow-md shadow-orange/20 transition hover:opacity-90"
               >
                 Pedir presupuesto →
               </Link>
