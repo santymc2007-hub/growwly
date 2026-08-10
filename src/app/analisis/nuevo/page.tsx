@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { crearEstudio } from "../actions";
 import { BotonAnalizar } from "./boton-analizar";
+import { SlotFoto } from "./slot-foto";
 
 // Subir 5 fotos + analizarlas con IA puede superar los 10s por defecto
 // de las funciones de Vercel.
@@ -14,30 +14,35 @@ type SearchParams = { error?: string };
 const SLOTS = [
   {
     name: "frontal",
+    orientacion: "frontal",
     label: "Frontal",
     hint: "De frente, mirando a cámara, con el pelo apartado de la frente.",
     imagen: "/analisis/orientacion-frontal.png",
   },
   {
     name: "donante",
+    orientacion: "donante",
     label: "Trasera / zona donante",
     hint: "La nuca, de donde normalmente se extraen los injertos.",
     imagen: "/analisis/orientacion-trasera.png",
   },
   {
     name: "coronilla",
+    orientacion: "coronilla",
     label: "Coronilla",
     hint: "Vista desde arriba, mirando hacia abajo o con la cabeza inclinada.",
     imagen: "/analisis/orientacion-coronilla.png",
   },
   {
     name: "perfil_derecho",
+    orientacion: "perfil_derecho",
     label: "Perfil derecho",
     hint: "De lado, mostrando la línea del pelo por el lado derecho.",
     imagen: "/analisis/orientacion-perfil-derecho.png",
   },
   {
     name: "perfil_izquierdo",
+    orientacion: "perfil_izquierdo",
     label: "Perfil izquierdo",
     hint: "De lado, mostrando la línea del pelo por el lado izquierdo.",
     imagen: "/analisis/orientacion-perfil-izquierdo.png",
@@ -88,39 +93,8 @@ export default async function NuevoAnalisisPage({
 
         <form action={crearEstudio} className="mt-8 flex flex-col gap-6">
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {SLOTS.map(({ name, label, hint, imagen }) => (
-              <div
-                key={name}
-                className="rounded-2xl border border-line bg-white p-4"
-              >
-                <div className="flex items-start gap-3">
-                  <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-sage/40">
-                    <Image
-                      src={imagen}
-                      alt=""
-                      fill
-                      sizes="64px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor={name} className="text-sm font-medium text-ink">
-                      {label}{" "}
-                      <span className="font-normal text-ink-soft">
-                        (recomendable, no obligatoria)
-                      </span>
-                    </label>
-                    <p className="mt-0.5 text-xs text-ink-soft">{hint}</p>
-                  </div>
-                </div>
-                <input
-                  id={name}
-                  name={name}
-                  type="file"
-                  accept="image/*"
-                  className="mt-3 block w-full text-xs text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-xs file:font-medium file:text-sage-ink"
-                />
-              </div>
+            {SLOTS.map((slot) => (
+              <SlotFoto key={slot.name} {...slot} />
             ))}
           </div>
 
