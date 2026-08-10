@@ -49,38 +49,38 @@ export default async function HomePage() {
         className="relative overflow-hidden bg-cover bg-center"
         style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
       >
-        <div className="mx-auto grid max-w-[1600px] items-center gap-10 px-6 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16">
-          <div>
-            <h1 className="font-display text-4xl leading-tight text-teal-dark sm:text-5xl">
+        <div className="mx-auto grid max-w-[1600px] items-end gap-10 px-6 pt-16 sm:pt-20 lg:grid-cols-2 lg:gap-10">
+          <div className="pb-16 sm:pb-20">
+            <h1 className="font-display text-5xl font-extrabold leading-tight text-teal-dark sm:text-6xl">
               Tu{" "}
               <span className="inline-block bg-yellow px-2 text-teal-dark">
                 valoración con IA
               </span>{" "}
               en un par de clics.
             </h1>
-            <p className="mt-3 font-display text-2xl text-teal-dark sm:text-3xl">
+            <p className="mt-4 font-display text-3xl font-bold text-teal-dark sm:text-4xl">
               ¡Ah! Y con presupuesto personalizado.
             </p>
 
             <Link
               href="/analisis/nuevo"
-              className="mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 text-lg font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               Subir fotos
             </Link>
 
-            <p className="mt-4 text-sm text-ink-soft">
+            <p className="mt-4 text-base text-ink-soft">
               Gratis · 2 minutos · No es un diagnóstico médico
             </p>
           </div>
 
-          <div className="relative mx-auto aspect-[1114/889] w-full max-w-lg">
+          <div className="relative mx-auto aspect-[1114/889] w-full self-end">
             <Image
               src="/brand/hero-persona.png"
               alt="Persona haciéndose una foto para el análisis capilar"
               fill
-              sizes="(min-width: 1024px) 500px, 90vw"
-              className="object-contain"
+              sizes="(min-width: 1024px) 800px, 100vw"
+              className="object-contain object-bottom"
               priority
             />
           </div>
@@ -89,10 +89,10 @@ export default async function HomePage() {
 
       {/* Cómo funciona */}
       <section id="como-funciona" className="mx-auto max-w-[1600px] px-6 py-16">
-        <h2 className="font-display text-3xl text-teal-dark">
+        <h2 className="font-display text-4xl font-extrabold text-teal-dark">
           ¿Cómo funciona Growwly?
         </h2>
-        <p className="mt-2 max-w-2xl text-ink-soft">
+        <p className="mt-3 max-w-2xl text-lg text-ink-soft">
           Un proceso simple y transparente que te conecta con las mejores
           clínicas especializadas en tratamientos capilares.
         </p>
@@ -103,13 +103,13 @@ export default async function HomePage() {
             return (
               <div key={paso.titulo} className="relative">
                 <div className="h-full rounded-2xl border-2 border-sage bg-white p-6">
-                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-sage/60 text-teal-dark">
-                    <Icono size={22} aria-hidden />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sage/60 text-teal-dark">
+                    <Icono size={24} aria-hidden />
                   </div>
-                  <h3 className="mt-4 font-display text-lg text-teal-dark">
+                  <h3 className="mt-4 font-display text-xl font-bold text-teal-dark">
                     {paso.titulo}
                   </h3>
-                  <p className="mt-2 text-sm text-ink-soft">{paso.texto}</p>
+                  <p className="mt-2 text-base text-ink-soft">{paso.texto}</p>
                 </div>
                 {i < PASOS.length - 1 && (
                   <span
@@ -129,7 +129,7 @@ export default async function HomePage() {
       {destacadas.length > 0 && (
         <section className="border-t border-line bg-paper-dim">
           <div className="mx-auto max-w-[1600px] px-6 py-16">
-            <h2 className="font-display text-3xl text-teal-dark">
+            <h2 className="font-display text-4xl font-extrabold text-teal-dark">
               Clínicas destacadas
             </h2>
             <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
@@ -139,7 +139,7 @@ export default async function HomePage() {
             </div>
             <Link
               href="/clinicas"
-              className="mt-8 inline-block rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark"
+              className="mt-8 inline-block rounded-full bg-teal px-6 py-3 text-base font-medium text-paper transition hover:bg-teal-dark"
             >
               Ver todas las clínicas →
             </Link>
@@ -150,16 +150,16 @@ export default async function HomePage() {
       {/* CTA clínicas */}
       <section className="border-t border-line bg-gradient-to-br from-sage/50 to-cyan/10">
         <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-3 px-6 py-14 text-center">
-          <p className="font-display text-2xl text-teal-dark">
+          <p className="font-display text-3xl font-bold text-teal-dark">
             ¿Tienes una clínica capilar?
           </p>
-          <p className="max-w-md text-sm text-ink-soft">
+          <p className="max-w-md text-base text-ink-soft">
             Reclama tu ficha en el directorio y recibe solicitudes de
             presupuesto de pacientes reales.
           </p>
           <Link
             href="/clinica/registro"
-            className="mt-2 inline-block rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark"
+            className="mt-2 inline-block rounded-full bg-teal px-6 py-3 text-base font-medium text-paper transition hover:bg-teal-dark"
           >
             Únete como clínica →
           </Link>
