@@ -44,12 +44,12 @@ export default async function HomePage() {
       <SiteHeader />
 
       {/* Héroe */}
-      <section className="relative overflow-hidden bg-gradient-to-br from-sage via-sage/60 to-cyan/25">
+      <section className="relative overflow-hidden bg-gradient-to-r from-white via-white to-sage/50">
         <div className="mx-auto grid max-w-[1600px] items-center gap-10 px-6 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16">
           <div>
-            <h1 className="font-display text-4xl leading-tight text-ink sm:text-5xl">
+            <h1 className="font-display text-4xl leading-tight text-teal-dark sm:text-5xl">
               Tu{" "}
-              <span className="inline-block -rotate-1 bg-yellow px-2 text-ink">
+              <span className="inline-block bg-yellow px-2 text-teal-dark">
                 valoración con IA
               </span>{" "}
               en un par de clics.
@@ -60,7 +60,7 @@ export default async function HomePage() {
 
             <Link
               href="/analisis/nuevo"
-              className="mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 text-base font-bold text-ink shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               Subir fotos
             </Link>

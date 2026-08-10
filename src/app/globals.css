@@ -26,9 +26,10 @@
   --color-sage: #cfebdc;
   --color-sage-ink: #1f6b43;
 
-  /* CTA principal (botón "Subir fotos" y similares): degradado cálido */
-  --color-yellow: #ffd54a;
-  --color-orange: #ff9a1f;
+  /* CTA principal (botón "Subir fotos" y similares): degradado cálido
+     — valores extraídos en píxeles del mockup, no estimados */
+  --color-yellow: #e8ef2d;
+  --color-orange: #ffba1f;
 
   /* Líneas y bordes */
   --color-line: #e1e8e6;

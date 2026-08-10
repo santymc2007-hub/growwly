@@ -16,7 +16,7 @@ export function SiteHeader() {
             priority
           />
         </Link>
-        <nav className="hidden items-center gap-7 text-sm font-medium text-ink-soft md:flex">
+        <nav className="hidden items-center gap-7 text-sm font-medium text-ink md:flex">
           <Link href="/" className="hover:text-teal">
             Inicio
           </Link>
@@ -34,13 +34,13 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/cuenta"
-            className="rounded-full border border-line px-4 py-2 text-ink transition hover:border-teal hover:text-teal"
+            className="rounded-full border border-cyan/60 px-4 py-2 text-ink transition hover:border-cyan"
           >
             Mi cuenta
           </Link>
           <Link
             href="/clinica/login"
-            className="rounded-full bg-teal px-4 py-2 text-paper transition hover:bg-teal-dark"
+            className="rounded-full bg-[linear-gradient(90deg,#94ceb8,#66c6ec)] px-4 py-2 font-semibold text-ink transition hover:opacity-90"
           >
             Acceso Clínicas
           </Link>
