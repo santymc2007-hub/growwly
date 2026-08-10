@@ -49,7 +49,7 @@ export default async function HomePage() {
       >
         <SiteHeader />
         <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pt-4 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr]">
-          <div className="self-center text-left">
+          <div className="order-1 self-center text-left lg:order-1">
             <h1 className="font-display text-2xl font-extrabold leading-tight text-teal-dark sm:text-5xl lg:text-6xl">
               Tu{" "}
               <span className="inline-block bg-yellow px-2 text-teal-dark">
@@ -61,19 +61,21 @@ export default async function HomePage() {
               ¡Ah! Y con presupuesto personalizado.
             </p>
 
-            <Link
-              href="/analisis/nuevo"
-              className="mt-4 inline-block w-full max-w-xs rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90 sm:mt-8 sm:max-w-md sm:px-8 sm:py-5 sm:text-xl"
-            >
-              Subir fotos
-            </Link>
-
-            <p className="mt-3 text-xs text-ink-soft sm:mt-4 sm:text-base">
-              Gratis · 2 minutos · No es un diagnóstico médico
-            </p>
+            {/* En escritorio, el botón y el texto van aquí, junto al titular */}
+            <div className="hidden lg:block">
+              <Link
+                href="/analisis/nuevo"
+                className="mt-8 inline-block w-full max-w-md rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-5 font-display text-xl font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              >
+                Subir fotos
+              </Link>
+              <p className="mt-4 text-base text-ink-soft">
+                Gratis · 2 minutos · No es un diagnóstico médico
+              </p>
+            </div>
           </div>
 
-          <div className="relative -mx-6 aspect-[1114/889] w-full self-end sm:mx-auto sm:max-w-none">
+          <div className="order-2 relative -mx-6 aspect-[1114/889] w-full self-end sm:mx-auto sm:max-w-none lg:order-2">
             <Image
               src="/brand/hero-persona.png"
               alt="Persona haciéndose una foto para el análisis capilar"
@@ -82,6 +84,19 @@ export default async function HomePage() {
               className="object-contain object-bottom"
               priority
             />
+          </div>
+
+          {/* En móvil, el botón y el texto van debajo de la imagen */}
+          <div className="order-3 text-left lg:hidden">
+            <Link
+              href="/analisis/nuevo"
+              className="inline-block w-full max-w-xs rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+            >
+              Subir fotos
+            </Link>
+            <p className="mt-3 text-xs text-ink-soft">
+              Gratis · 2 minutos · No es un diagnóstico médico
+            </p>
           </div>
         </div>
       </section>
