@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { ScanSearch, Send, FileCheck2, CalendarCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
@@ -44,7 +45,10 @@ export default async function HomePage() {
       <SiteHeader />
 
       {/* Héroe */}
-      <section className="relative overflow-hidden bg-gradient-to-r from-white via-white to-sage/50">
+      <section
+        className="relative overflow-hidden bg-cover bg-center"
+        style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
+      >
         <div className="mx-auto grid max-w-[1600px] items-center gap-10 px-6 py-16 sm:py-20 lg:grid-cols-2 lg:gap-16">
           <div>
             <h1 className="font-display text-4xl leading-tight text-teal-dark sm:text-5xl">
@@ -70,15 +74,15 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="relative mx-auto aspect-[4/3] w-full max-w-lg">
-            <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-white to-sage/70 shadow-xl" />
-            <div className="absolute inset-10 rounded-2xl border-2 border-dashed border-cyan/40" />
-            <div className="absolute right-5 top-5 flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-teal-dark shadow-md">
-              ✨ AI
-            </div>
-            <div className="absolute inset-0 flex items-center justify-center px-10 text-center text-sm text-ink-soft">
-              Foto pendiente — aquí irá la imagen final
-            </div>
+          <div className="relative mx-auto aspect-[1114/889] w-full max-w-lg">
+            <Image
+              src="/brand/hero-persona.png"
+              alt="Persona haciéndose una foto para el análisis capilar"
+              fill
+              sizes="(min-width: 1024px) 500px, 90vw"
+              className="object-contain"
+              priority
+            />
           </div>
         </div>
       </section>

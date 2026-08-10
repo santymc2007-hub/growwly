@@ -34,13 +34,18 @@ export function SiteHeader() {
           </Link>
           <Link
             href="/cuenta"
-            className="rounded-full border border-cyan/60 px-4 py-2 text-ink transition hover:border-cyan"
+            style={{
+              background:
+                "linear-gradient(white, white) padding-box, linear-gradient(90deg, var(--color-brand-green), var(--color-brand-blue)) border-box",
+              border: "2px solid transparent",
+            }}
+            className="rounded-full px-4 py-2 text-ink transition hover:opacity-80"
           >
             Mi cuenta
           </Link>
           <Link
             href="/clinica/login"
-            className="rounded-full bg-[linear-gradient(90deg,#94ceb8,#66c6ec)] px-4 py-2 font-semibold text-ink transition hover:opacity-90"
+            className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
           >
             Acceso Clínicas
           </Link>
