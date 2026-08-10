@@ -48,37 +48,37 @@ export default async function HomePage() {
         style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
       >
         <SiteHeader />
-        <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pt-8 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr]">
-          <div className="pb-16 text-center sm:pb-20">
-            <h1 className="font-display text-5xl font-extrabold leading-tight text-teal-dark sm:text-6xl">
+        <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pt-4 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="self-center text-left">
+            <h1 className="font-display text-2xl font-extrabold leading-tight text-teal-dark sm:text-5xl lg:text-6xl">
               Tu{" "}
               <span className="inline-block bg-yellow px-2 text-teal-dark">
                 valoración con IA
               </span>{" "}
               en un par de clics.
             </h1>
-            <p className="mt-4 font-display text-3xl font-bold text-teal-dark sm:text-4xl">
+            <p className="mt-2 font-display text-lg font-bold text-teal-dark sm:mt-4 sm:text-3xl lg:text-4xl">
               ¡Ah! Y con presupuesto personalizado.
             </p>
 
             <Link
               href="/analisis/nuevo"
-              className="mt-8 inline-block w-full max-w-md rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-5 font-display text-xl font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="mt-4 inline-block w-full max-w-xs rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90 sm:mt-8 sm:max-w-md sm:px-8 sm:py-5 sm:text-xl"
             >
               Subir fotos
             </Link>
 
-            <p className="mt-4 text-base text-ink-soft">
+            <p className="mt-3 text-xs text-ink-soft sm:mt-4 sm:text-base">
               Gratis · 2 minutos · No es un diagnóstico médico
             </p>
           </div>
 
-          <div className="relative mx-auto aspect-[1114/889] w-full self-end">
+          <div className="relative mx-auto aspect-[1114/889] w-full max-w-[220px] self-end sm:max-w-none">
             <Image
               src="/brand/hero-persona.png"
               alt="Persona haciéndose una foto para el análisis capilar"
               fill
-              sizes="(min-width: 1024px) 900px, 100vw"
+              sizes="(min-width: 1024px) 900px, 60vw"
               className="object-contain object-bottom"
               priority
             />
