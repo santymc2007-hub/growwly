@@ -61,12 +61,11 @@ export default async function ClinicasPage({
 
   return (
     <main className="flex-1">
-      <SiteHeader />
-
       <header
         className="bg-cover bg-center"
         style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
       >
+        <SiteHeader />
         <div className="mx-auto max-w-[1600px] px-6 py-12">
           <h1 className="font-display text-4xl text-ink sm:text-5xl">
             Clínicas <span className="text-teal-dark">capilares</span> en

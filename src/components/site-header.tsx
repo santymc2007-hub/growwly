@@ -4,7 +4,7 @@ import { MobileMenu } from "./mobile-menu";
 
 export function SiteHeader() {
   return (
-    <header className="relative border-b border-line bg-white">
+    <header className="relative z-20">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center">
           <Image

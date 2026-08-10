@@ -42,15 +42,14 @@ export default async function HomePage() {
 
   return (
     <main className="flex-1">
-      <SiteHeader />
-
-      {/* Héroe */}
+      {/* Héroe (incluye la cabecera dentro, para que el degradado se vea detrás del menú) */}
       <section
         className="relative overflow-hidden bg-cover bg-center"
         style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
       >
-        <div className="mx-auto grid max-w-[1600px] items-end gap-10 px-6 pt-16 sm:pt-20 lg:grid-cols-2 lg:gap-10">
-          <div className="pb-16 sm:pb-20">
+        <SiteHeader />
+        <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pt-8 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr]">
+          <div className="pb-16 text-center sm:pb-20">
             <h1 className="font-display text-5xl font-extrabold leading-tight text-teal-dark sm:text-6xl">
               Tu{" "}
               <span className="inline-block bg-yellow px-2 text-teal-dark">
@@ -64,7 +63,7 @@ export default async function HomePage() {
 
             <Link
               href="/analisis/nuevo"
-              className="mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 text-lg font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="mt-8 inline-block w-full max-w-md rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-5 font-display text-xl font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               Subir fotos
             </Link>
@@ -79,7 +78,7 @@ export default async function HomePage() {
               src="/brand/hero-persona.png"
               alt="Persona haciéndose una foto para el análisis capilar"
               fill
-              sizes="(min-width: 1024px) 800px, 100vw"
+              sizes="(min-width: 1024px) 900px, 100vw"
               className="object-contain object-bottom"
               priority
             />
