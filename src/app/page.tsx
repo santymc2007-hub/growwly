@@ -73,7 +73,7 @@ export default async function HomePage() {
             </p>
           </div>
 
-          <div className="relative mx-auto aspect-[1114/889] w-full max-w-[220px] self-end sm:max-w-none">
+          <div className="relative mx-auto aspect-[1114/889] w-full max-w-[440px] self-end sm:max-w-none">
             <Image
               src="/brand/hero-persona.png"
               alt="Persona haciéndose una foto para el análisis capilar"
