@@ -16,6 +16,7 @@ async function getClinicasDeCiudad(ciudadReal: string) {
     .select("*")
     .eq("ciudad", ciudadReal)
     .eq("publicado", true)
+    .order("destacado_ciudad", { ascending: false })
     .order("destacado", { ascending: false })
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });

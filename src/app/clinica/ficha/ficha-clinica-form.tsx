@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import {
   TECNICAS_DISPONIBLES,
   IDIOMAS_DISPONIBLES,
@@ -9,6 +10,7 @@ import {
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
+import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 
 type Props = {
   clinic: Clinic;
@@ -22,6 +24,26 @@ const labelClass = "text-sm font-medium text-ink";
 export function FichaClinicaForm({ clinic, action }: Props) {
   return (
     <form action={action} className="flex flex-col gap-8">
+      {clinic.plan !== "premium" && (
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-green to-brand-blue p-5">
+          <div>
+            <p className="font-display text-lg font-bold text-teal-dark">
+              ✦ Pasa a Premium
+            </p>
+            <p className="mt-1 text-sm text-teal-dark/80">
+              Desbloquea contacto directo, fotos antes/después, opiniones de
+              pacientes, diplomas, ofertas y otros servicios en tu ficha.
+            </p>
+          </div>
+          <Link
+            href="/clinica/visibilidad"
+            className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow transition hover:opacity-90"
+          >
+            Solicitar Premium →
+          </Link>
+        </div>
+      )}
+
       <section>
         <h2 className="font-display text-lg text-teal-dark">Lo básico</h2>
         <div className="mt-4 grid gap-4">
@@ -277,15 +299,10 @@ export function FichaClinicaForm({ clinic, action }: Props) {
             />
           </div>
           <div>
-            <label className={labelClass} htmlFor="horarios">
-              Horarios
-            </label>
-            <input
-              id="horarios"
-              name="horarios"
-              defaultValue={clinic.horarios ?? undefined}
-              className={inputClass}
-            />
+            <label className={labelClass}>Horario</label>
+            <div className="mt-2 rounded-xl border border-line bg-white p-4">
+              <HorarioSemanal valorInicial={clinic.horarios_estructurados} />
+            </div>
           </div>
           <div>
             <label className={labelClass} htmlFor="accesibilidad">
@@ -320,24 +337,6 @@ export function FichaClinicaForm({ clinic, action }: Props) {
         </div>
       </section>
 
-      <section>
-        <h2 className="font-display text-lg text-teal-dark">
-          Oferta activa
-        </h2>
-        <div className="mt-4">
-          <label className={labelClass} htmlFor="detalle_oferta">
-            Descríbela aquí (déjalo vacío si no tienes ninguna activa)
-          </label>
-          <input
-            id="detalle_oferta"
-            name="detalle_oferta"
-            placeholder="Ej. 20% de descuento en primera sesión"
-            defaultValue={clinic.detalle_oferta ?? undefined}
-            className={inputClass}
-          />
-        </div>
-      </section>
-
       {clinic.plan === "premium" && (
         <section className="mt-2 rounded-xl border border-cyan/30 bg-cyan/5 p-4">
           <h2 className="font-display text-lg text-teal-dark">
@@ -348,6 +347,19 @@ export function FichaClinicaForm({ clinic, action }: Props) {
           </p>
 
           <div className="mt-4">
+            <label htmlFor="detalle_oferta" className={labelClass}>
+              Oferta activa
+            </label>
+            <input
+              id="detalle_oferta"
+              name="detalle_oferta"
+              placeholder="Ej. 20% de descuento en primera sesión (déjalo vacío si no tienes ninguna)"
+              defaultValue={clinic.detalle_oferta ?? undefined}
+              className={inputClass}
+            />
+          </div>
+
+          <div className="mt-6">
             <p className={labelClass}>Fotos antes / después (hasta 3 pares)</p>
             {[0, 1, 2].map((i) => {
               const par = Array.isArray(clinic.fotos_antes_despues)
@@ -441,7 +453,7 @@ export function FichaClinicaForm({ clinic, action }: Props) {
       <div className="flex gap-3 border-t border-line pt-6">
         <button
           type="submit"
-          className="rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-paper hover:bg-teal-dark"
+          className="rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark"
         >
           Guardar cambios
         </button>

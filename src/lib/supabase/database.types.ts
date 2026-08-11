@@ -61,6 +61,12 @@ export interface Database {
           destacado_solicitado: boolean;
           plan: string;
           plan_solicitado: string | null;
+          destacado_home: boolean;
+          destacado_home_solicitado: boolean;
+          destacado_ciudad: boolean;
+          destacado_ciudad_solicitado: boolean;
+          horarios_estructurados: Json;
+          datos_facturacion: Json;
           fotos_antes_despues: Json;
           opiniones: Json;
           certificados: string[];
@@ -108,6 +114,12 @@ export interface Database {
           destacado_solicitado?: boolean;
           plan?: string;
           plan_solicitado?: string | null;
+          destacado_home?: boolean;
+          destacado_home_solicitado?: boolean;
+          destacado_ciudad?: boolean;
+          destacado_ciudad_solicitado?: boolean;
+          horarios_estructurados?: Json;
+          datos_facturacion?: Json;
           fotos_antes_despues?: Json;
           opiniones?: Json;
           certificados?: string[];
@@ -155,6 +167,12 @@ export interface Database {
           destacado_solicitado?: boolean;
           plan?: string;
           plan_solicitado?: string | null;
+          destacado_home?: boolean;
+          destacado_home_solicitado?: boolean;
+          destacado_ciudad?: boolean;
+          destacado_ciudad_solicitado?: boolean;
+          horarios_estructurados?: Json;
+          datos_facturacion?: Json;
           fotos_antes_despues?: Json;
           opiniones?: Json;
           certificados?: string[];

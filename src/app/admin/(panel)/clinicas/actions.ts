@@ -55,12 +55,20 @@ function readClinicFields(formData: FormData): ClinicWrite {
     publicado: formData.get("publicado") === "on",
     destacado: formData.get("destacado") === "on",
     plan: str("plan") ?? "basico",
+    destacado_home: formData.get("destacado_home") === "on",
+    destacado_ciudad: formData.get("destacado_ciudad") === "on",
     direccion: str("direccion"),
     rango_precios: str("rango_precios"),
     precio_desde: num("precio_desde"),
     precio_hasta: num("precio_hasta"),
     accesibilidad: str("accesibilidad"),
-    horarios: str("horarios"),
+    horarios_estructurados: (() => {
+      try {
+        return JSON.parse(String(formData.get("horarios_estructurados") ?? "[]"));
+      } catch {
+        return [];
+      }
+    })(),
     rating_google: num("rating_google"),
     resenas_google: num("resenas_google"),
     rating_doctoralia: num("rating_doctoralia"),
@@ -181,6 +189,8 @@ export async function updateClinic(id: string, formData: FormData) {
       ...fields,
       fotos: [...conservadas, ...nuevas],
       destacado_solicitado: false,
+      destacado_home_solicitado: false,
+      destacado_ciudad_solicitado: false,
       plan_solicitado: null,
     })
     .eq("id", id);

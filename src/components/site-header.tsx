@@ -1,8 +1,25 @@
 import Image from "next/image";
 import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
 import { MobileMenu } from "./mobile-menu";
+import { cerrarSesionClinica } from "@/app/clinica/actions";
 
-export function SiteHeader() {
+export async function SiteHeader() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let esClinicaLogueada = false;
+  if (user) {
+    const { data: profile } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .maybeSingle();
+    esClinicaLogueada = profile?.role === "clinic";
+  }
+
   return (
     <header className="relative z-20">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
@@ -43,14 +60,25 @@ export function SiteHeader() {
           >
             Mi cuenta
           </Link>
-          <Link
-            href="/clinica/login"
-            className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
-          >
-            Acceso Clínicas
-          </Link>
+          {esClinicaLogueada ? (
+            <form action={cerrarSesionClinica}>
+              <button
+                type="submit"
+                className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
+              >
+                Cerrar sesión
+              </button>
+            </form>
+          ) : (
+            <Link
+              href="/clinica/login"
+              className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
+            >
+              Acceso Clínicas
+            </Link>
+          )}
         </nav>
-        <MobileMenu />
+        <MobileMenu esClinicaLogueada={esClinicaLogueada} />
       </div>
     </header>
   );

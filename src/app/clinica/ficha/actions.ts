@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadClinicPhotos } from "@/lib/supabase/storage";
+import type { Json } from "@/lib/supabase/database.types";
 
 /** Comprueba que el usuario es una clínica aprobada y devuelve su clinic_id. */
 async function requireClinicaAprobada(): Promise<string> {
@@ -65,6 +66,15 @@ export async function actualizarMiFicha(formData: FormData) {
 
   const detalleOferta = str("detalle_oferta");
 
+  let horariosEstructurados: Json = [];
+  try {
+    horariosEstructurados = JSON.parse(
+      String(formData.get("horarios_estructurados") ?? "[]"),
+    );
+  } catch {
+    horariosEstructurados = [];
+  }
+
   const camposComunes = {
     descripcion: str("descripcion"),
     telefono: str("telefono"),
@@ -81,12 +91,10 @@ export async function actualizarMiFicha(formData: FormData) {
     precio_desde: num("precio_desde"),
     precio_hasta: num("precio_hasta"),
     rango_precios: str("rango_precios"),
-    horarios: str("horarios"),
+    horarios_estructurados: horariosEstructurados,
     accesibilidad: str("accesibilidad"),
     financiacion: formData.get("financiacion") === "on",
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
-    tiene_oferta: Boolean(detalleOferta),
-    detalle_oferta: detalleOferta,
   };
 
   // El contenido "premium" (antes/después, opiniones, certificados) solo
@@ -141,6 +149,8 @@ export async function actualizarMiFicha(formData: FormData) {
       ];
 
       camposPremium = {
+        tiene_oferta: Boolean(detalleOferta),
+        detalle_oferta: detalleOferta,
         fotos_antes_despues: nuevosPares,
         opiniones,
         certificados,
@@ -180,28 +190,4 @@ export async function cambiarPublicacion(publicar: boolean) {
   revalidatePath("/clinica/ficha");
   revalidatePath("/clinicas");
   redirect("/clinica/ficha");
-}
-
-export async function solicitarDestacado() {
-  const clinicId = await requireClinicaAprobada();
-  const supabase = createAdminClient();
-  await supabase
-    .from("clinics")
-    .update({ destacado_solicitado: true })
-    .eq("id", clinicId);
-
-  revalidatePath("/clinica/ficha");
-  redirect("/clinica/ficha?solicitud=destacado");
-}
-
-export async function solicitarPremium() {
-  const clinicId = await requireClinicaAprobada();
-  const supabase = createAdminClient();
-  await supabase
-    .from("clinics")
-    .update({ plan_solicitado: "premium" })
-    .eq("id", clinicId);
-
-  revalidatePath("/clinica/ficha");
-  redirect("/clinica/ficha?solicitud=premium");
 }

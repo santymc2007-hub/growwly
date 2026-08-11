@@ -1,8 +1,8 @@
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
-import { cerrarSesionClinica } from "./actions";
 import { ClinicaNav } from "./clinica-nav";
 
 const ESTADO_LABEL: Record<string, string> = {
@@ -31,47 +31,50 @@ export default async function ClinicaPanelPage() {
     redirect("/cuenta");
   }
 
-  let nombreClinica: string | null = null;
+  let clinica: { nombre: string; fotos: string[] } | null = null;
   if (profile.clinic_id) {
-    const { data: clinica } = await supabase
+    const { data } = await supabase
       .from("clinics")
-      .select("nombre")
+      .select("nombre, fotos")
       .eq("id", profile.clinic_id)
       .maybeSingle();
-    nombreClinica = clinica?.nombre ?? null;
+    clinica = data;
   }
 
+  const fotoPrincipal = clinica?.fotos?.[0] ?? null;
+
   const cabecera = (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center gap-4">
+      {fotoPrincipal ? (
+        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-white shadow">
+          <Image src={fotoPrincipal} alt="" fill sizes="56px" className="object-cover" />
+        </div>
+      ) : (
+        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sage text-lg font-bold text-sage-ink">
+          {(clinica?.nombre ?? "?").charAt(0)}
+        </div>
+      )}
       <div>
         <h1 className="font-display text-2xl text-teal-dark">
-          {nombreClinica ?? "Panel de clínica"}
+          {clinica?.nombre ?? "Panel de clínica"}
         </h1>
-        <p className="mt-1 text-sm text-ink-soft">{user.email}</p>
+        <p className="mt-0.5 text-sm text-ink-soft">{user.email}</p>
       </div>
-      <form action={cerrarSesionClinica}>
-        <button
-          type="submit"
-          className="text-sm font-medium text-ink-soft hover:text-error"
-        >
-          Cerrar sesión
-        </button>
-      </form>
     </div>
   );
 
   if (profile.clinic_status !== "aprobado") {
     return (
-      <main className="flex-1">
+      <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
         <SiteHeader />
         <div className="mx-auto max-w-lg px-6 py-12">
           {cabecera}
-          <div className="mt-8 rounded-xl border border-dashed border-line bg-white p-6 text-center">
+          <div className="mt-8 rounded-2xl border border-dashed border-line bg-white p-6 text-center">
             <p className="font-display text-lg text-teal-dark">
               Cuenta pendiente de aprobación
             </p>
             <p className="mt-2 text-sm text-ink-soft">
-              En cuanto confirmemos que representas a {nombreClinica ?? "esta clínica"},
+              En cuanto confirmemos que representas a {clinica?.nombre ?? "esta clínica"},
               activaremos tu acceso a las solicitudes de presupuesto.
             </p>
           </div>
@@ -87,7 +90,7 @@ export default async function ClinicaPanelPage() {
     .order("enviado_en", { ascending: false });
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
       <div className="mx-auto max-w-3xl px-6 py-12">
         {cabecera}
@@ -105,7 +108,7 @@ export default async function ClinicaPanelPage() {
               <li key={lead.id}>
                 <Link
                   href={`/leads/${lead.token}`}
-                  className="flex items-center justify-between rounded-lg border border-line bg-white px-4 py-3 text-sm hover:border-teal/40"
+                  className="flex items-center justify-between rounded-xl border border-line bg-white px-4 py-3 text-sm hover:border-teal/40"
                 >
                   <span className="text-ink">
                     {new Date(lead.enviado_en).toLocaleDateString("es-ES")}

@@ -1,13 +1,15 @@
 import Link from "next/link";
 
-export function ClinicaNav({ activo }: { activo: "solicitudes" | "ficha" }) {
-  const tab = (href: string, label: string, key: typeof activo) => (
+type Seccion = "ficha" | "solicitudes" | "visibilidad" | "facturacion";
+
+export function ClinicaNav({ activo }: { activo: Seccion }) {
+  const tab = (href: string, label: string, key: Seccion) => (
     <Link
       href={href}
-      className={`border-b-2 px-1 pb-2 text-sm font-medium ${
+      className={`rounded-full px-4 py-2 text-sm font-semibold transition ${
         activo === key
-          ? "border-teal text-teal-dark"
-          : "border-transparent text-ink-soft hover:text-teal"
+          ? "bg-teal text-paper"
+          : "bg-white text-ink-soft hover:text-teal"
       }`}
     >
       {label}
@@ -15,9 +17,11 @@ export function ClinicaNav({ activo }: { activo: "solicitudes" | "ficha" }) {
   );
 
   return (
-    <nav className="mb-6 flex gap-6 border-b border-line">
-      {tab("/clinica", "Solicitudes de presupuesto", "solicitudes")}
+    <nav className="mb-6 flex flex-wrap gap-2">
       {tab("/clinica/ficha", "Ficha", "ficha")}
+      {tab("/clinica", "Solicitudes de presupuesto", "solicitudes")}
+      {tab("/clinica/visibilidad", "Visibilidad", "visibilidad")}
+      {tab("/clinica/facturacion", "Datos de facturación", "facturacion")}
     </nav>
   );
 }

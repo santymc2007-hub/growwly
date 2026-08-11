@@ -515,13 +515,39 @@ export default async function ClinicaPage({
             </>
           )}
 
-          {clinic.horarios && (
+          {Array.isArray(clinic.horarios_estructurados) &&
+          clinic.horarios_estructurados.length > 0 ? (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
-                Horarios
+                Horario
               </h2>
-              <p className="mt-2 text-sm text-ink-soft">{clinic.horarios}</p>
+              <dl className="mt-2 divide-y divide-line/60 text-sm">
+                {(
+                  clinic.horarios_estructurados as {
+                    dia: string;
+                    abierto: boolean;
+                    desde: string;
+                    hasta: string;
+                  }[]
+                ).map((d) => (
+                  <div key={d.dia} className="flex justify-between py-1.5">
+                    <dt className="text-ink-soft">{d.dia}</dt>
+                    <dd className="text-ink">
+                      {d.abierto ? `${d.desde} - ${d.hasta}` : "Cerrado"}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
             </>
+          ) : (
+            clinic.horarios && (
+              <>
+                <h2 className="mt-6 font-display text-lg text-teal-dark">
+                  Horarios
+                </h2>
+                <p className="mt-2 text-sm text-ink-soft">{clinic.horarios}</p>
+              </>
+            )
           )}
 
           {(clinic.precio_desde !== null ||

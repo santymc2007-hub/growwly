@@ -2,9 +2,14 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, User, Store } from "lucide-react";
+import { Menu, X, User, Store, LogOut } from "lucide-react";
+import { cerrarSesionClinica } from "@/app/clinica/actions";
 
-export function MobileMenu() {
+export function MobileMenu({
+  esClinicaLogueada = false,
+}: {
+  esClinicaLogueada?: boolean;
+}) {
   const [abierto, setAbierto] = useState(false);
 
   return (
@@ -66,14 +71,26 @@ export function MobileMenu() {
               Mi cuenta
             </Link>
             <div className="my-1 border-t border-line" aria-hidden />
-            <Link
-              href="/clinica/login"
-              className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-ink-soft/80 hover:bg-paper-dim hover:text-cyan"
-              onClick={() => setAbierto(false)}
-            >
-              <Store size={15} aria-hidden />
-              Acceso clínicas
-            </Link>
+            {esClinicaLogueada ? (
+              <form action={cerrarSesionClinica}>
+                <button
+                  type="submit"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-ink-soft/80 hover:bg-paper-dim hover:text-error"
+                >
+                  <LogOut size={15} aria-hidden />
+                  Cerrar sesión (clínica)
+                </button>
+              </form>
+            ) : (
+              <Link
+                href="/clinica/login"
+                className="flex items-center gap-2 rounded-lg px-3 py-2.5 text-ink-soft/80 hover:bg-paper-dim hover:text-cyan"
+                onClick={() => setAbierto(false)}
+              >
+                <Store size={15} aria-hidden />
+                Acceso clínicas
+              </Link>
+            )}
           </nav>
         </div>
       )}

@@ -8,6 +8,7 @@ import {
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
+import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 
 type ClinicFormProps = {
   action: (formData: FormData) => void | Promise<void>;
@@ -313,15 +314,10 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
             />
           </div>
           <div>
-            <label className={labelClass} htmlFor="horarios">
-              Horarios
-            </label>
-            <input
-              id="horarios"
-              name="horarios"
-              defaultValue={clinic?.horarios ?? undefined}
-              className={inputClass}
-            />
+            <label className={labelClass}>Horario</label>
+            <div className="mt-1 rounded-lg border border-line bg-white p-3">
+              <HorarioSemanal valorInicial={clinic?.horarios_estructurados} />
+            </div>
           </div>
           <div>
             <label className={labelClass} htmlFor="accesibilidad">
@@ -568,6 +564,30 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
             (aparece primero en el listado; también puedes marcarla desde la
             tabla)
           </span>
+        </label>
+
+        <label className="mt-2 flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="destacado_home"
+            defaultChecked={clinic?.destacado_home}
+          />
+          Destacada en la Home{" "}
+          {clinic?.destacado_home_solicitado && (
+            <span className="text-xs text-cyan-dark">(lo ha solicitado)</span>
+          )}
+        </label>
+
+        <label className="mt-2 flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="destacado_ciudad"
+            defaultChecked={clinic?.destacado_ciudad}
+          />
+          Destacada en su ciudad{" "}
+          {clinic?.destacado_ciudad_solicitado && (
+            <span className="text-xs text-cyan-dark">(lo ha solicitado)</span>
+          )}
         </label>
 
         <div className="mt-4">
