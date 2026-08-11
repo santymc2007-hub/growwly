@@ -1,0 +1,52 @@
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgFue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#96ceb7" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#61c5f1" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bgFue)"/>
+
+  <!-- Cabeza de perfil -->
+  <g stroke="#1f5568" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M330 130 C 260 130 220 190 220 250 C 220 300 250 340 250 370
+             L 250 400 L 330 400 L 330 360
+             C 380 370 440 350 460 300
+             C 480 250 470 190 430 155
+             C 400 130 365 125 330 130 Z" />
+    <!-- oreja -->
+    <path d="M255 255 C 240 255 235 275 250 285" />
+  </g>
+
+  <!-- Zona donante marcada (nuca) -->
+  <path d="M245 300 C 260 320 280 330 305 335" stroke="#96ceb7" stroke-width="10" fill="none" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- Puntos extraídos (injertos) saliendo de la zona donante -->
+  <g fill="#1f5568">
+    <circle cx="270" cy="310" r="5"/>
+    <circle cx="290" cy="325" r="5"/>
+    <circle cx="310" cy="333" r="5"/>
+  </g>
+
+  <!-- Trayectorias curvas hacia la zona frontal -->
+  <g stroke="#61c5f1" stroke-width="3" fill="none" stroke-dasharray="2 10" stroke-linecap="round">
+    <path d="M275 305 C 340 250 380 190 400 160"/>
+    <path d="M295 320 C 350 270 390 210 415 175"/>
+    <path d="M315 330 C 365 285 400 225 425 190"/>
+  </g>
+
+  <!-- Nuevos injertos implantados en la línea frontal -->
+  <g fill="#2fbf6b">
+    <circle cx="400" cy="160" r="6"/>
+    <circle cx="415" cy="175" r="6"/>
+    <circle cx="425" cy="190" r="6"/>
+    <circle cx="410" cy="200" r="6"/>
+  </g>
+
+  <!-- Iconos decorativos flotantes -->
+  <g stroke="#1f5568" stroke-width="2.5" fill="none" opacity="0.5">
+    <circle cx="580" cy="120" r="14"/>
+    <circle cx="620" cy="150" r="8"/>
+    <circle cx="560" cy="170" r="6"/>
+  </g>
+</svg>

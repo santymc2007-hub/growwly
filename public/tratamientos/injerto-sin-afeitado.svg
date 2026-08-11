@@ -1,0 +1,45 @@
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgLong" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#96ceb7" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#61c5f1" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bgLong)"/>
+
+  <g stroke="#1f5568" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M330 130 C 260 130 220 190 220 250 C 220 300 250 340 250 370
+             L 250 400 L 330 400 L 330 360
+             C 380 370 440 350 460 300
+             C 480 250 470 190 430 155
+             C 400 130 365 125 330 130 Z" />
+    <path d="M255 255 C 240 255 235 275 250 285" />
+  </g>
+
+  <!-- Mechones largos en la zona donante (a diferencia del rapado de FUE) -->
+  <g stroke="#1f5568" stroke-width="3" fill="none" stroke-linecap="round" opacity="0.85">
+    <path d="M225 260 C 210 280 205 300 215 320"/>
+    <path d="M235 270 C 222 292 218 312 228 332"/>
+    <path d="M248 280 C 236 302 233 322 244 340"/>
+    <path d="M260 290 C 250 312 248 330 258 348"/>
+  </g>
+
+  <!-- Uno de los mechones extraído con su folículo, sin rapar alrededor -->
+  <g stroke="#2fbf6b" stroke-width="3" fill="none" stroke-linecap="round">
+    <path d="M330 300 C 335 330 340 355 345 380"/>
+  </g>
+  <circle cx="330" cy="298" r="5" fill="#2fbf6b"/>
+
+  <!-- Trayectoria hacia zona frontal -->
+  <path d="M300 300 C 350 260 380 210 400 175" stroke="#61c5f1" stroke-width="3" fill="none" stroke-dasharray="2 10" stroke-linecap="round"/>
+
+  <g fill="#2fbf6b">
+    <circle cx="400" cy="175" r="6"/>
+    <circle cx="415" cy="190" r="6"/>
+  </g>
+
+  <g stroke="#1f5568" stroke-width="2.5" fill="none" opacity="0.5">
+    <circle cx="580" cy="120" r="14"/>
+    <circle cx="620" cy="150" r="8"/>
+  </g>
+</svg>

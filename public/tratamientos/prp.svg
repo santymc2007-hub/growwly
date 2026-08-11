@@ -1,0 +1,47 @@
+<svg viewBox="0 0 800 450" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgPrp" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#96ceb7" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#61c5f1" stop-opacity="0.35"/>
+    </linearGradient>
+  </defs>
+  <rect width="800" height="450" fill="url(#bgPrp)"/>
+
+  <!-- Cabeza pequeña de referencia -->
+  <g stroke="#1f5568" stroke-width="3" fill="none" opacity="0.5" transform="translate(120,260) scale(0.55)">
+    <path d="M330 130 C 260 130 220 190 220 250 C 220 300 250 340 250 370
+             L 250 400 L 330 400 L 330 360
+             C 380 370 440 350 460 300
+             C 480 250 470 190 430 155
+             C 400 130 365 125 330 130 Z" />
+  </g>
+
+  <!-- Tubo de ensayo con plasma centrifugado (capas) -->
+  <g transform="translate(360,120)">
+    <path d="M0 0 L0 180 C0 210 30 230 60 230 C90 230 120 210 120 180 L120 0 Z"
+          fill="none" stroke="#1f5568" stroke-width="4"/>
+    <clipPath id="tubeClip">
+      <path d="M4 4 L4 178 C4 206 32 224 60 224 C88 224 116 206 116 178 L116 4 Z"/>
+    </clipPath>
+    <g clip-path="url(#tubeClip)">
+      <rect x="0" y="0" width="120" height="90" fill="#ffd54a" opacity="0.6"/>
+      <rect x="0" y="90" width="120" height="30" fill="#f5f5f5"/>
+      <rect x="0" y="120" width="120" height="110" fill="#e5484d" opacity="0.55"/>
+    </g>
+    <line x1="-10" y1="0" x2="130" y2="0" stroke="#1f5568" stroke-width="4"/>
+  </g>
+
+  <!-- Jeringa -->
+  <g transform="translate(540,180) rotate(35)" stroke="#1f5568" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="0" y="0" width="130" height="34" rx="6"/>
+    <line x1="0" y1="0" x2="0" y2="34"/>
+    <line x1="20" y1="0" x2="20" y2="34"/>
+    <path d="M130 6 L160 6 L160 28 L130 28"/>
+    <line x1="160" y1="17" x2="200" y2="17"/>
+    <rect x="-24" y="8" width="24" height="18" fill="#1f5568"/>
+  </g>
+  <g fill="#e5484d" opacity="0.5">
+    <circle cx="565" cy="255" r="4"/>
+    <circle cx="575" cy="265" r="3"/>
+  </g>
+</svg>

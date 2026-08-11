@@ -10,6 +10,11 @@ const nextConfig: NextConfig = {
     },
   },
   images: {
+    // Nuestras propias ilustraciones (public/tratamientos, etc.) son SVG
+    // — Next.js las bloquea en <Image> por defecto por seguridad (XSS),
+    // pero son archivos nuestros de confianza, no subidos por usuarios.
+    dangerouslyAllowSVG: true,
+    contentDispositionType: "attachment",
     remotePatterns: [
       // Fotos de ejemplo mientras no hay clínicas reales en Supabase.
       { protocol: "https", hostname: "picsum.photos" },
