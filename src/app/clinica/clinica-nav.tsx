@@ -18,8 +18,8 @@ export function ClinicaNav({ activo }: { activo: Seccion }) {
 
   return (
     <nav className="mb-6 flex flex-wrap gap-2">
-      {tab("/clinica/ficha", "Ficha", "ficha")}
-      {tab("/clinica", "Solicitudes de presupuesto", "solicitudes")}
+      {tab("/clinica", "Ficha", "ficha")}
+      {tab("/clinica/solicitudes", "Solicitudes de presupuesto", "solicitudes")}
       {tab("/clinica/visibilidad", "Visibilidad", "visibilidad")}
       {tab("/clinica/facturacion", "Datos de facturación", "facturacion")}
     </nav>

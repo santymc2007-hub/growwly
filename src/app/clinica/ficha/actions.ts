@@ -157,7 +157,7 @@ export async function actualizarMiFicha(formData: FormData) {
       };
     } catch (e) {
       redirect(
-        `/clinica/ficha?error=${encodeURIComponent(
+        `/clinica?error=${encodeURIComponent(
           e instanceof Error ? e.message : "No se pudo subir el contenido premium.",
         )}`,
       );
@@ -170,12 +170,12 @@ export async function actualizarMiFicha(formData: FormData) {
     .eq("id", clinicId);
 
   if (error) {
-    redirect(`/clinica/ficha?error=${encodeURIComponent(error.message)}`);
+    redirect(`/clinica?error=${encodeURIComponent(error.message)}`);
   }
 
-  revalidatePath("/clinica/ficha");
+  revalidatePath("/clinica");
   revalidatePath("/clinicas");
-  redirect("/clinica/ficha?guardado=1");
+  redirect("/clinica?guardado=1");
 }
 
 export async function cambiarPublicacion(publicar: boolean) {
@@ -187,7 +187,7 @@ export async function cambiarPublicacion(publicar: boolean) {
     .update({ publicado: publicar })
     .eq("id", clinicId);
 
-  revalidatePath("/clinica/ficha");
+  revalidatePath("/clinica");
   revalidatePath("/clinicas");
-  redirect("/clinica/ficha");
+  redirect("/clinica");
 }

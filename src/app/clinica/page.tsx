@@ -1,17 +1,20 @@
 import Image from "next/image";
-import Link from "next/link";
-import { redirect } from "next/navigation";
+import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { FichaClinicaForm } from "./ficha/ficha-clinica-form";
+import { actualizarMiFicha, cambiarPublicacion } from "./ficha/actions";
 import { ClinicaNav } from "./clinica-nav";
 
-const ESTADO_LABEL: Record<string, string> = {
-  enviado: "Nuevo",
-  visto: "Visto",
-  desbloqueado: "Desbloqueado",
-};
+type SearchParams = { error?: string; guardado?: string };
 
-export default async function ClinicaPanelPage() {
+export default async function ClinicaPanelPage({
+  searchParams,
+}: {
+  searchParams: Promise<SearchParams>;
+}) {
+  const { error, guardado } = await searchParams;
+
   const supabase = await createClient();
   const {
     data: { user },
@@ -23,7 +26,7 @@ export default async function ClinicaPanelPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("*")
+    .select("role, clinic_id, clinic_status")
     .eq("id", user.id)
     .maybeSingle();
 
@@ -63,7 +66,7 @@ export default async function ClinicaPanelPage() {
     </div>
   );
 
-  if (profile.clinic_status !== "aprobado") {
+  if (profile.clinic_status !== "aprobado" || !profile.clinic_id) {
     return (
       <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
         <SiteHeader />
@@ -75,7 +78,7 @@ export default async function ClinicaPanelPage() {
             </p>
             <p className="mt-2 text-sm text-ink-soft">
               En cuanto confirmemos que representas a {clinica?.nombre ?? "esta clínica"},
-              activaremos tu acceso a las solicitudes de presupuesto.
+              activaremos tu acceso completo al panel.
             </p>
           </div>
         </div>
@@ -83,54 +86,73 @@ export default async function ClinicaPanelPage() {
     );
   }
 
-  const { data: leads } = await supabase
-    .from("leads_clinica")
+  const { data: clinic } = await supabase
+    .from("clinics")
     .select("*")
-    .eq("clinic_id", profile.clinic_id!)
-    .order("enviado_en", { ascending: false });
+    .eq("id", profile.clinic_id)
+    .maybeSingle();
+
+  if (!clinic) {
+    notFound();
+  }
+
+  const publicarAction = cambiarPublicacion.bind(null, true);
+  const darDeBajaAction = cambiarPublicacion.bind(null, false);
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
       <div className="mx-auto max-w-3xl px-6 py-12">
         {cabecera}
+
         <div className="mt-8">
-          <ClinicaNav activo="solicitudes" />
+          <ClinicaNav activo="ficha" />
         </div>
 
-        <h2 className="font-display text-lg text-teal-dark">
-          Solicitudes de presupuesto
-        </h2>
-
-        {leads && leads.length > 0 ? (
-          <ul className="mt-4 flex flex-col gap-2">
-            {leads.map((lead) => (
-              <li key={lead.id}>
-                <Link
-                  href={`/leads/${lead.token}`}
-                  className="flex items-center justify-between rounded-xl border border-line bg-white px-4 py-3 text-sm hover:border-teal/40"
-                >
-                  <span className="text-ink">
-                    {new Date(lead.enviado_en).toLocaleDateString("es-ES")}
-                  </span>
-                  <span
-                    className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                      lead.estado === "enviado"
-                        ? "bg-cyan text-white"
-                        : "bg-paper-dim text-ink-soft"
-                    }`}
-                  >
-                    {ESTADO_LABEL[lead.estado] ?? lead.estado}
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        ) : (
-          <p className="mt-3 text-sm text-ink-soft">
-            Todavía no tienes solicitudes de presupuesto.
+        {guardado && (
+          <p className="mb-4 rounded-lg bg-sage px-4 py-3 text-sm text-sage-ink">
+            Cambios guardados.
           </p>
         )}
+        {error && (
+          <p className="mb-4 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
+            {decodeURIComponent(error)}
+          </p>
+        )}
+
+        <div
+          className={`mb-6 flex items-center justify-between rounded-2xl p-4 ${
+            clinic.publicado ? "bg-sage" : "bg-paper-dim"
+          }`}
+        >
+          <div>
+            <p
+              className={`text-sm font-medium ${clinic.publicado ? "text-sage-ink" : "text-ink"}`}
+            >
+              {clinic.publicado
+                ? "Tu ficha está visible en el directorio"
+                : "Tu ficha está de baja — no aparece en el directorio"}
+            </p>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Puedes darla de baja o volver a publicarla cuando quieras; tus
+              datos no se pierden.
+            </p>
+          </div>
+          <form action={clinic.publicado ? darDeBajaAction : publicarAction}>
+            <button
+              type="submit"
+              className={`rounded-full px-4 py-2 text-sm font-medium ${
+                clinic.publicado
+                  ? "border border-error text-error hover:bg-error/10"
+                  : "bg-teal text-paper hover:bg-teal-dark"
+              }`}
+            >
+              {clinic.publicado ? "Dar de baja" : "Volver a publicar"}
+            </button>
+          </form>
+        </div>
+
+        <FichaClinicaForm clinic={clinic} action={actualizarMiFicha} />
       </div>
     </main>
   );
