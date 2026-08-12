@@ -597,6 +597,18 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
           )}
         </label>
 
+        <label className="mt-2 flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="leads_enabled"
+            defaultChecked={clinic?.leads_enabled ?? true}
+          />
+          Acceso a leads habilitado{" "}
+          <span className="text-xs text-ink-soft">
+            (de momento no bloquea nada en ningún sitio — solo el interruptor)
+          </span>
+        </label>
+
         <div className="mt-4">
           <label className={labelClass} htmlFor="plan">
             Plan

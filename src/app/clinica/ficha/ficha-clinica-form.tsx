@@ -394,6 +394,62 @@ export function FichaClinicaForm({ clinic, action }: Props) {
           </div>
 
           <div className="mt-6">
+            <label htmlFor="descripcion_extendida" className={labelClass}>
+              Descripción extendida
+            </label>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Amplía la descripción corta — tu enfoque, equipo, instalaciones.
+              Admite formato Markdown (títulos con #, negrita con **texto**).
+            </p>
+            <textarea
+              id="descripcion_extendida"
+              name="descripcion_extendida"
+              rows={5}
+              defaultValue={clinic.descripcion_extendida ?? undefined}
+              className={`${inputClass} mt-2`}
+            />
+          </div>
+
+          <div className="mt-6">
+            <label htmlFor="video_url" className={labelClass}>
+              Vídeo (YouTube o Vimeo)
+            </label>
+            <input
+              id="video_url"
+              name="video_url"
+              type="url"
+              placeholder="https://www.youtube.com/watch?v=..."
+              defaultValue={clinic.video_url ?? undefined}
+              className={`${inputClass} mt-1`}
+            />
+          </div>
+
+          <div className="mt-6">
+            <p className={labelClass}>Equipo médico (hasta 3)</p>
+            {[0, 1, 2].map((i) => {
+              const medico = Array.isArray(clinic.medicos)
+                ? (clinic.medicos as { nombre?: string; especialidad?: string }[])[i]
+                : undefined;
+              return (
+                <div key={i} className="mt-2 grid grid-cols-2 gap-2">
+                  <input
+                    name={`medico_nombre_${i}`}
+                    placeholder="Nombre"
+                    defaultValue={medico?.nombre ?? undefined}
+                    className={inputClass}
+                  />
+                  <input
+                    name={`medico_especialidad_${i}`}
+                    placeholder="Especialidad (ej. Cirujano capilar)"
+                    defaultValue={medico?.especialidad ?? undefined}
+                    className={inputClass}
+                  />
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-6">
             <p className={labelClass}>Fotos antes / después (hasta 3 pares)</p>
             {[0, 1, 2].map((i) => {
               const par = Array.isArray(clinic.fotos_antes_despues)

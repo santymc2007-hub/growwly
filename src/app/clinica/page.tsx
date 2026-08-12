@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
@@ -99,6 +100,36 @@ export default async function ClinicaPanelPage({
   const publicarAction = cambiarPublicacion.bind(null, true);
   const darDeBajaAction = cambiarPublicacion.bind(null, false);
 
+  const camposBasico: unknown[] = [
+    clinic.nombre,
+    clinic.descripcion,
+    clinic.telefono,
+    clinic.email,
+    clinic.direccion,
+    clinic.ciudad,
+    clinic.logo_url,
+    clinic.fotos.length > 0 ? "x" : null,
+    clinic.tecnicas.length > 0 ? "x" : null,
+    clinic.idiomas.length > 0 ? "x" : null,
+    Array.isArray(clinic.horarios_estructurados) && clinic.horarios_estructurados.length > 0
+      ? "x"
+      : null,
+  ];
+  const camposPremium: unknown[] = [
+    clinic.descripcion_extendida,
+    clinic.video_url,
+    Array.isArray(clinic.medicos) && clinic.medicos.length > 0 ? "x" : null,
+    Array.isArray(clinic.fotos_antes_despues) && clinic.fotos_antes_despues.length > 0
+      ? "x"
+      : null,
+    Array.isArray(clinic.opiniones) && clinic.opiniones.length > 0 ? "x" : null,
+    clinic.certificados.length > 0 ? "x" : null,
+    clinic.tiene_oferta ? "x" : null,
+  ];
+  const todosLosCampos = [...camposBasico, ...camposPremium];
+  const rellenos = todosLosCampos.filter(Boolean).length;
+  const porcentaje = Math.round((rellenos / todosLosCampos.length) * 100);
+
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
@@ -107,6 +138,28 @@ export default async function ClinicaPanelPage({
 
         <div className="mt-8">
           <ClinicaNav activo="ficha" />
+        </div>
+
+        <div className="mb-6 rounded-2xl border border-line bg-white p-4">
+          <div className="flex items-center justify-between text-sm">
+            <p className="font-medium text-ink">
+              Tu ficha está al {porcentaje}%
+            </p>
+            {clinic.plan !== "premium" && porcentaje < 100 && (
+              <Link
+                href="/clinica/visibilidad"
+                className="text-xs font-medium text-cyan-dark hover:underline"
+              >
+                Completa el plan Premium para llegar al 100% →
+              </Link>
+            )}
+          </div>
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper-dim">
+            <div
+              className="h-full rounded-full bg-gradient-to-r from-brand-green to-brand-blue transition-all"
+              style={{ width: `${porcentaje}%` }}
+            />
+          </div>
         </div>
 
         {guardado && (

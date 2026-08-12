@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import ReactMarkdown from "react-markdown";
 import { getSocialLinks } from "@/lib/social-links";
 import { formatearPrecio, slugifyCiudad } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
@@ -49,6 +50,26 @@ export async function generateMetadata({
       images: clinic.fotos.length > 0 ? [clinic.fotos[0]] : undefined,
     },
   };
+}
+
+function urlEmbedVideo(url: string): string | null {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtube.com")) {
+      const id = u.searchParams.get("v");
+      return id ? `https://www.youtube.com/embed/${id}` : null;
+    }
+    if (u.hostname === "youtu.be") {
+      return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    }
+    if (u.hostname.includes("vimeo.com")) {
+      const id = u.pathname.split("/").filter(Boolean)[0];
+      return id ? `https://player.vimeo.com/video/${id}` : null;
+    }
+    return null;
+  } catch {
+    return null;
+  }
 }
 
 export default async function ClinicaPage({
@@ -362,6 +383,51 @@ export default async function ClinicaPage({
               )}
             </section>
           )}
+
+          {esPremium && clinic.descripcion_extendida && (
+            <section className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark">
+              <ReactMarkdown>{clinic.descripcion_extendida}</ReactMarkdown>
+            </section>
+          )}
+
+          {esPremium && clinic.video_url && urlEmbedVideo(clinic.video_url) && (
+            <section className="mt-8">
+              <h2 className="font-display text-lg text-teal-dark">Vídeo</h2>
+              <div className="relative mt-3 aspect-video w-full overflow-hidden rounded-xl">
+                <iframe
+                  src={urlEmbedVideo(clinic.video_url)!}
+                  className="absolute inset-0 h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
+            </section>
+          )}
+
+          {esPremium &&
+            Array.isArray(clinic.medicos) &&
+            (clinic.medicos as { nombre?: string; especialidad?: string }[]).length > 0 && (
+              <section className="mt-8">
+                <h2 className="font-display text-lg text-teal-dark">
+                  Equipo médico
+                </h2>
+                <ul className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  {(clinic.medicos as { nombre?: string; especialidad?: string }[]).map(
+                    (m, i) => (
+                      <li
+                        key={i}
+                        className="rounded-xl border border-line bg-white p-4"
+                      >
+                        <p className="font-medium text-ink">{m.nombre}</p>
+                        {m.especialidad && (
+                          <p className="text-sm text-ink-soft">{m.especialidad}</p>
+                        )}
+                      </li>
+                    ),
+                  )}
+                </ul>
+              </section>
+            )}
 
           {esPremium && Array.isArray(clinic.fotos_antes_despues) && clinic.fotos_antes_despues.length > 0 && (
             <section className="mt-8">

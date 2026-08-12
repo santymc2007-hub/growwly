@@ -55,6 +55,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     publicado: formData.get("publicado") === "on",
     destacado: formData.get("destacado") === "on",
     plan: str("plan") ?? "basico",
+    leads_enabled: formData.get("leads_enabled") === "on",
     destacado_home: formData.get("destacado_home") === "on",
     destacado_ciudad: formData.get("destacado_ciudad") === "on",
     direccion: str("direccion"),

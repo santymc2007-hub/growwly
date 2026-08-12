@@ -148,9 +148,20 @@ export async function actualizarMiFicha(formData: FormData) {
       ...certificadosSubidos,
     ];
 
+    // Equipo médico: hasta 3
+    const medicos: { nombre: string; especialidad: string }[] = [];
+    for (let i = 0; i < 3; i++) {
+      const nombreMedico = str(`medico_nombre_${i}`);
+      const especialidad = str(`medico_especialidad_${i}`);
+      if (nombreMedico) medicos.push({ nombre: nombreMedico, especialidad: especialidad ?? "" });
+    }
+
     camposPremium = {
       tiene_oferta: Boolean(detalleOferta),
       detalle_oferta: detalleOferta,
+      descripcion_extendida: str("descripcion_extendida"),
+      video_url: str("video_url"),
+      medicos,
       fotos_antes_despues: nuevosPares,
       opiniones,
       certificados,
