@@ -61,18 +61,25 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 p-4">
-        <div>
-          <h3 className="font-display text-lg leading-snug text-teal-dark">
-            {clinic.nombre}
-          </h3>
-          {ubicacion && (
-            <p className="mt-0.5 text-sm text-ink-soft">{ubicacion}</p>
+        <div className="flex items-start gap-2.5">
+          {clinic.logo_url && (
+            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-line bg-white">
+              <Image src={clinic.logo_url} alt="" fill sizes="32px" className="object-cover" />
+            </div>
           )}
-          {clinic.tipo_negocio && (
-            <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-soft/70">
-              {clinic.tipo_negocio}
-            </p>
-          )}
+          <div>
+            <h3 className="font-display text-lg leading-snug text-teal-dark">
+              {clinic.nombre}
+            </h3>
+            {ubicacion && (
+              <p className="mt-0.5 text-sm text-ink-soft">{ubicacion}</p>
+            )}
+            {clinic.tipo_negocio && (
+              <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-soft/70">
+                {clinic.tipo_negocio}
+              </p>
+            )}
+          </div>
         </div>
 
         {clinic.descripcion && (
