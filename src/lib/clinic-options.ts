@@ -1,5 +1,15 @@
 import { slugify } from "./slugify";
 
+export const TIPOS_NEGOCIO = [
+  "Clínica capilar",
+  "Clínica de tricología",
+  "Clínica estética",
+  "Clínica médica / hospital",
+  "Centro de injertos capilares",
+  "Peluquería / centro de belleza con servicios capilares",
+  "Otro",
+] as const;
+
 export const TECNICAS_DISPONIBLES = [
   "Injerto FUE",
   "Injerto DHI",

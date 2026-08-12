@@ -555,7 +555,7 @@ export default async function ClinicaPage({
             clinic.rango_precios) && (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
-                Precios
+                Precios (injerto capilar)
               </h2>
               {(clinic.precio_desde !== null || clinic.precio_hasta !== null) && (
                 <p className="mt-2 text-sm font-medium text-ink">

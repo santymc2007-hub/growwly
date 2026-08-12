@@ -4,6 +4,7 @@ import {
   IDIOMAS_DISPONIBLES,
   PRECIO_OPCIONES,
   MUNICIPIOS_MALLORCA,
+  TIPOS_NEGOCIO,
   formatearPrecio,
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
@@ -252,7 +253,7 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
         <h2 className="font-display text-lg text-teal-dark">Otros datos</h2>
         <div className="mt-4 grid gap-4">
           <div>
-            <label className={labelClass}>Rango de precios</label>
+            <label className={labelClass}>Rango de precios (solo injerto capilar)</label>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label
@@ -334,13 +335,19 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
             <label className={labelClass} htmlFor="tipo_negocio">
               Tipo de negocio
             </label>
-            <input
+            <select
               id="tipo_negocio"
               name="tipo_negocio"
-              placeholder="Ej. Especializada en capilar / Estética general con capilar"
-              defaultValue={clinic?.tipo_negocio ?? undefined}
+              defaultValue={clinic?.tipo_negocio ?? ""}
               className={inputClass}
-            />
+            >
+              <option value="">Selecciona un tipo</option>
+              {TIPOS_NEGOCIO.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className={labelClass} htmlFor="servicios_adicionales">
