@@ -34,17 +34,17 @@ export default async function ClinicaPanelPage({
     redirect("/cuenta");
   }
 
-  let clinica: { nombre: string; fotos: string[] } | null = null;
+  let clinica: { nombre: string; fotos: string[]; logo_url: string | null } | null = null;
   if (profile.clinic_id) {
     const { data } = await supabase
       .from("clinics")
-      .select("nombre, fotos")
+      .select("nombre, fotos, logo_url")
       .eq("id", profile.clinic_id)
       .maybeSingle();
     clinica = data;
   }
 
-  const fotoPrincipal = clinica?.fotos?.[0] ?? null;
+  const fotoPrincipal = clinica?.logo_url ?? clinica?.fotos?.[0] ?? null;
 
   const cabecera = (
     <div className="flex items-center gap-4">

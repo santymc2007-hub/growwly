@@ -110,10 +110,10 @@ export default async function ClinicaPage({
     description: clinic.descripcion ?? undefined,
     url: `${siteUrl}/clinicas/${ciudad}/${clinic.slug}`,
     image: clinic.fotos.length > 0 ? clinic.fotos : undefined,
-    telephone: esPremium ? (clinic.telefono ?? undefined) : undefined,
+    telephone: clinic.telefono ?? undefined,
     address: {
       "@type": "PostalAddress",
-      streetAddress: esPremium ? (clinic.direccion ?? undefined) : undefined,
+      streetAddress: clinic.direccion ?? undefined,
       addressLocality: clinic.ciudad ?? undefined,
       addressRegion: clinic.comunidad_autonoma ?? undefined,
       addressCountry: "ES",
@@ -434,79 +434,61 @@ export default async function ClinicaPage({
         <aside className="h-fit rounded-3xl border border-line bg-gradient-to-b from-sage/20 to-white p-6">
           <h2 className="font-display text-lg text-teal-dark">Contacto</h2>
 
-          {esPremium ? (
-            <ul className="mt-4 space-y-3 text-sm">
-              {clinic.telefono && (
-                <li>
-                  <a
-                    href={`tel:${clinic.telefono}`}
-                    className="text-ink hover:text-cyan"
-                  >
-                    {clinic.telefono}
-                  </a>
-                </li>
-              )}
-              {clinic.email && (
-                <li>
-                  <a
-                    href={`mailto:${clinic.email}`}
-                    className="text-ink hover:text-cyan"
-                  >
-                    {clinic.email}
-                  </a>
-                </li>
-              )}
-              {clinic.web && (
-                <li>
-                  <a
-                    href={clinic.web}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-ink hover:text-cyan"
-                  >
-                    Sitio web ↗
-                  </a>
-                </li>
-              )}
-              {clinic.lat != null && clinic.lng != null && (
-                <li>
-                  <a
-                    href={`https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-ink hover:text-cyan"
-                  >
-                    Ver en el mapa ↗
-                  </a>
-                </li>
-              )}
-            </ul>
-          ) : (
-            <div className="mt-4">
-              <p className="text-sm text-ink-soft">
-                Pide presupuesto a través de Growwly y esta clínica te
-                responderá directamente.
-              </p>
-              <Link
-                href="/cuenta/solicitud/nueva"
-                className="mt-3 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md shadow-orange/20 transition hover:opacity-90"
-              >
-                Pedir presupuesto →
-              </Link>
-              {clinic.web && (
+          <ul className="mt-4 space-y-3 text-sm">
+            {clinic.telefono && (
+              <li>
+                <a
+                  href={`tel:${clinic.telefono}`}
+                  className="text-ink hover:text-cyan"
+                >
+                  {clinic.telefono}
+                </a>
+              </li>
+            )}
+            {clinic.email && (
+              <li>
+                <a
+                  href={`mailto:${clinic.email}`}
+                  className="text-ink hover:text-cyan"
+                >
+                  {clinic.email}
+                </a>
+              </li>
+            )}
+            {clinic.web && (
+              <li>
                 <a
                   href={clinic.web}
                   target="_blank"
                   rel="noreferrer"
-                  className="mt-3 block text-sm text-ink hover:text-cyan"
+                  className="text-ink hover:text-cyan"
                 >
                   Sitio web ↗
                 </a>
-              )}
-            </div>
-          )}
+              </li>
+            )}
+            {clinic.lat != null && clinic.lng != null && (
+              <li>
+                <a
+                  href={`https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-ink hover:text-cyan"
+                >
+                  Ver en el mapa ↗
+                </a>
+              </li>
+            )}
+          </ul>
 
-          {esPremium && clinic.direccion && (
+          <Link
+            href="/cuenta/solicitud/nueva"
+            className="mt-4 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md shadow-orange/20 transition hover:opacity-90"
+          >
+            Pedir presupuesto →
+          </Link>
+
+          {clinic.direccion && (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
                 Dirección
@@ -550,27 +532,39 @@ export default async function ClinicaPage({
             )
           )}
 
-          {(clinic.precio_desde !== null ||
-            clinic.precio_hasta !== null ||
-            clinic.rango_precios) && (
+          {esPremium ? (
+            (clinic.precio_desde !== null ||
+              clinic.precio_hasta !== null ||
+              clinic.rango_precios) && (
+              <>
+                <h2 className="mt-6 font-display text-lg text-teal-dark">
+                  Precios (injerto capilar)
+                </h2>
+                {(clinic.precio_desde !== null || clinic.precio_hasta !== null) && (
+                  <p className="mt-2 text-sm font-medium text-ink">
+                    {clinic.precio_desde !== null && clinic.precio_hasta !== null
+                      ? `${formatearPrecio(clinic.precio_desde)} - ${formatearPrecio(clinic.precio_hasta)}`
+                      : clinic.precio_desde !== null
+                        ? `Desde ${formatearPrecio(clinic.precio_desde)}`
+                        : `Hasta ${formatearPrecio(clinic.precio_hasta!)}`}
+                  </p>
+                )}
+                {clinic.rango_precios && (
+                  <p className="mt-1 text-sm text-ink-soft">
+                    {clinic.rango_precios}
+                  </p>
+                )}
+              </>
+            )
+          ) : (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
                 Precios (injerto capilar)
               </h2>
-              {(clinic.precio_desde !== null || clinic.precio_hasta !== null) && (
-                <p className="mt-2 text-sm font-medium text-ink">
-                  {clinic.precio_desde !== null && clinic.precio_hasta !== null
-                    ? `${formatearPrecio(clinic.precio_desde)} - ${formatearPrecio(clinic.precio_hasta)}`
-                    : clinic.precio_desde !== null
-                      ? `Desde ${formatearPrecio(clinic.precio_desde)}`
-                      : `Hasta ${formatearPrecio(clinic.precio_hasta!)}`}
-                </p>
-              )}
-              {clinic.rango_precios && (
-                <p className="mt-1 text-sm text-ink-soft">
-                  {clinic.rango_precios}
-                </p>
-              )}
+              <p className="mt-2 text-sm text-ink-soft">
+                Esta clínica no publica precio orientativo — pide presupuesto
+                y te responderá con uno personalizado.
+              </p>
             </>
           )}
 

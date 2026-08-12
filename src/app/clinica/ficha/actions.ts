@@ -97,68 +97,81 @@ export async function actualizarMiFicha(formData: FormData) {
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
   };
 
-  // El contenido "premium" (antes/después, opiniones, certificados) solo
-  // se guarda si de verdad tiene plan premium — comprobado aquí en el
-  // servidor, no solo ocultando los campos en el formulario.
+  // El contenido "premium" (antes/después, opiniones, certificados) se
+  // guarda para CUALQUIER plan — así una clínica Básica puede dejarlo
+  // listo de antemano. El filtro real (que solo se vea en público si
+  // es Premium) vive en la página pública de la ficha, no aquí.
   const { data: clinicaActual } = await admin
     .from("clinics")
-    .select("plan, fotos_antes_despues, opiniones, certificados")
+    .select("fotos_antes_despues, opiniones, certificados")
     .eq("id", clinicId)
     .maybeSingle();
 
   let camposPremium: Record<string, unknown> = {};
 
-  if (clinicaActual?.plan === "premium") {
-    try {
-      // Fotos antes/después: hasta 3 pares
-      const paresExistentes = Array.isArray(clinicaActual.fotos_antes_despues)
-        ? (clinicaActual.fotos_antes_despues as { antes: string; despues: string }[])
+  try {
+    // Fotos antes/después: hasta 3 pares
+    const paresExistentes = Array.isArray(clinicaActual?.fotos_antes_despues)
+      ? (clinicaActual.fotos_antes_despues as { antes: string; despues: string }[])
+      : [];
+    const nuevosPares: { antes: string; despues: string }[] = [];
+    for (let i = 0; i < 3; i++) {
+      const antesFile = formData.get(`antes_${i}`);
+      const despuesFile = formData.get(`despues_${i}`);
+      const antesUrl = isRealFile(antesFile)
+        ? (await uploadClinicPhotos(admin, [antesFile]))[0]
+        : paresExistentes[i]?.antes;
+      const despuesUrl = isRealFile(despuesFile)
+        ? (await uploadClinicPhotos(admin, [despuesFile]))[0]
+        : paresExistentes[i]?.despues;
+      if (antesUrl && despuesUrl) {
+        nuevosPares.push({ antes: antesUrl, despues: despuesUrl });
+      }
+    }
+
+    // Opiniones: hasta 3
+    const opiniones: { autor: string; texto: string }[] = [];
+    for (let i = 0; i < 3; i++) {
+      const autor = str(`opinion_autor_${i}`);
+      const texto = str(`opinion_texto_${i}`);
+      if (autor && texto) opiniones.push({ autor, texto });
+    }
+
+    // Certificados: se añaden a los que ya hubiera
+    const nuevosCertificados = formData.getAll("certificados").filter(isRealFile);
+    const certificadosSubidos =
+      nuevosCertificados.length > 0
+        ? await uploadClinicPhotos(admin, nuevosCertificados)
         : [];
-      const nuevosPares: { antes: string; despues: string }[] = [];
-      for (let i = 0; i < 3; i++) {
-        const antesFile = formData.get(`antes_${i}`);
-        const despuesFile = formData.get(`despues_${i}`);
-        const antesUrl = isRealFile(antesFile)
-          ? (await uploadClinicPhotos(admin, [antesFile]))[0]
-          : paresExistentes[i]?.antes;
-        const despuesUrl = isRealFile(despuesFile)
-          ? (await uploadClinicPhotos(admin, [despuesFile]))[0]
-          : paresExistentes[i]?.despues;
-        if (antesUrl && despuesUrl) {
-          nuevosPares.push({ antes: antesUrl, despues: despuesUrl });
-        }
-      }
+    const certificados = [
+      ...(clinicaActual?.certificados ?? []),
+      ...certificadosSubidos,
+    ];
 
-      // Opiniones: hasta 3
-      const opiniones: { autor: string; texto: string }[] = [];
-      for (let i = 0; i < 3; i++) {
-        const autor = str(`opinion_autor_${i}`);
-        const texto = str(`opinion_texto_${i}`);
-        if (autor && texto) opiniones.push({ autor, texto });
-      }
+    camposPremium = {
+      tiene_oferta: Boolean(detalleOferta),
+      detalle_oferta: detalleOferta,
+      fotos_antes_despues: nuevosPares,
+      opiniones,
+      certificados,
+    };
+  } catch (e) {
+    redirect(
+      `/clinica?error=${encodeURIComponent(
+        e instanceof Error ? e.message : "No se pudo subir el contenido premium.",
+      )}`,
+    );
+  }
 
-      // Certificados: se añaden a los que ya hubiera
-      const nuevosCertificados = formData.getAll("certificados").filter(isRealFile);
-      const certificadosSubidos =
-        nuevosCertificados.length > 0
-          ? await uploadClinicPhotos(admin, nuevosCertificados)
-          : [];
-      const certificados = [
-        ...(clinicaActual.certificados ?? []),
-        ...certificadosSubidos,
-      ];
-
-      camposPremium = {
-        tiene_oferta: Boolean(detalleOferta),
-        detalle_oferta: detalleOferta,
-        fotos_antes_despues: nuevosPares,
-        opiniones,
-        certificados,
-      };
+  const logoFile = formData.get("logo");
+  let logoUrl: string | undefined;
+  if (isRealFile(logoFile)) {
+    try {
+      [logoUrl] = await uploadClinicPhotos(admin, [logoFile]);
     } catch (e) {
       redirect(
         `/clinica?error=${encodeURIComponent(
-          e instanceof Error ? e.message : "No se pudo subir el contenido premium.",
+          e instanceof Error ? e.message : "No se pudo subir el logo.",
         )}`,
       );
     }
@@ -166,7 +179,11 @@ export async function actualizarMiFicha(formData: FormData) {
 
   const { error } = await admin
     .from("clinics")
-    .update({ ...camposComunes, ...camposPremium })
+    .update({
+      ...camposComunes,
+      ...camposPremium,
+      ...(logoUrl ? { logo_url: logoUrl } : {}),
+    })
     .eq("id", clinicId);
 
   if (error) {

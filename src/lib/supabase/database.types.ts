@@ -48,6 +48,7 @@ export interface Database {
           precio_hasta: number | null;
           accesibilidad: string | null;
           horarios: string | null;
+          logo_url: string | null;
           rating_google: number | null;
           resenas_google: number | null;
           rating_doctoralia: number | null;
@@ -101,6 +102,7 @@ export interface Database {
           precio_hasta?: number | null;
           accesibilidad?: string | null;
           horarios?: string | null;
+          logo_url?: string | null;
           rating_google?: number | null;
           resenas_google?: number | null;
           rating_doctoralia?: number | null;
@@ -154,6 +156,7 @@ export interface Database {
           precio_hasta?: number | null;
           accesibilidad?: string | null;
           horarios?: string | null;
+          logo_url?: string | null;
           rating_google?: number | null;
           resenas_google?: number | null;
           rating_doctoralia?: number | null;

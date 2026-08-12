@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import {
   TECNICAS_DISPONIBLES,
@@ -32,7 +33,7 @@ export function FichaClinicaForm({ clinic, action }: Props) {
               ✦ Pasa a Premium
             </p>
             <p className="mt-1 text-sm text-teal-dark/80">
-              Desbloquea contacto directo, fotos antes/después, opiniones de
+              Desbloquea precios visibles, fotos antes/después, opiniones de
               pacientes, diplomas, ofertas y otros servicios en tu ficha.
             </p>
           </div>
@@ -48,6 +49,23 @@ export function FichaClinicaForm({ clinic, action }: Props) {
       <section>
         <h2 className="font-display text-lg text-teal-dark">Lo básico</h2>
         <div className="mt-4 grid gap-4">
+          <div>
+            <label htmlFor="logo" className={labelClass}>
+              Logo de la clínica
+            </label>
+            {clinic.logo_url && (
+              <div className="relative mt-2 h-16 w-16 overflow-hidden rounded-full border border-line">
+                <Image src={clinic.logo_url} alt="" fill sizes="64px" className="object-cover" />
+              </div>
+            )}
+            <input
+              id="logo"
+              name="logo"
+              type="file"
+              accept="image/*"
+              className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
+            />
+          </div>
           <div>
             <label className={labelClass} htmlFor="descripcion">
               Descripción
@@ -344,20 +362,29 @@ export function FichaClinicaForm({ clinic, action }: Props) {
         </div>
       </section>
 
-      {clinic.plan === "premium" && (
-        <section className="mt-2 rounded-xl border border-cyan/30 bg-cyan/5 p-4">
-          <h2 className="font-display text-lg text-teal-dark">
-            Contenido Premium
-          </h2>
+      <section className="mt-2 rounded-xl border border-cyan/30 bg-cyan/5 p-4">
+        <h2 className="font-display text-lg text-teal-dark">
+          Contenido Premium
+        </h2>
+        {clinic.plan === "premium" ? (
           <p className="mt-1 text-sm text-ink-soft">
-            Solo visible para clínicas con plan Premium.
+            Visible en tu ficha pública.
           </p>
+        ) : (
+          <p className="mt-1 text-sm text-ink-soft">
+            Puedes rellenarlo ya — se guarda, pero no se publica hasta que
+            actives el plan Premium.{" "}
+            <Link href="/clinica/visibilidad" className="font-medium text-cyan-dark hover:underline">
+              Solicitar Premium →
+            </Link>
+          </p>
+        )}
 
-          <div className="mt-4">
-            <label htmlFor="detalle_oferta" className={labelClass}>
-              Oferta activa
-            </label>
-            <input
+        <div className="mt-4">
+          <label htmlFor="detalle_oferta" className={labelClass}>
+            Oferta activa
+          </label>
+          <input
               id="detalle_oferta"
               name="detalle_oferta"
               placeholder="Ej. 20% de descuento en primera sesión (déjalo vacío si no tienes ninguna)"
@@ -455,7 +482,6 @@ export function FichaClinicaForm({ clinic, action }: Props) {
             />
           </div>
         </section>
-      )}
 
       <div className="flex gap-3 border-t border-line pt-6">
         <button
