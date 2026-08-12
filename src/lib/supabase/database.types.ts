@@ -193,6 +193,8 @@ export interface Database {
           role: string;
           clinic_id: string | null;
           clinic_status: string | null;
+          fecha_nacimiento: string | null;
+          ciudad: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -206,6 +208,8 @@ export interface Database {
           role?: string;
           clinic_id?: string | null;
           clinic_status?: string | null;
+          fecha_nacimiento?: string | null;
+          ciudad?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -219,6 +223,8 @@ export interface Database {
           role?: string;
           clinic_id?: string | null;
           clinic_status?: string | null;
+          fecha_nacimiento?: string | null;
+          ciudad?: string | null;
           created_at?: string;
           updated_at?: string;
         };

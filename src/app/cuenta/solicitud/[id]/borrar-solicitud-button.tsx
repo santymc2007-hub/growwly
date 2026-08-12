@@ -1,29 +1,18 @@
 "use client";
 
+import { ConfirmButton } from "@/components/confirm-button";
 import { borrarSolicitud } from "../actions";
 
 export function BorrarSolicitudButton({ id }: { id: string }) {
   const borrarEstaSolicitud = borrarSolicitud.bind(null, id);
 
   return (
-    <form
+    <ConfirmButton
       action={borrarEstaSolicitud}
-      onSubmit={(e) => {
-        if (
-          !confirm(
-            "¿Retirar esta solicitud de presupuesto? Esta acción no se puede deshacer.",
-          )
-        ) {
-          e.preventDefault();
-        }
-      }}
-    >
-      <button
-        type="submit"
-        className="text-sm font-medium text-ink-soft hover:text-error"
-      >
-        Retirar solicitud
-      </button>
-    </form>
+      triggerLabel="Retirar solicitud"
+      title="¿Retirar esta solicitud de presupuesto?"
+      message="Las clínicas a las que ya se envió dejarán de poder contactarte por esta vía. Esta acción no se puede deshacer."
+      confirmLabel="Sí, retirar"
+    />
   );
 }
