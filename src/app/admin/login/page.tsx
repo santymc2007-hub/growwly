@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { login } from "./actions";
 import { AuthCard } from "@/components/auth/auth-card";
 
@@ -46,6 +47,12 @@ export default async function LoginPage({
             autoComplete="current-password"
             className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
           />
+          <Link
+            href="/admin/olvide-password"
+            className="mt-1.5 inline-block text-xs font-medium text-cyan hover:text-cyan-dark"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </div>
 
         {error && <p className="text-sm text-error">{decodeURIComponent(error)}</p>}

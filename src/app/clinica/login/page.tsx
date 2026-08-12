@@ -47,6 +47,12 @@ export default async function LoginClinicaPage({
             autoComplete="current-password"
             className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
           />
+          <Link
+            href="/clinica/olvide-password"
+            className="mt-1.5 inline-block text-xs font-medium text-cyan hover:text-cyan-dark"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
         </div>
 
         {error && (
