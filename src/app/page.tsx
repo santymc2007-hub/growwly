@@ -35,9 +35,11 @@ export default async function HomePage() {
     .from("clinics")
     .select("*")
     .eq("publicado", true)
-    .eq("destacado_home", true)
+    .or("destacado.eq.true,destacado_home.eq.true")
+    .order("destacado_home", { ascending: false })
+    .order("destacado", { ascending: false })
     .order("orden", { ascending: true })
-    .limit(4);
+    .limit(8);
   const destacadas = data ?? [];
 
   return (
