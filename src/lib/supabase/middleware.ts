@@ -37,7 +37,10 @@ export async function updateSession(request: NextRequest) {
 
   const { pathname } = request.nextUrl;
   const isAdminRoute = pathname.startsWith("/admin");
-  const isLoginPage = pathname === "/admin/login";
+  const esPaginaPublicaAdmin =
+    pathname === "/admin/login" ||
+    pathname === "/admin/olvide-password" ||
+    pathname === "/admin/restablecer-password";
 
   let isAdmin = false;
   if (user && isAdminRoute) {
@@ -49,13 +52,13 @@ export async function updateSession(request: NextRequest) {
     isAdmin = profile?.role === "admin";
   }
 
-  if (isAdminRoute && !isLoginPage && (!user || !isAdmin)) {
+  if (isAdminRoute && !esPaginaPublicaAdmin && (!user || !isAdmin)) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/login";
     return NextResponse.redirect(url);
   }
 
-  if (isLoginPage && user && isAdmin) {
+  if (pathname === "/admin/login" && user && isAdmin) {
     const url = request.nextUrl.clone();
     url.pathname = "/admin/clinicas";
     return NextResponse.redirect(url);
