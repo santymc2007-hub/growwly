@@ -67,6 +67,38 @@ export function FichaClinicaForm({ clinic, action }: Props) {
             />
           </div>
           <div>
+            <label className={labelClass}>
+              Fotos de la clínica{" "}
+              <span className="font-normal text-ink-soft">(hasta 5)</span>
+            </label>
+
+            {clinic.fotos.length > 0 && (
+              <div className="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-5">
+                {clinic.fotos.map((foto) => (
+                  <div key={foto}>
+                    <div className="relative aspect-square overflow-hidden rounded-lg border border-line bg-sage">
+                      <Image src={foto} alt="" fill sizes="100px" className="object-cover" />
+                    </div>
+                    <label className="mt-1 flex items-center gap-1.5 text-xs text-ink-soft">
+                      <input type="checkbox" name="fotos_eliminar" value={foto} />
+                      Eliminar
+                    </label>
+                  </div>
+                ))}
+              </div>
+            )}
+            <input type="hidden" name="fotos_actuales" value={JSON.stringify(clinic.fotos)} />
+
+            <input
+              id="fotos_nuevas"
+              name="fotos_nuevas"
+              type="file"
+              accept="image/*"
+              multiple
+              className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
+            />
+          </div>
+          <div>
             <label className={labelClass} htmlFor="descripcion">
               Descripción
             </label>

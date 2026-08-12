@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { uploadClinicPhotos } from "@/lib/supabase/storage";
+import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
 import type { Json } from "@/lib/supabase/database.types";
 
 /** Comprueba que el usuario es una clínica aprobada y devuelve su clinic_id. */
@@ -65,6 +65,34 @@ export async function actualizarMiFicha(formData: FormData) {
     .filter(Boolean);
 
   const detalleOferta = str("detalle_oferta");
+
+  // Fotos de la clínica: conservar - eliminadas + nuevas, con tope de 5.
+  const fotosActuales: string[] = (() => {
+    try {
+      return JSON.parse(String(formData.get("fotos_actuales") ?? "[]"));
+    } catch {
+      return [];
+    }
+  })();
+  const fotosAEliminar = formData.getAll("fotos_eliminar").map(String);
+  const fotosConservadas = fotosActuales.filter((url) => !fotosAEliminar.includes(url));
+
+  let fotosNuevas: string[] = [];
+  try {
+    const archivosNuevos = formData.getAll("fotos_nuevas").filter(isRealFile);
+    const hueco = Math.max(0, 5 - fotosConservadas.length);
+    fotosNuevas = await uploadClinicPhotos(admin, archivosNuevos.slice(0, hueco));
+  } catch (e) {
+    redirect(
+      `/clinica?error=${encodeURIComponent(
+        e instanceof Error ? e.message : "No se pudieron subir las fotos.",
+      )}`,
+    );
+  }
+  if (fotosAEliminar.length > 0) {
+    await deleteClinicPhotos(admin, fotosAEliminar);
+  }
+  const fotos = [...fotosConservadas, ...fotosNuevas].slice(0, 5);
 
   let horariosEstructurados: Json = [];
   try {
@@ -193,6 +221,7 @@ export async function actualizarMiFicha(formData: FormData) {
     .update({
       ...camposComunes,
       ...camposPremium,
+      fotos,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
     })
     .eq("id", clinicId);

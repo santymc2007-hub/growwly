@@ -133,7 +133,7 @@ export default async function ClinicaPanelPage({
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-6 py-12">
+      <div className="mx-auto max-w-[1200px] px-6 py-12">
         {cabecera}
 
         <div className="mt-8">
