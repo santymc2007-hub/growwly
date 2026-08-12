@@ -7,6 +7,8 @@ import ReactMarkdown from "react-markdown";
 import { getSocialLinks } from "@/lib/social-links";
 import { formatearPrecio, slugifyCiudad } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
+import { Carousel } from "@/components/clinics/carousel";
+import { ModuloValoraciones } from "@/components/clinics/modulo-valoraciones";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -114,7 +116,6 @@ export default async function ClinicaPage({
     .join(", ");
 
   const socialLinks = getSocialLinks(clinic.redes_sociales);
-  const [portada, ...resto] = clinic.fotos;
   const actualizado = new Date(clinic.updated_at).toLocaleDateString("es-ES", {
     year: "numeric",
     month: "long",
@@ -219,45 +220,7 @@ export default async function ClinicaPage({
         </nav>
       </div>
 
-      <div className="mx-auto mt-4 max-w-[1600px] px-6">
-        {portada ? (
-          <div className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl bg-sage">
-            <Image
-              src={portada}
-              alt={clinic.nombre}
-              fill
-              sizes="(min-width: 1024px) 896px, 100vw"
-              className="object-cover"
-              priority
-            />
-          </div>
-        ) : (
-          <div className="flex aspect-[16/9] w-full items-center justify-center rounded-3xl bg-sage text-sage-ink">
-            Sin fotos todavía
-          </div>
-        )}
-
-        {resto.length > 0 && (
-          <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
-            {resto.map((foto, i) => (
-              <div
-                key={foto}
-                className="relative h-20 w-28 flex-none overflow-hidden rounded-lg bg-sage"
-              >
-                <Image
-                  src={foto}
-                  alt={`${clinic.nombre} foto ${i + 2}`}
-                  fill
-                  sizes="112px"
-                  className="object-cover"
-                />
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      <div className="mx-auto grid max-w-6xl gap-10 px-6 py-10 lg:grid-cols-[1fr_320px]">
+      <div className="mx-auto grid max-w-[1600px] gap-10 px-6 py-10 lg:grid-cols-[1fr_360px]">
         <div>
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-start gap-4">
@@ -287,28 +250,54 @@ export default async function ClinicaPage({
             {clinic.verificado && <VerifiedBadge />}
           </div>
 
-          {(clinic.rating_google != null || clinic.rating_doctoralia != null) && (
-            <div className="mt-3 flex flex-wrap gap-x-5 gap-y-1 text-sm text-ink-soft">
-              {clinic.rating_google != null && (
-                <span>
-                  <strong className="text-ink">★ {clinic.rating_google.toFixed(1)}</strong>{" "}
-                  Google
-                  {clinic.resenas_google != null && ` (${clinic.resenas_google} reseñas)`}
-                </span>
-              )}
-              {clinic.rating_doctoralia != null && (
-                <span>
-                  <strong className="text-ink">★ {clinic.rating_doctoralia.toFixed(1)}</strong>{" "}
-                  Doctoralia
-                  {clinic.resenas_doctoralia != null &&
-                    ` (${clinic.resenas_doctoralia} reseñas)`}
-                </span>
-              )}
+          {clinic.fotos.length > 0 ? (
+            <div className="mt-5">
+              <Carousel
+                slides={clinic.fotos.map((foto, i) => (
+                  <div
+                    key={foto}
+                    className="relative aspect-[16/9] w-full overflow-hidden rounded-3xl bg-sage"
+                  >
+                    <Image
+                      src={foto}
+                      alt={`${clinic.nombre} foto ${i + 1}`}
+                      fill
+                      sizes="(min-width: 1024px) 900px, 100vw"
+                      className="object-cover"
+                      priority={i === 0}
+                    />
+                  </div>
+                ))}
+                slidesGrandes={clinic.fotos.map((foto, i) => (
+                  <div
+                    key={foto}
+                    className="relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black"
+                  >
+                    <Image
+                      src={foto}
+                      alt={`${clinic.nombre} foto ${i + 1}`}
+                      fill
+                      sizes="90vw"
+                      className="object-contain"
+                    />
+                  </div>
+                ))}
+              />
+            </div>
+          ) : (
+            <div className="mt-5 flex aspect-[16/9] w-full items-center justify-center rounded-3xl bg-sage text-sage-ink">
+              Sin fotos todavía
             </div>
           )}
 
           {clinic.descripcion && (
             <p className="mt-6 text-ink-soft">{clinic.descripcion}</p>
+          )}
+
+          {esPremium && clinic.descripcion_extendida && (
+            <section className="prose prose-teal mt-6 max-w-none prose-headings:font-display prose-headings:text-teal-dark">
+              <ReactMarkdown>{clinic.descripcion_extendida}</ReactMarkdown>
+            </section>
           )}
 
           {clinic.tecnicas.length > 0 && (
@@ -357,6 +346,17 @@ export default async function ClinicaPage({
             </section>
           )}
 
+          {clinic.accesibilidad && (
+            <section className="mt-8">
+              <h2 className="font-display text-lg text-teal-dark">
+                Accesibilidad
+              </h2>
+              <p className="mt-2 text-sm text-ink-soft">
+                {clinic.accesibilidad}
+              </p>
+            </section>
+          )}
+
           {clinic.idiomas.length > 0 && (
             <section className="mt-8">
               <h2 className="font-display text-lg text-teal-dark">
@@ -394,12 +394,6 @@ export default async function ClinicaPage({
                   Financiación disponible
                 </span>
               )}
-            </section>
-          )}
-
-          {esPremium && clinic.descripcion_extendida && (
-            <section className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark">
-              <ReactMarkdown>{clinic.descripcion_extendida}</ReactMarkdown>
             </section>
           )}
 
@@ -447,37 +441,69 @@ export default async function ClinicaPage({
               <h2 className="font-display text-lg text-teal-dark">
                 Antes y después
               </h2>
-              <div className="mt-3 grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {(clinic.fotos_antes_despues as { antes: string; despues: string }[]).map(
-                  (par, i) => (
-                    <div key={i} className="grid grid-cols-2 gap-1.5">
-                      <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
-                        <Image
-                          src={par.antes}
-                          alt={`${clinic.nombre} antes ${i + 1}`}
-                          fill
-                          sizes="200px"
-                          className="object-cover"
-                        />
-                        <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                          Antes
-                        </span>
+              <div className="mt-3 max-w-md">
+                <Carousel
+                  slides={(clinic.fotos_antes_despues as { antes: string; despues: string }[]).map(
+                    (par, i) => (
+                      <div key={i} className="grid grid-cols-2 gap-1.5">
+                        <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
+                          <Image
+                            src={par.antes}
+                            alt={`${clinic.nombre} antes ${i + 1}`}
+                            fill
+                            sizes="220px"
+                            className="object-cover"
+                          />
+                          <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                            Antes
+                          </span>
+                        </div>
+                        <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
+                          <Image
+                            src={par.despues}
+                            alt={`${clinic.nombre} después ${i + 1}`}
+                            fill
+                            sizes="220px"
+                            className="object-cover"
+                          />
+                          <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
+                            Después
+                          </span>
+                        </div>
                       </div>
-                      <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
-                        <Image
-                          src={par.despues}
-                          alt={`${clinic.nombre} después ${i + 1}`}
-                          fill
-                          sizes="200px"
-                          className="object-cover"
-                        />
-                        <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                          Después
-                        </span>
+                    ),
+                  )}
+                  slidesGrandes={(clinic.fotos_antes_despues as { antes: string; despues: string }[]).map(
+                    (par, i) => (
+                      <div key={i} className="grid grid-cols-2 gap-2">
+                        <div className="relative aspect-square overflow-hidden rounded-xl bg-black">
+                          <Image
+                            src={par.antes}
+                            alt={`${clinic.nombre} antes ${i + 1}`}
+                            fill
+                            sizes="45vw"
+                            className="object-contain"
+                          />
+                          <span className="absolute bottom-2 left-2 rounded bg-ink/70 px-2 py-1 text-xs font-medium text-white">
+                            Antes
+                          </span>
+                        </div>
+                        <div className="relative aspect-square overflow-hidden rounded-xl bg-black">
+                          <Image
+                            src={par.despues}
+                            alt={`${clinic.nombre} después ${i + 1}`}
+                            fill
+                            sizes="45vw"
+                            className="object-contain"
+                          />
+                          <span className="absolute bottom-2 left-2 rounded bg-ink/70 px-2 py-1 text-xs font-medium text-white">
+                            Después
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                  ),
-                )}
+                    ),
+                  )}
+                />
               </div>
             </section>
           )}
@@ -510,7 +536,15 @@ export default async function ClinicaPage({
           </p>
         </div>
 
-        <aside className="h-fit rounded-3xl border border-line bg-gradient-to-b from-sage/20 to-white p-6">
+        <div className="flex flex-col gap-6">
+          <ModuloValoraciones
+            ratingGoogle={clinic.rating_google}
+            resenasGoogle={clinic.resenas_google}
+            ratingDoctoralia={clinic.rating_doctoralia}
+            resenasDoctoralia={clinic.resenas_doctoralia}
+          />
+
+          <aside className="h-fit rounded-3xl border border-line bg-gradient-to-b from-sage/20 to-white p-6">
           <h2 className="font-display text-lg text-teal-dark">Contacto</h2>
 
           <ul className="mt-4 space-y-3 text-sm">
@@ -560,13 +594,6 @@ export default async function ClinicaPage({
             )}
           </ul>
 
-          <Link
-            href="/cuenta/solicitud/nueva"
-            className="mt-4 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md shadow-orange/20 transition hover:opacity-90"
-          >
-            Pedir presupuesto →
-          </Link>
-
           {clinic.direccion && (
             <>
               <h2 className="mt-6 font-display text-lg text-teal-dark">
@@ -578,10 +605,13 @@ export default async function ClinicaPage({
 
           {Array.isArray(clinic.horarios_estructurados) &&
           clinic.horarios_estructurados.length > 0 ? (
-            <>
-              <h2 className="mt-6 font-display text-lg text-teal-dark">
-                Horario
-              </h2>
+            <details className="mt-6 group">
+              <summary className="cursor-pointer list-none font-display text-lg text-teal-dark">
+                Horario{" "}
+                <span className="ml-1 text-sm text-ink-soft transition group-open:rotate-180 inline-block">
+                  ▾
+                </span>
+              </summary>
               <dl className="mt-2 divide-y divide-line/60 text-sm">
                 {(
                   clinic.horarios_estructurados as {
@@ -599,7 +629,7 @@ export default async function ClinicaPage({
                   </div>
                 ))}
               </dl>
-            </>
+            </details>
           ) : (
             clinic.horarios && (
               <>
@@ -647,16 +677,12 @@ export default async function ClinicaPage({
             </>
           )}
 
-          {clinic.accesibilidad && (
-            <>
-              <h2 className="mt-6 font-display text-lg text-teal-dark">
-                Accesibilidad
-              </h2>
-              <p className="mt-2 text-sm text-ink-soft">
-                {clinic.accesibilidad}
-              </p>
-            </>
-          )}
+          <Link
+            href="/cuenta/solicitud/nueva"
+            className="mt-4 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md shadow-orange/20 transition hover:opacity-90"
+          >
+            Pedir presupuesto →
+          </Link>
 
           {esPremium && socialLinks.length > 0 && (
             <>
@@ -707,6 +733,7 @@ export default async function ClinicaPage({
             </>
           )}
         </aside>
+        </div>
       </div>
       <SiteFooter />
     </main>
