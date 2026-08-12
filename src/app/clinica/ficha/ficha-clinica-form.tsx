@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import {
   TECNICAS_DISPONIBLES,
   IDIOMAS_DISPONIBLES,
@@ -13,6 +14,7 @@ import {
 import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
+import { comprimirFormData } from "@/lib/comprimir-imagen";
 
 type Props = {
   clinic: Clinic;
@@ -24,8 +26,25 @@ const inputClass =
 const labelClass = "text-sm font-medium text-ink";
 
 export function FichaClinicaForm({ clinic, action }: Props) {
+  const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setEstado("comprimiendo");
+    try {
+      const original = new FormData(e.currentTarget);
+      const comprimido = await comprimirFormData(original);
+      setEstado("enviando");
+      await action(comprimido);
+      // La action redirige internamente al terminar (tanto si va bien
+      // como si hay error), así que normalmente no se llega más allá.
+    } finally {
+      setEstado("idle");
+    }
+  }
+
   return (
-    <form action={action} className="flex flex-col gap-8">
+    <form onSubmit={onSubmit} className="flex flex-col gap-8">
       {clinic.plan !== "premium" && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-green to-brand-blue p-5">
           <div>
@@ -571,13 +590,23 @@ export function FichaClinicaForm({ clinic, action }: Props) {
           </div>
         </section>
 
-      <div className="flex gap-3 border-t border-line pt-6">
+      <div className="flex items-center gap-3 border-t border-line pt-6">
         <button
           type="submit"
-          className="rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark"
+          disabled={estado !== "idle"}
+          className="rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark disabled:opacity-60"
         >
-          Guardar cambios
+          {estado === "comprimiendo"
+            ? "Optimizando fotos…"
+            : estado === "enviando"
+              ? "Guardando…"
+              : "Guardar cambios"}
         </button>
+        {estado !== "idle" && (
+          <span className="text-xs text-ink-soft">
+            Puede tardar unos segundos si has subido varias fotos.
+          </span>
+        )}
       </div>
     </form>
   );
