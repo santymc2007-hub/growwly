@@ -2,10 +2,13 @@ import Image from "next/image";
 import Link from "next/link";
 import { redirect, notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { FichaClinicaForm } from "./ficha/ficha-clinica-form";
 import { actualizarMiFicha, cambiarPublicacion } from "./ficha/actions";
 import { ClinicaNav } from "./clinica-nav";
+import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
+import { SelectorClinica } from "@/components/clinica/selector-clinica";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -35,44 +38,28 @@ export default async function ClinicaPanelPage({
     redirect("/cuenta");
   }
 
-  let clinica: { nombre: string; fotos: string[]; logo_url: string | null } | null = null;
-  if (profile.clinic_id) {
-    const { data } = await supabase
-      .from("clinics")
-      .select("nombre, fotos, logo_url")
-      .eq("id", profile.clinic_id)
-      .maybeSingle();
-    clinica = data;
-  }
+  // Cuenta todavía sin aprobar: pantalla de espera, usando el clinic_id
+  // de referencia (aún no hay tabla de miembros con nada aprobado).
+  if (profile.clinic_status !== "aprobado") {
+    let clinica: { nombre: string } | null = null;
+    if (profile.clinic_id) {
+      const admin = createAdminClient();
+      const { data } = await admin
+        .from("clinics")
+        .select("nombre")
+        .eq("id", profile.clinic_id)
+        .maybeSingle();
+      clinica = data;
+    }
 
-  const fotoPrincipal = clinica?.logo_url ?? clinica?.fotos?.[0] ?? null;
-
-  const cabecera = (
-    <div className="flex items-center gap-4">
-      {fotoPrincipal ? (
-        <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-white shadow">
-          <Image src={fotoPrincipal} alt="" fill sizes="56px" className="object-cover" />
-        </div>
-      ) : (
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sage text-lg font-bold text-sage-ink">
-          {(clinica?.nombre ?? "?").charAt(0)}
-        </div>
-      )}
-      <div>
-        <h1 className="font-display text-2xl text-teal-dark">
-          {clinica?.nombre ?? "Panel de clínica"}
-        </h1>
-        <p className="mt-0.5 text-sm text-ink-soft">{user.email}</p>
-      </div>
-    </div>
-  );
-
-  if (profile.clinic_status !== "aprobado" || !profile.clinic_id) {
     return (
       <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
         <SiteHeader />
         <div className="mx-auto max-w-lg px-6 py-12">
-          {cabecera}
+          <h1 className="font-display text-2xl text-teal-dark">
+            {clinica?.nombre ?? "Panel de clínica"}
+          </h1>
+          <p className="mt-0.5 text-sm text-ink-soft">{user.email}</p>
           <div className="mt-8 rounded-2xl border border-dashed border-line bg-white p-6 text-center">
             <p className="font-display text-lg text-teal-dark">
               Cuenta pendiente de aprobación
@@ -87,15 +74,20 @@ export default async function ClinicaPanelPage({
     );
   }
 
-  const { data: clinic } = await supabase
+  const { clinicId, clinicas } = await requireClinicaActiva();
+
+  const admin = createAdminClient();
+  const { data: clinic } = await admin
     .from("clinics")
     .select("*")
-    .eq("id", profile.clinic_id)
+    .eq("id", clinicId)
     .maybeSingle();
 
   if (!clinic) {
     notFound();
   }
+
+  const fotoPrincipal = clinic.logo_url ?? clinic.fotos?.[0] ?? null;
 
   const publicarAction = cambiarPublicacion.bind(null, true);
   const darDeBajaAction = cambiarPublicacion.bind(null, false);
@@ -134,9 +126,29 @@ export default async function ClinicaPanelPage({
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
       <div className="mx-auto max-w-[1200px] px-6 py-12">
-        {cabecera}
+        <div className="flex items-center gap-4">
+          {fotoPrincipal ? (
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-white shadow">
+              <Image src={fotoPrincipal} alt="" fill sizes="56px" className="object-cover" />
+            </div>
+          ) : (
+            <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sage text-lg font-bold text-sage-ink">
+              {clinic.nombre.charAt(0)}
+            </div>
+          )}
+          <div>
+            <h1 className="font-display text-2xl text-teal-dark">
+              {clinic.nombre}
+            </h1>
+            <p className="mt-0.5 text-sm text-ink-soft">{user.email}</p>
+          </div>
+        </div>
 
-        <div className="mt-8">
+        <div className="mt-4">
+          <SelectorClinica clinicas={clinicas} clinicaActivaId={clinicId} />
+        </div>
+
+        <div className="mt-4">
           <ClinicaNav activo="ficha" />
         </div>
 

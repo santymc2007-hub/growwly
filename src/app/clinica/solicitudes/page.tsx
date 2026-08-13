@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
+import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
+import { SelectorClinica } from "@/components/clinica/selector-clinica";
 
 const ESTADO_LABEL: Record<string, string> = {
   enviado: "Nuevo",
@@ -11,42 +12,21 @@ const ESTADO_LABEL: Record<string, string> = {
 };
 
 export default async function SolicitudesClinicaPage() {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { clinicId, clinicas } = await requireClinicaActiva();
 
-  if (!user) {
-    redirect("/clinica/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, clinic_id, clinic_status")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (
-    !profile ||
-    profile.role !== "clinic" ||
-    profile.clinic_status !== "aprobado" ||
-    !profile.clinic_id
-  ) {
-    // Sin aprobar (o sin perfil de clínica): la pantalla de "pendiente"
-    // vive en la ficha (/clinica), que es donde ahora se aterriza siempre.
-    redirect("/clinica");
-  }
-
-  const { data: leads } = await supabase
+  const admin = createAdminClient();
+  const { data: leads } = await admin
     .from("leads_clinica")
     .select("*")
-    .eq("clinic_id", profile.clinic_id)
+    .eq("clinic_id", clinicId)
     .order("enviado_en", { ascending: false });
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
       <div className="mx-auto max-w-[1200px] px-6 py-12">
+        <SelectorClinica clinicas={clinicas} clinicaActivaId={clinicId} />
+
         <div className="mt-0">
           <ClinicaNav activo="solicitudes" />
         </div>

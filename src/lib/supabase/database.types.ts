@@ -248,6 +248,27 @@ export interface Database {
         };
         Relationships: [];
       };
+      clinic_members: {
+        Row: {
+          id: string;
+          profile_id: string;
+          clinic_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          profile_id: string;
+          clinic_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          profile_id?: string;
+          clinic_id?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       estudios_capilares: {
         Row: {
           id: string;

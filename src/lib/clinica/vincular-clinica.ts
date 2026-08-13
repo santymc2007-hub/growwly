@@ -26,5 +26,13 @@ export async function vincularClinica(
     .update({ role: "clinic", clinic_id: clinicId, clinic_status: "pendiente" })
     .eq("id", userId);
 
-  return !error;
+  if (error) return false;
+
+  // clinic_members es lo que de verdad da acceso — profiles.clinic_id
+  // se mantiene solo como referencia de "cuál fue la primera".
+  await supabase
+    .from("clinic_members")
+    .upsert({ profile_id: userId, clinic_id: clinicId }, { onConflict: "profile_id,clinic_id" });
+
+  return true;
 }

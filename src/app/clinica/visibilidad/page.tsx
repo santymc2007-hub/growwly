@@ -1,8 +1,11 @@
-import { redirect, notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { TarjetaVisibilidad } from "./tarjeta-visibilidad";
+import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
+import { SelectorClinica } from "@/components/clinica/selector-clinica";
+import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 
 type SearchParams = { solicitud?: string };
 
@@ -13,34 +16,13 @@ export default async function VisibilidadPage({
 }) {
   const { solicitud } = await searchParams;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { clinicId, clinicas } = await requireClinicaActiva();
 
-  if (!user) {
-    redirect("/clinica/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, clinic_id, clinic_status")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (
-    !profile ||
-    profile.role !== "clinic" ||
-    profile.clinic_status !== "aprobado" ||
-    !profile.clinic_id
-  ) {
-    redirect("/clinica");
-  }
-
+  const supabase = createAdminClient();
   const { data: clinic } = await supabase
     .from("clinics")
     .select("*")
-    .eq("id", profile.clinic_id)
+    .eq("id", clinicId)
     .maybeSingle();
 
   if (!clinic) {
@@ -55,7 +37,11 @@ export default async function VisibilidadPage({
           {clinic.nombre}
         </h1>
 
-        <div className="mt-8">
+        <div className="mt-4">
+          <SelectorClinica clinicas={clinicas} clinicaActivaId={clinicId} />
+        </div>
+
+        <div className="mt-4">
           <ClinicaNav activo="visibilidad" />
         </div>
 
@@ -81,6 +67,10 @@ export default async function VisibilidadPage({
                 >)
               : {};
 
+          const rutaCiudad = clinic.ciudad
+            ? `/clinicas/${slugifyProvincia(clinic.provincia)}/${slugifyCiudad(clinic.ciudad)}`
+            : "tu ciudad";
+
           return (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TarjetaVisibilidad
@@ -105,7 +95,7 @@ export default async function VisibilidadPage({
                 tipo="destacado_ciudad"
                 icono="📍"
                 titulo="Destacada en tu ciudad"
-                descripcion={`Resaltas al principio dentro de /clinicas/${clinic.ciudad ? clinic.ciudad.toLowerCase() : "tu-ciudad"}.`}
+                descripcion={`Resaltas al principio dentro de ${rutaCiudad}.`}
                 activo={clinic.destacado_ciudad}
                 pendiente={clinic.destacado_ciudad_solicitado}
                 expiraEn={fechas.destacado_ciudad?.expira_en}

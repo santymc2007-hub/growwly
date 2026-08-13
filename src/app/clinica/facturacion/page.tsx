@@ -1,8 +1,10 @@
-import { redirect, notFound } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
+import { notFound } from "next/navigation";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { guardarDatosFacturacion } from "./actions";
+import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
+import { SelectorClinica } from "@/components/clinica/selector-clinica";
 
 type SearchParams = { guardado?: string };
 
@@ -13,34 +15,13 @@ export default async function FacturacionPage({
 }) {
   const { guardado } = await searchParams;
 
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  const { clinicId, clinicas } = await requireClinicaActiva();
 
-  if (!user) {
-    redirect("/clinica/login");
-  }
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, clinic_id, clinic_status")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (
-    !profile ||
-    profile.role !== "clinic" ||
-    profile.clinic_status !== "aprobado" ||
-    !profile.clinic_id
-  ) {
-    redirect("/clinica");
-  }
-
+  const supabase = createAdminClient();
   const { data: clinic } = await supabase
     .from("clinics")
     .select("nombre, datos_facturacion")
-    .eq("id", profile.clinic_id)
+    .eq("id", clinicId)
     .maybeSingle();
 
   if (!clinic) {
@@ -67,7 +48,11 @@ export default async function FacturacionPage({
           {clinic.nombre}
         </h1>
 
-        <div className="mt-8">
+        <div className="mt-4">
+          <SelectorClinica clinicas={clinicas} clinicaActivaId={clinicId} />
+        </div>
+
+        <div className="mt-4">
           <ClinicaNav activo="facturacion" />
         </div>
 

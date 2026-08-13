@@ -2,37 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
-
-async function requireClinicaAprobada(): Promise<string> {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  if (!user) redirect("/clinica/login");
-
-  const { data: profile } = await supabase
-    .from("profiles")
-    .select("role, clinic_id, clinic_status")
-    .eq("id", user.id)
-    .maybeSingle();
-
-  if (
-    !profile ||
-    profile.role !== "clinic" ||
-    profile.clinic_status !== "aprobado" ||
-    !profile.clinic_id
-  ) {
-    redirect("/clinica");
-  }
-
-  return profile.clinic_id;
-}
+import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 
 export async function guardarDatosFacturacion(formData: FormData) {
-  const clinicId = await requireClinicaAprobada();
+  const { clinicId } = await requireClinicaActiva();
   const supabase = createAdminClient();
 
   const datos = {
