@@ -17,6 +17,33 @@ export default async function PanelLayout({
     .eq("role", "clinic")
     .eq("clinic_status", "pendiente");
 
+  const { count: solicitudesDestacado } = await supabase
+    .from("clinics")
+    .select("id", { count: "exact", head: true })
+    .eq("destacado_solicitado", true);
+  const { count: solicitudesHome } = await supabase
+    .from("clinics")
+    .select("id", { count: "exact", head: true })
+    .eq("destacado_home_solicitado", true);
+  const { count: solicitudesCiudad } = await supabase
+    .from("clinics")
+    .select("id", { count: "exact", head: true })
+    .eq("destacado_ciudad_solicitado", true);
+  const { count: solicitudesPremium } = await supabase
+    .from("clinics")
+    .select("id", { count: "exact", head: true })
+    .not("plan_solicitado", "is", null);
+  const totalSolicitudes =
+    (solicitudesDestacado ?? 0) +
+    (solicitudesHome ?? 0) +
+    (solicitudesCiudad ?? 0) +
+    (solicitudesPremium ?? 0);
+
+  const { count: leadsNuevos } = await supabase
+    .from("leads_clinica")
+    .select("id", { count: "exact", head: true })
+    .eq("estado", "enviado");
+
   return (
     <div className="min-h-screen bg-paper-dim">
       <header className="border-b border-line bg-teal text-paper">
@@ -37,8 +64,27 @@ export default async function PanelLayout({
               <Link href="/admin/clinicas" className="hover:text-cyan">
                 Clínicas
               </Link>
-              <Link href="/admin/leads" className="hover:text-cyan">
+              <Link
+                href="/admin/solicitudes"
+                className="flex items-center gap-1.5 hover:text-cyan"
+              >
+                Solicitudes
+                {totalSolicitudes > 0 && (
+                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
+                    {totalSolicitudes}
+                  </span>
+                )}
+              </Link>
+              <Link
+                href="/admin/leads"
+                className="flex items-center gap-1.5 hover:text-cyan"
+              >
                 Leads
+                {Boolean(leadsNuevos) && (
+                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
+                    {leadsNuevos}
+                  </span>
+                )}
               </Link>
               <Link href="/admin/blog" className="hover:text-cyan">
                 Blog
