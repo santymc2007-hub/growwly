@@ -65,10 +65,10 @@ export default async function PanelLayout({
                 Clínicas
               </Link>
               <Link
-                href="/admin/solicitudes"
+                href="/admin/visibilidad"
                 className="flex items-center gap-1.5 hover:text-cyan"
               >
-                Solicitudes
+                Visibilidad
                 {totalSolicitudes > 0 && (
                   <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
                     {totalSolicitudes}

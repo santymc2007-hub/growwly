@@ -3,39 +3,60 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-type Tipo = "destacado" | "destacado_home" | "destacado_ciudad" | "premium";
+export type TipoVisibilidad =
+  | "destacado"
+  | "destacado_home"
+  | "destacado_ciudad"
+  | "premium";
 
-export async function aprobarSolicitud(clinicId: string, tipo: Tipo) {
+function revalidarTodo() {
+  revalidatePath("/admin/visibilidad");
+  revalidatePath("/admin/clinicas");
+  revalidatePath("/clinicas");
+  revalidatePath("/");
+}
+
+/** Activa (aprobando la solicitud si la había) o desactiva directamente. */
+export async function alternarVisibilidad(
+  clinicId: string,
+  tipo: TipoVisibilidad,
+  activar: boolean,
+) {
   const supabase = createAdminClient();
 
   if (tipo === "premium") {
     await supabase
       .from("clinics")
-      .update({ plan: "premium", plan_solicitado: null })
+      .update({
+        plan: activar ? "premium" : "basico",
+        plan_solicitado: null,
+      })
       .eq("id", clinicId);
   } else if (tipo === "destacado") {
     await supabase
       .from("clinics")
-      .update({ destacado: true, destacado_solicitado: false })
+      .update({ destacado: activar, destacado_solicitado: false })
       .eq("id", clinicId);
   } else if (tipo === "destacado_home") {
     await supabase
       .from("clinics")
-      .update({ destacado_home: true, destacado_home_solicitado: false })
+      .update({ destacado_home: activar, destacado_home_solicitado: false })
       .eq("id", clinicId);
   } else {
     await supabase
       .from("clinics")
-      .update({ destacado_ciudad: true, destacado_ciudad_solicitado: false })
+      .update({ destacado_ciudad: activar, destacado_ciudad_solicitado: false })
       .eq("id", clinicId);
   }
 
-  revalidatePath("/admin/solicitudes");
-  revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidarTodo();
 }
 
-export async function rechazarSolicitud(clinicId: string, tipo: Tipo) {
+/** Rechaza una solicitud pendiente sin activar nada. */
+export async function rechazarVisibilidad(
+  clinicId: string,
+  tipo: TipoVisibilidad,
+) {
   const supabase = createAdminClient();
 
   if (tipo === "premium") {
@@ -57,6 +78,5 @@ export async function rechazarSolicitud(clinicId: string, tipo: Tipo) {
       .eq("id", clinicId);
   }
 
-  revalidatePath("/admin/solicitudes");
-  revalidatePath("/admin/clinicas");
+  revalidarTodo();
 }
