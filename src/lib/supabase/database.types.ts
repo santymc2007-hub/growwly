@@ -53,6 +53,7 @@ export interface Database {
           medicos: Json;
           video_url: string | null;
           descripcion_extendida: string | null;
+          visibilidad_fechas: Json;
           rating_google: number | null;
           resenas_google: number | null;
           rating_doctoralia: number | null;
@@ -111,6 +112,7 @@ export interface Database {
           medicos?: Json;
           video_url?: string | null;
           descripcion_extendida?: string | null;
+          visibilidad_fechas?: Json;
           rating_google?: number | null;
           resenas_google?: number | null;
           rating_doctoralia?: number | null;
@@ -169,6 +171,7 @@ export interface Database {
           medicos?: Json;
           video_url?: string | null;
           descripcion_extendida?: string | null;
+          visibilidad_fechas?: Json;
           rating_google?: number | null;
           resenas_google?: number | null;
           rating_doctoralia?: number | null;

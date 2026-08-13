@@ -116,12 +116,22 @@ export default async function VisibilidadPage({
                     : col.activo(clinic)
                       ? "activo"
                       : "inactivo";
+                  const fechas =
+                    clinic.visibilidad_fechas &&
+                    typeof clinic.visibilidad_fechas === "object" &&
+                    !Array.isArray(clinic.visibilidad_fechas)
+                      ? (clinic.visibilidad_fechas as Record<
+                          string,
+                          { expira_en: string | null }
+                        >)
+                      : {};
                   return (
                     <td key={col.tipo} className="px-4 py-3">
                       <InterruptorVisibilidad
                         clinicId={clinic.id}
                         tipo={col.tipo}
                         estado={estado}
+                        expiraEn={fechas[col.tipo]?.expira_en ?? null}
                       />
                     </td>
                   );
