@@ -9,6 +9,8 @@ import {
 
 type Estado = "activo" | "inactivo" | "solicitado";
 
+const VERDE = "#2fbf6b";
+
 export function InterruptorVisibilidad({
   clinicId,
   tipo,
@@ -21,12 +23,6 @@ export function InterruptorVisibilidad({
   const [pending, startTransition] = useTransition();
 
   const activado = estado === "activo";
-  const trackColor =
-    estado === "activo"
-      ? "bg-teal"
-      : estado === "solicitado"
-        ? "bg-orange"
-        : "bg-line";
 
   function alternar() {
     startTransition(() => {
@@ -42,7 +38,7 @@ export function InterruptorVisibilidad({
   }
 
   return (
-    <div className="flex items-center gap-1.5">
+    <div className="flex items-center gap-2">
       <button
         type="button"
         onClick={alternar}
@@ -56,12 +52,21 @@ export function InterruptorVisibilidad({
               ? "Activo — clic para desactivar"
               : "Inactivo — clic para activar"
         }
-        className={`relative h-6 w-11 shrink-0 rounded-full transition-colors disabled:opacity-60 ${trackColor}`}
+        style={{
+          backgroundColor:
+            estado === "activo"
+              ? VERDE
+              : estado === "solicitado"
+                ? "var(--color-orange)"
+                : "var(--color-line)",
+        }}
+        className="relative h-6 w-11 shrink-0 cursor-pointer rounded-full transition-colors duration-200 disabled:cursor-not-allowed disabled:opacity-60"
       >
         <span
-          className={`absolute top-0.5 h-5 w-5 rounded-full bg-white shadow transition-transform ${
-            activado ? "translate-x-[22px]" : "translate-x-0.5"
-          }`}
+          className="absolute top-0.5 left-0.5 h-5 w-5 rounded-full bg-white shadow-md transition-transform duration-200 ease-out"
+          style={{
+            transform: activado ? "translateX(20px)" : "translateX(0)",
+          }}
         />
       </button>
       {estado === "solicitado" && (
@@ -70,7 +75,7 @@ export function InterruptorVisibilidad({
           onClick={rechazar}
           disabled={pending}
           title="Rechazar la solicitud"
-          className="text-xs text-ink-soft hover:text-error"
+          className="flex h-5 w-5 items-center justify-center rounded-full text-xs text-ink-soft transition hover:bg-error/10 hover:text-error"
         >
           ✕
         </button>

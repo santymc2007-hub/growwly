@@ -70,7 +70,7 @@ export default async function VisibilidadPage({
           <h1 className="font-display text-2xl text-teal-dark">Visibilidad</h1>
           <p className="mt-1 text-sm text-ink-soft">
             <span className="mr-3 inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-teal" /> Activo
+              <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: "#2fbf6b" }} /> Activo
             </span>
             <span className="mr-3 inline-flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-orange" /> Solicitado
