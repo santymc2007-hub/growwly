@@ -164,21 +164,23 @@ export default async function HomePage() {
       )}
 
       {/* CTA clínicas */}
-      <section className="border-t border-line bg-gradient-to-br from-sage/50 to-cyan/10">
-        <div className="mx-auto flex max-w-[1600px] flex-col items-center gap-3 px-6 py-14 text-center">
-          <p className="font-display text-3xl font-bold text-teal-dark">
-            ¿Tienes una clínica capilar?
-          </p>
-          <p className="max-w-md text-base text-ink-soft">
-            Reclama tu ficha en el directorio y recibe solicitudes de
-            presupuesto de pacientes reales.
-          </p>
-          <Link
-            href="/clinica/registro"
-            className="mt-2 inline-block rounded-full bg-teal px-6 py-3 text-base font-medium text-paper transition hover:bg-teal-dark"
-          >
-            Únete como clínica →
-          </Link>
+      <section className="bg-paper">
+        <div className="mx-auto max-w-[1600px] px-6 py-14">
+          <div className="flex flex-col items-center gap-3 rounded-3xl bg-brand-blue px-6 py-14 text-center">
+            <p className="font-display text-3xl font-bold text-white">
+              ¿Tienes una clínica capilar?
+            </p>
+            <p className="max-w-md text-base text-white/90">
+              Reclama tu ficha en el directorio y recibe solicitudes de
+              presupuesto de pacientes reales.
+            </p>
+            <Link
+              href="/clinica/registro"
+              className="mt-2 inline-block rounded-full bg-brand-green px-6 py-3 text-base font-semibold text-teal-dark transition hover:opacity-90"
+            >
+              Únete como clínica →
+            </Link>
+          </div>
         </div>
       </section>
       <SiteFooter />
