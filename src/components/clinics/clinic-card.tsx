@@ -1,15 +1,16 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Clinic } from "@/lib/supabase/database.types";
-import { slugifyCiudad } from "@/lib/clinic-options";
+import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { VerifiedBadge } from "./verified-badge";
 
 export function ClinicCard({ clinic }: { clinic: Clinic }) {
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
   const foto = clinic.fotos[0];
+  const provinciaSlug = slugifyProvincia(clinic.provincia);
   const href = clinic.ciudad
-    ? `/clinicas/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
-    : `/clinicas/sin-ciudad/${clinic.slug}`;
+    ? `/clinicas/${provinciaSlug}/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
+    : `/clinicas/${provinciaSlug}/sin-ciudad/${clinic.slug}`;
 
   return (
     <Link

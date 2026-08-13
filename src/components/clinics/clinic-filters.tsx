@@ -3,11 +3,13 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ClinicFiltersProps = {
+  provincias: string[];
   ciudades: string[];
   tecnicas: string[];
 };
 
 const FIELDS = [
+  { key: "provincia", label: "Toda España" },
   { key: "ciudad", label: "Todas las ciudades" },
   { key: "tecnica", label: "Todos los tratamientos" },
 ] as const;
@@ -51,12 +53,13 @@ function Switch({
   );
 }
 
-export function ClinicFilters({ ciudades, tecnicas }: ClinicFiltersProps) {
+export function ClinicFilters({ provincias, ciudades, tecnicas }: ClinicFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   const options: Record<(typeof FIELDS)[number]["key"], string[]> = {
+    provincia: provincias,
     ciudad: ciudades,
     tecnica: tecnicas,
   };
@@ -67,6 +70,9 @@ export function ClinicFilters({ ciudades, tecnicas }: ClinicFiltersProps) {
       params.set(key, value);
     } else {
       params.delete(key);
+    }
+    if (key === "provincia") {
+      params.delete("ciudad");
     }
     const query = params.toString();
     router.push(query ? `${pathname}?${query}` : pathname);

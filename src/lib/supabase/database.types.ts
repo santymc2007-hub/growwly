@@ -27,7 +27,7 @@ export interface Database {
           nombre: string;
           descripcion: string | null;
           comunidad_autonoma: string | null;
-          provincia: string | null;
+          provincia: string;
           ciudad: string | null;
           zona: string | null;
           lat: number | null;
@@ -86,7 +86,7 @@ export interface Database {
           nombre: string;
           descripcion?: string | null;
           comunidad_autonoma?: string | null;
-          provincia?: string | null;
+          provincia?: string;
           ciudad?: string | null;
           zona?: string | null;
           lat?: number | null;
@@ -145,7 +145,7 @@ export interface Database {
           nombre?: string;
           descripcion?: string | null;
           comunidad_autonoma?: string | null;
-          provincia?: string | null;
+          provincia?: string;
           ciudad?: string | null;
           zona?: string | null;
           lat?: number | null;

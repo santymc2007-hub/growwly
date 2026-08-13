@@ -1,5 +1,69 @@
 import { slugify } from "./slugify";
 
+// Las 50 provincias españolas — base para la expansión nacional. Cada
+// clínica pertenece a una, usada en la URL (/clinicas/[provincia]/...)
+// y en los filtros de admin.
+export const PROVINCIAS_ESPANA = [
+  "A Coruña",
+  "Álava",
+  "Albacete",
+  "Alicante",
+  "Almería",
+  "Asturias",
+  "Ávila",
+  "Badajoz",
+  "Barcelona",
+  "Bizkaia",
+  "Burgos",
+  "Cáceres",
+  "Cádiz",
+  "Cantabria",
+  "Castellón",
+  "Ciudad Real",
+  "Córdoba",
+  "Cuenca",
+  "Gipuzkoa",
+  "Girona",
+  "Granada",
+  "Guadalajara",
+  "Huelva",
+  "Huesca",
+  "Illes Balears",
+  "Jaén",
+  "La Rioja",
+  "Las Palmas",
+  "León",
+  "Lleida",
+  "Lugo",
+  "Madrid",
+  "Málaga",
+  "Murcia",
+  "Navarra",
+  "Ourense",
+  "Palencia",
+  "Pontevedra",
+  "Salamanca",
+  "Santa Cruz de Tenerife",
+  "Segovia",
+  "Sevilla",
+  "Soria",
+  "Tarragona",
+  "Teruel",
+  "Toledo",
+  "Valencia",
+  "Valladolid",
+  "Zamora",
+  "Zaragoza",
+] as const;
+
+export function slugifyProvincia(provincia: string): string {
+  return slugify(provincia);
+}
+
+export function provinciaDesdeSlug(slug: string): string | null {
+  return PROVINCIAS_ESPANA.find((p) => slugifyProvincia(p) === slug) ?? null;
+}
+
 export const TIPOS_NEGOCIO = [
   "Clínica capilar",
   "Clínica de tricología",
@@ -110,4 +174,17 @@ export function municipioDesdeSlug(slug: string): string | null {
   return (
     MUNICIPIOS_MALLORCA.find((m) => slugifyCiudad(m) === slug) ?? null
   );
+}
+
+/**
+ * Igual que municipioDesdeSlug, pero para cualquier provincia: busca el
+ * nombre real dentro de una lista de ciudades ya existentes en la BD
+ * para esa provincia (no dependemos de tener el callejero completo de
+ * toda España — basta con lo que ya tengan cargado las clínicas).
+ */
+export function municipioDesdeSlugGenerico(
+  slug: string,
+  ciudadesExistentes: string[],
+): string | null {
+  return ciudadesExistentes.find((c) => slugifyCiudad(c) === slug) ?? null;
 }

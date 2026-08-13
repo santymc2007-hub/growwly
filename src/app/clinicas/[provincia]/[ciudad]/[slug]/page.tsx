@@ -5,14 +5,14 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import ReactMarkdown from "react-markdown";
 import { getSocialLinks } from "@/lib/social-links";
-import { formatearPrecio, slugifyCiudad } from "@/lib/clinic-options";
+import { formatearPrecio, slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { Carousel } from "@/components/clinics/carousel";
 import { ModuloValoraciones } from "@/components/clinics/modulo-valoraciones";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
-type Params = { ciudad: string; slug: string };
+type Params = { provincia: string; ciudad: string; slug: string };
 
 async function findClinic(slug: string) {
   const supabase = await createClient();
@@ -41,11 +41,12 @@ export async function generateMetadata({
     }.`;
 
   const ciudadSlug = clinic.ciudad ? slugifyCiudad(clinic.ciudad) : "clinica";
+  const provinciaSlug = slugifyProvincia(clinic.provincia);
 
   return {
     title: `${clinic.nombre}${clinic.ciudad ? ` en ${clinic.ciudad}` : ""}`,
     description: descripcion,
-    alternates: { canonical: `/clinicas/${ciudadSlug}/${clinic.slug}` },
+    alternates: { canonical: `/clinicas/${provinciaSlug}/${ciudadSlug}/${clinic.slug}` },
     openGraph: {
       title: clinic.nombre,
       description: descripcion,
@@ -79,19 +80,23 @@ export default async function ClinicaPage({
 }: {
   params: Promise<Params>;
 }) {
-  const { ciudad, slug } = await params;
+  const { provincia, ciudad, slug } = await params;
   const clinic = await findClinic(slug);
 
   if (!clinic) {
     notFound();
   }
 
-  // La ciudad de la URL debe coincidir con la ciudad real de la clínica —
-  // si no, redirige a la URL correcta (evita contenido duplicado y
-  // corrige enlaces desactualizados).
+  // La provincia/ciudad de la URL deben coincidir con las reales de la
+  // clínica — si no, redirige a la URL correcta (evita contenido
+  // duplicado y corrige enlaces desactualizados).
   const ciudadSlugReal = clinic.ciudad ? slugifyCiudad(clinic.ciudad) : null;
-  if (ciudadSlugReal && ciudad !== ciudadSlugReal) {
-    redirect(`/clinicas/${ciudadSlugReal}/${clinic.slug}`);
+  const provinciaSlugReal = slugifyProvincia(clinic.provincia);
+  if (
+    (ciudadSlugReal && ciudad !== ciudadSlugReal) ||
+    provincia !== provinciaSlugReal
+  ) {
+    redirect(`/clinicas/${provinciaSlugReal}/${ciudadSlugReal ?? "clinica"}/${clinic.slug}`);
   }
 
   const esPremium = clinic.plan === "premium";
@@ -130,7 +135,7 @@ export default async function ClinicaPage({
     "@type": "MedicalBusiness",
     name: clinic.nombre,
     description: clinic.descripcion ?? undefined,
-    url: `${siteUrl}/clinicas/${ciudad}/${clinic.slug}`,
+    url: `${siteUrl}/clinicas/${provincia}/${ciudad}/${clinic.slug}`,
     image: clinic.fotos.length > 0 ? clinic.fotos : undefined,
     telephone: clinic.telefono ?? undefined,
     address: {
@@ -169,21 +174,27 @@ export default async function ClinicaPage({
         name: "Clínicas",
         item: `${siteUrl}/clinicas`,
       },
+      {
+        "@type": "ListItem",
+        position: 3,
+        name: clinic.provincia,
+        item: `${siteUrl}/clinicas?provincia=${encodeURIComponent(clinic.provincia)}`,
+      },
       ...(clinic.ciudad
         ? [
             {
               "@type": "ListItem",
-              position: 3,
+              position: 4,
               name: clinic.ciudad,
-              item: `${siteUrl}/clinicas/${ciudad}`,
+              item: `${siteUrl}/clinicas/${provincia}/${ciudad}`,
             },
           ]
         : []),
       {
         "@type": "ListItem",
-        position: clinic.ciudad ? 4 : 3,
+        position: clinic.ciudad ? 5 : 4,
         name: clinic.nombre,
-        item: `${siteUrl}/clinicas/${ciudad}/${clinic.slug}`,
+        item: `${siteUrl}/clinicas/${provincia}/${ciudad}/${clinic.slug}`,
       },
     ],
   };
@@ -207,10 +218,17 @@ export default async function ClinicaPage({
           <Link href="/clinicas" className="hover:text-cyan">
             Clínicas
           </Link>
+          <span aria-hidden>/</span>
+          <Link
+            href={`/clinicas?provincia=${encodeURIComponent(clinic.provincia)}`}
+            className="hover:text-cyan"
+          >
+            {clinic.provincia}
+          </Link>
           {clinic.ciudad && (
             <>
               <span aria-hidden>/</span>
-              <Link href={`/clinicas/${ciudad}`} className="hover:text-cyan">
+              <Link href={`/clinicas/${provincia}/${ciudad}`} className="hover:text-cyan">
                 {clinic.ciudad}
               </Link>
             </>

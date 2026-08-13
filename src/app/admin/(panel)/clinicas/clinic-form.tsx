@@ -4,6 +4,7 @@ import {
   IDIOMAS_DISPONIBLES,
   PRECIO_OPCIONES,
   MUNICIPIOS_MALLORCA,
+  PROVINCIAS_ESPANA,
   TIPOS_NEGOCIO,
   formatearPrecio,
 } from "@/lib/clinic-options";
@@ -142,30 +143,36 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
             <label className={labelClass} htmlFor="provincia">
               Provincia
             </label>
-            <input
+            <select
               id="provincia"
               name="provincia"
-              defaultValue={clinic?.provincia ?? undefined}
+              defaultValue={clinic?.provincia ?? "Illes Balears"}
               className={inputClass}
-            />
+            >
+              {PROVINCIAS_ESPANA.map((p) => (
+                <option key={p} value={p}>
+                  {p}
+                </option>
+              ))}
+            </select>
           </div>
           <div>
             <label className={labelClass} htmlFor="ciudad">
               Ciudad
             </label>
-            <select
+            <input
               id="ciudad"
               name="ciudad"
+              list="municipios-mallorca"
+              placeholder="Escribe la ciudad (sugerencias para Mallorca)"
               defaultValue={clinic?.ciudad ?? ""}
               className={inputClass}
-            >
-              <option value="">Selecciona un municipio</option>
+            />
+            <datalist id="municipios-mallorca">
               {MUNICIPIOS_MALLORCA.map((m) => (
-                <option key={m} value={m}>
-                  {m}
-                </option>
+                <option key={m} value={m} />
               ))}
-            </select>
+            </datalist>
           </div>
           <div>
             <label className={labelClass} htmlFor="zona">

@@ -5,7 +5,7 @@ import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { slugifyCiudad } from "@/lib/clinic-options";
+import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
   title: "Clínicas capilares en España",
@@ -15,6 +15,7 @@ export const metadata: Metadata = {
 };
 
 type SearchParams = {
+  provincia?: string;
   ciudad?: string;
   tecnica?: string;
   idioma?: string;
@@ -29,8 +30,16 @@ export default async function ClinicasPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { ciudad, tecnica, idioma, ubicacion, rating, verificado, financiacion } =
-    await searchParams;
+  const {
+    provincia,
+    ciudad,
+    tecnica,
+    idioma,
+    ubicacion,
+    rating,
+    verificado,
+    financiacion,
+  } = await searchParams;
 
   const supabase = await createClient();
   const { data } = await supabase
@@ -45,6 +54,7 @@ export default async function ClinicasPage({
   const ratingMinimo = rating ? Number(rating) : null;
 
   const filtradas = clinicas.filter((c) => {
+    if (provincia && c.provincia !== provincia) return false;
     if (ciudad && c.ciudad !== ciudad) return false;
     if (tecnica && !c.tecnicas.includes(tecnica)) return false;
     if (idioma && !c.idiomas.includes(idioma)) return false;
@@ -56,7 +66,12 @@ export default async function ClinicasPage({
     return true;
   });
 
-  const ciudades = uniqueSorted(clinicas.map((c) => c.ciudad));
+  const provincias = uniqueSorted(clinicas.map((c) => c.provincia));
+  const ciudades = uniqueSorted(
+    clinicas
+      .filter((c) => !provincia || c.provincia === provincia)
+      .map((c) => c.ciudad),
+  );
   const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
 
   return (
@@ -85,21 +100,27 @@ export default async function ClinicasPage({
               ? "clínica encontrada"
               : "clínicas encontradas"}
           </p>
-          <ClinicFilters ciudades={ciudades} tecnicas={tecnicas} />
+          <ClinicFilters provincias={provincias} ciudades={ciudades} tecnicas={tecnicas} />
         </div>
 
         {ciudades.length > 1 && (
           <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
             <span>Explora por ciudad:</span>
-            {ciudades.map((c) => (
-              <Link
-                key={c}
-                href={`/clinicas/${slugifyCiudad(c)}`}
-                className="text-cyan hover:text-cyan-dark"
-              >
-                {c}
-              </Link>
-            ))}
+            {ciudades.map((c) => {
+              const clinicaDeEstaCiudad = clinicas.find((cl) => cl.ciudad === c);
+              const provinciaSlug = clinicaDeEstaCiudad
+                ? slugifyProvincia(clinicaDeEstaCiudad.provincia)
+                : slugifyProvincia("Illes Balears");
+              return (
+                <Link
+                  key={c}
+                  href={`/clinicas/${provinciaSlug}/${slugifyCiudad(c)}`}
+                  className="text-cyan hover:text-cyan-dark"
+                >
+                  {c}
+                </Link>
+              );
+            })}
           </p>
         )}
 

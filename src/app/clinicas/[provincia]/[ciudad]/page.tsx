@@ -5,22 +5,37 @@ import { createClient } from "@/lib/supabase/server";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { municipioDesdeSlug, formatearPrecio } from "@/lib/clinic-options";
+import {
+  provinciaDesdeSlug,
+  municipioDesdeSlugGenerico,
+  formatearPrecio,
+} from "@/lib/clinic-options";
 
-type Params = { ciudad: string };
+type Params = { provincia: string; ciudad: string };
 
-async function getClinicasDeCiudad(ciudadReal: string) {
+async function getClinicasDeCiudad(provinciaReal: string, ciudadSlug: string) {
   const supabase = await createClient();
   const { data } = await supabase
     .from("clinics")
     .select("*")
-    .eq("ciudad", ciudadReal)
+    .eq("provincia", provinciaReal)
     .eq("publicado", true)
     .order("destacado_ciudad", { ascending: false })
     .order("destacado", { ascending: false })
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
-  return data ?? [];
+
+  const todas = data ?? [];
+  // La ciudad real se resuelve a partir de lo que ya hay cargado para
+  // esta provincia — así funciona para cualquier provincia sin
+  // necesitar un callejero completo de toda España.
+  const ciudadesDeProvincia = Array.from(
+    new Set(todas.map((c) => c.ciudad).filter((c): c is string => Boolean(c))),
+  );
+  const ciudadReal = municipioDesdeSlugGenerico(ciudadSlug, ciudadesDeProvincia);
+  if (!ciudadReal) return { ciudadReal: null, clinicas: [] };
+
+  return { ciudadReal, clinicas: todas.filter((c) => c.ciudad === ciudadReal) };
 }
 
 export async function generateMetadata({
@@ -28,14 +43,17 @@ export async function generateMetadata({
 }: {
   params: Promise<Params>;
 }): Promise<Metadata> {
-  const { ciudad } = await params;
-  const ciudadReal = municipioDesdeSlug(ciudad);
+  const { provincia, ciudad } = await params;
+  const provinciaReal = provinciaDesdeSlug(provincia);
+  if (!provinciaReal) return {};
+
+  const { ciudadReal } = await getClinicasDeCiudad(provinciaReal, ciudad);
   if (!ciudadReal) return {};
 
   return {
     title: `Clínicas capilares en ${ciudadReal}`,
     description: `Directorio de clínicas capilares en ${ciudadReal}: técnicas, precios, valoraciones e idiomas.`,
-    alternates: { canonical: `/clinicas/${ciudad}` },
+    alternates: { canonical: `/clinicas/${provincia}/${ciudad}` },
   };
 }
 
@@ -44,14 +62,18 @@ export default async function CiudadPage({
 }: {
   params: Promise<Params>;
 }) {
-  const { ciudad } = await params;
-  const ciudadReal = municipioDesdeSlug(ciudad);
+  const { provincia, ciudad } = await params;
+  const provinciaReal = provinciaDesdeSlug(provincia);
+
+  if (!provinciaReal) {
+    notFound();
+  }
+
+  const { ciudadReal, clinicas } = await getClinicasDeCiudad(provinciaReal, ciudad);
 
   if (!ciudadReal) {
     notFound();
   }
-
-  const clinicas = await getClinicasDeCiudad(ciudadReal);
 
   // Estadísticas reales calculadas a partir de los datos — nunca texto
   // inventado sobre la zona.
@@ -85,8 +107,14 @@ export default async function CiudadPage({
       {
         "@type": "ListItem",
         position: 3,
+        name: provinciaReal,
+        item: `${siteUrl}/clinicas/${provincia}`,
+      },
+      {
+        "@type": "ListItem",
+        position: 4,
         name: ciudadReal,
-        item: `${siteUrl}/clinicas/${ciudad}`,
+        item: `${siteUrl}/clinicas/${provincia}/${ciudad}`,
       },
     ],
   };
@@ -104,6 +132,10 @@ export default async function CiudadPage({
         <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
           <Link href="/clinicas" className="hover:text-cyan">
             Clínicas
+          </Link>
+          <span aria-hidden>/</span>
+          <Link href={`/clinicas?provincia=${encodeURIComponent(provinciaReal)}`} className="hover:text-cyan">
+            {provinciaReal}
           </Link>
           <span aria-hidden>/</span>
           <span className="text-ink">{ciudadReal}</span>

@@ -42,26 +42,39 @@ const COLUMNAS: {
   },
 ];
 
-type SearchParams = { ciudad?: string };
+type SearchParams = { provincia?: string; ciudad?: string };
 
 export default async function VisibilidadPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { ciudad } = await searchParams;
+  const { provincia, ciudad } = await searchParams;
 
   const supabase = createAdminClient();
-  let query = supabase
+  const { data: todasLasClinicas } = await supabase
     .from("clinics")
     .select("*")
     .order("nombre", { ascending: true });
 
-  if (ciudad) {
-    query = query.eq("ciudad", ciudad);
-  }
+  const provincias = Array.from(
+    new Set((todasLasClinicas ?? []).map((c) => c.provincia)),
+  ).sort((a, b) => a.localeCompare(b, "es"));
 
-  const { data: clinicas } = await query;
+  const ciudadesDisponibles = Array.from(
+    new Set(
+      (todasLasClinicas ?? [])
+        .filter((c) => !provincia || c.provincia === provincia)
+        .map((c) => c.ciudad)
+        .filter((c): c is string => Boolean(c)),
+    ),
+  ).sort((a, b) => a.localeCompare(b, "es"));
+
+  const clinicas = (todasLasClinicas ?? []).filter((c) => {
+    if (provincia && c.provincia !== provincia) return false;
+    if (ciudad && c.ciudad !== ciudad) return false;
+    return true;
+  });
 
   return (
     <div>
@@ -81,7 +94,12 @@ export default async function VisibilidadPage({
           </p>
         </div>
 
-        <FiltroCiudad ciudadActual={ciudad ?? ""} />
+        <FiltroCiudad
+          provinciaActual={provincia ?? ""}
+          ciudadActual={ciudad ?? ""}
+          provincias={provincias}
+          ciudades={ciudadesDisponibles}
+        />
       </div>
 
       <div className="mt-6 overflow-x-auto rounded-2xl border border-line bg-white">
@@ -97,7 +115,7 @@ export default async function VisibilidadPage({
             </tr>
           </thead>
           <tbody>
-            {(clinicas ?? []).map((clinic) => (
+            {clinicas.map((clinic) => (
               <tr key={clinic.id} className="border-b border-line last:border-0">
                 <td className="px-4 py-3">
                   <Link
@@ -106,9 +124,9 @@ export default async function VisibilidadPage({
                   >
                     {clinic.nombre}
                   </Link>
-                  {clinic.ciudad && (
-                    <p className="text-xs text-ink-soft">{clinic.ciudad}</p>
-                  )}
+                  <p className="text-xs text-ink-soft">
+                    {[clinic.ciudad, clinic.provincia].filter(Boolean).join(", ")}
+                  </p>
                 </td>
                 {COLUMNAS.map((col) => {
                   const estado = col.solicitado(clinic)
@@ -146,7 +164,7 @@ export default async function VisibilidadPage({
           </tbody>
         </table>
 
-        {(clinicas ?? []).length === 0 && (
+        {clinicas.length === 0 && (
           <p className="p-6 text-center text-sm text-ink-soft">
             No hay clínicas para ese filtro.
           </p>

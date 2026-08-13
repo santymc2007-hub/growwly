@@ -110,6 +110,7 @@ export async function actualizarMiFicha(formData: FormData) {
     web: str("web"),
     direccion: str("direccion"),
     ciudad: str("ciudad"),
+    provincia: str("provincia") ?? "Illes Balears",
     zona: str("zona"),
     redes_sociales: redesSociales,
     tecnicas: formData.getAll("tecnicas").map(String),

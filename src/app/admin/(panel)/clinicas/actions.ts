@@ -38,7 +38,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     nombre: String(formData.get("nombre") ?? "").trim(),
     descripcion: str("descripcion"),
     comunidad_autonoma: str("comunidad_autonoma"),
-    provincia: str("provincia"),
+    provincia: str("provincia") ?? "Illes Balears",
     ciudad: str("ciudad"),
     zona: str("zona"),
     lat: num("lat"),
