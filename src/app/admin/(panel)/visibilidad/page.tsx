@@ -122,7 +122,7 @@ export default async function VisibilidadPage({
                     !Array.isArray(clinic.visibilidad_fechas)
                       ? (clinic.visibilidad_fechas as Record<
                           string,
-                          { expira_en: string | null }
+                          { expira_en: string | null; meses_solicitados?: number | null }
                         >)
                       : {};
                   return (
@@ -132,6 +132,11 @@ export default async function VisibilidadPage({
                         tipo={col.tipo}
                         estado={estado}
                         expiraEn={fechas[col.tipo]?.expira_en ?? null}
+                        mesesSolicitados={
+                          estado === "solicitado"
+                            ? fechas[col.tipo]?.meses_solicitados
+                            : undefined
+                        }
                       />
                     </td>
                   );

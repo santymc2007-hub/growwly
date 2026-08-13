@@ -33,11 +33,13 @@ export function InterruptorVisibilidad({
   tipo,
   estado,
   expiraEn,
+  mesesSolicitados,
 }: {
   clinicId: string;
   tipo: TipoVisibilidad;
   estado: Estado;
   expiraEn?: string | null;
+  mesesSolicitados?: number | null;
 }) {
   const [pending, startTransition] = useTransition();
   const [eligiendoDuracion, setEligiendoDuracion] = useState(false);
@@ -121,16 +123,28 @@ export function InterruptorVisibilidad({
       )}
 
       {eligiendoDuracion && (
-        <div className="absolute left-0 top-full z-20 mt-1 w-40 rounded-xl border border-line bg-white p-2 shadow-lg">
+        <div className="absolute left-0 top-full z-20 mt-1 w-44 rounded-xl border border-line bg-white p-2 shadow-lg">
           <p className="mb-1.5 px-1 text-[11px] font-medium text-ink-soft">
             ¿Durante cuánto?
           </p>
+          {mesesSolicitados !== undefined && (
+            <p className="mb-1.5 px-1 text-[11px] text-orange">
+              La clínica pidió:{" "}
+              {mesesSolicitados === null
+                ? "Indefinido"
+                : `${mesesSolicitados} ${mesesSolicitados === 1 ? "mes" : "meses"}`}
+            </p>
+          )}
           {DURACIONES.map((d) => (
             <button
               key={d.etiqueta}
               type="button"
               onClick={() => elegirDuracion(d.meses)}
-              className="block w-full rounded-lg px-2 py-1.5 text-left text-sm text-ink hover:bg-sage/40"
+              className={`block w-full rounded-lg px-2 py-1.5 text-left text-sm hover:bg-sage/40 ${
+                mesesSolicitados !== undefined && mesesSolicitados === d.meses
+                  ? "bg-orange/10 font-medium text-orange"
+                  : "text-ink"
+              }`}
             >
               {d.etiqueta}
             </button>

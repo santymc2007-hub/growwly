@@ -3,12 +3,6 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { TarjetaVisibilidad } from "./tarjeta-visibilidad";
-import {
-  solicitarDestacadoListado,
-  solicitarDestacadoHome,
-  solicitarDestacadoCiudad,
-  solicitarPremium,
-} from "./actions";
 
 type SearchParams = { solicitud?: string };
 
@@ -76,40 +70,58 @@ export default async function VisibilidadPage({
           separado y queda pendiente de aprobación antes de activarse.
         </p>
 
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-          <TarjetaVisibilidad
-            icono="★"
-            titulo="Destacada en el listado"
-            descripcion="Tu ficha resalta con color y sube de posición en /clinicas."
-            activo={clinic.destacado}
-            pendiente={clinic.destacado_solicitado}
-            action={solicitarDestacadoListado}
-          />
-          <TarjetaVisibilidad
-            icono="🏠"
-            titulo="Destacada en la Home"
-            descripcion='Apareces en la sección "Clínicas destacadas" de la página principal.'
-            activo={clinic.destacado_home}
-            pendiente={clinic.destacado_home_solicitado}
-            action={solicitarDestacadoHome}
-          />
-          <TarjetaVisibilidad
-            icono="📍"
-            titulo="Destacada en tu ciudad"
-            descripcion={`Resaltas al principio dentro de /clinicas/${clinic.ciudad ? clinic.ciudad.toLowerCase() : "tu-ciudad"}.`}
-            activo={clinic.destacado_ciudad}
-            pendiente={clinic.destacado_ciudad_solicitado}
-            action={solicitarDestacadoCiudad}
-          />
-          <TarjetaVisibilidad
-            icono="✦"
-            titulo="Plan Premium"
-            descripcion="Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha."
-            activo={clinic.plan === "premium"}
-            pendiente={clinic.plan_solicitado === "premium"}
-            action={solicitarPremium}
-          />
-        </div>
+        {(() => {
+          const fechas =
+            clinic.visibilidad_fechas &&
+            typeof clinic.visibilidad_fechas === "object" &&
+            !Array.isArray(clinic.visibilidad_fechas)
+              ? (clinic.visibilidad_fechas as Record<
+                  string,
+                  { expira_en?: string | null }
+                >)
+              : {};
+
+          return (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <TarjetaVisibilidad
+                tipo="destacado"
+                icono="★"
+                titulo="Destacada en el listado"
+                descripcion="Tu ficha resalta con color y sube de posición en /clinicas."
+                activo={clinic.destacado}
+                pendiente={clinic.destacado_solicitado}
+                expiraEn={fechas.destacado?.expira_en}
+              />
+              <TarjetaVisibilidad
+                tipo="destacado_home"
+                icono="🏠"
+                titulo="Destacada en la Home"
+                descripcion='Apareces en la sección "Clínicas destacadas" de la página principal.'
+                activo={clinic.destacado_home}
+                pendiente={clinic.destacado_home_solicitado}
+                expiraEn={fechas.destacado_home?.expira_en}
+              />
+              <TarjetaVisibilidad
+                tipo="destacado_ciudad"
+                icono="📍"
+                titulo="Destacada en tu ciudad"
+                descripcion={`Resaltas al principio dentro de /clinicas/${clinic.ciudad ? clinic.ciudad.toLowerCase() : "tu-ciudad"}.`}
+                activo={clinic.destacado_ciudad}
+                pendiente={clinic.destacado_ciudad_solicitado}
+                expiraEn={fechas.destacado_ciudad?.expira_en}
+              />
+              <TarjetaVisibilidad
+                tipo="premium"
+                icono="✦"
+                titulo="Plan Premium"
+                descripcion="Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha."
+                activo={clinic.plan === "premium"}
+                pendiente={clinic.plan_solicitado === "premium"}
+                expiraEn={fechas.premium?.expira_en}
+              />
+            </div>
+          );
+        })()}
       </div>
     </main>
   );
