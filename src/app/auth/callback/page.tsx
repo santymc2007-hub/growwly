@@ -1,4 +1,5 @@
 import { redirect } from "next/navigation";
+import { cookies } from "next/headers";
 import { createClient } from "@/lib/supabase/server";
 import { CallbackClient } from "./callback-client";
 
@@ -19,9 +20,9 @@ export default async function AuthCallbackPage({
   const destino = next ?? "/cuenta";
 
   if (code) {
-    // El "code verifier" de PKCE se guardó en una cookie cuando se pidió
-    // la recuperación (en el servidor) — por eso el intercambio también
-    // tiene que hacerse aquí, en el servidor, no en el navegador.
+    const cookieStore = await cookies();
+    const nombresCookies = cookieStore.getAll().map((c) => c.name);
+
     const supabase = await createClient();
     const { error } = await supabase.auth.exchangeCodeForSession(code);
 
@@ -36,7 +37,7 @@ export default async function AuthCallbackPage({
           El enlace no es válido o ha caducado.
         </p>
         <pre className="max-w-lg overflow-x-auto whitespace-pre-wrap rounded-lg border border-line bg-paper-dim p-4 text-left text-xs text-ink-soft">
-          {`code recibido: ${code}\nexchangeCodeForSession (servidor) -> ERROR: ${error.message}`}
+          {`code recibido: ${code}\ncookies presentes en esta petición: ${nombresCookies.join(", ") || "(ninguna)"}\nexchangeCodeForSession (servidor) -> ERROR: ${error.message}`}
         </pre>
         <a href={login} className="text-sm font-medium text-cyan hover:text-cyan-dark">
           ← Volver a iniciar sesión

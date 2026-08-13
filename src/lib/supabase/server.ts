@@ -14,6 +14,14 @@ export async function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
+      auth: {
+        // "implicit" en vez de "pkce": los enlaces de recuperación de
+        // contraseña y confirmación de email se abren casi siempre en
+        // un contexto distinto al que los pidió (el correo, otra
+        // pestaña...), y PKCE exige una cookie del navegador que los
+        // pidió — con enlaces por email eso falla constantemente.
+        flowType: "implicit",
+      },
       cookies: {
         getAll() {
           return cookieStore.getAll();
