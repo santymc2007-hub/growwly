@@ -166,7 +166,7 @@ export default async function HomePage() {
       {/* CTA clínicas */}
       <section className="bg-paper">
         <div className="mx-auto max-w-[1600px] px-6 py-14">
-          <div className="flex flex-col items-center gap-3 rounded-3xl bg-brand-blue px-6 py-14 text-center">
+          <div className="flex flex-col items-center gap-3 rounded-3xl bg-teal px-6 py-14 text-center">
             <p className="font-display text-3xl font-bold text-white">
               ¿Tienes una clínica capilar?
             </p>
@@ -176,7 +176,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/clinica/registro"
-              className="mt-2 inline-block rounded-full bg-brand-green px-6 py-3 text-base font-semibold text-teal-dark transition hover:opacity-90"
+              className="mt-2 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               Únete como clínica →
             </Link>
