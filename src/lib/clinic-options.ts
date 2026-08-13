@@ -74,15 +74,48 @@ export const TIPOS_NEGOCIO = [
   "Otro",
 ] as const;
 
-export const TECNICAS_DISPONIBLES = [
-  "Injerto FUE",
-  "Injerto DHI",
-  "Injerto FUT",
-  "Injerto sin afeitado",
-  "Mesoterapia capilar",
-  "PRP",
-  "Micropigmentación capilar",
+export const CATEGORIAS_TRATAMIENTO = [
+  "Diagnóstico y consulta",
+  "Tratamientos médicos",
+  "Injerto capilar",
+  "Estética capilar",
 ] as const;
+
+export const TECNICAS_POR_CATEGORIA: Record<
+  (typeof CATEGORIAS_TRATAMIENTO)[number],
+  readonly string[]
+> = {
+  "Diagnóstico y consulta": ["Consulta tricológica", "Analítica capilar"],
+  "Tratamientos médicos": [
+    "Minoxidil",
+    "Finasteride / Dutasteride",
+    "Mesoterapia capilar",
+    "PRP",
+    "Láser de baja intensidad",
+  ],
+  "Injerto capilar": [
+    "Injerto FUE",
+    "Injerto DHI",
+    "Injerto FUT",
+    "Injerto sin afeitado",
+    "Injerto de barba",
+    "Injerto de cejas",
+  ],
+  "Estética capilar": [
+    "Micropigmentación capilar",
+    "Extensiones de cabello",
+    "Pelucas y prótesis capilares",
+  ],
+} as const;
+
+export const TECNICAS_DISPONIBLES = Object.values(TECNICAS_POR_CATEGORIA).flat();
+
+export function categoriaDeTecnica(tecnica: string): string | null {
+  for (const [categoria, tecnicas] of Object.entries(TECNICAS_POR_CATEGORIA)) {
+    if ((tecnicas as readonly string[]).includes(tecnica)) return categoria;
+  }
+  return null;
+}
 
 export const IDIOMAS_DISPONIBLES = [
   "Español",

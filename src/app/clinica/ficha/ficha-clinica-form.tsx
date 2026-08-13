@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import {
-  TECNICAS_DISPONIBLES,
+  TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
   PRECIO_OPCIONES,
   MUNICIPIOS_MALLORCA,
@@ -262,22 +262,29 @@ export function FichaClinicaForm({ clinic, action }: Props) {
         </h2>
         <div className="mt-4">
           <p className={labelClass}>Técnicas que ofrecéis</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {TECNICAS_DISPONIBLES.map((t) => (
-              <label
-                key={t}
-                className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  name="tecnicas"
-                  value={t}
-                  defaultChecked={clinic.tecnicas?.includes(t)}
-                />
-                {t}
-              </label>
-            ))}
-          </div>
+          {Object.entries(TECNICAS_POR_CATEGORIA).map(([categoria, tecnicas]) => (
+            <div key={categoria} className="mt-3">
+              <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft/70">
+                {categoria}
+              </p>
+              <div className="mt-1.5 flex flex-wrap gap-2">
+                {tecnicas.map((t) => (
+                  <label
+                    key={t}
+                    className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-sm"
+                  >
+                    <input
+                      type="checkbox"
+                      name="tecnicas"
+                      value={t}
+                      defaultChecked={clinic.tecnicas?.includes(t)}
+                    />
+                    {t}
+                  </label>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
         <div className="mt-4">
           <p className={labelClass}>Idiomas de atención</p>

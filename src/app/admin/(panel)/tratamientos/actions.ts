@@ -28,6 +28,7 @@ function readFields(formData: FormData) {
   return {
     nombre: String(formData.get("nombre") ?? "").trim(),
     tecnica_relacionada: str("tecnica_relacionada"),
+    categoria: str("categoria"),
     resumen: str("resumen"),
     contenido: String(formData.get("contenido") ?? ""),
     duracion_orientativa: str("duracion_orientativa"),
@@ -65,6 +66,7 @@ export async function createTratamiento(formData: FormData) {
     slug,
     nombre: fields.nombre,
     tecnica_relacionada: fields.tecnica_relacionada,
+    categoria: fields.categoria,
     resumen: fields.resumen,
     contenido: fields.contenido,
     duracion_orientativa: fields.duracion_orientativa,
@@ -118,6 +120,7 @@ export async function updateTratamiento(id: string, formData: FormData) {
     .update({
       nombre: fields.nombre,
       tecnica_relacionada: fields.tecnica_relacionada,
+    categoria: fields.categoria,
       resumen: fields.resumen,
       contenido: fields.contenido,
       duracion_orientativa: fields.duracion_orientativa,

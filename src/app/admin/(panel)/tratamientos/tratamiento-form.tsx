@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { Tratamiento } from "@/lib/supabase/database.types";
-import { TECNICAS_DISPONIBLES } from "@/lib/clinic-options";
+import { TECNICAS_DISPONIBLES, CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -43,6 +43,25 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
               URL: /tratamientos/{tratamiento.slug}
             </p>
           )}
+        </div>
+
+        <div>
+          <label className={labelClass} htmlFor="categoria">
+            Categoría
+          </label>
+          <select
+            id="categoria"
+            name="categoria"
+            defaultValue={tratamiento?.categoria ?? ""}
+            className={inputClass}
+          >
+            <option value="">Sin categoría</option>
+            {CATEGORIAS_TRATAMIENTO.map((c) => (
+              <option key={c} value={c}>
+                {c}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

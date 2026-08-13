@@ -467,6 +467,7 @@ export interface Database {
           slug: string;
           nombre: string;
           tecnica_relacionada: string | null;
+          categoria: string | null;
           resumen: string | null;
           contenido: string;
           duracion_orientativa: string | null;
@@ -481,6 +482,7 @@ export interface Database {
           slug: string;
           nombre: string;
           tecnica_relacionada?: string | null;
+          categoria?: string | null;
           resumen?: string | null;
           contenido?: string;
           duracion_orientativa?: string | null;
@@ -495,6 +497,7 @@ export interface Database {
           slug?: string;
           nombre?: string;
           tecnica_relacionada?: string | null;
+          categoria?: string | null;
           resumen?: string | null;
           contenido?: string;
           duracion_orientativa?: string | null;

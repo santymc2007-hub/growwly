@@ -1,6 +1,6 @@
 import Image from "next/image";
 import {
-  TECNICAS_DISPONIBLES,
+  TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
   PRECIO_OPCIONES,
   MUNICIPIOS_MALLORCA,
@@ -497,19 +497,26 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
 
       <section className="mt-8">
         <h2 className="font-display text-lg text-teal-dark">Técnicas</h2>
-        <div className="mt-4 flex flex-wrap gap-x-6 gap-y-2">
-          {TECNICAS_DISPONIBLES.map((tecnica) => (
-            <label key={tecnica} className="flex items-center gap-2 text-sm">
-              <input
-                type="checkbox"
-                name="tecnicas"
-                value={tecnica}
-                defaultChecked={clinic?.tecnicas.includes(tecnica)}
-              />
-              {tecnica}
-            </label>
-          ))}
-        </div>
+        {Object.entries(TECNICAS_POR_CATEGORIA).map(([categoria, tecnicas]) => (
+          <div key={categoria} className="mt-4">
+            <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft/70">
+              {categoria}
+            </p>
+            <div className="mt-1.5 flex flex-wrap gap-x-6 gap-y-2">
+              {tecnicas.map((tecnica) => (
+                <label key={tecnica} className="flex items-center gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="tecnicas"
+                    value={tecnica}
+                    defaultChecked={clinic?.tecnicas.includes(tecnica)}
+                  />
+                  {tecnica}
+                </label>
+              ))}
+            </div>
+          </div>
+        ))}
       </section>
 
       <section className="mt-8">
