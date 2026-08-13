@@ -1,9 +1,14 @@
 import { redirect } from "next/navigation";
-import { cookies } from "next/headers";
+import type { EmailOtpType } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
 import { CallbackClient } from "./callback-client";
 
-type SearchParams = { code?: string; next?: string };
+type SearchParams = {
+  code?: string;
+  token_hash?: string;
+  type?: string;
+  next?: string;
+};
 
 function loginParaDestino(next: string): string {
   if (next.startsWith("/admin")) return "/admin/login";
@@ -16,28 +21,33 @@ export default async function AuthCallbackPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { code, next } = await searchParams;
+  const { code, token_hash, type, next } = await searchParams;
   const destino = next ?? "/cuenta";
+  const login = loginParaDestino(destino);
 
-  if (code) {
-    const cookieStore = await cookies();
-    const nombresCookies = cookieStore.getAll().map((c) => c.name);
-
+  // Formato recomendado por Supabase para enlaces por email: un
+  // token_hash que se verifica directamente contra su servidor, sin
+  // depender de ninguna cookie del navegador que lo pidió — por eso
+  // funciona aunque el enlace se abra en otro dispositivo o navegador
+  // distinto al que hizo la solicitud (el caso normal con el email).
+  if (token_hash && type) {
     const supabase = await createClient();
-    const { error } = await supabase.auth.exchangeCodeForSession(code);
+    const { error } = await supabase.auth.verifyOtp({
+      token_hash,
+      type: type as EmailOtpType,
+    });
 
     if (!error) {
       redirect(destino);
     }
 
-    const login = loginParaDestino(destino);
     return (
       <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
         <p className="max-w-md text-sm text-error">
           El enlace no es válido o ha caducado.
         </p>
         <pre className="max-w-lg overflow-x-auto whitespace-pre-wrap rounded-lg border border-line bg-paper-dim p-4 text-left text-xs text-ink-soft">
-          {`code recibido: ${code}\ncookies presentes en esta petición: ${nombresCookies.join(", ") || "(ninguna)"}\nexchangeCodeForSession (servidor) -> ERROR: ${error.message}`}
+          {`token_hash recibido: ${token_hash}\ntype: ${type}\nverifyOtp (servidor) -> ERROR: ${error.message}`}
         </pre>
         <a href={login} className="text-sm font-medium text-cyan hover:text-cyan-dark">
           ← Volver a iniciar sesión
@@ -46,7 +56,32 @@ export default async function AuthCallbackPage({
     );
   }
 
-  // Sin "code" en la URL — sería el formato antiguo con el token tras el
-  // "#", que el servidor nunca llega a ver. Lo comprobamos en el cliente.
+  // Formato antiguo/alternativo (?code= de PKCE) — se mantiene como
+  // respaldo por si algún enlace todavía llega así.
+  if (code) {
+    const supabase = await createClient();
+    const { error } = await supabase.auth.exchangeCodeForSession(code);
+
+    if (!error) {
+      redirect(destino);
+    }
+
+    return (
+      <main className="flex min-h-screen flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="max-w-md text-sm text-error">
+          El enlace no es válido o ha caducado.
+        </p>
+        <pre className="max-w-lg overflow-x-auto whitespace-pre-wrap rounded-lg border border-line bg-paper-dim p-4 text-left text-xs text-ink-soft">
+          {`code recibido: ${code}\nexchangeCodeForSession (servidor) -> ERROR: ${error.message}`}
+        </pre>
+        <a href={login} className="text-sm font-medium text-cyan hover:text-cyan-dark">
+          ← Volver a iniciar sesión
+        </a>
+      </main>
+    );
+  }
+
+  // Formato hash (#access_token=...) — el servidor nunca lo ve, se
+  // comprueba en el cliente.
   return <CallbackClient code={code} next={destino} />;
 }
