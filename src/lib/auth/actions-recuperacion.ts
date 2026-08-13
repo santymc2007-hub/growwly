@@ -27,16 +27,19 @@ export async function solicitarRecuperacion(formData: FormData) {
   }
 
   const supabase = await createClient();
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
   const next = `/${seccion}/restablecer-password`;
 
   // No comprobamos ni informamos si el email existe o no — mensaje
   // siempre genérico, para no filtrar qué cuentas están registradas.
   //
-  // redirectTo aquí es solo la ruta final — la plantilla de email en
-  // Supabase (Authentication > Email Templates > Reset Password) es la
-  // que construye la URL completa de /auth/callback usando {{ .RedirectTo }}.
+  // redirectTo tiene que ser una URL absoluta completa — Supabase la
+  // valida contra la lista de "Redirect URLs" del proyecto, y si le
+  // mandamos solo una ruta relativa, la descarta y usa el Site URL por
+  // defecto (nos pasó justo eso). La plantilla de email en Supabase
+  // usa {{ .RedirectTo }} para construir el enlace final.
   await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: next,
+    redirectTo: `${siteUrl}${next}`,
   });
 
   redirect(`/${seccion}/olvide-password?enviado=1`);

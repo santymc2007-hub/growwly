@@ -16,13 +16,22 @@ function loginParaDestino(next: string): string {
   return "/cuenta/login";
 }
 
+function aRutaRelativa(next: string): string {
+  try {
+    const url = new URL(next);
+    return url.pathname + url.search;
+  } catch {
+    return next; // ya era una ruta relativa
+  }
+}
+
 export default async function AuthCallbackPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
   const { code, token_hash, type, next } = await searchParams;
-  const destino = next ?? "/cuenta";
+  const destino = aRutaRelativa(next ?? "/cuenta");
   const login = loginParaDestino(destino);
 
   // Formato recomendado por Supabase para enlaces por email: un
