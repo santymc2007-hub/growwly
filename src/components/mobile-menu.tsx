@@ -2,15 +2,26 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { Menu, X, User, Store, LogOut } from "lucide-react";
+import { Menu, X, User, Store, LogOut, ChevronDown } from "lucide-react";
 import { cerrarSesionClinica } from "@/app/clinica/actions";
+import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
+
+type Tratamiento = { slug: string; nombre: string; categoria: string | null };
 
 export function MobileMenu({
   esClinicaLogueada = false,
+  tratamientos = [],
 }: {
   esClinicaLogueada?: boolean;
+  tratamientos?: Tratamiento[];
 }) {
   const [abierto, setAbierto] = useState(false);
+  const [tratamientosAbierto, setTratamientosAbierto] = useState(false);
+
+  const porCategoria = CATEGORIAS_TRATAMIENTO.map((categoria) => ({
+    categoria,
+    items: tratamientos.filter((t) => t.categoria === categoria),
+  })).filter((c) => c.items.length > 0);
 
   return (
     <div className="md:hidden">
@@ -58,13 +69,49 @@ export function MobileMenu({
             >
               Blog
             </Link>
-            <Link
-              href="/tratamientos"
-              className="rounded-lg px-3 py-2.5 hover:bg-paper-dim hover:text-teal"
-              onClick={() => setAbierto(false)}
-            >
-              Tratamientos
-            </Link>
+            <div>
+              <button
+                type="button"
+                onClick={() => setTratamientosAbierto((v) => !v)}
+                aria-expanded={tratamientosAbierto}
+                className="flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-left hover:bg-paper-dim hover:text-teal"
+              >
+                Tratamientos
+                <ChevronDown
+                  size={16}
+                  aria-hidden
+                  className={`transition-transform duration-200 ease-out ${tratamientosAbierto ? "rotate-180" : ""}`}
+                />
+              </button>
+              {tratamientosAbierto && (
+                <div className="popover-anim ml-3 mt-1 flex flex-col gap-3 border-l border-line pl-3" style={{ transformOrigin: "top" }}>
+                  {porCategoria.map(({ categoria, items }) => (
+                    <div key={categoria}>
+                      <p className="px-3 text-[11px] font-semibold uppercase tracking-wide text-ink-soft/70">
+                        {categoria}
+                      </p>
+                      {items.map((t) => (
+                        <Link
+                          key={t.slug}
+                          href={`/tratamientos/${t.slug}`}
+                          className="block rounded-lg px-3 py-1.5 text-sm text-ink-soft hover:bg-paper-dim hover:text-teal"
+                          onClick={() => setAbierto(false)}
+                        >
+                          {t.nombre}
+                        </Link>
+                      ))}
+                    </div>
+                  ))}
+                  <Link
+                    href="/tratamientos"
+                    className="rounded-lg px-3 py-1.5 text-sm font-medium text-cyan hover:text-cyan-dark"
+                    onClick={() => setAbierto(false)}
+                  >
+                    Ver todos →
+                  </Link>
+                </div>
+              )}
+            </div>
             <Link
               href="/cuenta"
               className="flex items-center gap-2 rounded-lg px-3 py-2.5 hover:bg-paper-dim hover:text-teal"

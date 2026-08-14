@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { MobileMenu } from "./mobile-menu";
+import { MenuTratamientos } from "./menu-tratamientos";
 import { cerrarSesionClinica } from "@/app/clinica/actions";
 
 export async function SiteHeader() {
@@ -19,6 +20,12 @@ export async function SiteHeader() {
       .maybeSingle();
     esClinicaLogueada = profile?.role === "clinic";
   }
+
+  const { data: tratamientos } = await supabase
+    .from("tratamientos")
+    .select("slug, nombre, categoria")
+    .eq("publicado", true)
+    .order("nombre", { ascending: true });
 
   return (
     <header className="relative z-20">
@@ -43,9 +50,7 @@ export async function SiteHeader() {
           <Link href="/clinicas" className="hover:text-teal">
             Clínicas
           </Link>
-          <Link href="/tratamientos" className="hover:text-teal">
-            Tratamientos
-          </Link>
+          <MenuTratamientos tratamientos={tratamientos ?? []} />
           <Link href="/blog" className="hover:text-teal">
             Blog
           </Link>
@@ -78,7 +83,7 @@ export async function SiteHeader() {
             </Link>
           )}
         </nav>
-        <MobileMenu esClinicaLogueada={esClinicaLogueada} />
+        <MobileMenu esClinicaLogueada={esClinicaLogueada} tratamientos={tratamientos ?? []} />
       </div>
     </header>
   );
