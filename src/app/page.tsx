@@ -67,7 +67,7 @@ export default async function HomePage() {
             <div className="hidden lg:block">
               <Link
                 href="/analisis/nuevo"
-                className="mt-8 inline-block w-full max-w-md rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-5 font-display text-xl font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+                className="press mt-8 inline-block w-full max-w-md rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-5 font-display text-xl font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
               >
                 Subir fotos
               </Link>
@@ -92,7 +92,7 @@ export default async function HomePage() {
           <div className="order-3 text-left lg:hidden">
             <Link
               href="/analisis/nuevo"
-              className="inline-block w-full max-w-xs rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="press inline-block w-full max-w-xs rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               Subir fotos
             </Link>
@@ -155,7 +155,7 @@ export default async function HomePage() {
             </div>
             <Link
               href="/clinicas"
-              className="mt-8 inline-block rounded-full bg-teal px-6 py-3 text-base font-medium text-paper transition hover:bg-teal-dark"
+              className="press mt-8 inline-block rounded-full bg-teal px-6 py-3 text-base font-medium text-paper transition hover:bg-teal-dark"
             >
               Ver todas las clínicas →
             </Link>
@@ -176,7 +176,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/clinica/registro"
-              className="mt-2 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="press mt-2 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               Únete como clínica →
             </Link>

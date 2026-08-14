@@ -619,7 +619,7 @@ export function FichaClinicaForm({ clinic, action }: Props) {
         <button
           type="submit"
           disabled={estado !== "idle"}
-          className="rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark disabled:opacity-60"
+          className="press rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark disabled:opacity-60"
         >
           {estado === "comprimiendo"
             ? "Optimizando fotos…"

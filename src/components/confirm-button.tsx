@@ -41,14 +41,14 @@ export function ConfirmButton({
             onClick={() => setAbierto(false)}
             className="absolute inset-0 bg-ink/40 backdrop-blur-sm"
           />
-          <div className="relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
+          <div className="modal-anim relative w-full max-w-sm rounded-2xl bg-white p-6 shadow-2xl">
             <p className="font-display text-lg text-teal-dark">{title}</p>
             <p className="mt-2 text-sm text-ink-soft">{message}</p>
             <div className="mt-6 flex gap-3">
               <form action={action} className="flex-1">
                 <button
                   type="submit"
-                  className="w-full rounded-full bg-error px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
+                  className="press w-full rounded-full bg-error px-4 py-2.5 text-sm font-medium text-white transition hover:opacity-90"
                 >
                   {confirmLabel}
                 </button>
@@ -56,7 +56,7 @@ export function ConfirmButton({
               <button
                 type="button"
                 onClick={() => setAbierto(false)}
-                className="flex-1 rounded-full border border-line px-4 py-2.5 text-sm font-medium text-ink-soft transition hover:bg-paper-dim"
+                className="press flex-1 rounded-full border border-line px-4 py-2.5 text-sm font-medium text-ink-soft transition hover:bg-paper-dim"
               >
                 {cancelLabel}
               </button>

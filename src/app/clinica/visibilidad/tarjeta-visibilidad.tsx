@@ -73,14 +73,14 @@ export function TarjetaVisibilidad({
           type="button"
           disabled={pending}
           onClick={() => setEligiendoDuracion(true)}
-          className="mt-3 rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:opacity-60"
+          className="press mt-3 rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:opacity-60"
         >
           Solicitar
         </button>
       )}
 
       {eligiendoDuracion && (
-        <div className="absolute left-5 top-full z-20 mt-1 w-44 rounded-xl border border-line bg-white p-2 shadow-lg">
+        <div className="popover-anim absolute left-5 top-full z-20 mt-1 w-44 rounded-xl border border-line bg-white p-2 shadow-lg">
           <p className="mb-1.5 px-1 text-[11px] font-medium text-ink-soft">
             ¿Durante cuánto lo quieres?
           </p>

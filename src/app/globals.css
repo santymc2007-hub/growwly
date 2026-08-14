@@ -42,6 +42,12 @@
   /* Estado de error (no es un color de marca, es semántico) */
   --color-error: #dc2626;
   --color-error-dark: #991b1b;
+
+  /* Curvas de easing propias — las de CSS por defecto son demasiado
+     débiles, les falta el "punch" que hace que una animación se sienta
+     intencional. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 @theme inline {
@@ -74,4 +80,51 @@
 body {
   background: var(--color-paper);
   color: var(--color-ink);
+}
+
+/* Cualquier elemento pulsable (botones, tarjetas-enlace) — feedback
+   táctil instantáneo, confirma que la interfaz "ha oído" el clic.
+   Solo se activa con puntero fino (ratón), nunca en táctil, donde
+   :active se dispara con el tap y no aporta nada. */
+@media (hover: hover) and (pointer: fine) {
+  .press {
+    transition: transform 160ms var(--ease-out);
+  }
+  .press:active {
+    transform: scale(0.97);
+  }
+}
+
+/* Popovers/desplegables: nacen desde su disparador, nunca desde el
+   centro (eso es solo para modales). Se usa junto a transform-origin
+   inline (arriba-izquierda por defecto, ajustable por caso). */
+@keyframes popover-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.popover-anim {
+  animation: popover-in 160ms var(--ease-out);
+  transform-origin: top left;
+}
+
+/* Modales: sí van centrados (no están anclados a un disparador
+   concreto), con blur de fondo para separarlos del resto de la UI. */
+@keyframes modal-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.modal-anim {
+  animation: modal-in 200ms var(--ease-out);
 }

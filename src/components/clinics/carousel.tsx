@@ -33,7 +33,7 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
         onClick();
       }}
       aria-label={dir === "izq" ? "Anterior" : "Siguiente"}
-      className={`absolute top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-teal-dark shadow-md transition hover:bg-white ${
+      className={`press absolute top-1/2 z-10 flex h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-teal-dark shadow-md transition hover:bg-white ${
         dir === "izq" ? "left-3" : "right-3"
       }`}
     >
@@ -81,7 +81,7 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
             onClick={() => setModalAbierto(false)}
             className="absolute inset-0 bg-ink/85"
           />
-          <div className="relative z-10 w-full max-w-4xl">
+          <div className="modal-anim relative z-10 w-full max-w-4xl">
             {grandes[index]}
             {count > 1 && (
               <>

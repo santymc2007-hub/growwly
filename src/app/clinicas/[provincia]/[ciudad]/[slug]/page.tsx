@@ -697,7 +697,7 @@ export default async function ClinicaPage({
 
           <Link
             href="/cuenta/solicitud/nueva"
-            className="mt-4 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md shadow-orange/20 transition hover:opacity-90"
+            className="press mt-4 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md shadow-orange/20 transition hover:opacity-90"
           >
             Pedir presupuesto →
           </Link>

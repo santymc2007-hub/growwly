@@ -56,7 +56,7 @@ export async function SiteHeader() {
                 "linear-gradient(white, white) padding-box, linear-gradient(90deg, var(--color-brand-green), var(--color-brand-blue)) border-box",
               border: "2px solid transparent",
             }}
-            className="rounded-full px-4 py-2 text-ink transition hover:opacity-80"
+            className="press rounded-full px-4 py-2 text-ink transition hover:opacity-80"
           >
             Mi cuenta
           </Link>
@@ -64,7 +64,7 @@ export async function SiteHeader() {
             <form action={cerrarSesionClinica}>
               <button
                 type="submit"
-                className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
+                className="press rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
               >
                 Cerrar sesión
               </button>
@@ -72,7 +72,7 @@ export async function SiteHeader() {
           ) : (
             <Link
               href="/clinica/login"
-              className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
+              className="press rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
             >
               Acceso Clínicas
             </Link>

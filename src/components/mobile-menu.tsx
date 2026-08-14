@@ -19,13 +19,16 @@ export function MobileMenu({
         onClick={() => setAbierto((v) => !v)}
         aria-label={abierto ? "Cerrar menú" : "Abrir menú"}
         aria-expanded={abierto}
-        className="flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-paper-dim"
+        className="press flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-paper-dim"
       >
         {abierto ? <X size={22} /> : <Menu size={22} />}
       </button>
 
       {abierto && (
-        <div className="absolute inset-x-0 top-full z-40 border-b border-line bg-white px-6 py-4 shadow-lg">
+        <div
+          className="popover-anim absolute inset-x-0 top-full z-40 border-b border-line bg-white px-6 py-4 shadow-lg"
+          style={{ transformOrigin: "top" }}
+        >
           <nav className="flex flex-col gap-1 text-sm font-medium text-ink-soft">
             <Link
               href="/"
