@@ -18,6 +18,7 @@ alter table public.clinic_members enable row level security;
 -- Cada cuenta solo puede ver sus propias filas; las escrituras las hace
 -- siempre el cliente admin del servidor (misma política que el resto
 -- de tablas de este proyecto).
+drop policy if exists "clinic_members_select_own" on public.clinic_members;
 create policy "clinic_members_select_own" on public.clinic_members
   for select using (profile_id = auth.uid());
 
