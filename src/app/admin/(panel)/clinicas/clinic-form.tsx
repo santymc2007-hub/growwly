@@ -3,26 +3,27 @@ import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
   PRECIO_OPCIONES,
-  MUNICIPIOS_MALLORCA,
-  PROVINCIAS_ESPANA,
   TIPOS_NEGOCIO,
   formatearPrecio,
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
+import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
 
 type ClinicFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   clinic?: Clinic;
   error?: string;
+  municipios: { provincia: string; nombre: string }[];
+  zonas: { municipio: string; nombre: string }[];
 };
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 const labelClass = "text-sm font-medium text-ink";
 
-export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
+export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicFormProps) {
   return (
     <form action={action} className="max-w-2xl">
       {error && (
@@ -128,61 +129,13 @@ export function ClinicForm({ action, clinic, error }: ClinicFormProps) {
               className={inputClass}
             />
           </div>
-          <div>
-            <label className={labelClass} htmlFor="comunidad_autonoma">
-              Comunidad autónoma
-            </label>
-            <input
-              id="comunidad_autonoma"
-              name="comunidad_autonoma"
-              defaultValue={clinic?.comunidad_autonoma ?? undefined}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="provincia">
-              Provincia
-            </label>
-            <select
-              id="provincia"
-              name="provincia"
-              defaultValue={clinic?.provincia ?? "Illes Balears"}
-              className={inputClass}
-            >
-              {PROVINCIAS_ESPANA.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="ciudad">
-              Ciudad
-            </label>
-            <input
-              id="ciudad"
-              name="ciudad"
-              list="municipios-mallorca"
-              placeholder="Escribe la ciudad (sugerencias para Mallorca)"
-              defaultValue={clinic?.ciudad ?? ""}
-              className={inputClass}
-            />
-            <datalist id="municipios-mallorca">
-              {MUNICIPIOS_MALLORCA.map((m) => (
-                <option key={m} value={m} />
-              ))}
-            </datalist>
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="zona">
-              Zona / barrio
-            </label>
-            <input
-              id="zona"
-              name="zona"
-              defaultValue={clinic?.zona ?? undefined}
-              className={inputClass}
+          <div className="sm:col-span-3">
+            <UbicacionCascada
+              municipios={municipios}
+              zonas={zonas}
+              provinciaInicial={clinic?.provincia}
+              ciudadInicial={clinic?.ciudad}
+              zonaInicial={clinic?.zona}
             />
           </div>
           <div>

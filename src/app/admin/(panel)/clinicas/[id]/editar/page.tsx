@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { ClinicForm } from "../../clinic-form";
 import { updateClinic } from "../../actions";
+import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
 
 type Params = { id: string };
 type SearchParams = { error?: string };
@@ -28,6 +29,7 @@ export default async function EditarClinicaPage({
     notFound();
   }
 
+  const { municipios, zonas } = await getMunicipiosYZonas();
   const updateThisClinic = updateClinic.bind(null, clinic.id);
 
   return (
@@ -43,7 +45,13 @@ export default async function EditarClinicaPage({
       </h1>
 
       <div className="mt-6">
-        <ClinicForm action={updateThisClinic} clinic={clinic} error={error} />
+        <ClinicForm
+          action={updateThisClinic}
+          clinic={clinic}
+          error={error}
+          municipios={municipios}
+          zonas={zonas}
+        />
       </div>
     </div>
   );

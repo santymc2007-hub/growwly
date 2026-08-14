@@ -9,6 +9,7 @@ import { actualizarMiFicha, cambiarPublicacion } from "./ficha/actions";
 import { ClinicaNav } from "./clinica-nav";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
+import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -87,6 +88,7 @@ export default async function ClinicaPanelPage({
     notFound();
   }
 
+  const { municipios, zonas } = await getMunicipiosYZonas();
   const fotoPrincipal = clinic.logo_url ?? clinic.fotos?.[0] ?? null;
 
   const publicarAction = cambiarPublicacion.bind(null, true);
@@ -217,7 +219,7 @@ export default async function ClinicaPanelPage({
           </form>
         </div>
 
-        <FichaClinicaForm clinic={clinic} action={actualizarMiFicha} />
+        <FichaClinicaForm clinic={clinic} action={actualizarMiFicha} municipios={municipios} zonas={zonas} />
       </div>
     </main>
   );

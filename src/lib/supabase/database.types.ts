@@ -248,6 +248,48 @@ export interface Database {
         };
         Relationships: [];
       };
+      municipios: {
+        Row: {
+          id: string;
+          provincia: string;
+          nombre: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          provincia: string;
+          nombre: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          provincia?: string;
+          nombre?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      zonas: {
+        Row: {
+          id: string;
+          municipio: string;
+          nombre: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          municipio: string;
+          nombre: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          municipio?: string;
+          nombre?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       clinic_members: {
         Row: {
           id: string;

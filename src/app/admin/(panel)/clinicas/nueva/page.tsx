@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ClinicForm } from "../clinic-form";
 import { createClinic } from "../actions";
+import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
 
 type SearchParams = { error?: string };
 
@@ -10,6 +11,7 @@ export default async function NuevaClinicaPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { error } = await searchParams;
+  const { municipios, zonas } = await getMunicipiosYZonas();
 
   return (
     <div>
@@ -24,7 +26,7 @@ export default async function NuevaClinicaPage({
       </h1>
 
       <div className="mt-6">
-        <ClinicForm action={createClinic} error={error} />
+        <ClinicForm action={createClinic} error={error} municipios={municipios} zonas={zonas} />
       </div>
     </div>
   );
