@@ -10,6 +10,7 @@ import { ClinicaNav } from "./clinica-nav";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
+import { calcularCompletitud } from "@/lib/clinica/completitud";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -94,35 +95,7 @@ export default async function ClinicaPanelPage({
   const publicarAction = cambiarPublicacion.bind(null, true);
   const darDeBajaAction = cambiarPublicacion.bind(null, false);
 
-  const camposBasico: unknown[] = [
-    clinic.nombre,
-    clinic.descripcion,
-    clinic.telefono,
-    clinic.email,
-    clinic.direccion,
-    clinic.ciudad,
-    clinic.logo_url,
-    clinic.fotos.length > 0 ? "x" : null,
-    clinic.tecnicas.length > 0 ? "x" : null,
-    clinic.idiomas.length > 0 ? "x" : null,
-    Array.isArray(clinic.horarios_estructurados) && clinic.horarios_estructurados.length > 0
-      ? "x"
-      : null,
-  ];
-  const camposPremium: unknown[] = [
-    clinic.descripcion_extendida,
-    clinic.video_url,
-    Array.isArray(clinic.medicos) && clinic.medicos.length > 0 ? "x" : null,
-    Array.isArray(clinic.fotos_antes_despues) && clinic.fotos_antes_despues.length > 0
-      ? "x"
-      : null,
-    Array.isArray(clinic.opiniones) && clinic.opiniones.length > 0 ? "x" : null,
-    clinic.certificados.length > 0 ? "x" : null,
-    clinic.tiene_oferta ? "x" : null,
-  ];
-  const todosLosCampos = [...camposBasico, ...camposPremium];
-  const rellenos = todosLosCampos.filter(Boolean).length;
-  const porcentaje = Math.round((rellenos / todosLosCampos.length) * 100);
+  const porcentaje = calcularCompletitud(clinic);
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
@@ -164,7 +137,7 @@ export default async function ClinicaPanelPage({
                 href="/clinica/visibilidad"
                 className="text-xs font-medium text-cyan-dark hover:underline"
               >
-                Completa el plan Premium para llegar al 100% →
+                Completa tu Perfil detallado para llegar al 100% →
               </Link>
             )}
           </div>

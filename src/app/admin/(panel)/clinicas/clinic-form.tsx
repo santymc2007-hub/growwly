@@ -587,7 +587,7 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
             className={inputClass}
           >
             <option value="basico">Básico</option>
-            <option value="premium">Premium</option>
+            <option value="premium">Perfil detallado</option>
           </select>
           {clinic?.plan_solicitado && (
             <p className="mt-1 text-xs text-cyan-dark">

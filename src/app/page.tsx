@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
+import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
+import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
 
 const PASOS = [
   {
@@ -41,6 +43,7 @@ export default async function HomePage() {
     .order("orden", { ascending: true })
     .limit(8);
   const destacadas = data ?? [];
+  const clinicaDeLaSemana = await obtenerClinicaDeLaSemana("Illes Balears");
 
   return (
     <main className="flex-1">
@@ -162,6 +165,8 @@ export default async function HomePage() {
           </div>
         </section>
       )}
+
+      {clinicaDeLaSemana && <ClinicaDeLaSemana clinic={clinicaDeLaSemana} />}
 
       {/* CTA clínicas */}
       <section className="bg-paper">

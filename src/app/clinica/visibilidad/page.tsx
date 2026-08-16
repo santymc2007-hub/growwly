@@ -103,7 +103,7 @@ export default async function VisibilidadPage({
               <TarjetaVisibilidad
                 tipo="premium"
                 icono="✦"
-                titulo="Plan Premium"
+                titulo="Perfil detallado"
                 descripcion="Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha."
                 activo={clinic.plan === "premium"}
                 pendiente={clinic.plan_solicitado === "premium"}

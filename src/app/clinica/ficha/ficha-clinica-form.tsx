@@ -51,7 +51,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-green to-brand-blue p-5">
           <div>
             <p className="font-display text-lg font-bold text-teal-dark">
-              ✦ Pasa a Premium
+              ✦ Pasa a Perfil detallado
             </p>
             <p className="mt-1 text-sm text-teal-dark/80">
               Desbloquea precios visibles, fotos antes/después, opiniones de
@@ -62,7 +62,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
             href="/clinica/visibilidad"
             className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow transition hover:opacity-90"
           >
-            Solicitar Premium →
+            Solicitar Perfil detallado →
           </Link>
         </div>
       )}
@@ -402,7 +402,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
 
       <section className="mt-2 rounded-xl border border-cyan/30 bg-cyan/5 p-4">
         <h2 className="font-display text-lg text-teal-dark">
-          Contenido Premium
+          Contenido de Perfil detallado
         </h2>
         {clinic.plan === "premium" ? (
           <p className="mt-1 text-sm text-ink-soft">
@@ -411,9 +411,9 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
         ) : (
           <p className="mt-1 text-sm text-ink-soft">
             Puedes rellenarlo ya — se guarda, pero no se publica hasta que
-            actives el plan Premium.{" "}
+            actives el Perfil detallado.{" "}
             <Link href="/clinica/visibilidad" className="font-medium text-cyan-dark hover:underline">
-              Solicitar Premium →
+              Solicitar Perfil detallado →
             </Link>
           </p>
         )}

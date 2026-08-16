@@ -40,16 +40,11 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
           <VerifiedBadge variant="photo" className="absolute left-3 top-3" />
         )}
 
-        {(clinic.destacado || clinic.tiene_oferta || clinic.plan === "premium") && (
+        {(clinic.tiene_oferta || clinic.plan === "premium") && (
           <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
-            {clinic.destacado && (
-              <span className="rounded-full bg-teal px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                ★ Destacada
-              </span>
-            )}
             {clinic.plan === "premium" && (
               <span className="rounded-full bg-cyan-dark px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                ✦ Premium
+                ✦ Perfil detallado
               </span>
             )}
             {clinic.tiene_oferta && (
