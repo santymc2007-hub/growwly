@@ -7,8 +7,6 @@ import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
 import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
-import { FormaOrganica } from "@/components/forma-organica";
-import { RevealOnScroll } from "@/components/reveal-on-scroll";
 
 const PASOS = [
   {
@@ -54,11 +52,6 @@ export default async function HomePage() {
         className="relative overflow-hidden bg-cover bg-center"
         style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
       >
-        <FormaOrganica
-          color="green"
-          opacity={0.25}
-          className="pointer-events-none absolute -right-16 -top-20 hidden h-80 w-80 lg:block"
-        />
         <SiteHeader />
         <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pt-4 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr]">
           <div className="order-1 self-center text-left lg:order-1">
@@ -114,33 +107,14 @@ export default async function HomePage() {
       </section>
 
       {/* Qué es Growwly */}
-      <section className="relative overflow-hidden border-y border-line bg-teal-dark">
-        <FormaOrganica
-          color="blue"
-          opacity={0.18}
-          className="pointer-events-none absolute -bottom-24 -left-16 h-72 w-72"
-        />
-        <RevealOnScroll className="relative mx-auto grid max-w-[1600px] gap-8 px-6 py-16 lg:grid-cols-[1.3fr_0.7fr] lg:items-center">
-          <h2 className="font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl lg:text-5xl">
-            El directorio de clínicas y{" "}
-            <span className="inline-block bg-brand-green px-2 text-teal-dark">
-              centros capilares
-            </span>{" "}
-            verificados de España — para hombres y mujeres.
+      <section className="border-y border-line bg-paper-dim">
+        <div className="mx-auto max-w-[1600px] px-6 py-10">
+          <h2 className="font-display text-2xl font-bold text-teal-dark sm:text-3xl">
+            El directorio de clínicas y centros capilares verificados de
+            España — tratamientos, opiniones y precios reales, para hombres
+            y mujeres.
           </h2>
-          <div className="flex flex-col gap-3">
-            {["Diagnóstico y consulta", "Tratamientos médicos", "Injerto capilar", "Estética capilar"].map(
-              (categoria) => (
-                <div
-                  key={categoria}
-                  className="rounded-xl border border-white/15 bg-white/5 px-4 py-3 text-sm font-medium text-white"
-                >
-                  {categoria}
-                </div>
-              ),
-            )}
-          </div>
-        </RevealOnScroll>
+        </div>
       </section>
 
       {/* Cómo funciona */}
