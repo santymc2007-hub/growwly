@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { slugifyProvincia, slugifyCiudad } from "@/lib/clinic-options";
+import { ClinicBadges } from "./clinic-badges";
+import { RatingCompacto } from "./rating-stars";
 
 export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
   const foto = clinic.fotos[0];
@@ -11,15 +13,18 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
 
   return (
-    <section className="border-t border-line bg-paper">
+    <section className="border-t border-line bg-paper-dim">
       <div className="mx-auto max-w-[1600px] px-6 py-14">
-        <p className="mb-5 inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-yellow to-orange px-4 py-1.5 text-sm font-bold text-teal-dark">
-          ⭐ Clínica destacada de la semana
+        <h2 className="font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
+          Clínica de la semana
+        </h2>
+        <p className="mt-2 text-ink-soft">
+          Cada semana, te presentaremos una clínica y sus servicios.
         </p>
 
         <Link
           href={href}
-          className="press group grid grid-cols-1 overflow-hidden rounded-3xl border border-line bg-white shadow-sm transition hover:shadow-md md:grid-cols-[1fr_1.4fr]"
+          className="press group mt-6 grid grid-cols-1 overflow-hidden rounded-3xl border border-line bg-white shadow-sm transition hover:shadow-md md:grid-cols-[1fr_1.4fr]"
         >
           <div className="relative aspect-video bg-sage md:aspect-auto">
             {foto ? (
@@ -35,17 +40,33 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
                 {clinic.nombre}
               </div>
             )}
+
+            <ClinicBadges clinic={clinic} />
           </div>
 
           <div className="flex flex-col justify-center p-8">
-            {clinic.logo_url && (
-              <div className="relative mb-3 h-12 w-12 overflow-hidden rounded-full border border-line">
-                <Image src={clinic.logo_url} alt="" fill sizes="48px" className="object-cover" />
+            {(clinic.logo_url || clinic.rating_google != null) && (
+              <div className="mb-3 flex items-center justify-between gap-2">
+                {clinic.logo_url ? (
+                  <div className="relative flex h-9 shrink-0 items-center rounded-lg border border-line bg-white px-3">
+                    <Image
+                      src={clinic.logo_url}
+                      alt=""
+                      width={80}
+                      height={28}
+                      className="h-6 w-auto max-w-[80px] object-contain"
+                    />
+                  </div>
+                ) : (
+                  <span />
+                )}
+                <RatingCompacto rating={clinic.rating_google} />
               </div>
             )}
-            <h2 className="font-display text-2xl text-teal-dark group-hover:text-cyan">
+
+            <h3 className="font-display text-2xl text-teal-dark group-hover:text-cyan">
               {clinic.nombre}
-            </h2>
+            </h3>
             {ubicacion && <p className="mt-1 text-ink-soft">{ubicacion}</p>}
             {clinic.descripcion && (
               <p className="mt-3 max-w-xl text-ink-soft">{clinic.descripcion}</p>
@@ -62,8 +83,8 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
                 ))}
               </div>
             )}
-            <span className="mt-6 inline-block w-fit rounded-full bg-teal px-5 py-2.5 text-sm font-medium text-paper transition group-hover:bg-teal-dark">
-              Ver ficha →
+            <span className="press mt-6 inline-block w-fit rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
+              Ver ficha
             </span>
           </div>
         </Link>

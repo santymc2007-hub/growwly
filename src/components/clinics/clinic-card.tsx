@@ -2,7 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
-import { VerifiedBadge } from "./verified-badge";
+import { ClinicBadges } from "./clinic-badges";
+import { RatingCompacto } from "./rating-stars";
 
 export function ClinicCard({ clinic }: { clinic: Clinic }) {
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
@@ -36,46 +37,41 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
           </div>
         )}
 
-        {clinic.verificado && (
-          <VerifiedBadge variant="photo" className="absolute left-3 top-3" />
-        )}
-
-        {(clinic.tiene_oferta || clinic.plan === "premium") && (
-          <div className="absolute right-3 top-3 flex flex-col items-end gap-1.5">
-            {clinic.plan === "premium" && (
-              <span className="rounded-full bg-cyan-dark px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                ✦ Perfil detallado
-              </span>
-            )}
-            {clinic.tiene_oferta && (
-              <span className="rounded-full bg-cyan px-2.5 py-1 text-xs font-medium text-white shadow-sm">
-                Oferta
-              </span>
-            )}
-          </div>
-        )}
+        <ClinicBadges clinic={clinic} />
       </div>
 
       <div className="flex flex-1 flex-col gap-2.5 p-4">
-        <div className="flex items-start gap-2.5">
-          {clinic.logo_url && (
-            <div className="relative h-8 w-8 shrink-0 overflow-hidden rounded-full border border-line bg-white">
-              <Image src={clinic.logo_url} alt="" fill sizes="32px" className="object-cover" />
-            </div>
-          )}
-          <div>
-            <h3 className="font-display text-lg leading-snug text-teal-dark">
-              {clinic.nombre}
-            </h3>
-            {ubicacion && (
-              <p className="mt-0.5 text-sm text-ink-soft">{ubicacion}</p>
+        {(clinic.logo_url || clinic.rating_google != null) && (
+          <div className="flex items-center justify-between gap-2">
+            {clinic.logo_url ? (
+              <div className="relative flex h-9 shrink-0 items-center rounded-lg border border-line bg-white px-3">
+                <Image
+                  src={clinic.logo_url}
+                  alt=""
+                  width={80}
+                  height={28}
+                  className="h-6 w-auto max-w-[80px] object-contain"
+                />
+              </div>
+            ) : (
+              <span />
             )}
-            {clinic.tipo_negocio && (
-              <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-soft/70">
-                {clinic.tipo_negocio}
-              </p>
-            )}
+            <RatingCompacto rating={clinic.rating_google} />
           </div>
+        )}
+
+        <div>
+          <h3 className="font-display text-lg leading-snug text-teal-dark">
+            {clinic.nombre}
+          </h3>
+          {ubicacion && (
+            <p className="mt-0.5 text-sm text-ink-soft">{ubicacion}</p>
+          )}
+          {clinic.tipo_negocio && (
+            <p className="mt-0.5 text-xs uppercase tracking-wide text-ink-soft/70">
+              {clinic.tipo_negocio}
+            </p>
+          )}
         </div>
 
         {clinic.descripcion && (
@@ -97,14 +93,15 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
           </div>
         )}
 
-        <div className="mt-auto flex flex-wrap items-center gap-x-3 gap-y-1 pt-2 text-xs text-ink-soft">
-          {clinic.primera_consulta_gratis && <span>1ª consulta gratis</span>}
-          {clinic.financiacion && <span>Financiación disponible</span>}
+        <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-ink-soft">
+            {clinic.primera_consulta_gratis && <span>1ª consulta gratis</span>}
+            {clinic.financiacion && <span>Financiación disponible</span>}
+          </div>
+          <span className="press shrink-0 rounded-full bg-gradient-to-r from-yellow to-orange px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
+            Ver ficha
+          </span>
         </div>
-
-        <span className="text-sm font-medium text-cyan group-hover:text-cyan-dark">
-          Ver ficha →
-        </span>
       </div>
     </Link>
   );
