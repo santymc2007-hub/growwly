@@ -24,7 +24,7 @@ export const metadata: Metadata = {
     template: "%s | Growwly",
   },
   description:
-    "Encuentra y compara clínicas capilares en España: injertos y tratamientos, ubicación, técnicas, idiomas y financiación.",
+    "El directorio de clínicas y centros capilares verificados de España — tratamientos, opiniones y precios reales, para hombres y mujeres.",
   openGraph: {
     siteName: "Growwly",
     type: "website",

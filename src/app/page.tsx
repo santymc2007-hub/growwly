@@ -106,6 +106,17 @@ export default async function HomePage() {
         </div>
       </section>
 
+      {/* Qué es Growwly */}
+      <section className="border-y border-line bg-paper-dim">
+        <div className="mx-auto max-w-[1600px] px-6 py-10">
+          <h2 className="font-display text-2xl font-bold text-teal-dark sm:text-3xl">
+            El directorio de clínicas y centros capilares verificados de
+            España — tratamientos, opiniones y precios reales, para hombres
+            y mujeres.
+          </h2>
+        </div>
+      </section>
+
       {/* Cómo funciona */}
       <section id="como-funciona" className="mx-auto max-w-[1600px] px-6 py-16">
         <h2 className="font-display text-4xl font-extrabold text-teal-dark">
