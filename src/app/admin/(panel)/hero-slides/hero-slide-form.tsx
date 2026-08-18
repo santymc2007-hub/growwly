@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { HeroSlide } from "@/lib/supabase/database.types";
+import { TitularEditor } from "./titular-editor";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -21,50 +22,13 @@ export function HeroSlideForm({ action, slide, error }: Props) {
       )}
 
       <div className="flex flex-col gap-4">
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-          <div>
-            <label className={labelClass} htmlFor="antes">
-              Texto antes
-            </label>
-            <input
-              id="antes"
-              name="antes"
-              placeholder="Tu"
-              defaultValue={slide?.antes ?? undefined}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="destacado">
-              Texto destacado (resaltado en amarillo)
-            </label>
-            <input
-              id="destacado"
-              name="destacado"
-              required
-              placeholder="valoración con IA"
-              defaultValue={slide?.destacado ?? undefined}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="despues">
-              Texto después
-            </label>
-            <input
-              id="despues"
-              name="despues"
-              placeholder="en un par de clics"
-              defaultValue={slide?.despues ?? undefined}
-              className={inputClass}
-            />
-          </div>
+        <div>
+          <label className={labelClass}>Titular</label>
+          <TitularEditor
+            name="titular_html"
+            defaultValueHtml={slide?.titular_html}
+          />
         </div>
-        <p className="-mt-2 text-xs text-ink-soft">
-          El titular se compone así: “{"{antes} "}
-          <span className="rounded bg-yellow px-1">{"{destacado}"}</span>
-          {" {después}"}”.
-        </p>
 
         <div>
           <label className={labelClass} htmlFor="subtitulo">
@@ -77,6 +41,24 @@ export function HeroSlideForm({ action, slide, error }: Props) {
             defaultValue={slide?.subtitulo ?? undefined}
             className={inputClass}
           />
+        </div>
+
+        <div>
+          <label className={labelClass} htmlFor="color_fondo">
+            Color de fondo del recuadro
+          </label>
+          <div className="mt-1 flex items-center gap-3">
+            <input
+              id="color_fondo"
+              name="color_fondo"
+              type="color"
+              defaultValue={slide?.color_fondo ?? "#ecf7f1"}
+              className="h-10 w-16 cursor-pointer rounded-lg border border-line bg-white p-1"
+            />
+            <span className="text-xs text-ink-soft">
+              Por defecto, el verde menta que ya usa la home.
+            </span>
+          </div>
         </div>
 
         <div>

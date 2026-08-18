@@ -128,3 +128,13 @@ body {
 .modal-anim {
   animation: modal-in 200ms var(--ease-out);
 }
+
+/* Resaltado de titulares (hero, WYSIWYG del panel): mismo amarillo de
+   marca en todos lados, nunca un color libre elegido en el editor. */
+.hl {
+  display: inline-block;
+  background-color: var(--color-yellow);
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+  color: var(--color-teal-dark);
+}

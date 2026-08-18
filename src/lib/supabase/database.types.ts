@@ -556,9 +556,11 @@ export interface Database {
           id: string;
           orden: number;
           antes: string | null;
-          destacado: string;
+          destacado: string | null;
           despues: string | null;
           subtitulo: string | null;
+          titular_html: string;
+          color_fondo: string;
           imagen_url: string | null;
           enlace: string;
           texto_boton: string;
@@ -570,9 +572,11 @@ export interface Database {
           id?: string;
           orden?: number;
           antes?: string | null;
-          destacado: string;
+          destacado?: string | null;
           despues?: string | null;
           subtitulo?: string | null;
+          titular_html: string;
+          color_fondo?: string;
           imagen_url?: string | null;
           enlace?: string;
           texto_boton?: string;
@@ -584,9 +588,11 @@ export interface Database {
           id?: string;
           orden?: number;
           antes?: string | null;
-          destacado?: string;
+          destacado?: string | null;
           despues?: string | null;
           subtitulo?: string | null;
+          titular_html?: string;
+          color_fondo?: string;
           imagen_url?: string | null;
           enlace?: string;
           texto_boton?: string;

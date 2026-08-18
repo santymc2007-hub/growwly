@@ -73,9 +73,7 @@ export default async function AdminHeroSlidesPage() {
                   )}
                 </td>
                 <td className="px-4 py-3 font-medium text-ink">
-                  {[slide.antes, slide.destacado, slide.despues]
-                    .filter(Boolean)
-                    .join(" ")}
+                  {slide.titular_html.replace(/<[^>]+>/g, "")}
                 </td>
                 <td className="px-4 py-3 text-ink-soft">{slide.enlace}</td>
                 <td className="px-4 py-3">
@@ -99,7 +97,7 @@ export default async function AdminHeroSlidesPage() {
                     </Link>
                     <DeleteSlideButton
                       id={slide.id}
-                      titulo={slide.destacado}
+                      titulo={slide.titular_html.replace(/<[^>]+>/g, "")}
                     />
                   </div>
                 </td>

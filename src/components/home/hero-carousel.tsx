@@ -21,21 +21,18 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   if (slides.length === 0) return null;
 
   const slide = slides[indice] ?? slides[0];
-  const alt = [slide.antes, slide.destacado, slide.despues]
-    .filter(Boolean)
-    .join(" ");
 
   return (
-    <div className="relative overflow-hidden rounded-3xl bg-sage/40">
+    <div
+      className="relative overflow-hidden rounded-3xl"
+      style={{ backgroundColor: slide.color_fondo || "#ecf7f1" }}
+    >
       <div className="mx-auto grid items-end gap-6 px-6 pt-8 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
         <div className="order-1 self-center text-left lg:order-1">
-          <h1 className="font-display text-2xl font-extrabold leading-tight text-teal-dark sm:text-5xl lg:text-6xl">
-            {slide.antes && <>{slide.antes} </>}
-            <span className="inline-block bg-yellow px-2 text-teal-dark">
-              {slide.destacado}
-            </span>{" "}
-            {slide.despues}
-          </h1>
+          <h1
+            className="font-display text-2xl font-extrabold leading-tight text-teal-dark sm:text-5xl lg:text-6xl"
+            dangerouslySetInnerHTML={{ __html: slide.titular_html }}
+          />
           {slide.subtitulo && (
             <p className="mt-2 font-display text-lg font-bold text-teal-dark sm:mt-4 sm:text-3xl lg:text-4xl">
               {slide.subtitulo}
@@ -60,7 +57,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           {slide.imagen_url && (
             <Image
               src={slide.imagen_url}
-              alt={alt}
+              alt={slide.titular_html.replace(/<[^>]+>/g, "")}
               fill
               sizes="100vw"
               className="object-contain object-bottom"

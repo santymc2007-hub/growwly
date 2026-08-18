@@ -7,6 +7,7 @@ import {
   uploadHeroSlidePhoto,
   deleteHeroSlidePhoto,
 } from "@/lib/supabase/hero-slides-storage";
+import { sanitizeTitularHtml } from "./sanitize-titular";
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
@@ -18,11 +19,17 @@ function readSlideFields(formData: FormData) {
     return value && String(value).trim() !== "" ? String(value).trim() : null;
   };
 
+  const titularHtml = sanitizeTitularHtml(
+    String(formData.get("titular_html") ?? "").trim(),
+  );
+  // Texto plano del titular, solo para validar que no está vacío.
+  const titularTexto = titularHtml.replace(/<[^>]+>/g, "").trim();
+
   return {
-    antes: str("antes"),
-    destacado: String(formData.get("destacado") ?? "").trim(),
-    despues: str("despues"),
+    titular_html: titularHtml,
+    titular_texto: titularTexto,
     subtitulo: str("subtitulo"),
+    color_fondo: str("color_fondo") ?? "#ecf7f1",
     enlace: str("enlace") ?? "/analisis/nuevo",
     texto_boton: str("texto_boton") ?? "Subir fotos",
     activo: formData.get("activo") === "on",
@@ -31,10 +38,10 @@ function readSlideFields(formData: FormData) {
 
 export async function createSlide(formData: FormData) {
   const fields = readSlideFields(formData);
-  if (!fields.destacado) {
+  if (!fields.titular_texto) {
     redirect(
       `/admin/hero-slides/nuevo?error=${encodeURIComponent(
-        "El texto destacado es obligatorio.",
+        "El titular es obligatorio.",
       )}`,
     );
   }
@@ -62,10 +69,9 @@ export async function createSlide(formData: FormData) {
 
   const { error } = await supabase.from("hero_slides").insert({
     orden: count ?? 0,
-    antes: fields.antes,
-    destacado: fields.destacado,
-    despues: fields.despues,
+    titular_html: fields.titular_html,
     subtitulo: fields.subtitulo,
+    color_fondo: fields.color_fondo,
     imagen_url: imagenUrl,
     enlace: fields.enlace,
     texto_boton: fields.texto_boton,
@@ -85,10 +91,10 @@ export async function createSlide(formData: FormData) {
 
 export async function updateSlide(id: string, formData: FormData) {
   const fields = readSlideFields(formData);
-  if (!fields.destacado) {
+  if (!fields.titular_texto) {
     redirect(
       `/admin/hero-slides/${id}/editar?error=${encodeURIComponent(
-        "El texto destacado es obligatorio.",
+        "El titular es obligatorio.",
       )}`,
     );
   }
@@ -119,10 +125,9 @@ export async function updateSlide(id: string, formData: FormData) {
   const { error } = await supabase
     .from("hero_slides")
     .update({
-      antes: fields.antes,
-      destacado: fields.destacado,
-      despues: fields.despues,
+      titular_html: fields.titular_html,
       subtitulo: fields.subtitulo,
+      color_fondo: fields.color_fondo,
       imagen_url: imagenUrl,
       enlace: fields.enlace,
       texto_boton: fields.texto_boton,

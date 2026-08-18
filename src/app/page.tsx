@@ -15,10 +15,13 @@ import type { HeroSlide } from "@/lib/supabase/database.types";
 const SLIDE_POR_DEFECTO: HeroSlide = {
   id: "default",
   orden: 0,
-  antes: "Tu",
-  destacado: "valoración con IA",
-  despues: "en un par de clics",
+  antes: null,
+  destacado: null,
+  despues: null,
+  titular_html:
+    'Tu <span class="hl">valoración con IA</span> en un par de clics',
   subtitulo: "¡Ah! Y con presupuesto personalizado",
+  color_fondo: "#ecf7f1",
   imagen_url: "/brand/hero-persona.png",
   enlace: "/analisis/nuevo",
   texto_boton: "Subir fotos",
