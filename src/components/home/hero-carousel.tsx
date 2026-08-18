@@ -6,9 +6,12 @@ import Link from "next/link";
 import type { HeroSlide } from "@/lib/supabase/database.types";
 
 const INTERVALO_MS = 6000;
-// Alto fijo de la zona de color del hero — la foto puede (y suele)
-// sobresalir por arriba, nunca se recorta.
-const ALTURA_BANDA_PX = 600;
+// Alto de la zona de color del hero — sube por tramos con el viewport
+// porque en móvil el contenido (apilado en una sola columna) es mucho
+// más bajo que en escritorio; con un valor fijo de 600px la banda se
+// salía por arriba, incluso por encima de la cabecera. En lg SÍ llega
+// a los 600px pedidos, que es donde la foto es más alta que la banda.
+const ALTURA_BANDA_CLASES = "h-[220px] sm:h-[320px] md:h-[420px] lg:h-[600px]";
 
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [indice, setIndice] = useState(0);
@@ -28,14 +31,12 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   return (
     <div>
       <div className="relative">
-        {/* Banda de color de 200px de alto, anclada abajo. Sin
-            overflow-hidden: la foto puede sobresalir por encima. */}
+        {/* Banda de color anclada abajo, alto responsive (ver constante
+            arriba). Sin overflow-hidden: la foto puede sobresalir por
+            encima sin recortarse. */}
         <div
-          className="absolute inset-x-0 bottom-0 rounded-3xl"
-          style={{
-            height: ALTURA_BANDA_PX,
-            backgroundColor: slide.color_fondo || "#ecf7f1",
-          }}
+          className={`absolute inset-x-0 bottom-0 rounded-3xl ${ALTURA_BANDA_CLASES}`}
+          style={{ backgroundColor: slide.color_fondo || "#ecf7f1" }}
           aria-hidden
         />
 
