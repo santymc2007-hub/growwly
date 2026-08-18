@@ -36,7 +36,7 @@ export async function SiteHeader() {
             alt="Growwly — Hair we go!"
             width={413}
             height={76}
-            className="h-8 w-auto sm:h-9"
+            className="h-[42px] w-auto sm:h-[47px]"
             priority
           />
         </Link>

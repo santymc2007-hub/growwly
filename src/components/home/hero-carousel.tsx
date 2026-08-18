@@ -8,7 +8,7 @@ import type { HeroSlide } from "@/lib/supabase/database.types";
 const INTERVALO_MS = 6000;
 // Alto fijo de la zona de color del hero — la foto puede (y suele)
 // sobresalir por arriba, nunca se recorta.
-const ALTURA_BANDA_PX = 200;
+const ALTURA_BANDA_PX = 600;
 
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [indice, setIndice] = useState(0);
@@ -93,23 +93,23 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         </div>
       </div>
 
-      {/* Paginador fuera de la zona de color, ya en blanco */}
-      {slides.length > 1 && (
-        <div className="flex items-center justify-center gap-1.5 pt-6">
-          {slides.map((s, i) => (
-            <button
-              key={s.id}
-              type="button"
-              onClick={() => setIndice(i)}
-              aria-label={`Ir a la slide ${i + 1}`}
-              aria-current={i === indice}
-              className={`press h-2 rounded-full transition-all ${
-                i === indice ? "w-6 bg-teal-dark" : "w-2 bg-teal-dark/25"
-              }`}
-            />
-          ))}
-        </div>
-      )}
+      {/* Paginador fuera de la zona de color, ya en blanco. Se muestra
+          siempre, incluso con 1 sola slide (antes se ocultaba con
+          slides.length > 1 y por eso "no aparecía" con solo 1 activa). */}
+      <div className="flex items-center justify-center gap-1.5 pt-6">
+        {slides.map((s, i) => (
+          <button
+            key={s.id}
+            type="button"
+            onClick={() => setIndice(i)}
+            aria-label={`Ir a la slide ${i + 1}`}
+            aria-current={i === indice}
+            className={`press h-2 rounded-full transition-all ${
+              i === indice ? "w-6 bg-teal-dark" : "w-2 bg-teal-dark/25"
+            }`}
+          />
+        ))}
+      </div>
     </div>
   );
 }
