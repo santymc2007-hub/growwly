@@ -8,6 +8,24 @@ import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
 import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
 import { HeroCarousel } from "@/components/home/hero-carousel";
+import type { HeroSlide } from "@/lib/supabase/database.types";
+
+// Se usa solo si la tabla hero_slides está vacía (p. ej. antes de
+// ejecutar la migración, o si se desactivan todas las slides sin querer).
+const SLIDE_POR_DEFECTO: HeroSlide = {
+  id: "default",
+  orden: 0,
+  antes: "Tu",
+  destacado: "valoración con IA",
+  despues: "en un par de clics",
+  subtitulo: "¡Ah! Y con presupuesto personalizado",
+  imagen_url: "/brand/hero-persona.png",
+  enlace: "/analisis/nuevo",
+  texto_boton: "Subir fotos",
+  activo: true,
+  created_at: "",
+  updated_at: "",
+};
 
 const PASOS = [
   {
@@ -46,6 +64,16 @@ export default async function HomePage() {
   const destacadas = data ?? [];
   const clinicaDeLaSemana = await obtenerClinicaDeLaSemana("Illes Balears");
 
+  const { data: slidesData } = await supabase
+    .from("hero_slides")
+    .select("*")
+    .eq("activo", true)
+    .order("orden", { ascending: true });
+  // Red de seguridad: si todavía no hay slides en BD (o las han
+  // desactivado todas), la home no se queda sin hero.
+  const slides =
+    slidesData && slidesData.length > 0 ? slidesData : [SLIDE_POR_DEFECTO];
+
   return (
     <main className="flex-1">
       {/* Cabecera sobre fondo blanco (ya no superpuesta al hero) */}
@@ -53,7 +81,7 @@ export default async function HomePage() {
 
       {/* Héroe: carrusel en tarjeta redondeada con márgenes respecto al borde de página */}
       <section className="mx-auto max-w-[1600px] px-6 pt-2 sm:pt-4">
-        <HeroCarousel />
+        <HeroCarousel slides={slides} />
       </section>
 
       {/* Qué es Growwly */}

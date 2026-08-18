@@ -551,6 +551,51 @@ export interface Database {
         };
         Relationships: [];
       };
+      hero_slides: {
+        Row: {
+          id: string;
+          orden: number;
+          antes: string | null;
+          destacado: string;
+          despues: string | null;
+          subtitulo: string | null;
+          imagen_url: string | null;
+          enlace: string;
+          texto_boton: string;
+          activo: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          orden?: number;
+          antes?: string | null;
+          destacado: string;
+          despues?: string | null;
+          subtitulo?: string | null;
+          imagen_url?: string | null;
+          enlace?: string;
+          texto_boton?: string;
+          activo?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          orden?: number;
+          antes?: string | null;
+          destacado?: string;
+          despues?: string | null;
+          subtitulo?: string | null;
+          imagen_url?: string | null;
+          enlace?: string;
+          texto_boton?: string;
+          activo?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;
@@ -563,3 +608,4 @@ export type EstudioCapilar =
   Database["public"]["Tables"]["estudios_capilares"]["Row"];
 export type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"];
 export type Tratamiento = Database["public"]["Tables"]["tratamientos"]["Row"];
+export type HeroSlide = Database["public"]["Tables"]["hero_slides"]["Row"];

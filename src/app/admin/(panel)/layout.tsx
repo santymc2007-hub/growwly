@@ -86,6 +86,9 @@ export default async function PanelLayout({
                   </span>
                 )}
               </Link>
+              <Link href="/admin/hero-slides" className="hover:text-cyan">
+                Hero
+              </Link>
               <Link href="/admin/blog" className="hover:text-cyan">
                 Blog
               </Link>
