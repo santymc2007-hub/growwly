@@ -95,7 +95,7 @@ export default async function HomePage() {
             alt="Growwly"
             width={365}
             height={130}
-            className="h-[47px] w-auto sm:h-[52px]"
+            className="h-[61px] w-auto sm:h-[68px]"
           />
           <div className="hidden h-12 w-px bg-white/20 sm:block" aria-hidden />
           <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
