@@ -42,11 +42,11 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
         <div className="relative mx-auto grid items-end gap-6 px-6 pt-8 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
           <div className="order-1 self-center text-left lg:order-1">
             <h1
-              className="font-display text-2xl font-extrabold leading-tight text-teal-dark sm:text-5xl lg:text-6xl"
+              className="font-display text-[20px] font-extrabold leading-tight text-teal-dark opacity-80 sm:text-[44px] lg:text-[56px]"
               dangerouslySetInnerHTML={{ __html: slide.titular_html }}
             />
             {slide.subtitulo && (
-              <p className="mt-2 font-display text-lg font-bold text-teal-dark sm:mt-4 sm:text-3xl lg:text-4xl">
+              <p className="mt-2 font-display text-[16px] font-bold text-teal-dark opacity-80 sm:mt-4 sm:text-[28px] lg:text-[34px]">
                 {slide.subtitulo}
               </p>
             )}
