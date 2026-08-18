@@ -32,11 +32,11 @@ export async function SiteHeader() {
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center">
           <Image
-            src="/brand/growwly-logo-gradient.png"
+            src="/brand/logo-home.png"
             alt="Growwly — Hair we go!"
-            width={530}
-            height={181}
-            className="h-9 w-auto sm:h-10"
+            width={413}
+            height={76}
+            className="h-8 w-auto sm:h-9"
             priority
           />
         </Link>

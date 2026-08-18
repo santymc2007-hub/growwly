@@ -91,11 +91,11 @@ export default async function HomePage() {
       <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
         <div className="flex flex-col items-start gap-4 rounded-3xl bg-teal-dark px-6 py-8 sm:flex-row sm:items-center sm:gap-6 sm:px-10">
           <Image
-            src="/brand/growwly-logo-gradient.png"
+            src="/brand/logo-h1.png"
             alt="Growwly"
-            width={530}
-            height={181}
-            className="h-9 w-auto opacity-70 grayscale sm:h-10"
+            width={365}
+            height={130}
+            className="h-9 w-auto sm:h-10"
           />
           <div className="hidden h-12 w-px bg-white/20 sm:block" aria-hidden />
           <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
@@ -111,7 +111,7 @@ export default async function HomePage() {
 
       {/* Clínicas destacadas */}
       {destacadas.length > 0 && (
-        <section className="border-t border-line bg-paper-dim">
+        <section className="border-t border-line">
           <div className="mx-auto max-w-[1600px] px-6 py-16">
             <h2 className="font-display text-4xl font-extrabold text-teal-dark">
               Clínicas destacadas

@@ -48,13 +48,13 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
             {(clinic.logo_url || clinic.rating_google != null) && (
               <div className="mb-3 flex items-center justify-between gap-2">
                 {clinic.logo_url ? (
-                  <div className="relative flex h-9 shrink-0 items-center rounded-lg border border-line bg-white px-3">
+                  <div className="relative h-[50px] w-[120px] shrink-0 rounded-lg border border-line bg-white p-1.5">
                     <Image
                       src={clinic.logo_url}
                       alt=""
-                      width={80}
-                      height={28}
-                      className="h-6 w-auto max-w-[80px] object-contain"
+                      fill
+                      sizes="120px"
+                      className="object-contain"
                     />
                   </div>
                 ) : (
@@ -83,9 +83,11 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
                 ))}
               </div>
             )}
-            <span className="press mt-6 inline-block w-fit rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
-              Ver ficha
-            </span>
+            <div className="mt-6 flex justify-end">
+              <span className="press inline-block w-fit rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
+                Ver ficha
+              </span>
+            </div>
           </div>
         </Link>
       </div>

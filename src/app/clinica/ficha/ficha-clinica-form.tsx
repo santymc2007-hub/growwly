@@ -74,9 +74,13 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
             <label htmlFor="logo" className={labelClass}>
               Logo de la clínica
             </label>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Se mostrará a 120×50px — sube una imagen apaisada (no
+              cuadrada) para que no se vea diminuta ni recortada.
+            </p>
             {clinic.logo_url && (
-              <div className="relative mt-2 h-16 w-16 overflow-hidden rounded-full border border-line">
-                <Image src={clinic.logo_url} alt="" fill sizes="64px" className="object-cover" />
+              <div className="relative mt-2 h-[50px] w-[120px] overflow-hidden rounded-lg border border-line bg-white p-1.5">
+                <Image src={clinic.logo_url} alt="" fill sizes="120px" className="object-contain" />
               </div>
             )}
             <input

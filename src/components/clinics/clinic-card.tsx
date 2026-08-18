@@ -16,11 +16,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
   return (
     <Link
       href={href}
-      className={`group flex flex-col overflow-hidden rounded-2xl border transition hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal ${
-        clinic.destacado
-          ? "border-cyan/50 bg-cyan/5 hover:border-cyan"
-          : "border-line bg-white/60 hover:border-teal/40"
-      }`}
+      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white/60 transition hover:border-teal/40 hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-sage">
         {foto ? (
@@ -44,13 +40,13 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
         {(clinic.logo_url || clinic.rating_google != null) && (
           <div className="flex items-center justify-between gap-2">
             {clinic.logo_url ? (
-              <div className="relative flex h-9 shrink-0 items-center rounded-lg border border-line bg-white px-3">
+              <div className="relative h-[50px] w-[120px] shrink-0 rounded-lg border border-line bg-white p-1.5">
                 <Image
                   src={clinic.logo_url}
                   alt=""
-                  width={80}
-                  height={28}
-                  className="h-6 w-auto max-w-[80px] object-contain"
+                  fill
+                  sizes="120px"
+                  className="object-contain"
                 />
               </div>
             ) : (
