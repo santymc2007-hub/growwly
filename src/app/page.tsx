@@ -8,6 +8,8 @@ import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
 import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
 import { HeroCarousel } from "@/components/home/hero-carousel";
+import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
+import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 import type { HeroSlide } from "@/lib/supabase/database.types";
 
 // Se usa solo si la tabla hero_slides está vacía (p. ej. antes de
@@ -76,6 +78,17 @@ export default async function HomePage() {
   // desactivado todas), la home no se queda sin hero.
   const slides =
     slidesData && slidesData.length > 0 ? slidesData : [SLIDE_POR_DEFECTO];
+
+  const { data: tratamientosData } = await supabase
+    .from("tratamientos")
+    .select("slug, nombre, categoria, imagen_portada")
+    .eq("publicado", true)
+    .order("nombre", { ascending: true });
+  // Un tratamiento real por categoría (el primero alfabéticamente),
+  // nunca inventado — así las 4 tarjetas siempre enlazan a fichas que existen.
+  const tratamientosDestacados = CATEGORIAS_TRATAMIENTO.map((categoria) =>
+    (tratamientosData ?? []).find((t) => t.categoria === categoria),
+  ).filter((t): t is NonNullable<typeof t> => Boolean(t));
 
   return (
     <main className="flex-1">
@@ -170,6 +183,8 @@ export default async function HomePage() {
           })}
         </div>
       </section>
+
+      <TratamientosDestacados tratamientos={tratamientosDestacados} />
 
       {/* CTA clínicas */}
       <section className="bg-paper">
