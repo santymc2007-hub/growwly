@@ -555,9 +555,6 @@ export interface Database {
         Row: {
           id: string;
           orden: number;
-          antes: string | null;
-          destacado: string | null;
-          despues: string | null;
           subtitulo: string | null;
           titular_html: string;
           color_fondo: string;
@@ -571,9 +568,6 @@ export interface Database {
         Insert: {
           id?: string;
           orden?: number;
-          antes?: string | null;
-          destacado?: string | null;
-          despues?: string | null;
           subtitulo?: string | null;
           titular_html: string;
           color_fondo?: string;
@@ -587,9 +581,6 @@ export interface Database {
         Update: {
           id?: string;
           orden?: number;
-          antes?: string | null;
-          destacado?: string | null;
-          despues?: string | null;
           subtitulo?: string | null;
           titular_html?: string;
           color_fondo?: string;
