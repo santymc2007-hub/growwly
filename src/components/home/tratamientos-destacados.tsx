@@ -1,6 +1,5 @@
 import Link from "next/link";
 import Image from "next/image";
-import { gradienteDeCategoria, iconoDeCategoria } from "@/lib/tratamientos-iconos";
 
 type TratamientoDestacado = {
   slug: string;
@@ -8,6 +7,14 @@ type TratamientoDestacado = {
   categoria: string | null;
   imagen_portada: string | null;
 };
+
+const GRADIENTE_POR_CATEGORIA: Record<string, string> = {
+  "Diagnóstico y consulta": "from-teal-dark to-cyan",
+  "Tratamientos médicos": "from-cyan-dark to-brand-blue",
+  "Injerto capilar": "from-brand-green to-brand-blue",
+  "Estética capilar": "from-yellow to-orange",
+};
+const GRADIENTE_DEFECTO = "from-teal-dark to-cyan";
 
 export function TratamientosDestacados({
   tratamientos,
@@ -28,8 +35,9 @@ export function TratamientosDestacados({
 
       <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {tratamientos.map((t) => {
-          const gradiente = gradienteDeCategoria(t.categoria);
-          const icono = t.categoria ? iconoDeCategoria(t.categoria) : null;
+          const gradiente =
+            (t.categoria && GRADIENTE_POR_CATEGORIA[t.categoria]) ||
+            GRADIENTE_DEFECTO;
           return (
             <Link
               key={t.slug}
@@ -51,16 +59,6 @@ export function TratamientosDestacados({
                 </>
               ) : (
                 <div className={`absolute inset-0 bg-gradient-to-br ${gradiente}`} />
-              )}
-
-              {icono && (
-                <Image
-                  src={icono}
-                  alt=""
-                  width={64}
-                  height={64}
-                  className="absolute right-4 top-4 h-12 w-12 opacity-90 sm:h-14 sm:w-14"
-                />
               )}
 
               <div className="relative">
