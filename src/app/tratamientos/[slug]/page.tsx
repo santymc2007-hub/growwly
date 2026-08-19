@@ -8,6 +8,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { formatearPrecio } from "@/lib/clinic-options";
+import { gradienteDeCategoria, iconoDeTratamiento } from "@/lib/tratamientos-iconos";
 import type { Clinic } from "@/lib/supabase/database.types";
 
 type Params = { slug: string };
@@ -168,19 +169,53 @@ export default async function TratamientoPage({
       )}
       <SiteHeader />
 
-      <article className="mx-auto max-w-[1600px] px-6 py-12">
-        <div className="mx-auto max-w-3xl">
-          <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
-            <Link href="/tratamientos" className="hover:text-cyan">
-              Tratamientos
-            </Link>
-            <span aria-hidden>/</span>
-            <span className="text-ink">{tratamiento.nombre}</span>
-          </nav>
+      <div className="mx-auto max-w-[1600px] px-6 pt-6">
+        <nav
+          aria-label="Migas de pan"
+          className="mx-auto flex max-w-3xl items-center gap-1.5 text-sm text-ink-soft"
+        >
+          <Link href="/tratamientos" className="hover:text-cyan">
+            Tratamientos
+          </Link>
+          <span aria-hidden>/</span>
+          <span className="text-ink">{tratamiento.nombre}</span>
+        </nav>
+      </div>
 
-          <h1 className="mt-3 font-display text-3xl text-teal-dark">
-            {tratamiento.nombre}
-          </h1>
+      {(() => {
+        const gradiente = gradienteDeCategoria(tratamiento.categoria);
+        const icono = iconoDeTratamiento(tratamiento.nombre);
+        return (
+          <div className="mx-auto max-w-[1600px] px-6 pb-2 pt-4">
+            <div
+              className={`mx-auto flex max-w-3xl items-center gap-5 rounded-3xl bg-gradient-to-br p-6 sm:gap-6 sm:p-8 ${gradiente}`}
+            >
+              {icono && (
+                <Image
+                  src={icono}
+                  alt=""
+                  width={96}
+                  height={96}
+                  className="h-16 w-16 shrink-0 sm:h-20 sm:w-20"
+                />
+              )}
+              <div>
+                {tratamiento.categoria && (
+                  <span className="text-xs font-semibold uppercase tracking-wide text-white/80">
+                    {tratamiento.categoria}
+                  </span>
+                )}
+                <h1 className="mt-1 font-display text-2xl font-extrabold text-white sm:text-4xl">
+                  {tratamiento.nombre}
+                </h1>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
+
+      <article className="mx-auto max-w-[1600px] px-6 pb-12">
+        <div className="mx-auto max-w-3xl">
           {tratamiento.duracion_orientativa && (
             <p className="mt-2 text-sm text-ink-soft">
               Duración orientativa: {tratamiento.duracion_orientativa}
