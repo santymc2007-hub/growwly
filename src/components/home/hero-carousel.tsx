@@ -1,5 +1,6 @@
 "use client";
 
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -28,6 +29,13 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
 
   const slide = slides[indice] ?? slides[0];
 
+  function anterior() {
+    setIndice((i) => (i - 1 + slides.length) % slides.length);
+  }
+  function siguiente() {
+    setIndice((i) => (i + 1) % slides.length);
+  }
+
   return (
     <div>
       <div className="relative">
@@ -39,6 +47,27 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           style={{ backgroundColor: slide.color_fondo || "#ecf7f1" }}
           aria-hidden
         />
+
+        {slides.length > 1 && (
+          <>
+            <button
+              type="button"
+              onClick={anterior}
+              aria-label="Slide anterior"
+              className="press absolute left-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/90 p-2 text-teal-dark shadow-md transition hover:bg-white sm:left-4 sm:p-2.5"
+            >
+              <ChevronLeft className="h-5 w-5" aria-hidden />
+            </button>
+            <button
+              type="button"
+              onClick={siguiente}
+              aria-label="Slide siguiente"
+              className="press absolute right-2 top-1/2 z-20 -translate-y-1/2 rounded-full bg-white/90 p-2 text-teal-dark shadow-md transition hover:bg-white sm:right-4 sm:p-2.5"
+            >
+              <ChevronRight className="h-5 w-5" aria-hidden />
+            </button>
+          </>
+        )}
 
         <div className="relative mx-auto grid items-end gap-6 px-6 pt-8 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
           <div className="order-1 self-center text-left lg:order-1">
