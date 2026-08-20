@@ -3,6 +3,7 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
+import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
@@ -125,10 +126,14 @@ export default async function ClinicasPage({
         )}
 
         {filtradas.length > 0 ? (
-          <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {filtradas.map((clinic) => (
-              <ClinicCard key={clinic.id} clinic={clinic} />
-            ))}
+          <div className="mt-8">
+            <VistaListaMapa clinicas={filtradas}>
+              <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {filtradas.map((clinic) => (
+                  <ClinicCard key={clinic.id} clinic={clinic} />
+                ))}
+              </div>
+            </VistaListaMapa>
           </div>
         ) : (
           <div className="mt-16 rounded-3xl border border-dashed border-line bg-paper-dim/50 py-16 text-center">
