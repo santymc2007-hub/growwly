@@ -37,7 +37,16 @@ function AjustarVista({ clinicas }: { clinicas: ClinicConCoords[] }) {
   return null;
 }
 
-export function ClinicsMap({ clinicas }: { clinicas: Clinic[] }) {
+export function ClinicsMap({
+  clinicas,
+  alto,
+}: {
+  clinicas: Clinic[];
+  /** Alto del contenedor del mapa. Por defecto 420/480px (uso normal a
+   * ancho completo); en el panel sticky del modo dividido se le pasa
+   * "100%" para que llene el hueco disponible en pantalla. */
+  alto?: string;
+}) {
   const conCoords = useMemo(
     () =>
       clinicas.filter(
@@ -48,7 +57,10 @@ export function ClinicsMap({ clinicas }: { clinicas: Clinic[] }) {
 
   if (conCoords.length === 0) {
     return (
-      <div className="flex h-[420px] items-center justify-center rounded-2xl border border-line bg-paper-dim text-sm text-ink-soft">
+      <div
+        className="flex items-center justify-center rounded-2xl border border-line bg-paper-dim text-sm text-ink-soft"
+        style={{ height: alto ?? "420px" }}
+      >
         Ninguna de las clínicas de este listado tiene ubicación cargada
         todavía.
       </div>
@@ -58,7 +70,10 @@ export function ClinicsMap({ clinicas }: { clinicas: Clinic[] }) {
   // Centro inicial (Mallorca) — AjustarVista lo corrige al momento con
   // las coordenadas reales en cuanto el mapa monta.
   return (
-    <div className="h-[420px] overflow-hidden rounded-2xl border border-line sm:h-[480px]">
+    <div
+      className="overflow-hidden rounded-2xl border border-line"
+      style={{ height: alto ?? "420px" }}
+    >
       <MapContainer
         center={[39.6, 2.9]}
         zoom={9}

@@ -2,7 +2,6 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
-import { ClinicCard } from "@/components/clinics/clinic-card";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -165,13 +164,7 @@ export default async function CiudadPage({
 
       <div className="mx-auto max-w-[1600px] px-6 py-10">
         {clinicas.length > 0 ? (
-          <VistaListaMapa clinicas={clinicas}>
-            <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {clinicas.map((clinic) => (
-                <ClinicCard key={clinic.id} clinic={clinic} />
-              ))}
-            </div>
-          </VistaListaMapa>
+          <VistaListaMapa clinicas={clinicas} />
         ) : (
           <Link
             href="/clinicas"
