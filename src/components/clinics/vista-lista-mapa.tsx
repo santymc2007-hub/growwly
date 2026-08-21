@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { List, MapIcon } from "lucide-react";
 import { ClinicCard } from "./clinic-card";
+import { ClinicCardCompact } from "./clinic-card-compact";
 import { ClinicsMap } from "./clinics-map";
 import type { Clinic } from "@/lib/supabase/database.types";
 
@@ -56,9 +57,9 @@ export function VistaListaMapa({ clinicas }: { clinicas: Clinic[] }) {
             <ClinicsMap clinicas={clinicas} />
           </div>
           <div className="hidden lg:block lg:flex-1">
-            <div className="grid grid-cols-1 gap-5 xl:grid-cols-2">
+            <div className="grid grid-cols-2 gap-4 xl:grid-cols-3 2xl:grid-cols-4">
               {clinicas.map((clinic) => (
-                <ClinicCard key={clinic.id} clinic={clinic} />
+                <ClinicCardCompact key={clinic.id} clinic={clinic} />
               ))}
             </div>
           </div>
