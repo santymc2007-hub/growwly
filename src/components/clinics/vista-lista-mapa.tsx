@@ -57,7 +57,7 @@ export function VistaListaMapa({ clinicas }: { clinicas: Clinic[] }) {
             <ClinicsMap clinicas={clinicas} />
           </div>
           <div className="hidden lg:block lg:flex-1">
-            <div className="grid grid-cols-2 gap-4 xl:grid-cols-3 2xl:grid-cols-4">
+            <div className="grid grid-cols-3 gap-3 xl:grid-cols-4">
               {clinicas.map((clinic) => (
                 <ClinicCardCompact key={clinic.id} clinic={clinic} />
               ))}
