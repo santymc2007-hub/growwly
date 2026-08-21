@@ -24,7 +24,7 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
 
         <Link
           href={href}
-          className="card-lg press group mt-6 grid grid-cols-1 overflow-hidden border border-line bg-white transition hover:shadow-md md:grid-cols-[1fr_1.4fr]"
+          className="press group mt-6 grid grid-cols-1 overflow-hidden rounded-3xl border border-line bg-white shadow-sm transition hover:shadow-md md:grid-cols-[1fr_1.4fr]"
         >
           <div className="relative aspect-video bg-sage md:aspect-auto">
             {foto ? (
@@ -84,7 +84,7 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
               </div>
             )}
             <div className="mt-6 flex justify-end">
-              <span className="press btn-soft inline-block w-fit bg-gradient-to-r from-yellow to-orange text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
+              <span className="press inline-block w-fit rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
                 Ver ficha
               </span>
             </div>

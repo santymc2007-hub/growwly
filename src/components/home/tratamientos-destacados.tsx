@@ -42,7 +42,7 @@ export function TratamientosDestacados({
             <Link
               key={t.slug}
               href={`/tratamientos/${t.slug}`}
-              className="card-lg press group relative flex aspect-[3/4] flex-col justify-end overflow-hidden p-5 transition hover:opacity-95"
+              className="press group relative flex aspect-[3/4] flex-col justify-end overflow-hidden rounded-2xl p-5 transition hover:opacity-95"
             >
               {t.imagen_portada ? (
                 <>
@@ -70,7 +70,7 @@ export function TratamientosDestacados({
                 <h3 className="mt-1 font-display text-xl font-extrabold leading-tight text-white">
                   {t.nombre}
                 </h3>
-                <span className="press btn-soft mt-4 inline-block bg-white text-sm font-bold text-teal-dark transition group-hover:opacity-90">
+                <span className="press mt-4 inline-block rounded-full bg-white px-4 py-2 text-sm font-bold text-teal-dark transition group-hover:opacity-90">
                   Leer más
                 </span>
               </div>

@@ -138,18 +138,3 @@ body {
   padding-right: 0.5rem;
   color: var(--color-teal-dark);
 }
-
-/* Rediseño estructural (ref. moodboard "Guía de estilo CSS Fintech"),
-   probándose primero en home: mismos colores y tipografía de marca de
-   siempre, solo se toman del moodboard los radios y la sombra de
-   tarjeta/botón. El CSS anterior sigue intacto arriba — si no convence,
-   basta con quitar estas clases de los componentes (o restaurar
-   globals.css.pre-rediseno-home.bak) para volver al estado previo. */
-.card-lg {
-  border-radius: 28px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-}
-.btn-soft {
-  border-radius: 12px;
-  padding: 10px 20px;
-}
