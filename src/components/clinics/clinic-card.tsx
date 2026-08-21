@@ -16,7 +16,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
   return (
     <Link
       href={href}
-      className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white/60 transition hover:border-teal/40 hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
+      className="card-lg group flex flex-col overflow-hidden border border-line bg-white/60 transition hover:border-teal/40 hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
     >
       <div className="relative aspect-[4/3] w-full overflow-hidden bg-sage">
         {foto ? (
@@ -94,7 +94,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
             {clinic.primera_consulta_gratis && <span>1ª consulta gratis</span>}
             {clinic.financiacion && <span>Financiación disponible</span>}
           </div>
-          <span className="press shrink-0 rounded-full bg-gradient-to-r from-yellow to-orange px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
+          <span className="press shrink-0 rounded-xl bg-gradient-to-r from-yellow to-orange px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
             Ver ficha
           </span>
         </div>

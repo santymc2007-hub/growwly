@@ -99,7 +99,7 @@ export default async function HomePage() {
 
       {/* Qué es Growwly */}
       <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
-        <div className="flex flex-col items-start gap-4 rounded-3xl bg-teal-dark px-6 py-8 sm:flex-row sm:items-center sm:gap-6 sm:px-10">
+        <div className="card-lg flex flex-col items-start gap-4 bg-teal-dark px-6 py-8 sm:flex-row sm:items-center sm:gap-6 sm:px-10">
           <Image
             src="/brand/logo-h1.png"
             alt="Growwly"
@@ -133,7 +133,7 @@ export default async function HomePage() {
             </div>
             <Link
               href="/clinicas"
-              className="press mt-8 inline-block rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-6 py-3 text-base font-medium text-teal-dark transition hover:opacity-90"
+              className="press btn-soft mt-8 inline-block bg-gradient-to-r from-brand-green to-brand-blue text-base font-medium text-teal-dark transition hover:opacity-90"
             >
               Ver todas las clínicas
             </Link>
@@ -158,7 +158,7 @@ export default async function HomePage() {
             const Icono = paso.icono;
             return (
               <div key={paso.titulo} className="relative">
-                <div className="h-full rounded-2xl border-2 border-sage bg-white p-6">
+                <div className="card-lg h-full border border-line bg-white p-6">
                   <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sage/60 text-teal-dark">
                     <Icono size={24} aria-hidden />
                   </div>
@@ -186,7 +186,7 @@ export default async function HomePage() {
       {/* CTA clínicas */}
       <section className="bg-paper">
         <div className="mx-auto max-w-[1600px] px-6 py-14">
-          <div className="flex flex-col items-center gap-3 rounded-3xl bg-gradient-to-br from-brand-blue/40 via-white to-brand-green/30 px-6 py-14 text-center">
+          <div className="card-lg flex flex-col items-center gap-3 bg-gradient-to-br from-brand-blue/40 via-white to-brand-green/30 px-6 py-14 text-center">
             <p className="font-display text-3xl font-bold text-teal-dark">
               ¿Tienes una clínica capilar?
             </p>
@@ -196,7 +196,7 @@ export default async function HomePage() {
             </p>
             <Link
               href="/clinica/registro"
-              className="press mt-2 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="press btn-soft mt-2 inline-block bg-gradient-to-r from-yellow to-orange font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               Únete
             </Link>
