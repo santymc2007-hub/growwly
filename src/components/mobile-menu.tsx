@@ -11,9 +11,11 @@ type Tratamiento = { slug: string; nombre: string; categoria: string | null };
 export function MobileMenu({
   esClinicaLogueada = false,
   tratamientos = [],
+  variant = "light",
 }: {
   esClinicaLogueada?: boolean;
   tratamientos?: Tratamiento[];
+  variant?: "light" | "dark";
 }) {
   const [abierto, setAbierto] = useState(false);
   const [tratamientosAbierto, setTratamientosAbierto] = useState(false);
@@ -30,7 +32,11 @@ export function MobileMenu({
         onClick={() => setAbierto((v) => !v)}
         aria-label={abierto ? "Cerrar menú" : "Abrir menú"}
         aria-expanded={abierto}
-        className="press flex h-9 w-9 items-center justify-center rounded-lg text-ink hover:bg-paper-dim"
+        className={`press flex h-9 w-9 items-center justify-center rounded-lg ${
+          variant === "dark"
+            ? "text-white hover:bg-white/10"
+            : "text-ink hover:bg-paper-dim"
+        }`}
       >
         {abierto ? <X size={22} /> : <Menu size={22} />}
       </button>

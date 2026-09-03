@@ -8,6 +8,7 @@ import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
 import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
 import { HeroCarousel } from "@/components/home/hero-carousel";
+import { AnnouncementBar } from "@/components/home/announcement-bar";
 import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 import type { HeroSlide } from "@/lib/supabase/database.types";
@@ -89,13 +90,13 @@ export default async function HomePage() {
 
   return (
     <main className="flex-1">
-      {/* Cabecera sobre fondo blanco (ya no superpuesta al hero) */}
-      <SiteHeader />
+      <AnnouncementBar />
 
-      {/* Héroe: carrusel en tarjeta redondeada con márgenes respecto al borde de página */}
-      <section className="mx-auto max-w-[1600px] px-6 pt-2 sm:pt-4">
+      {/* Header + hero fundidos en un único bloque de color continuo */}
+      <div className="bg-teal-dark">
+        <SiteHeader variant="dark" />
         <HeroCarousel slides={slides} />
-      </section>
+      </div>
 
       {/* Qué es Growwly */}
       <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">

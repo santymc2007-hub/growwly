@@ -5,7 +5,11 @@ import { MobileMenu } from "./mobile-menu";
 import { MenuTratamientos } from "./menu-tratamientos";
 import { cerrarSesionClinica } from "@/app/clinica/actions";
 
-export async function SiteHeader() {
+export async function SiteHeader({
+  variant = "light",
+}: {
+  variant?: "light" | "dark";
+}) {
   const supabase = await createClient();
   const {
     data: { user },
@@ -27,12 +31,14 @@ export async function SiteHeader() {
     .eq("publicado", true)
     .order("nombre", { ascending: true });
 
+  const esOscuro = variant === "dark";
+
   return (
     <header className="relative z-20">
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center">
           <Image
-            src="/brand/logo-home.png"
+            src={esOscuro ? "/brand/growwly-logo-white.png" : "/brand/logo-home.png"}
             alt="Growwly — Hair we go!"
             width={413}
             height={76}
@@ -40,18 +46,25 @@ export async function SiteHeader() {
             priority
           />
         </Link>
-        <nav className="hidden items-center gap-7 text-sm font-medium text-ink md:flex">
-          <Link href="/" className="hover:text-teal">
+        <nav
+          className={`hidden items-center gap-7 text-sm font-medium md:flex ${
+            esOscuro ? "text-white" : "text-ink"
+          }`}
+        >
+          <Link href="/" className={esOscuro ? "hover:text-brand-green" : "hover:text-teal"}>
             Inicio
           </Link>
-          <Link href="/#como-funciona" className="hover:text-teal">
+          <Link
+            href="/#como-funciona"
+            className={esOscuro ? "hover:text-brand-green" : "hover:text-teal"}
+          >
             Como Funciona
           </Link>
-          <Link href="/clinicas" className="hover:text-teal">
+          <Link href="/clinicas" className={esOscuro ? "hover:text-brand-green" : "hover:text-teal"}>
             Clínicas
           </Link>
-          <MenuTratamientos tratamientos={tratamientos ?? []} />
-          <Link href="/blog" className="hover:text-teal">
+          <MenuTratamientos tratamientos={tratamientos ?? []} variant={variant} />
+          <Link href="/blog" className={esOscuro ? "hover:text-brand-green" : "hover:text-teal"}>
             Blog
           </Link>
           <Link
@@ -83,7 +96,11 @@ export async function SiteHeader() {
             </Link>
           )}
         </nav>
-        <MobileMenu esClinicaLogueada={esClinicaLogueada} tratamientos={tratamientos ?? []} />
+        <MobileMenu
+          esClinicaLogueada={esClinicaLogueada}
+          tratamientos={tratamientos ?? []}
+          variant={variant}
+        />
       </div>
     </header>
   );
