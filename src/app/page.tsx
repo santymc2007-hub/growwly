@@ -93,13 +93,13 @@ export default async function HomePage() {
       <AnnouncementBar />
 
       {/* Header + hero fundidos en un único bloque de color continuo.
-          El color lo pone la slide activa (color_fondo) vía variable CSS
-          --hero-bg que actualiza HeroCarousel; fallback teal-dark antes
-          de que hidrate el JS o si la slide no trae color. */}
-      <div style={{ backgroundColor: "var(--hero-bg, #1f5568)" }}>
+          SiteHeader se pasa como children para que HeroCarousel pinte el
+          color de la slide activa directamente por style de React, sin
+          variables CSS de por medio (evita que se quede pegado a un
+          color viejo si algo no sincroniza a tiempo). */}
+      <HeroCarousel slides={slides}>
         <SiteHeader variant="dark" />
-        <HeroCarousel slides={slides} />
-      </div>
+      </HeroCarousel>
 
       {/* Qué es Growwly */}
       <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
