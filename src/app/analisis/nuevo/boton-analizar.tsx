@@ -9,7 +9,7 @@ export function BotonAnalizar() {
     <button
       type="submit"
       disabled={pending}
-      className="mt-6 w-full rounded-lg bg-teal px-4 py-3 text-sm font-medium text-paper transition hover:bg-teal-dark disabled:opacity-60"
+      className="press mt-6 w-full rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-4 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
     >
       {pending
         ? "Subiendo y analizando tus fotos… puede tardar un momento"
