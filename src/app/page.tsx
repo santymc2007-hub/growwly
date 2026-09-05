@@ -21,7 +21,7 @@ const SLIDE_POR_DEFECTO: HeroSlide = {
   titular_html:
     'Tu <span class="hl">valoración con IA</span> en un par de clics',
   subtitulo: "¡Ah! Y con presupuesto personalizado",
-  color_fondo: "#ecf7f1",
+  color_fondo: "#1f5568",
   imagen_url: "/brand/hero-persona.png",
   enlace: "/analisis/nuevo",
   texto_boton: "Subir fotos",
@@ -92,8 +92,11 @@ export default async function HomePage() {
     <main className="flex-1">
       <AnnouncementBar />
 
-      {/* Header + hero fundidos en un único bloque de color continuo */}
-      <div className="bg-teal-dark">
+      {/* Header + hero fundidos en un único bloque de color continuo.
+          El color lo pone la slide activa (color_fondo) vía variable CSS
+          --hero-bg que actualiza HeroCarousel; fallback teal-dark antes
+          de que hidrate el JS o si la slide no trae color. */}
+      <div style={{ backgroundColor: "var(--hero-bg, #1f5568)" }}>
         <SiteHeader variant="dark" />
         <HeroCarousel slides={slides} />
       </div>

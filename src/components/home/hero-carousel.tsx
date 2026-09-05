@@ -10,6 +10,7 @@ const INTERVALO_MS = 6000;
 
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [indice, setIndice] = useState(0);
+  const slide = slides[indice] ?? slides[0];
 
   useEffect(() => {
     if (slides.length < 2) return;
@@ -19,9 +20,14 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
     return () => clearInterval(timer);
   }, [slides.length]);
 
-  if (slides.length === 0) return null;
+  useEffect(() => {
+    document.documentElement.style.setProperty(
+      "--hero-bg",
+      slide?.color_fondo || "#1f5568",
+    );
+  }, [slide?.color_fondo]);
 
-  const slide = slides[indice] ?? slides[0];
+  if (slides.length === 0) return null;
 
   function anterior() {
     setIndice((i) => (i - 1 + slides.length) % slides.length);
