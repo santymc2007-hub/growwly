@@ -52,13 +52,13 @@ export function SlotFoto({
   }
 
   return (
-    <div className="rounded-2xl border border-line bg-white p-4">
+    <div className="group rounded-2xl border border-line bg-white p-4 transition hover:border-teal/40 hover:shadow-[0_8px_24px_-14px_rgba(31,58,46,0.3)]">
       <div className="flex items-start gap-3">
-        <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-sage/40">
-          <Image src={imagen} alt="" fill sizes="64px" className="object-cover" />
+        <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-sage/40 ring-1 ring-sage transition group-hover:ring-cyan">
+          <Image src={imagen} alt="" fill sizes="80px" className="object-cover" />
         </div>
         <div>
-          <label htmlFor={name} className="text-sm font-medium text-ink">
+          <label htmlFor={name} className="text-sm font-semibold text-teal-dark">
             {label}{" "}
             <span className="font-normal text-ink-soft">
               (recomendable, no obligatoria)

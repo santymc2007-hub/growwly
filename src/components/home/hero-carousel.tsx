@@ -1,15 +1,26 @@
 "use client";
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import type { HeroSlide } from "@/lib/supabase/database.types";
 
 const INTERVALO_MS = 6000;
 
-export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
+export function HeroCarousel({
+  slides,
+  children,
+}: {
+  slides: HeroSlide[];
+  /** La cabecera (SiteHeader), pasada desde el Server Component padre —
+   * se pinta aquí dentro para que comparta el mismo fondo que la slide
+   * activa, como un <style> de React normal (sin variables CSS de por
+   * medio, para que no se pueda quedar "pegado" a un color viejo). */
+  children?: ReactNode;
+}) {
   const [indice, setIndice] = useState(0);
+  const slide = slides[indice] ?? slides[0];
 
   useEffect(() => {
     if (slides.length < 2) return;
@@ -19,9 +30,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
     return () => clearInterval(timer);
   }, [slides.length]);
 
-  if (slides.length === 0) return null;
-
-  const slide = slides[indice] ?? slides[0];
+  if (slides.length === 0) return <>{children}</>;
 
   function anterior() {
     setIndice((i) => (i - 1 + slides.length) % slides.length);
@@ -31,18 +40,10 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   }
 
   return (
-    <div>
-      <div className="relative">
-        {/* Banda de color: ocupa exactamente el alto del contenido (el
-            grid de abajo, que está en flujo normal), no un alto fijo por
-            breakpoint — así no queda hueco vacío debajo de la foto y la
-            banda crece o encoge sola según cuánto texto tenga la slide. */}
-        <div
-          className="absolute inset-0 rounded-3xl"
-          style={{ backgroundColor: slide.color_fondo || "#ecf7f1" }}
-          aria-hidden
-        />
+    <div style={{ backgroundColor: slide.color_fondo || "#1f5568" }}>
+      {children}
 
+      <div className="relative">
         {slides.length > 1 && (
           <>
             <button
@@ -64,19 +65,18 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           </>
         )}
 
-        <div className="relative mx-auto grid items-end gap-6 px-6 pt-8 sm:pt-10 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
+        <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pb-10 pt-6 sm:pb-14 lg:grid-cols-[0.85fr_1.15fr] lg:px-12 lg:pb-16">
           <div className="order-1 self-center text-left lg:order-1">
             <h1
-              className="font-display text-[20px] font-extrabold leading-tight text-teal-dark sm:text-[44px] lg:text-[56px]"
+              className="font-display text-[28px] font-extrabold leading-tight text-white sm:text-[44px] lg:text-[56px]"
               dangerouslySetInnerHTML={{ __html: slide.titular_html }}
             />
             {slide.subtitulo && (
-              <p className="mt-2 font-display text-[16px] font-bold text-teal-dark opacity-80 sm:mt-4 sm:text-[28px] lg:text-[34px]">
+              <p className="mt-2 font-display text-[16px] font-bold text-white/80 sm:mt-4 sm:text-[28px] lg:text-[34px]">
                 {slide.subtitulo}
               </p>
             )}
 
-            {/* En escritorio, el botón y el texto van aquí, junto al titular */}
             <div className="hidden lg:block">
               <Link
                 href={slide.enlace}
@@ -84,13 +84,13 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
               >
                 {slide.texto_boton}
               </Link>
-              <p className="mt-4 text-base text-ink-soft">
+              <p className="mt-4 text-base text-white/70">
                 Gratis · 2 minutos · No es un diagnóstico médico.
               </p>
             </div>
           </div>
 
-          <div className="order-2 relative -mx-6 aspect-[1114/889] w-full self-end sm:mx-auto sm:max-w-none lg:order-2">
+          <div className="order-2 relative aspect-[1114/889] w-full self-end sm:mx-auto sm:max-w-none lg:order-2">
             {slide.imagen_url && (
               <Image
                 src={slide.imagen_url}
@@ -103,37 +103,35 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             )}
           </div>
 
-          {/* En móvil, el botón y el texto van debajo de la imagen */}
-          <div className="order-3 pb-8 text-left lg:hidden">
+          <div className="order-3 text-left lg:hidden">
             <Link
               href={slide.enlace}
               className="press inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wide text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               {slide.texto_boton}
             </Link>
-            <p className="mt-3 text-xs text-ink-soft">
+            <p className="mt-3 text-xs text-white/70">
               Gratis · 2 minutos · No es un diagnóstico médico.
             </p>
           </div>
         </div>
-      </div>
 
-      {/* Paginador fuera de la zona de color, ya en blanco. Se muestra
-          siempre, incluso con 1 sola slide (antes se ocultaba con
-          slides.length > 1 y por eso "no aparecía" con solo 1 activa). */}
-      <div className="flex items-center justify-center gap-1.5 pt-6">
-        {slides.map((s, i) => (
-          <button
-            key={s.id}
-            type="button"
-            onClick={() => setIndice(i)}
-            aria-label={`Ir a la slide ${i + 1}`}
-            aria-current={i === indice}
-            className={`press h-2 rounded-full transition-all ${
-              i === indice ? "w-6 bg-teal-dark" : "w-2 bg-teal-dark/25"
-            }`}
-          />
-        ))}
+        {slides.length > 1 && (
+          <div className="flex items-center justify-center gap-1.5 pb-6">
+            {slides.map((s, i) => (
+              <button
+                key={s.id}
+                type="button"
+                onClick={() => setIndice(i)}
+                aria-label={`Ir a la slide ${i + 1}`}
+                aria-current={i === indice}
+                className={`press h-2 rounded-full transition-all ${
+                  i === indice ? "w-6 bg-white" : "w-2 bg-white/30"
+                }`}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );

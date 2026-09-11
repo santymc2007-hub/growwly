@@ -8,6 +8,7 @@ import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
 import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
 import { HeroCarousel } from "@/components/home/hero-carousel";
+import { AnnouncementBar } from "@/components/home/announcement-bar";
 import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 import type { HeroSlide } from "@/lib/supabase/database.types";
@@ -20,7 +21,7 @@ const SLIDE_POR_DEFECTO: HeroSlide = {
   titular_html:
     'Tu <span class="hl">valoración con IA</span> en un par de clics',
   subtitulo: "¡Ah! Y con presupuesto personalizado",
-  color_fondo: "#ecf7f1",
+  color_fondo: "#1f5568",
   imagen_url: "/brand/hero-persona.png",
   enlace: "/analisis/nuevo",
   texto_boton: "Quiero mi valoración",
@@ -89,13 +90,16 @@ export default async function HomePage() {
 
   return (
     <main className="flex-1">
-      {/* Cabecera sobre fondo blanco (ya no superpuesta al hero) */}
-      <SiteHeader />
+      <AnnouncementBar />
 
-      {/* Héroe: carrusel en tarjeta redondeada con márgenes respecto al borde de página */}
-      <section className="mx-auto max-w-[1600px] px-6 pt-2 sm:pt-4">
-        <HeroCarousel slides={slides} />
-      </section>
+      {/* Header + hero fundidos en un único bloque de color continuo.
+          SiteHeader se pasa como children para que HeroCarousel pinte el
+          color de la slide activa directamente por style de React, sin
+          variables CSS de por medio (evita que se quede pegado a un
+          color viejo si algo no sincroniza a tiempo). */}
+      <HeroCarousel slides={slides}>
+        <SiteHeader variant="dark" />
+      </HeroCarousel>
 
       {/* Qué es Growwly */}
       <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
