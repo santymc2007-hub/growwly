@@ -6,6 +6,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slugify";
 import { uploadBlogPhoto, deleteBlogPhoto } from "@/lib/supabase/blog-storage";
 
+const MAX_FAQS = 6;
+
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
 }
@@ -16,12 +18,20 @@ function readPostFields(formData: FormData) {
     return value && String(value).trim() !== "" ? String(value).trim() : null;
   };
 
+  const faqs: { pregunta: string; respuesta: string }[] = [];
+  for (let i = 0; i < MAX_FAQS; i++) {
+    const pregunta = str(`faq_pregunta_${i}`);
+    const respuesta = str(`faq_respuesta_${i}`);
+    if (pregunta && respuesta) faqs.push({ pregunta, respuesta });
+  }
+
   return {
     titulo: String(formData.get("titulo") ?? "").trim(),
     resumen: str("resumen"),
     contenido: String(formData.get("contenido") ?? ""),
     autor: str("autor") ?? "Growwly",
     publicado: formData.get("publicado") === "on",
+    preguntas_frecuentes: faqs,
   };
 }
 
@@ -55,6 +65,7 @@ export async function createPost(formData: FormData) {
     titulo: fields.titulo,
     resumen: fields.resumen,
     contenido: fields.contenido,
+    preguntas_frecuentes: fields.preguntas_frecuentes,
     autor: fields.autor,
     publicado: fields.publicado,
     publicado_en: fields.publicado ? new Date().toISOString() : null,
@@ -110,6 +121,7 @@ export async function updatePost(id: string, formData: FormData) {
       titulo: fields.titulo,
       resumen: fields.resumen,
       contenido: fields.contenido,
+      preguntas_frecuentes: fields.preguntas_frecuentes,
       autor: fields.autor,
       publicado: fields.publicado,
       imagen_portada: imagenPortada,
