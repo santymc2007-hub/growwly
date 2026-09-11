@@ -1,5 +1,6 @@
+import Image from "next/image";
 import Link from "next/link";
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { crearEstudio } from "../actions";
@@ -61,42 +62,65 @@ export default async function NuevoAnalisisPage({
     <main className="flex-1">
       <SiteHeader />
 
-      <div className="bg-gradient-to-br from-sage/50 via-white to-brand-blue/10">
-        <div className="mx-auto max-w-[1600px] px-6 py-12 sm:py-16">
-          <Link
-            href="/"
-            className="text-sm font-medium text-cyan hover:text-cyan-dark"
-          >
-            ← Volver al inicio
-          </Link>
+      <div className="relative overflow-hidden bg-gradient-to-br from-[#fbe0ea] via-[#f1e6fb] to-[#dcebfb]">
+        <div className="mx-auto grid max-w-[1600px] items-center gap-10 px-6 py-14 sm:py-20 lg:grid-cols-[1fr_0.85fr] lg:px-12">
+          <div>
+            <Link
+              href="/"
+              className="text-sm font-medium text-ink-soft hover:text-ink"
+            >
+              ← Volver al inicio
+            </Link>
 
-          <div className="mt-4 lg:flex lg:items-end lg:justify-between lg:gap-10">
-            <div className="lg:max-w-2xl">
-              <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1 text-xs font-semibold uppercase tracking-wide text-cyan-dark shadow-sm">
-                Gratis · 2 minutos
-              </span>
-              <h1 className="mt-3 font-display text-3xl font-extrabold text-teal-dark sm:text-5xl">
-                Análisis capilar orientativo
-              </h1>
-              <p className="mt-3 text-base text-ink-soft">
-                Sube fotos con buena luz y resolución. Estos 5 ángulos son los
-                que más nos ayudan a valorar bien tu caso, pero{" "}
-                <strong className="font-medium text-ink">
-                  ninguno es obligatorio
-                </strong>{" "}
-                — sube al menos una foto, y cuantas más subas (incluidas fotos
-                adicionales al final), más fino puede ser el resultado.
+            <h1 className="mt-4 font-display text-4xl font-extrabold leading-tight text-ink sm:text-5xl">
+              Análisis capilar orientativo
+            </h1>
+            <p className="mt-4 max-w-xl text-base text-ink-soft">
+              Sube fotos con buena luz y resolución. Estos 5 ángulos son los
+              que más nos ayudan a valorar bien tu caso, pero{" "}
+              <strong className="font-semibold text-ink">
+                ninguno es obligatorio
+              </strong>{" "}
+              — sube al menos una foto, y cuantas más subas (incluidas fotos
+              adicionales al final), más fino puede ser el resultado.
+            </p>
+
+            <div className="mt-5 inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-2 text-sm font-medium text-ink shadow-sm backdrop-blur">
+              <Sparkles className="h-4 w-4 text-cyan-dark" aria-hidden />
+              Análisis con inteligencia artificial
+            </div>
+
+            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+              <a
+                href="#fotos"
+                className="press inline-block rounded-full bg-ink px-7 py-3.5 font-display text-sm font-bold uppercase tracking-wide text-white transition hover:opacity-90"
+              >
+                Subir fotos y análisis de IA
+              </a>
+              <p className="max-w-xs text-sm text-ink-soft">
+                No hace falta tener cuenta para empezar — solo para ver el
+                resultado, que quedará guardado en tu perfil.
               </p>
             </div>
-            <p className="mt-4 max-w-xs text-sm text-ink-soft lg:mt-0 lg:text-right">
-              No hace falta tener cuenta para empezar — solo para ver el
-              resultado, que quedará guardado en tu perfil.
-            </p>
+          </div>
+
+          <div className="relative mx-auto aspect-[1114/889] w-full max-w-sm lg:max-w-none">
+            <Image
+              src="/brand/hero-persona.png"
+              alt=""
+              fill
+              sizes="(min-width: 1024px) 40vw, 80vw"
+              className="object-contain object-bottom"
+              priority
+            />
+            <div className="absolute bottom-4 right-0 max-w-[220px] rounded-2xl bg-white px-4 py-3 text-sm font-medium text-ink shadow-lg sm:bottom-8">
+              Tu evaluación en minutos con nuestra IA
+            </div>
           </div>
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1600px] px-6 py-10 sm:py-12">
+      <div id="fotos" className="mx-auto max-w-[1600px] scroll-mt-6 px-6 py-10 sm:py-12">
         {error && (
           <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
             {decodeURIComponent(error)}
