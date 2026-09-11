@@ -65,7 +65,7 @@ export function HeroCarousel({
           </>
         )}
 
-        <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pb-10 pt-6 sm:pb-14 lg:grid-cols-[0.85fr_1.15fr] lg:px-12 lg:pb-16">
+        <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pb-6 pt-6 sm:pb-8 lg:grid-cols-[0.85fr_1.15fr] lg:px-12 lg:pb-10">
           <div className="order-1 self-center text-left lg:order-1">
             <h1
               className="font-display text-[28px] font-extrabold leading-tight text-white sm:text-[44px] lg:text-[56px]"
@@ -117,7 +117,7 @@ export function HeroCarousel({
         </div>
 
         {slides.length > 1 && (
-          <div className="flex items-center justify-center gap-1.5 pb-6">
+          <div className="flex items-center justify-center gap-1.5 pb-4">
             {slides.map((s, i) => (
               <button
                 key={s.id}
