@@ -7,12 +7,6 @@ import Link from "next/link";
 import type { HeroSlide } from "@/lib/supabase/database.types";
 
 const INTERVALO_MS = 6000;
-// Alto de la zona de color del hero — sube por tramos con el viewport
-// porque en móvil el contenido (apilado en una sola columna) es mucho
-// más bajo que en escritorio; con un valor fijo de 600px la banda se
-// salía por arriba, incluso por encima de la cabecera. En lg SÍ llega
-// a los 600px pedidos, que es donde la foto es más alta que la banda.
-const ALTURA_BANDA_CLASES = "h-[220px] sm:h-[320px] md:h-[420px] lg:h-[600px]";
 
 export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   const [indice, setIndice] = useState(0);
@@ -39,11 +33,12 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
   return (
     <div>
       <div className="relative">
-        {/* Banda de color anclada abajo, alto responsive (ver constante
-            arriba). Sin overflow-hidden: la foto puede sobresalir por
-            encima sin recortarse. */}
+        {/* Banda de color: ocupa exactamente el alto del contenido (el
+            grid de abajo, que está en flujo normal), no un alto fijo por
+            breakpoint — así no queda hueco vacío debajo de la foto y la
+            banda crece o encoge sola según cuánto texto tenga la slide. */}
         <div
-          className={`absolute inset-x-0 bottom-0 rounded-3xl ${ALTURA_BANDA_CLASES}`}
+          className="absolute inset-0 rounded-3xl"
           style={{ backgroundColor: slide.color_fondo || "#ecf7f1" }}
           aria-hidden
         />
@@ -85,7 +80,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
             <div className="hidden lg:block">
               <Link
                 href={slide.enlace}
-                className="press mt-8 inline-block w-full max-w-md rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-5 font-display text-xl font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+                className="press mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 font-display text-lg font-bold uppercase tracking-wide text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
               >
                 {slide.texto_boton}
               </Link>
@@ -112,7 +107,7 @@ export function HeroCarousel({ slides }: { slides: HeroSlide[] }) {
           <div className="order-3 pb-8 text-left lg:hidden">
             <Link
               href={slide.enlace}
-              className="press inline-block w-full max-w-xs rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="press inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wide text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               {slide.texto_boton}
             </Link>
