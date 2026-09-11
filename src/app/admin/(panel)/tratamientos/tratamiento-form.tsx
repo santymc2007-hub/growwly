@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { Tratamiento } from "@/lib/supabase/database.types";
 import { TECNICAS_DISPONIBLES, CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
+import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -29,7 +30,7 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
       <div className="flex flex-col gap-4">
         <div>
           <label className={labelClass} htmlFor="nombre">
-            Nombre
+            Nombre <span className="text-xs text-ink-soft">(H1 de la página y título en buscadores)</span>
           </label>
           <input
             id="nombre"
@@ -87,18 +88,12 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
           </select>
         </div>
 
-        <div>
-          <label className={labelClass} htmlFor="resumen">
-            Resumen (listado y buscadores)
-          </label>
-          <textarea
-            id="resumen"
-            name="resumen"
-            rows={2}
-            defaultValue={tratamiento?.resumen ?? undefined}
-            className={inputClass}
-          />
-        </div>
+        <CampoMetaDescripcion
+          id="resumen"
+          name="resumen"
+          label="Resumen (meta description — aparece en el listado y en buscadores)"
+          defaultValue={tratamiento?.resumen}
+        />
 
         <div>
           <label className={labelClass} htmlFor="duracion_orientativa">
@@ -139,7 +134,11 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
 
         <div>
           <label className={labelClass} htmlFor="contenido">
-            Contenido (Markdown: ## título, listas con -, **negrita**)
+            Contenido{" "}
+            <span className="text-xs text-ink-soft">
+              (cuerpo de la ficha: qué es, para quién, proceso,
+              recuperación — Markdown: ## para H2, listas con -, **negrita**)
+            </span>
           </label>
           <textarea
             id="contenido"
@@ -151,7 +150,13 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
         </div>
 
         <div>
-          <p className={labelClass}>Preguntas frecuentes (hasta {MAX_FAQS})</p>
+          <p className={labelClass}>
+            Preguntas frecuentes{" "}
+            <span className="text-xs text-ink-soft">
+              (bloque FAQ — hasta {MAX_FAQS}; se marca para Google como datos
+              estructurados, ayuda a salir en resultados enriquecidos)
+            </span>
+          </p>
           {Array.from({ length: MAX_FAQS }, (_, i) => (
             <div key={i} className="mt-2 rounded-lg border border-line bg-white p-3">
               <input
