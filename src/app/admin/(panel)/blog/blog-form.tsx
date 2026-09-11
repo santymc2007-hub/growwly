@@ -1,5 +1,6 @@
 import Image from "next/image";
 import type { BlogPost } from "@/lib/supabase/database.types";
+import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -23,7 +24,7 @@ export function BlogForm({ action, post, error }: Props) {
       <div className="flex flex-col gap-4">
         <div>
           <label className={labelClass} htmlFor="titulo">
-            Título
+            Título <span className="text-xs text-ink-soft">(H1 de la página y título en buscadores)</span>
           </label>
           <input
             id="titulo"
@@ -39,18 +40,12 @@ export function BlogForm({ action, post, error }: Props) {
           )}
         </div>
 
-        <div>
-          <label className={labelClass} htmlFor="resumen">
-            Resumen (aparece en el listado y en buscadores)
-          </label>
-          <textarea
-            id="resumen"
-            name="resumen"
-            rows={2}
-            defaultValue={post?.resumen ?? undefined}
-            className={inputClass}
-          />
-        </div>
+        <CampoMetaDescripcion
+          id="resumen"
+          name="resumen"
+          label="Resumen (meta description — aparece en el listado y en buscadores)"
+          defaultValue={post?.resumen}
+        />
 
         <div>
           <label className={labelClass} htmlFor="autor">
@@ -95,8 +90,11 @@ export function BlogForm({ action, post, error }: Props) {
 
         <div>
           <label className={labelClass} htmlFor="contenido">
-            Contenido (admite Markdown: # título, **negrita**, - listas,
-            [enlace](https://...))
+            Contenido{" "}
+            <span className="text-xs text-ink-soft">
+              (cuerpo del post — Markdown: ## para H2, ### para H3,
+              **negrita**, - listas, [enlace](https://...))
+            </span>
           </label>
           <textarea
             id="contenido"

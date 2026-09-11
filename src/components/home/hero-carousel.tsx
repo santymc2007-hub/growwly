@@ -80,7 +80,7 @@ export function HeroCarousel({
             <div className="hidden lg:block">
               <Link
                 href={slide.enlace}
-                className="press mt-8 inline-block w-full max-w-md rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-5 font-display text-xl font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+                className="press mt-8 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-8 py-4 font-display text-lg font-bold uppercase tracking-wide text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
               >
                 {slide.texto_boton}
               </Link>
@@ -106,7 +106,7 @@ export function HeroCarousel({
           <div className="order-3 text-left lg:hidden">
             <Link
               href={slide.enlace}
-              className="press inline-block w-full max-w-xs rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              className="press inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-2.5 font-display text-sm font-bold uppercase tracking-wide text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
             >
               {slide.texto_boton}
             </Link>

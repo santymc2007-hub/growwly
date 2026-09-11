@@ -24,7 +24,7 @@ const SLIDE_POR_DEFECTO: HeroSlide = {
   color_fondo: "#1f5568",
   imagen_url: "/brand/hero-persona.png",
   enlace: "/analisis/nuevo",
-  texto_boton: "Subir fotos",
+  texto_boton: "Quiero mi valoración",
   activo: true,
   created_at: "",
   updated_at: "",
