@@ -82,6 +82,17 @@ body {
   color: var(--color-ink);
 }
 
+/* Tailwind quita el cursor de mano por defecto de los botones (desde
+   Preflight v3.3+) para "respetar" el comportamiento nativo del
+   navegador — pero en la práctica, si algo reacciona al clic, tiene
+   que parecer clicable. Forzamos la manita en todo lo interactivo. */
+a[href],
+button:not(:disabled),
+[role="button"],
+summary {
+  cursor: pointer;
+}
+
 /* Cualquier elemento pulsable (botones, tarjetas-enlace) — feedback
    táctil instantáneo, confirma que la interfaz "ha oído" el clic.
    Solo se activa con puntero fino (ratón), nunca en táctil, donde
