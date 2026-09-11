@@ -103,62 +103,68 @@ export default async function BlogPostPage({
       <SiteHeader />
 
       <article className="mx-auto max-w-[1600px] px-6 py-12">
-        <div className="mx-auto max-w-3xl">
-          <Link
-            href="/blog"
-            className="text-sm font-medium text-cyan hover:text-cyan-dark"
-          >
-            ← Volver al blog
-          </Link>
+        <div className="lg:flex lg:items-start lg:gap-10">
+          <div className="lg:max-w-2xl lg:flex-1">
+            <Link
+              href="/blog"
+              className="text-sm font-medium text-cyan hover:text-cyan-dark"
+            >
+              ← Volver al blog
+            </Link>
 
-          <h1 className="mt-4 font-display text-3xl text-teal-dark">
-            {post.titulo}
-          </h1>
-          <p className="mt-2 text-sm text-ink-soft">
-            {post.autor}
-            {post.publicado_en &&
-              ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
-                day: "numeric",
-                month: "long",
-                year: "numeric",
-              })}`}
-          </p>
+            <h1 className="mt-4 font-display text-3xl text-teal-dark sm:text-4xl">
+              {post.titulo}
+            </h1>
+            <p className="mt-2 text-sm text-ink-soft">
+              {post.autor}
+              {post.publicado_en &&
+                ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                })}`}
+            </p>
 
-          {post.imagen_portada && (
-            <div className="relative mt-6 aspect-video w-full overflow-hidden rounded-xl border border-line bg-sage">
-              <Image
-                src={post.imagen_portada}
-                alt={post.titulo}
-                fill
-                sizes="700px"
-                className="object-cover"
-              />
+            <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
+              <ReactMarkdown>{post.contenido}</ReactMarkdown>
             </div>
-          )}
 
-          <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-            <ReactMarkdown>{post.contenido}</ReactMarkdown>
+            {faqs.length > 0 && (
+              <section className="mt-10">
+                <h2 className="font-display text-xl text-teal-dark">
+                  Preguntas frecuentes
+                </h2>
+                <div className="mt-4 flex flex-col gap-3">
+                  {faqs.map((f, i) => (
+                    <details
+                      key={i}
+                      className="rounded-lg border border-line bg-white p-4"
+                    >
+                      <summary className="cursor-pointer font-medium text-ink">
+                        {f.pregunta}
+                      </summary>
+                      <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
-          {faqs.length > 0 && (
-            <section className="mt-10">
-              <h2 className="font-display text-xl text-teal-dark">
-                Preguntas frecuentes
-              </h2>
-              <div className="mt-4 flex flex-col gap-3">
-                {faqs.map((f, i) => (
-                  <details
-                    key={i}
-                    className="rounded-lg border border-line bg-white p-4"
-                  >
-                    <summary className="cursor-pointer font-medium text-ink">
-                      {f.pregunta}
-                    </summary>
-                    <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
-                  </details>
-                ))}
+          {post.imagen_portada && (
+            <aside className="mt-8 lg:sticky lg:top-8 lg:mt-0 lg:w-[360px] lg:shrink-0">
+              <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
+                <div className="relative aspect-[4/3] w-full bg-sage">
+                  <Image
+                    src={post.imagen_portada}
+                    alt={post.titulo}
+                    fill
+                    sizes="360px"
+                    className="object-cover"
+                  />
+                </div>
               </div>
-            </section>
+            </aside>
           )}
         </div>
       </article>
