@@ -468,6 +468,7 @@ export interface Database {
           titulo: string;
           resumen: string | null;
           contenido: string;
+          preguntas_frecuentes: Json;
           imagen_portada: string | null;
           autor: string;
           publicado: boolean;
@@ -481,6 +482,7 @@ export interface Database {
           titulo: string;
           resumen?: string | null;
           contenido?: string;
+          preguntas_frecuentes?: Json;
           imagen_portada?: string | null;
           autor?: string;
           publicado?: boolean;
@@ -494,6 +496,7 @@ export interface Database {
           titulo?: string;
           resumen?: string | null;
           contenido?: string;
+          preguntas_frecuentes?: Json;
           imagen_portada?: string | null;
           autor?: string;
           publicado?: boolean;

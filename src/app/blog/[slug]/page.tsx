@@ -57,6 +57,10 @@ export default async function BlogPostPage({
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
 
+  const faqs = Array.isArray(post.preguntas_frecuentes)
+    ? (post.preguntas_frecuentes as { pregunta: string; respuesta: string }[])
+    : [];
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -69,6 +73,19 @@ export default async function BlogPostPage({
     url: `${siteUrl}/blog/${post.slug}`,
   };
 
+  const faqJsonLd =
+    faqs.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "FAQPage",
+          mainEntity: faqs.map((f) => ({
+            "@type": "Question",
+            name: f.pregunta,
+            acceptedAnswer: { "@type": "Answer", text: f.respuesta },
+          })),
+        }
+      : null;
+
   return (
     <main className="flex-1">
       <script
@@ -76,6 +93,13 @@ export default async function BlogPostPage({
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      {faqJsonLd && (
+        <script
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+        />
+      )}
       <SiteHeader />
 
       <article className="mx-auto max-w-[1600px] px-6 py-12">
@@ -115,6 +139,27 @@ export default async function BlogPostPage({
           <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
             <ReactMarkdown>{post.contenido}</ReactMarkdown>
           </div>
+
+          {faqs.length > 0 && (
+            <section className="mt-10">
+              <h2 className="font-display text-xl text-teal-dark">
+                Preguntas frecuentes
+              </h2>
+              <div className="mt-4 flex flex-col gap-3">
+                {faqs.map((f, i) => (
+                  <details
+                    key={i}
+                    className="rounded-lg border border-line bg-white p-4"
+                  >
+                    <summary className="cursor-pointer font-medium text-ink">
+                      {f.pregunta}
+                    </summary>
+                    <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
+                  </details>
+                ))}
+              </div>
+            </section>
+          )}
         </div>
       </article>
       <SiteFooter />

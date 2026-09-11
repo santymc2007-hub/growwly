@@ -11,8 +11,13 @@ type Props = {
 const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 const labelClass = "text-sm font-medium text-ink";
+const MAX_FAQS = 6;
 
 export function BlogForm({ action, post, error }: Props) {
+  const faqs = Array.isArray(post?.preguntas_frecuentes)
+    ? (post.preguntas_frecuentes as { pregunta?: string; respuesta?: string }[])
+    : [];
+
   return (
     <form action={action} className="max-w-2xl">
       {error && (
@@ -103,6 +108,34 @@ export function BlogForm({ action, post, error }: Props) {
             defaultValue={post?.contenido ?? undefined}
             className={`${inputClass} font-mono text-xs`}
           />
+        </div>
+
+        <div>
+          <p className={labelClass}>
+            Preguntas frecuentes{" "}
+            <span className="text-xs text-ink-soft">
+              (bloque FAQ opcional — hasta {MAX_FAQS}; se marca para Google
+              como datos estructurados, ayuda a salir en resultados
+              enriquecidos)
+            </span>
+          </p>
+          {Array.from({ length: MAX_FAQS }, (_, i) => (
+            <div key={i} className="mt-2 rounded-lg border border-line bg-white p-3">
+              <input
+                name={`faq_pregunta_${i}`}
+                placeholder="Pregunta"
+                defaultValue={faqs[i]?.pregunta ?? undefined}
+                className={inputClass}
+              />
+              <textarea
+                name={`faq_respuesta_${i}`}
+                rows={2}
+                placeholder="Respuesta"
+                defaultValue={faqs[i]?.respuesta ?? undefined}
+                className={`${inputClass} mt-2`}
+              />
+            </div>
+          ))}
         </div>
 
         <label className="flex items-center gap-2 text-sm">
