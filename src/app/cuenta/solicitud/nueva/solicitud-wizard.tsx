@@ -3,8 +3,11 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearSolicitud } from "../actions";
-import { TRATAMIENTOS_INFO } from "@/lib/tratamientos-info";
-import { MUNICIPIOS_MALLORCA } from "@/lib/clinic-options";
+import { TECNICAS_POR_CATEGORIA, MUNICIPIOS_MALLORCA } from "@/lib/clinic-options";
+import {
+  PRESUPUESTO_PACIENTE_OPCIONES,
+  labelPresupuesto,
+} from "@/lib/solicitud-labels";
 import type { Profile, EstudioCapilar } from "@/lib/supabase/database.types";
 
 type Props = {
@@ -21,6 +24,16 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 const labelClass = "text-sm font-medium text-ink";
 
+const CONDICIONES_MEDICAS_INFO = [
+  { valor: "diabetes", nombre: "Diabetes" },
+  { valor: "hipertension", nombre: "Hipertensión" },
+  { valor: "problemas_cardiacos", nombre: "Problemas cardíacos" },
+  { valor: "trastornos_coagulacion", nombre: "Trastornos de coagulación" },
+  { valor: "enfermedades_autoinmunes", nombre: "Enfermedades autoinmunes" },
+  { valor: "problemas_tiroideos", nombre: "Problemas tiroideos" },
+  { valor: "depresion_ansiedad", nombre: "Depresión/Ansiedad" },
+] as const;
+
 export function SolicitudWizard({ profile, estudios }: Props) {
   const router = useRouter();
   const [paso, setPaso] = useState(1);
@@ -32,23 +45,59 @@ export function SolicitudWizard({ profile, estudios }: Props) {
     estudiosListos[0]?.id ?? null,
   );
 
+  // Paso 1: Perfil Personal
+  const [sexo, setSexo] = useState(profile?.sexo ?? "");
+  const [tipoPerdidaCabello, setTipoPerdidaCabello] = useState(
+    profile?.tipo_perdida_cabello ?? "",
+  );
+  const [ciudad, setCiudad] = useState(profile?.ciudad ?? "");
+
+  // Paso 2: Historial capilar
   const [progresionPerdida, setProgresionPerdida] = useState("");
   const [antecedentesFamiliares, setAntecedentesFamiliares] = useState("");
   const [medicacionActual, setMedicacionActual] = useState("");
 
+  // Paso 3: Tratamientos de interés
   const [tratamientosInteres, setTratamientosInteres] = useState<string[]>(
     [],
   );
   const [dejarDecidirMedico, setDejarDecidirMedico] = useState(false);
 
+  // Paso 4: Preferencias
   const [cuandoTratamiento, setCuandoTratamiento] = useState("");
   const [dondeTratamiento, setDondeTratamiento] = useState("");
-  const [ciudad, setCiudad] = useState("");
   const [presupuestoRango, setPresupuestoRango] = useState("");
+  const [prioridadDecision, setPrioridadDecision] = useState("");
 
+  // Paso 5: Salud general
+  const [alergias, setAlergias] = useState("");
+  const [condicionesMedicas, setCondicionesMedicas] = useState<string[]>([]);
+  const [cirugiasPrevias, setCirugiasPrevias] = useState("");
+  const [fumador, setFumador] = useState("");
+
+  // Paso 6: Consentimientos
   const [consentimientoDatos, setConsentimientoDatos] = useState(false);
+  const [consentimientoInfoMedica, setConsentimientoInfoMedica] =
+    useState(false);
+  const [consentimientoFotos, setConsentimientoFotos] = useState(false);
   const [consentimientoCompartir, setConsentimientoCompartir] =
     useState(false);
+  const [consentimientoTerminos, setConsentimientoTerminos] = useState(false);
+
+  const todosLosConsentimientos =
+    consentimientoDatos &&
+    consentimientoInfoMedica &&
+    consentimientoFotos &&
+    consentimientoCompartir &&
+    consentimientoTerminos;
+
+  function marcarTodosLosConsentimientos(valor: boolean) {
+    setConsentimientoDatos(valor);
+    setConsentimientoInfoMedica(valor);
+    setConsentimientoFotos(valor);
+    setConsentimientoCompartir(valor);
+    setConsentimientoTerminos(valor);
+  }
 
   function toggleTratamiento(nombre: string) {
     setTratamientosInteres((prev) =>
@@ -56,6 +105,21 @@ export function SolicitudWizard({ profile, estudios }: Props) {
         ? prev.filter((t) => t !== nombre)
         : [...prev, nombre],
     );
+  }
+
+  function toggleCondicionMedica(valor: string) {
+    if (valor === "ninguna") {
+      setCondicionesMedicas((prev) =>
+        prev.includes("ninguna") ? [] : ["ninguna"],
+      );
+      return;
+    }
+    setCondicionesMedicas((prev) => {
+      const sinNinguna = prev.filter((c) => c !== "ninguna");
+      return sinNinguna.includes(valor)
+        ? sinNinguna.filter((c) => c !== valor)
+        : [...sinNinguna, valor];
+    });
   }
 
   function siguiente() {
@@ -70,6 +134,8 @@ export function SolicitudWizard({ profile, estudios }: Props) {
     setErrorEnvio(null);
     const resultado = await crearSolicitud({
       estudioId,
+      sexo,
+      tipoPerdidaCabello,
       ciudad,
       progresionPerdida,
       antecedentesFamiliares,
@@ -79,8 +145,16 @@ export function SolicitudWizard({ profile, estudios }: Props) {
       cuandoTratamiento,
       dondeTratamiento,
       presupuestoRango,
+      prioridadDecision,
+      alergias,
+      condicionesMedicas,
+      cirugiasPrevias,
+      fumador,
       consentimientoDatos,
+      consentimientoInfoMedica,
+      consentimientoFotos,
       consentimientoCompartir,
+      consentimientoTerminos,
     });
 
     if ("error" in resultado) {
@@ -111,16 +185,70 @@ export function SolicitudWizard({ profile, estudios }: Props) {
       {paso === 1 && (
         <section>
           <h2 className="font-display text-lg text-teal-dark">
-            Tus datos de contacto
+            Perfil personal
           </h2>
           <p className="mt-1 text-sm text-ink-soft">
-            Los usaremos para que las clínicas puedan responderte. Los
-            puedes actualizar desde{" "}
-            <a href="/cuenta" className="text-cyan hover:text-cyan-dark">
-              Mi cuenta
-            </a>{" "}
-            si algo no es correcto.
+            Necesitamos estos datos para crear tu ficha médica.
           </p>
+
+          <div className="mt-4 flex flex-col gap-4">
+            <div>
+              <label className={labelClass}>Soy</label>
+              <div className="mt-1 grid grid-cols-2 gap-2">
+                {(["hombre", "mujer"] as const).map((opcion) => (
+                  <button
+                    key={opcion}
+                    type="button"
+                    onClick={() => setSexo(opcion)}
+                    className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize ${
+                      sexo === opcion
+                        ? "border-teal bg-teal/10 text-teal-dark"
+                        : "border-line bg-white text-ink hover:border-teal/40"
+                    }`}
+                  >
+                    {opcion === "hombre" ? "Hombre" : "Mujer"}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Tipo de pérdida de cabello
+              </label>
+              <select
+                value={tipoPerdidaCabello}
+                onChange={(e) => setTipoPerdidaCabello(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="entradas">Entradas</option>
+                <option value="coronilla">Coronilla</option>
+                <option value="difusa">Difusa general</option>
+                <option value="combinada">Combinada</option>
+              </select>
+            </div>
+
+            <div>
+              <label className={labelClass}>Ubicación</label>
+              <select
+                value={ciudad}
+                onChange={(e) => setCiudad(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">Selecciona un municipio</option>
+                {MUNICIPIOS_MALLORCA.map((m) => (
+                  <option key={m} value={m}>
+                    {m}
+                  </option>
+                ))}
+              </select>
+              <p className="mt-1 text-xs text-ink-soft">
+                Necesitaremos esto para ubicar tu clínica.
+              </p>
+            </div>
+          </div>
+
           <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-line bg-white p-4 text-sm">
             <div>
               <p className="text-xs text-ink-soft">Nombre</p>
@@ -141,6 +269,14 @@ export function SolicitudWizard({ profile, estudios }: Props) {
               <p className="text-ink">{profile?.email}</p>
             </div>
           </div>
+          <p className="mt-2 text-xs text-ink-soft">
+            Los usaremos para que las clínicas puedan responderte. Los
+            puedes actualizar desde{" "}
+            <a href="/cuenta" className="text-cyan hover:text-cyan-dark">
+              Mi cuenta
+            </a>{" "}
+            si algo no es correcto.
+          </p>
 
           {estudiosListos.length > 0 && (
             <div className="mt-4">
@@ -163,6 +299,21 @@ export function SolicitudWizard({ profile, estudios }: Props) {
               </select>
             </div>
           )}
+          {estudiosListos.length === 0 && (
+            <div className="mt-4 rounded-lg border border-dashed border-line bg-white p-4 text-sm">
+              <p className="text-ink-soft">
+                Todavía no tienes fotos subidas. Puedes continuar sin
+                ellas, pero ayudan mucho a que las clínicas valoren tu
+                caso.
+              </p>
+              <a
+                href="/analisis/nuevo"
+                className="mt-2 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
+              >
+                Subir fotos ahora →
+              </a>
+            </div>
+          )}
         </section>
       )}
 
@@ -182,9 +333,10 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                 className={inputClass}
               >
                 <option value="">Selecciona una opción</option>
-                <option value="lenta">Lenta</option>
-                <option value="moderada">Moderada</option>
-                <option value="rapida">Rápida</option>
+                <option value="lenta">Lenta (años)</option>
+                <option value="moderada">Moderada (meses)</option>
+                <option value="rapida">Rápida (semanas)</option>
+                <option value="estable">Estable</option>
               </select>
             </div>
             <div>
@@ -195,7 +347,7 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                 value={antecedentesFamiliares}
                 onChange={(e) => setAntecedentesFamiliares(e.target.value)}
                 rows={2}
-                placeholder="Ej. mi padre y mi abuelo materno"
+                placeholder="Ej. mi abuelo era calvo, mi padre tiene el pelo fino y canoso"
                 className={inputClass}
               />
             </div>
@@ -220,51 +372,133 @@ export function SolicitudWizard({ profile, estudios }: Props) {
           <h2 className="font-display text-lg text-teal-dark">
             Tratamientos que te interesan
           </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Puedes elegir varios, o dejar que la clínica te recomiende.
-          </p>
-          <div className="mt-4 flex flex-col gap-2">
-            {TRATAMIENTOS_INFO.map((t) => (
-              <label
-                key={t.nombre}
-                title={t.descripcion}
-                className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm hover:border-teal/40"
-              >
-                <input
-                  type="checkbox"
-                  checked={tratamientosInteres.includes(t.nombre)}
-                  onChange={() => toggleTratamiento(t.nombre)}
-                  className="mt-0.5"
-                />
-                <span>
-                  <span className="font-medium text-ink">{t.nombre}</span>
-                  <span className="block text-xs text-ink-soft">
-                    {t.descripcion}
-                  </span>
-                </span>
-              </label>
-            ))}
-          </div>
+
           <label className="mt-3 flex items-center gap-2 rounded-lg bg-sage px-3 py-2.5 text-sm font-medium text-sage-ink">
             <input
               type="checkbox"
               checked={dejarDecidirMedico}
               onChange={(e) => setDejarDecidirMedico(e.target.checked)}
             />
-            Dejo que el médico decida la mejor técnica para mi caso
+            Me dejo asesorar — que el médico decida la mejor opción para
+            mi caso
           </label>
+
+          {!dejarDecidirMedico && (
+            <>
+              <p className="mt-4 text-sm text-ink-soft">
+                O elige tú directamente los que te interesan:
+              </p>
+              <div className="mt-2 flex flex-col gap-4">
+                {Object.entries(TECNICAS_POR_CATEGORIA).map(
+                  ([categoria, tecnicas]) => (
+                    <div key={categoria}>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
+                        {categoria}
+                      </p>
+                      <div className="mt-2 flex flex-col gap-2">
+                        {tecnicas.map((t) => (
+                          <label
+                            key={t}
+                            className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm hover:border-teal/40"
+                          >
+                            <input
+                              type="checkbox"
+                              checked={tratamientosInteres.includes(t)}
+                              onChange={() => toggleTratamiento(t)}
+                              className="mt-0.5"
+                            />
+                            <span className="font-medium text-ink">
+                              {t}
+                            </span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+                  ),
+                )}
+              </div>
+            </>
+          )}
         </section>
       )}
 
       {paso === 4 && (
         <section>
           <h2 className="font-display text-lg text-teal-dark">
-            Tiempo, lugar y presupuesto
+            Preferencias
           </h2>
+          <p className="mt-1 text-sm text-ink-soft">
+            Presupuesto, ubicación y cuándo.
+          </p>
           <div className="mt-4 flex flex-col gap-4">
             <div>
+              <label className={labelClass}>Rango de presupuesto</label>
+              <select
+                value={presupuestoRango}
+                onChange={(e) => setPresupuestoRango(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">Selecciona una opción</option>
+                {PRESUPUESTO_PACIENTE_OPCIONES.map((valor) => (
+                  <option key={valor} value={valor}>
+                    Hasta {labelPresupuesto(valor)}
+                  </option>
+                ))}
+                <option value="flexible">Flexible</option>
+              </select>
+            </div>
+
+            <div>
               <label className={labelClass}>
-                ¿Cuándo planeas el tratamiento?
+                A la hora de decidir, ¿qué es lo MÁS importante para ti?
+              </label>
+              <select
+                value={prioridadDecision}
+                onChange={(e) => setPrioridadDecision(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="reputacion_cirujano">
+                  La reputación y experiencia del cirujano
+                </option>
+                <option value="resenas_fotos">
+                  Las reseñas y fotos de otros pacientes
+                </option>
+                <option value="tecnologia">
+                  La tecnología que utiliza la clínica
+                </option>
+                <option value="precio">El precio final</option>
+              </select>
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Ubicación preferida para la cirugía
+              </label>
+              <select
+                value={dondeTratamiento}
+                onChange={(e) => setDondeTratamiento(e.target.value)}
+                className={inputClass}
+              >
+                <option value="">Selecciona una opción</option>
+                <option value="ciudad">En mi ciudad o cerca de mí</option>
+                <option value="provincia">
+                  En mi provincia — Solo en mi provincia
+                </option>
+                <option value="comunidad">
+                  En mi Comunidad Autónoma — Estoy abierto/a a moverme por
+                  mi Comunidad Autónoma
+                </option>
+                <option value="sin_preferencia">
+                  Sin preferencia — Me desplazaría a cualquier parte de
+                  España por la clínica adecuada
+                </option>
+              </select>
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Tiempo disponible para la cirugía
               </label>
               <select
                 value={cuandoTratamiento}
@@ -272,59 +506,19 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                 className={inputClass}
               >
                 <option value="">Selecciona una opción</option>
-                <option value="inmediatamente">Inmediatamente</option>
-                <option value="3_meses">En los próximos 3 meses</option>
-                <option value="este_anio">
-                  Lo estoy pensando — este año
+                <option value="lo_antes_posible">Lo antes posible</option>
+                <option value="1_3_meses">
+                  1 a 3 meses — Es urgente, ya estoy convencido/a
                 </option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>¿En qué ciudad estás?</label>
-              <select
-                value={ciudad}
-                onChange={(e) => setCiudad(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona un municipio</option>
-                {MUNICIPIOS_MALLORCA.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
-              <p className="mt-1 text-xs text-ink-soft">
-                Nos ayuda a avisar a las clínicas correctas.
-              </p>
-            </div>
-            <div>
-              <label className={labelClass}>¿Dónde te lo realizarías?</label>
-              <select
-                value={dondeTratamiento}
-                onChange={(e) => setDondeTratamiento(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="solo_ciudad">
-                  Solo en mi ciudad/provincia
+                <option value="3_6_meses">
+                  3 a 6 meses — Estoy convencido/a, sin prisa
                 </option>
-                <option value="abierto_viajar">
-                  Estoy abierto/a a viajar por una buena oferta
+                <option value="6_12_meses">
+                  6 a 12 meses — No estoy convencido/a
                 </option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>Presupuesto aproximado</label>
-              <select
-                value={presupuestoRango}
-                onChange={(e) => setPresupuestoRango(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="menos_3000">Menos de 3.000€</option>
-                <option value="3000_5000">3.000€ - 5.000€</option>
-                <option value="5000_7000">5.000€ - 7.000€</option>
-                <option value="mas_7000">Más de 7.000€</option>
+                <option value="flexible">
+                  Flexible — Solo estoy explorando opciones
+                </option>
               </select>
             </div>
           </div>
@@ -334,39 +528,103 @@ export function SolicitudWizard({ profile, estudios }: Props) {
       {paso === 5 && (
         <section>
           <h2 className="font-display text-lg text-teal-dark">
-            Fotografías
+            Salud general
           </h2>
-          {estudiosListos.length > 0 ? (
-            <div className="mt-4 rounded-lg border border-line bg-white p-4 text-sm">
-              <p className="text-ink">
-                Usaremos las fotos de tu análisis
-                {estudioId ? " ya vinculado" : ""}. Puedes cambiarlo en el
-                paso 1.
-              </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            Esta información ayuda a la clínica a valorar tu caso con
+            seguridad.
+          </p>
+          <div className="mt-4 flex flex-col gap-4">
+            <div>
+              <label className={labelClass}>Alergias conocidas</label>
+              <textarea
+                value={alergias}
+                onChange={(e) => setAlergias(e.target.value)}
+                rows={2}
+                placeholder="Lista cualquier alergia a medicamentos, anestesia, etc."
+                className={inputClass}
+              />
             </div>
-          ) : (
-            <div className="mt-4 rounded-lg border border-dashed border-line bg-white p-4 text-sm">
-              <p className="text-ink-soft">
-                Todavía no tienes fotos subidas. Puedes continuar sin ellas,
-                pero ayudan mucho a que las clínicas valoren tu caso.
-              </p>
-              <a
-                href="/analisis/nuevo"
-                className="mt-2 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
+
+            <div>
+              <label className={labelClass}>
+                Condiciones médicas (selecciona todas las que apliquen)
+              </label>
+              <div className="mt-2 flex flex-col gap-2">
+                {CONDICIONES_MEDICAS_INFO.map((c) => (
+                  <label
+                    key={c.valor}
+                    className="flex items-center gap-2 rounded-lg border border-line bg-white p-2.5 text-sm hover:border-teal/40"
+                  >
+                    <input
+                      type="checkbox"
+                      checked={condicionesMedicas.includes(c.valor)}
+                      onChange={() => toggleCondicionMedica(c.valor)}
+                    />
+                    {c.nombre}
+                  </label>
+                ))}
+                <label className="flex items-center gap-2 rounded-lg border border-line bg-white p-2.5 text-sm font-medium hover:border-teal/40">
+                  <input
+                    type="checkbox"
+                    checked={condicionesMedicas.includes("ninguna")}
+                    onChange={() => toggleCondicionMedica("ninguna")}
+                  />
+                  Ninguna
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label className={labelClass}>Cirugías previas</label>
+              <textarea
+                value={cirugiasPrevias}
+                onChange={(e) => setCirugiasPrevias(e.target.value)}
+                rows={2}
+                placeholder="Describe cualquier cirugía previa relevante"
+                className={inputClass}
+              />
+            </div>
+
+            <div>
+              <label className={labelClass}>¿Fumas actualmente?</label>
+              <select
+                value={fumador}
+                onChange={(e) => setFumador(e.target.value)}
+                className={inputClass}
               >
-                Subir fotos ahora →
-              </a>
+                <option value="">Selecciona una opción</option>
+                <option value="no_fumo">No fumo</option>
+                <option value="ocasional">Ocasionalmente</option>
+                <option value="regular">Regularmente</option>
+              </select>
             </div>
-          )}
+          </div>
         </section>
       )}
 
       {paso === 6 && (
         <section>
           <h2 className="font-display text-lg text-teal-dark">
-            Últimos consentimientos
+            Términos y condiciones
           </h2>
-          <div className="mt-4 flex flex-col gap-3">
+          <p className="mt-1 text-sm text-ink-soft">
+            Por favor, lee y acepta los siguientes términos para
+            continuar.
+          </p>
+
+          <label className="mt-3 flex items-center gap-2 rounded-lg bg-sage px-3 py-2.5 text-sm font-medium text-sage-ink">
+            <input
+              type="checkbox"
+              checked={todosLosConsentimientos}
+              onChange={(e) =>
+                marcarTodosLosConsentimientos(e.target.checked)
+              }
+            />
+            Aceptar todo
+          </label>
+
+          <div className="mt-3 flex flex-col gap-3">
             <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
               <input
                 type="checkbox"
@@ -375,8 +633,43 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                 className="mt-0.5"
                 required
               />
-              Doy mi consentimiento para que Growwly trate mis datos
-              personales con el fin de gestionar esta solicitud.
+              <span>
+                <span className="font-medium">
+                  Política de privacidad
+                </span>{" "}
+                — Acepto el tratamiento de mis datos personales según la
+                política de privacidad.
+              </span>
+            </label>
+            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
+              <input
+                type="checkbox"
+                checked={consentimientoInfoMedica}
+                onChange={(e) =>
+                  setConsentimientoInfoMedica(e.target.checked)
+                }
+                className="mt-0.5"
+                required
+              />
+              <span>
+                <span className="font-medium">Información médica</span> —
+                Confirmo que la información médica proporcionada es
+                veraz y completa.
+              </span>
+            </label>
+            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
+              <input
+                type="checkbox"
+                checked={consentimientoFotos}
+                onChange={(e) => setConsentimientoFotos(e.target.checked)}
+                className="mt-0.5"
+                required
+              />
+              <span>
+                <span className="font-medium">Uso de fotografías</span> —
+                Autorizo el uso de mis fotografías únicamente para
+                evaluación médica.
+              </span>
             </label>
             <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
               <input
@@ -388,9 +681,27 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                 className="mt-0.5"
                 required
               />
-              Autorizo a compartir esta solicitud con las clínicas
-              suscritas a Growwly, únicamente para que puedan enviarme una
-              valoración u oferta comercial.
+              <span>
+                <span className="font-medium">Comunicaciones</span> —
+                Acepto recibir comunicaciones de clínicas
+                especializadas.
+              </span>
+            </label>
+            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
+              <input
+                type="checkbox"
+                checked={consentimientoTerminos}
+                onChange={(e) =>
+                  setConsentimientoTerminos(e.target.checked)
+                }
+                className="mt-0.5"
+                required
+              />
+              <span>
+                <span className="font-medium">Términos de servicio</span>{" "}
+                — He leído y acepto los términos y condiciones del
+                servicio.
+              </span>
             </label>
           </div>
 
@@ -424,9 +735,7 @@ export function SolicitudWizard({ profile, estudios }: Props) {
           <button
             type="button"
             onClick={enviar}
-            disabled={
-              enviando || !consentimientoDatos || !consentimientoCompartir
-            }
+            disabled={enviando || !todosLosConsentimientos}
             className="rounded-lg bg-cyan px-5 py-2.5 text-sm font-medium text-white hover:bg-cyan-dark disabled:opacity-50"
           >
             {enviando ? "Enviando…" : "Enviar solicitud"}

@@ -7,6 +7,8 @@ import { notificarClinicasDeSolicitud } from "@/lib/leads/notificar-clinicas";
 
 export type DatosSolicitud = {
   estudioId: string | null;
+  sexo: string;
+  tipoPerdidaCabello: string;
   ciudad: string;
   progresionPerdida: string;
   antecedentesFamiliares: string;
@@ -16,8 +18,16 @@ export type DatosSolicitud = {
   cuandoTratamiento: string;
   dondeTratamiento: string;
   presupuestoRango: string;
+  prioridadDecision: string;
+  alergias: string;
+  condicionesMedicas: string[];
+  cirugiasPrevias: string;
+  fumador: string;
   consentimientoDatos: boolean;
+  consentimientoInfoMedica: boolean;
+  consentimientoFotos: boolean;
   consentimientoCompartir: boolean;
+  consentimientoTerminos: boolean;
 };
 
 export async function crearSolicitud(
@@ -32,11 +42,31 @@ export async function crearSolicitud(
     return { error: "Tienes que iniciar sesión de nuevo." };
   }
 
-  if (!datos.consentimientoDatos || !datos.consentimientoCompartir) {
-    return { error: "Hacen falta los dos consentimientos para continuar." };
+  if (
+    !datos.consentimientoDatos ||
+    !datos.consentimientoInfoMedica ||
+    !datos.consentimientoFotos ||
+    !datos.consentimientoCompartir ||
+    !datos.consentimientoTerminos
+  ) {
+    return { error: "Hacen falta los 5 consentimientos para continuar." };
   }
 
   const ahora = new Date().toISOString();
+
+  // Sexo y tipo de pérdida de cabello son datos del perfil (no cambian
+  // entre solicitudes), igual que nombre/apellidos/edad.
+  if (datos.sexo || datos.tipoPerdidaCabello) {
+    await supabase
+      .from("profiles")
+      .update({
+        ...(datos.sexo ? { sexo: datos.sexo } : {}),
+        ...(datos.tipoPerdidaCabello
+          ? { tipo_perdida_cabello: datos.tipoPerdidaCabello }
+          : {}),
+      })
+      .eq("id", user.id);
+  }
 
   const { data: solicitud, error } = await supabase
     .from("solicitudes_presupuesto")
@@ -52,8 +82,16 @@ export async function crearSolicitud(
       cuando_tratamiento: datos.cuandoTratamiento || null,
       donde_tratamiento: datos.dondeTratamiento || null,
       presupuesto_rango: datos.presupuestoRango || null,
+      prioridad_decision: datos.prioridadDecision || null,
+      alergias: datos.alergias || null,
+      condiciones_medicas: datos.condicionesMedicas,
+      cirugias_previas: datos.cirugiasPrevias || null,
+      fumador: datos.fumador || null,
       consentimiento_datos_en: ahora,
+      consentimiento_info_medica_en: ahora,
+      consentimiento_fotos_en: ahora,
       consentimiento_compartir_en: ahora,
+      consentimiento_terminos_en: ahora,
       estado: "pendiente",
     })
     .select()

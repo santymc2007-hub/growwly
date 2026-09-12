@@ -1,23 +1,11 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
-
-const PROGRESION_LABEL: Record<string, string> = {
-  lenta: "Lenta",
-  moderada: "Moderada",
-  rapida: "Rápida",
-};
-const CUANDO_LABEL: Record<string, string> = {
-  inmediatamente: "Inmediatamente",
-  "3_meses": "En los próximos 3 meses",
-  este_anio: "Este año, sin prisa",
-};
-const PRESUPUESTO_LABEL: Record<string, string> = {
-  menos_3000: "Menos de 3.000€",
-  "3000_5000": "3.000€ - 5.000€",
-  "5000_7000": "5.000€ - 7.000€",
-  mas_7000: "Más de 7.000€",
-};
+import {
+  PROGRESION_LABEL,
+  CUANDO_LABEL,
+  labelPresupuesto,
+} from "@/lib/solicitud-labels";
 
 /**
  * Busca las clínicas que encajan con una solicitud (ciudad + técnicas de
@@ -57,7 +45,13 @@ export async function notificarClinicasDeSolicitud(
     .select("id, nombre, email, ciudad, tecnicas")
     .not("email", "is", null);
 
-  if (solicitud.donde_tratamiento === "solo_ciudad" && solicitud.ciudad) {
+  // "ciudad" filtra estrictamente por su municipio. "provincia" /
+  // "comunidad" / "sin_preferencia" de momento no filtran por ubicación:
+  // todas las clínicas están en Mallorca (misma provincia y comunidad),
+  // así que no hay diferencia real todavía. Cuando haya clínicas en más
+  // provincias, aquí se puede cruzar por provincia/comunidad usando la
+  // tabla `municipios`.
+  if (solicitud.donde_tratamiento === "ciudad" && solicitud.ciudad) {
     query = query.ilike("ciudad", solicitud.ciudad.trim());
   }
 
@@ -97,7 +91,7 @@ export async function notificarClinicasDeSolicitud(
         ? CUANDO_LABEL[solicitud.cuando_tratamiento]
         : null,
       presupuesto: solicitud.presupuesto_rango
-        ? PRESUPUESTO_LABEL[solicitud.presupuesto_rango]
+        ? labelPresupuesto(solicitud.presupuesto_rango)
         : null,
       progresion: solicitud.progresion_perdida
         ? PROGRESION_LABEL[solicitud.progresion_perdida]

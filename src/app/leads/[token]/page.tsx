@@ -3,25 +3,20 @@ import Image from "next/image";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { DesbloquearButton } from "./desbloquear-button";
+import {
+  PROGRESION_LABEL,
+  CUANDO_LABEL,
+  DONDE_LABEL,
+  PRIORIDAD_LABEL,
+  FUMADOR_LABEL,
+  CONDICIONES_MEDICAS_LABEL,
+  SEXO_LABEL,
+  TIPO_PERDIDA_LABEL,
+  labelPresupuesto,
+  etiqueta,
+} from "@/lib/solicitud-labels";
 
 type Params = { token: string };
-
-const PROGRESION: Record<string, string> = {
-  lenta: "Lenta",
-  moderada: "Moderada",
-  rapida: "Rápida",
-};
-const CUANDO: Record<string, string> = {
-  inmediatamente: "Inmediatamente",
-  "3_meses": "En los próximos 3 meses",
-  este_anio: "Este año, sin prisa",
-};
-const PRESUPUESTO: Record<string, string> = {
-  menos_3000: "Menos de 3.000€",
-  "3000_5000": "3.000€ - 5.000€",
-  "5000_7000": "5.000€ - 7.000€",
-  mas_7000: "Más de 7.000€",
-};
 
 export default async function LeadPage({
   params,
@@ -82,6 +77,14 @@ export default async function LeadPage({
     }
   }
 
+  // Sexo y tipo de pérdida de cabello no identifican al paciente, así
+  // que se muestran ya en la vista anonimizada (antes de desbloquear).
+  const { data: perfilMedico } = await supabase
+    .from("profiles")
+    .select("sexo, tipo_perdida_cabello")
+    .eq("id", solicitud.user_id)
+    .maybeSingle();
+
   let paciente: {
     nombre: string | null;
     apellidos: string | null;
@@ -132,6 +135,15 @@ export default async function LeadPage({
         </p>
 
         <dl className="mt-6 divide-y divide-line rounded-xl border border-line bg-white text-sm">
+          {perfilMedico?.sexo && (
+            <Row label="Sexo" value={etiqueta(SEXO_LABEL, perfilMedico.sexo)!} />
+          )}
+          {perfilMedico?.tipo_perdida_cabello && (
+            <Row
+              label="Tipo de pérdida de cabello"
+              value={etiqueta(TIPO_PERDIDA_LABEL, perfilMedico.tipo_perdida_cabello)!}
+            />
+          )}
           {solicitud.ciudad && <Row label="Ciudad" value={solicitud.ciudad} />}
           {solicitud.tratamientos_interes.length > 0 && (
             <Row
@@ -148,26 +160,49 @@ export default async function LeadPage({
           {solicitud.progresion_perdida && (
             <Row
               label="Progresión de la pérdida"
-              value={
-                PROGRESION[solicitud.progresion_perdida] ??
-                solicitud.progresion_perdida
-              }
+              value={etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida)!}
             />
           )}
           {solicitud.cuando_tratamiento && (
             <Row
               label="Cuándo"
-              value={CUANDO[solicitud.cuando_tratamiento] ?? solicitud.cuando_tratamiento}
+              value={etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento)!}
+            />
+          )}
+          {solicitud.donde_tratamiento && (
+            <Row
+              label="Dónde"
+              value={etiqueta(DONDE_LABEL, solicitud.donde_tratamiento)!}
             />
           )}
           {solicitud.presupuesto_rango && (
             <Row
               label="Presupuesto aproximado"
-              value={
-                PRESUPUESTO[solicitud.presupuesto_rango] ??
-                solicitud.presupuesto_rango
-              }
+              value={labelPresupuesto(solicitud.presupuesto_rango)}
             />
+          )}
+          {solicitud.prioridad_decision && (
+            <Row
+              label="Lo más importante para el paciente"
+              value={etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision)!}
+            />
+          )}
+          {solicitud.alergias && (
+            <Row label="Alergias" value={solicitud.alergias} />
+          )}
+          {solicitud.condiciones_medicas.length > 0 && (
+            <Row
+              label="Condiciones médicas"
+              value={solicitud.condiciones_medicas
+                .map((c) => CONDICIONES_MEDICAS_LABEL[c] ?? c)
+                .join(", ")}
+            />
+          )}
+          {solicitud.cirugias_previas && (
+            <Row label="Cirugías previas" value={solicitud.cirugias_previas} />
+          )}
+          {solicitud.fumador && (
+            <Row label="Fumador" value={etiqueta(FUMADOR_LABEL, solicitud.fumador)!} />
           )}
         </dl>
 
