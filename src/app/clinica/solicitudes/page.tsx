@@ -4,6 +4,7 @@ import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
+import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
 
 const ESTADO_LABEL: Record<string, string> = {
   enviado: "Nuevo",
@@ -20,6 +21,8 @@ export default async function SolicitudesClinicaPage() {
     .select("*")
     .eq("clinic_id", clinicId)
     .order("enviado_en", { ascending: false });
+  const solicitudesPendientes =
+    leads?.filter((l) => l.estado === "enviado").length ?? 0;
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
@@ -28,7 +31,7 @@ export default async function SolicitudesClinicaPage() {
         <SelectorClinica clinicas={clinicas} clinicaActivaId={clinicId} />
 
         <div className="mt-0">
-          <ClinicaNav activo="solicitudes" />
+          <ClinicaNav activo="solicitudes" solicitudesPendientes={solicitudesPendientes} />
         </div>
 
         <h2 className="font-display text-lg text-teal-dark">
