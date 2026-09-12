@@ -50,6 +50,7 @@ export default async function LeadPage({
   }
 
   let resumenIA: string | null = null;
+  let hayFotos = false;
   let fotoUrls: string[] = [];
   if (solicitud.estudio_id) {
     const { data: estudio } = await supabase
@@ -61,10 +62,6 @@ export default async function LeadPage({
       .maybeSingle();
     resumenIA = estudio?.resultado_texto ?? null;
 
-    // Las fotos y la valoración de la IA son, junto al estadio y el
-    // presupuesto, la información que decide si a la clínica le
-    // interesa desbloquear el lead — se muestran ya, sin esperar al
-    // desbloqueo.
     if (estudio) {
       const rutas = [
         estudio.foto_frontal,
@@ -74,10 +71,18 @@ export default async function LeadPage({
         estudio.foto_perfil_izquierdo,
         ...estudio.fotos_adicionales,
       ].filter((r): r is string => Boolean(r));
-      const urls = await Promise.all(
-        rutas.map((r) => urlFirmadaFoto(supabase, r)),
-      );
-      fotoUrls = urls.filter((u): u is string => Boolean(u));
+      hayFotos = rutas.length > 0;
+
+      // Las fotos originales, en limpio, solo se generan (y se
+      // mandan al navegador) una vez desbloqueado. Antes de eso solo
+      // se ve la portada desenfocada vía /api/leads/[token]/foto-borrosa,
+      // que hace el desenfoque en el servidor sobre los bytes reales.
+      if (lead.estado === "desbloqueado") {
+        const urls = await Promise.all(
+          rutas.map((r) => urlFirmadaFoto(supabase, r)),
+        );
+        fotoUrls = urls.filter((u): u is string => Boolean(u));
+      }
     }
   }
 
@@ -179,7 +184,24 @@ export default async function LeadPage({
           </div>
         )}
 
-        {fotoUrls.length > 0 && (
+        {lead.estado !== "desbloqueado" && hayFotos && (
+          <div className="mt-4">
+            <div className="relative inline-block aspect-square w-40 overflow-hidden rounded-lg border border-line bg-white">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/api/leads/${token}/foto-borrosa`}
+                alt="Foto del paciente (desenfocada)"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <p className="mt-1 text-xs text-ink-soft">
+              Foto de muestra — se ve nítida, junto al resto, al
+              desbloquear el perfil.
+            </p>
+          </div>
+        )}
+
+        {lead.estado === "desbloqueado" && fotoUrls.length > 0 && (
           <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
             {fotoUrls.map((url) => (
               <div
