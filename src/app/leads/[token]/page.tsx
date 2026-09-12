@@ -11,7 +11,7 @@ import {
   FUMADOR_LABEL,
   CONDICIONES_MEDICAS_LABEL,
   SEXO_LABEL,
-  TIPO_PERDIDA_LABEL,
+  labelTipoPerdida,
   labelPresupuesto,
   etiqueta,
 } from "@/lib/solicitud-labels";
@@ -141,7 +141,10 @@ export default async function LeadPage({
           {perfilMedico?.tipo_perdida_cabello && (
             <Row
               label="Tipo de pérdida de cabello"
-              value={etiqueta(TIPO_PERDIDA_LABEL, perfilMedico.tipo_perdida_cabello)!}
+              value={labelTipoPerdida(
+                perfilMedico.sexo,
+                perfilMedico.tipo_perdida_cabello,
+              )!}
             />
           )}
           {solicitud.ciudad && <Row label="Ciudad" value={solicitud.ciudad} />}

@@ -8,12 +8,97 @@ export const SEXO_LABEL: Record<string, string> = {
   mujer: "Mujer",
 };
 
-export const TIPO_PERDIDA_LABEL: Record<string, string> = {
-  entradas: "Entradas",
-  coronilla: "Coronilla",
-  difusa: "Difusa general",
-  combinada: "Combinada",
-};
+/**
+ * Escala Norwood-Hamilton (patrón masculino). Cada entrada lleva una
+ * descripción corta para que el paciente se autoidentifique sin tener
+ * que conocer la escala clínica de antemano.
+ */
+export const NORWOOD_OPCIONES: { valor: string; nombre: string; descripcion: string }[] = [
+  {
+    valor: "norwood_2",
+    nombre: "Grado II",
+    descripcion: "Entradas iniciales en las sienes, forma de M o de pico de viuda leve",
+  },
+  {
+    valor: "norwood_3",
+    nombre: "Grado III",
+    descripcion: "Entradas ya marcadas y profundas — el primer grado clínicamente significativo",
+  },
+  {
+    valor: "norwood_3v",
+    nombre: "Grado III vertex",
+    descripcion: "Entradas marcadas, más una zona de pérdida ya visible en la coronilla",
+  },
+  {
+    valor: "norwood_4",
+    nombre: "Grado IV",
+    descripcion: "Entradas y coronilla más extensas, separadas todavía por una franja de pelo",
+  },
+  {
+    valor: "norwood_5",
+    nombre: "Grado V",
+    descripcion: "La franja que separa entradas y coronilla es ya estrecha y rala",
+  },
+  {
+    valor: "norwood_6",
+    nombre: "Grado VI",
+    descripcion: "Entradas y coronilla ya conectadas, sin franja de separación",
+  },
+  {
+    valor: "norwood_7",
+    nombre: "Grado VII",
+    descripcion: "Pérdida más avanzada — solo queda una franja de pelo lateral y trasera",
+  },
+  {
+    valor: "no_seguro",
+    nombre: "No estoy seguro",
+    descripcion: "Prefiero que lo valoren a partir de mis fotos",
+  },
+];
+
+/**
+ * Escala de Ludwig (patrón femenino): adelgazamiento difuso de la
+ * coronilla con la línea frontal generalmente conservada.
+ */
+export const LUDWIG_OPCIONES: { valor: string; nombre: string; descripcion: string }[] = [
+  {
+    valor: "ludwig_1",
+    nombre: "Grado I",
+    descripcion: "Adelgazamiento leve, la raya del pelo se ve algo más ancha de lo habitual",
+  },
+  {
+    valor: "ludwig_2",
+    nombre: "Grado II",
+    descripcion: "Adelgazamiento moderado, se nota más cuero cabelludo en la parte alta",
+  },
+  {
+    valor: "ludwig_3",
+    nombre: "Grado III",
+    descripcion: "Adelgazamiento severo, la coronilla se ve casi transparente",
+  },
+  {
+    valor: "no_segura",
+    nombre: "No estoy segura",
+    descripcion: "Prefiero que lo valoren a partir de mis fotos",
+  },
+];
+
+const NORWOOD_LABEL: Record<string, string> = Object.fromEntries(
+  NORWOOD_OPCIONES.map((o) => [o.valor, o.nombre]),
+);
+const LUDWIG_LABEL: Record<string, string> = Object.fromEntries(
+  LUDWIG_OPCIONES.map((o) => [o.valor, o.nombre]),
+);
+
+/** Etiqueta de "tipo de pérdida de cabello" según la escala que le toque por sexo. */
+export function labelTipoPerdida(
+  sexo: string | null,
+  valor: string | null,
+): string | null {
+  if (!valor) return null;
+  if (sexo === "mujer") return LUDWIG_LABEL[valor] ?? valor;
+  return NORWOOD_LABEL[valor] ?? valor;
+}
 
 export const PROGRESION_LABEL: Record<string, string> = {
   lenta: "Lenta (años)",

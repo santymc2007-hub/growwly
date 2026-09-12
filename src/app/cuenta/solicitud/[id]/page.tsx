@@ -10,6 +10,8 @@ import {
   PRIORIDAD_LABEL,
   FUMADOR_LABEL,
   CONDICIONES_MEDICAS_LABEL,
+  SEXO_LABEL,
+  labelTipoPerdida,
   labelPresupuesto,
   etiqueta,
 } from "@/lib/solicitud-labels";
@@ -32,12 +34,19 @@ export default async function SolicitudDetallePage({
     redirect("/cuenta/login");
   }
 
-  const { data: solicitud } = await supabase
-    .from("solicitudes_presupuesto")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [{ data: solicitud }, { data: profile }] = await Promise.all([
+    supabase
+      .from("solicitudes_presupuesto")
+      .select("*")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase
+      .from("profiles")
+      .select("sexo, tipo_perdida_cabello")
+      .eq("id", user.id)
+      .maybeSingle(),
+  ]);
 
   if (!solicitud) {
     notFound();
@@ -83,6 +92,15 @@ export default async function SolicitudDetallePage({
         </div>
 
         <dl className="mt-4 divide-y divide-line rounded-xl border border-line bg-white text-sm">
+          {profile?.sexo && (
+            <Row label="Sexo" value={etiqueta(SEXO_LABEL, profile.sexo)!} />
+          )}
+          {profile?.tipo_perdida_cabello && (
+            <Row
+              label="Tipo de pérdida de cabello"
+              value={labelTipoPerdida(profile.sexo, profile.tipo_perdida_cabello)!}
+            />
+          )}
           {solicitud.ciudad && <Row label="Ciudad" value={solicitud.ciudad} />}
           {solicitud.progresion_perdida && (
             <Row

@@ -3,10 +3,12 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { crearSolicitud } from "../actions";
-import { TECNICAS_POR_CATEGORIA, MUNICIPIOS_MALLORCA } from "@/lib/clinic-options";
+import { TECNICAS_POR_CATEGORIA } from "@/lib/clinic-options";
 import {
   PRESUPUESTO_PACIENTE_OPCIONES,
   labelPresupuesto,
+  NORWOOD_OPCIONES,
+  LUDWIG_OPCIONES,
 } from "@/lib/solicitud-labels";
 import type { Profile, EstudioCapilar } from "@/lib/supabase/database.types";
 
@@ -16,6 +18,7 @@ type Props = {
     EstudioCapilar,
     "id" | "created_at" | "norwood_estimado" | "estado"
   >[];
+  ciudadesConClinicas: string[];
 };
 
 const TOTAL_PASOS = 6;
@@ -34,7 +37,11 @@ const CONDICIONES_MEDICAS_INFO = [
   { valor: "depresion_ansiedad", nombre: "Depresión/Ansiedad" },
 ] as const;
 
-export function SolicitudWizard({ profile, estudios }: Props) {
+export function SolicitudWizard({
+  profile,
+  estudios,
+  ciudadesConClinicas,
+}: Props) {
   const router = useRouter();
   const [paso, setPaso] = useState(1);
   const [enviando, setEnviando] = useState(false);
@@ -199,7 +206,13 @@ export function SolicitudWizard({ profile, estudios }: Props) {
                   <button
                     key={opcion}
                     type="button"
-                    onClick={() => setSexo(opcion)}
+                    onClick={() => {
+                      setSexo(opcion);
+                      // Las escalas de hombre y mujer usan valores
+                      // distintos (norwood_* vs ludwig_*): si cambia el
+                      // sexo, el valor anterior ya no encaja.
+                      setTipoPerdidaCabello("");
+                    }}
                     className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize ${
                       sexo === opcion
                         ? "border-teal bg-teal/10 text-teal-dark"
@@ -216,33 +229,54 @@ export function SolicitudWizard({ profile, estudios }: Props) {
               <label className={labelClass}>
                 Tipo de pérdida de cabello
               </label>
-              <select
-                value={tipoPerdidaCabello}
-                onChange={(e) => setTipoPerdidaCabello(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="entradas">Entradas</option>
-                <option value="coronilla">Coronilla</option>
-                <option value="difusa">Difusa general</option>
-                <option value="combinada">Combinada</option>
-              </select>
+              {!sexo && (
+                <p className="mt-1 rounded-lg border border-dashed border-line bg-white px-3 py-2 text-sm text-ink-soft">
+                  Selecciona antes si eres hombre o mujer para ver las
+                  opciones.
+                </p>
+              )}
+              {sexo && (
+                <select
+                  value={tipoPerdidaCabello}
+                  onChange={(e) => setTipoPerdidaCabello(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">Selecciona una opción</option>
+                  {(sexo === "mujer" ? LUDWIG_OPCIONES : NORWOOD_OPCIONES).map(
+                    (o) => (
+                      <option key={o.valor} value={o.valor}>
+                        {o.nombre} — {o.descripcion}
+                      </option>
+                    ),
+                  )}
+                </select>
+              )}
             </div>
 
             <div>
               <label className={labelClass}>Ubicación</label>
-              <select
-                value={ciudad}
-                onChange={(e) => setCiudad(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona un municipio</option>
-                {MUNICIPIOS_MALLORCA.map((m) => (
-                  <option key={m} value={m}>
-                    {m}
-                  </option>
-                ))}
-              </select>
+              {ciudadesConClinicas.length > 0 ? (
+                <select
+                  value={ciudad}
+                  onChange={(e) => setCiudad(e.target.value)}
+                  className={inputClass}
+                >
+                  <option value="">Selecciona una ciudad</option>
+                  {ciudadesConClinicas.map((c) => (
+                    <option key={c} value={c}>
+                      {c}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <input
+                  type="text"
+                  value={ciudad}
+                  onChange={(e) => setCiudad(e.target.value)}
+                  placeholder="¿En qué ciudad estás?"
+                  className={inputClass}
+                />
+              )}
               <p className="mt-1 text-xs text-ink-soft">
                 Necesitaremos esto para ubicar tu clínica.
               </p>
