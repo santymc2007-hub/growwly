@@ -40,17 +40,17 @@ export default async function AnalisisPendientePage({
         <SiteHeader />
 
         {estudio.estado === "listo" ? (
-          <div className="mx-auto grid max-w-[1600px] items-center gap-6 px-6 py-10 md:grid-cols-[1fr_1.1fr] md:py-16">
+          <div className="mx-auto grid max-w-[1600px] items-start gap-6 px-6 py-10 md:grid-cols-[1fr_1.1fr] md:py-16">
             <div className="md:relative md:left-[150px]">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-sm font-medium text-sage-ink shadow-sm">
                 ✓ ¡Enhorabuena! Tu análisis está listo
               </span>
-              <h1 className="mt-4 font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
+              <h1 className="mt-4 max-w-sm font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
                 Crea una cuenta totalmente{" "}
                 <span className="underline decoration-2 underline-offset-2">
                   GRATIS
                 </span>{" "}
-                para desbloquearlo
+                y desbloquea tu valoración
               </h1>
               <p className="mt-3 max-w-sm text-ink-soft">
                 Tardarás menos de 1 minuto. Tu valoración quedará guardada en
@@ -73,7 +73,7 @@ export default async function AnalisisPendientePage({
               </div>
             </div>
 
-            <div className="relative -mx-6 aspect-[917/608] w-full md:mx-0 md:max-w-none">
+            <div className="relative -mx-6 mt-8 aspect-[917/608] w-full md:mx-0 md:mt-4 md:max-w-none">
               <Image
                 src="/analisis/pareja-analisis-listo.png"
                 alt=""
