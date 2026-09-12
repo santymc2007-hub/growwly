@@ -34,7 +34,7 @@ export default async function AnalisisPendientePage({
   return (
     <main className="flex min-h-screen flex-1 flex-col">
       <div
-        className="flex-1 bg-cover bg-center"
+        className="bg-cover bg-center"
         style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
       >
         <SiteHeader />
@@ -43,17 +43,18 @@ export default async function AnalisisPendientePage({
           <div className="mx-auto grid max-w-[1600px] items-center gap-6 px-6 py-10 md:grid-cols-[1fr_1.1fr] md:py-16">
             <div className="md:relative md:left-[150px]">
               <span className="inline-flex items-center gap-1.5 rounded-full bg-white px-4 py-1.5 text-sm font-medium text-sage-ink shadow-sm">
-                ✓ Tu análisis está listo
+                ✓ ¡Enhorabuena! Tu análisis está listo
               </span>
               <h1 className="mt-4 font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
-                Crea tu cuenta gratis
-                <br />
+                Crea una cuenta totalmente{" "}
+                <span className="underline decoration-2 underline-offset-2">
+                  GRATIS
+                </span>{" "}
                 para desbloquearlo
               </h1>
               <p className="mt-3 max-w-sm text-ink-soft">
-                ¡ES GRATIS! y tardas menos de 1 minuto. Tu valoración quedará
-                guardada en tu perfil, listo para pedir presupuesto cuando
-                quieras a las mejores clínicas de tu zona.
+                Tardarás menos de 1 minuto. Tu valoración quedará guardada en
+                tu perfil, preparada para solicitar presupuesto.
               </p>
 
               <div className="mt-8 flex flex-col items-start gap-3">
@@ -61,7 +62,7 @@ export default async function AnalisisPendientePage({
                   href={`/cuenta/registro?claim=${token}`}
                   className="rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-8 py-4 font-display text-lg font-bold text-teal-dark shadow-lg transition hover:opacity-90"
                 >
-                  Crear cuenta y ver mi análisis →
+                  Ver mi valoración →
                 </Link>
                 <Link
                   href={`/cuenta/login?claim=${token}`}
