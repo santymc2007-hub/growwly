@@ -5,6 +5,7 @@ import { ClinicaNav } from "../clinica-nav";
 import { guardarDatosFacturacion } from "./actions";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
+import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
 
 type SearchParams = { guardado?: string };
 
@@ -40,6 +41,8 @@ export default async function FacturacionPage({
   const inputClass =
     "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 
+  const solicitudesPendientes = await contarSolicitudesPendientes(clinicId);
+
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
@@ -53,7 +56,7 @@ export default async function FacturacionPage({
         </div>
 
         <div className="mt-4">
-          <ClinicaNav activo="facturacion" />
+          <ClinicaNav activo="facturacion" solicitudesPendientes={solicitudesPendientes} />
         </div>
 
         <div className="mb-6 rounded-2xl border border-line bg-white p-4 text-sm text-ink-soft">

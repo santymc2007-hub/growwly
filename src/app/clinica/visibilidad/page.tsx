@@ -6,6 +6,7 @@ import { TarjetaVisibilidad } from "./tarjeta-visibilidad";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
+import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
 
 type SearchParams = { solicitud?: string };
 
@@ -29,6 +30,8 @@ export default async function VisibilidadPage({
     notFound();
   }
 
+  const solicitudesPendientes = await contarSolicitudesPendientes(clinicId);
+
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
@@ -42,7 +45,7 @@ export default async function VisibilidadPage({
         </div>
 
         <div className="mt-4">
-          <ClinicaNav activo="visibilidad" />
+          <ClinicaNav activo="visibilidad" solicitudesPendientes={solicitudesPendientes} />
         </div>
 
         {solicitud && (

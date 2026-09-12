@@ -11,6 +11,8 @@ import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
 import { calcularCompletitud } from "@/lib/clinica/completitud";
+import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
+import { AvisoSolicitudesPendientes } from "@/components/clinica/aviso-solicitudes-pendientes";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -90,6 +92,7 @@ export default async function ClinicaPanelPage({
   }
 
   const { municipios, zonas } = await getMunicipiosYZonas();
+  const solicitudesPendientes = await contarSolicitudesPendientes(clinicId);
   const fotoPrincipal = clinic.logo_url ?? clinic.fotos?.[0] ?? null;
 
   const publicarAction = cambiarPublicacion.bind(null, true);
@@ -99,6 +102,7 @@ export default async function ClinicaPanelPage({
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
+      <AvisoSolicitudesPendientes cantidad={solicitudesPendientes} />
       <SiteHeader />
       <div className="mx-auto max-w-[1200px] px-6 py-12">
         <div className="flex items-center gap-4">
@@ -124,7 +128,7 @@ export default async function ClinicaPanelPage({
         </div>
 
         <div className="mt-4">
-          <ClinicaNav activo="ficha" />
+          <ClinicaNav activo="ficha" solicitudesPendientes={solicitudesPendientes} />
         </div>
 
         <div className="mb-6 rounded-2xl border border-line bg-white p-4">
