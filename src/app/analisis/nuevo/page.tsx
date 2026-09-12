@@ -90,17 +90,13 @@ export default async function NuevoAnalisisPage({
               Análisis con inteligencia artificial
             </div>
 
-            <div className="mt-7 flex flex-wrap items-center gap-x-6 gap-y-3">
+            <div className="mt-7">
               <a
                 href="#fotos"
                 className="press inline-block rounded-full bg-ink px-7 py-3.5 font-display text-sm font-bold uppercase tracking-wide text-white transition hover:opacity-90"
               >
                 Subir fotos y análisis de IA
               </a>
-              <p className="max-w-xs text-sm text-ink-soft">
-                No hace falta tener cuenta para empezar — solo para ver el
-                resultado, que quedará guardado en tu perfil.
-              </p>
             </div>
           </div>
 
