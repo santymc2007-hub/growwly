@@ -61,7 +61,11 @@ export default async function LeadPage({
       .maybeSingle();
     resumenIA = estudio?.resultado_texto ?? null;
 
-    if (lead.estado === "desbloqueado" && estudio) {
+    // Las fotos y la valoración de la IA son, junto al estadio y el
+    // presupuesto, la información que decide si a la clínica le
+    // interesa desbloquear el lead — se muestran ya, sin esperar al
+    // desbloqueo.
+    if (estudio) {
       const rutas = [
         estudio.foto_frontal,
         estudio.foto_donante,
@@ -160,52 +164,11 @@ export default async function LeadPage({
               value="El paciente deja que el médico decida la técnica"
             />
           )}
-          {solicitud.progresion_perdida && (
-            <Row
-              label="Progresión de la pérdida"
-              value={etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida)!}
-            />
-          )}
-          {solicitud.cuando_tratamiento && (
-            <Row
-              label="Cuándo"
-              value={etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento)!}
-            />
-          )}
-          {solicitud.donde_tratamiento && (
-            <Row
-              label="Dónde"
-              value={etiqueta(DONDE_LABEL, solicitud.donde_tratamiento)!}
-            />
-          )}
           {solicitud.presupuesto_rango && (
             <Row
               label="Presupuesto aproximado"
               value={labelPresupuesto(solicitud.presupuesto_rango)}
             />
-          )}
-          {solicitud.prioridad_decision && (
-            <Row
-              label="Lo más importante para el paciente"
-              value={etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision)!}
-            />
-          )}
-          {solicitud.alergias && (
-            <Row label="Alergias" value={solicitud.alergias} />
-          )}
-          {solicitud.condiciones_medicas.length > 0 && (
-            <Row
-              label="Condiciones médicas"
-              value={solicitud.condiciones_medicas
-                .map((c) => CONDICIONES_MEDICAS_LABEL[c] ?? c)
-                .join(", ")}
-            />
-          )}
-          {solicitud.cirugias_previas && (
-            <Row label="Cirugías previas" value={solicitud.cirugias_previas} />
-          )}
-          {solicitud.fumador && (
-            <Row label="Fumador" value={etiqueta(FUMADOR_LABEL, solicitud.fumador)!} />
           )}
         </dl>
 
@@ -213,6 +176,25 @@ export default async function LeadPage({
           <div className="mt-4 rounded-xl bg-sage p-4 text-sm text-sage-ink">
             <p className="font-medium">Primera impresión orientativa</p>
             <p className="mt-1">{resumenIA}</p>
+          </div>
+        )}
+
+        {fotoUrls.length > 0 && (
+          <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+            {fotoUrls.map((url) => (
+              <div
+                key={url}
+                className="relative aspect-square overflow-hidden rounded-lg border border-line bg-white"
+              >
+                <Image
+                  src={url}
+                  alt="Foto del paciente"
+                  fill
+                  sizes="120px"
+                  className="object-cover"
+                />
+              </div>
+            ))}
           </div>
         )}
 
@@ -232,26 +214,48 @@ export default async function LeadPage({
                 <Row label="Teléfono" value={paciente.telefono} />
               )}
               {paciente?.email && <Row label="Email" value={paciente.email} />}
+              {solicitud.progresion_perdida && (
+                <Row
+                  label="Progresión de la pérdida"
+                  value={etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida)!}
+                />
+              )}
+              {solicitud.cuando_tratamiento && (
+                <Row
+                  label="Cuándo"
+                  value={etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento)!}
+                />
+              )}
+              {solicitud.donde_tratamiento && (
+                <Row
+                  label="Dónde"
+                  value={etiqueta(DONDE_LABEL, solicitud.donde_tratamiento)!}
+                />
+              )}
+              {solicitud.prioridad_decision && (
+                <Row
+                  label="Lo más importante para el paciente"
+                  value={etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision)!}
+                />
+              )}
+              {solicitud.alergias && (
+                <Row label="Alergias" value={solicitud.alergias} />
+              )}
+              {solicitud.condiciones_medicas.length > 0 && (
+                <Row
+                  label="Condiciones médicas"
+                  value={solicitud.condiciones_medicas
+                    .map((c) => CONDICIONES_MEDICAS_LABEL[c] ?? c)
+                    .join(", ")}
+                />
+              )}
+              {solicitud.cirugias_previas && (
+                <Row label="Cirugías previas" value={solicitud.cirugias_previas} />
+              )}
+              {solicitud.fumador && (
+                <Row label="Fumador" value={etiqueta(FUMADOR_LABEL, solicitud.fumador)!} />
+              )}
             </dl>
-
-            {fotoUrls.length > 0 && (
-              <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
-                {fotoUrls.map((url) => (
-                  <div
-                    key={url}
-                    className="relative aspect-square overflow-hidden rounded-lg border border-line bg-white"
-                  >
-                    <Image
-                      src={url}
-                      alt="Foto del paciente"
-                      fill
-                      sizes="120px"
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
         ) : (
           <div className="mt-8 rounded-xl border border-dashed border-line bg-white p-6 text-center">
@@ -259,7 +263,8 @@ export default async function LeadPage({
               Desbloquear perfil completo
             </p>
             <p className="mt-1 text-sm text-ink-soft">
-              Verás el nombre, teléfono, email y fotos del paciente.
+              Verás el nombre, teléfono y email del paciente, además de
+              su historial médico y sus preferencias completas.
             </p>
             <DesbloquearButton token={token} />
           </div>
