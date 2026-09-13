@@ -309,7 +309,7 @@ export default async function ClinicaPage({
           )}
 
           {clinic.descripcion && (
-            <p className="mt-6 text-ink-soft">{clinic.descripcion}</p>
+            <p className="mt-6 break-words text-ink-soft">{clinic.descripcion}</p>
           )}
 
           {esPremium && clinic.descripcion_extendida && (
@@ -355,7 +355,7 @@ export default async function ClinicaPage({
                 {clinic.servicios_adicionales.map((servicio) => (
                   <span
                     key={servicio}
-                    className="rounded-full border border-line px-3 py-1 text-sm text-ink-soft"
+                    className="break-words rounded-full border border-line px-3 py-1 text-sm text-ink-soft"
                   >
                     {servicio}
                   </span>
@@ -369,7 +369,7 @@ export default async function ClinicaPage({
               <h2 className="font-display text-lg text-teal-dark">
                 Accesibilidad
               </h2>
-              <p className="mt-2 text-sm text-ink-soft">
+              <p className="mt-2 break-words text-sm text-ink-soft">
                 {clinic.accesibilidad}
               </p>
             </section>
@@ -538,7 +538,7 @@ export default async function ClinicaPage({
                       key={i}
                       className="rounded-xl border border-line bg-white/60 p-4 text-sm"
                     >
-                      <p className="text-ink-soft">&ldquo;{opinion.texto}&rdquo;</p>
+                      <p className="break-words text-ink-soft">&ldquo;{opinion.texto}&rdquo;</p>
                       <footer className="mt-2 font-medium text-ink">
                         — {opinion.autor}
                       </footer>
@@ -562,7 +562,7 @@ export default async function ClinicaPage({
             resenasDoctoralia={clinic.resenas_doctoralia}
           />
 
-          <aside className="h-fit rounded-3xl border border-line bg-gradient-to-b from-sage/20 to-white p-6">
+          <aside className="h-fit min-w-0 rounded-3xl border border-line bg-gradient-to-b from-sage/20 to-white p-6">
           <h2 className="font-display text-lg text-teal-dark">Contacto</h2>
 
           <ul className="mt-4 space-y-3 text-sm">
@@ -617,7 +617,7 @@ export default async function ClinicaPage({
               <h2 className="mt-6 font-display text-lg text-teal-dark">
                 Dirección
               </h2>
-              <p className="mt-2 text-sm text-ink-soft">{clinic.direccion}</p>
+              <p className="mt-2 break-words text-sm text-ink-soft">{clinic.direccion}</p>
             </>
           )}
 
@@ -654,7 +654,7 @@ export default async function ClinicaPage({
                 <h2 className="mt-6 font-display text-lg text-teal-dark">
                   Horarios
                 </h2>
-                <p className="mt-2 text-sm text-ink-soft">{clinic.horarios}</p>
+                <p className="mt-2 break-words text-sm text-ink-soft">{clinic.horarios}</p>
               </>
             )
           )}
@@ -677,7 +677,7 @@ export default async function ClinicaPage({
                   </p>
                 )}
                 {clinic.rango_precios && (
-                  <p className="mt-1 text-sm text-ink-soft">
+                  <p className="mt-1 break-words text-sm text-ink-soft">
                     {clinic.rango_precios}
                   </p>
                 )}
