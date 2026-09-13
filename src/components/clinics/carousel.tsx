@@ -20,6 +20,18 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
     return () => clearInterval(t);
   }, [count, autoplayMs, modalAbierto]);
 
+  // Con el modal abierto, la página de detrás no debe poder hacer
+  // scroll — sin esto, en Safari de iPhone el fondo se mueve por
+  // debajo del overlay y la barra de direcciones se comporta raro.
+  useEffect(() => {
+    if (!modalAbierto) return;
+    const previo = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = previo;
+    };
+  }, [modalAbierto]);
+
   if (count === 0) return null;
 
   const anterior = () => setIndex((i) => (i - 1 + count) % count);
@@ -81,6 +93,18 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
             onClick={() => setModalAbierto(false)}
             className="absolute inset-0 bg-ink/85"
           />
+          {/* Fijo respecto al overlay, no a la foto: así siempre queda
+              en la esquina de la pantalla, sea cual sea el tamaño o
+              proporción de la imagen. Y con área de toque real
+              (40x40px), no solo el texto pequeño de antes. */}
+          <button
+            type="button"
+            onClick={() => setModalAbierto(false)}
+            aria-label="Cerrar"
+            className="press absolute right-4 top-4 z-20 flex h-10 w-10 items-center justify-center rounded-full bg-white/90 text-lg text-ink shadow-md hover:bg-white"
+          >
+            ✕
+          </button>
           <div className="modal-anim relative z-10 w-full max-w-4xl">
             {grandes[index]}
             {count > 1 && (
@@ -89,13 +113,6 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
                 {flecha("der", siguiente)}
               </>
             )}
-            <button
-              type="button"
-              onClick={() => setModalAbierto(false)}
-              className="absolute -top-10 right-0 text-sm font-medium text-white hover:opacity-80"
-            >
-              ✕ Cerrar
-            </button>
           </div>
         </div>
       )}
