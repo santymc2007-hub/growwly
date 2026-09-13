@@ -239,7 +239,7 @@ export default async function ClinicaPage({
       </div>
 
       <div className="mx-auto grid max-w-[1600px] gap-10 px-6 py-10 lg:grid-cols-[1fr_360px]">
-        <div>
+        <div className="min-w-0">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div className="flex items-start gap-4">
               {clinic.logo_url && (
@@ -554,7 +554,7 @@ export default async function ClinicaPage({
           </p>
         </div>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex min-w-0 flex-col gap-6">
           <ModuloValoraciones
             ratingGoogle={clinic.rating_google}
             resenasGoogle={clinic.resenas_google}
@@ -580,7 +580,7 @@ export default async function ClinicaPage({
               <li>
                 <a
                   href={`mailto:${clinic.email}`}
-                  className="text-ink hover:text-cyan"
+                  className="break-all text-ink hover:text-cyan"
                 >
                   {clinic.email}
                 </a>
