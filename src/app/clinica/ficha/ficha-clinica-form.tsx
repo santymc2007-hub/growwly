@@ -18,6 +18,7 @@ import { comprimirFormData } from "@/lib/comprimir-imagen";
 
 type Props = {
   clinic: Clinic;
+  nombreGestor: string | null;
   action: (formData: FormData) => void;
   municipios: { provincia: string; nombre: string }[];
   zonas: { municipio: string; nombre: string }[];
@@ -27,8 +28,29 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 const labelClass = "text-sm font-medium text-ink";
 
-export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
+const MAX_ANTES_DESPUES = 10;
+const MAX_OPINIONES = 10;
+
+export function FichaClinicaForm({
+  clinic,
+  nombreGestor,
+  action,
+  municipios,
+  zonas,
+}: Props) {
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
+  const [numAntesDespues, setNumAntesDespues] = useState(() =>
+    Math.min(
+      MAX_ANTES_DESPUES,
+      Math.max(3, Array.isArray(clinic.fotos_antes_despues) ? clinic.fotos_antes_despues.length : 0),
+    ),
+  );
+  const [numOpiniones, setNumOpiniones] = useState(() =>
+    Math.min(
+      MAX_OPINIONES,
+      Math.max(3, Array.isArray(clinic.opiniones) ? clinic.opiniones.length : 0),
+    ),
+  );
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -68,8 +90,24 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
       )}
 
       <section>
-        <h2 className="font-display text-lg text-teal-dark">Lo básico</h2>
+        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">Lo básico</h2>
         <div className="mt-4 grid gap-4">
+          <div>
+            <label htmlFor="nombre_gestor" className={labelClass}>
+              Tu nombre{" "}
+              <span className="font-normal text-ink-soft">
+                (la persona que gestiona esta cuenta — sale en el saludo de la
+                cabecera)
+              </span>
+            </label>
+            <input
+              id="nombre_gestor"
+              name="nombre_gestor"
+              placeholder="Ej. María García"
+              defaultValue={nombreGestor ?? undefined}
+              className={inputClass}
+            />
+          </div>
           <div>
             <label htmlFor="logo" className={labelClass}>
               Logo de la clínica
@@ -195,7 +233,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
       </section>
 
       <section>
-        <h2 className="font-display text-lg text-teal-dark">
+        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
           Redes sociales
         </h2>
         <div className="mt-4 grid grid-cols-2 gap-4">
@@ -223,7 +261,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
       </section>
 
       <section>
-        <h2 className="font-display text-lg text-teal-dark">
+        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
           Técnicas e idiomas
         </h2>
         <div className="mt-4">
@@ -274,7 +312,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
       </section>
 
       <section>
-        <h2 className="font-display text-lg text-teal-dark">
+        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
           Servicios y precios
         </h2>
         <div className="mt-4 grid gap-4">
@@ -378,6 +416,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
             <input
               id="accesibilidad"
               name="accesibilidad"
+              placeholder="Ej. Acceso sin escalones, ascensor, aseo adaptado"
               defaultValue={clinic.accesibilidad ?? undefined}
               className={inputClass}
             />
@@ -405,7 +444,7 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
       </section>
 
       <section className="mt-2 rounded-xl border border-cyan/30 bg-cyan/5 p-4">
-        <h2 className="font-display text-lg text-teal-dark">
+        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
           Contenido de Perfil detallado
         </h2>
         {clinic.plan === "premium" ? (
@@ -492,8 +531,13 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
           </div>
 
           <div className="mt-6">
-            <p className={labelClass}>Fotos antes / después (hasta 3 pares)</p>
-            {[0, 1, 2].map((i) => {
+            <p className={labelClass}>
+              Fotos antes / después{" "}
+              <span className="font-normal text-ink-soft">
+                (hasta {MAX_ANTES_DESPUES} pares)
+              </span>
+            </p>
+            {Array.from({ length: numAntesDespues }, (_, i) => i).map((i) => {
               const par = Array.isArray(clinic.fotos_antes_despues)
                 ? (clinic.fotos_antes_despues as { antes?: string; despues?: string }[])[i]
                 : undefined;
@@ -532,11 +576,25 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
                 </div>
               );
             })}
+            {numAntesDespues < MAX_ANTES_DESPUES && (
+              <button
+                type="button"
+                onClick={() => setNumAntesDespues((n) => Math.min(MAX_ANTES_DESPUES, n + 1))}
+                className="press mt-2 text-sm font-medium text-cyan-dark hover:underline"
+              >
+                + Añadir más fotos
+              </button>
+            )}
           </div>
 
           <div className="mt-6">
-            <p className={labelClass}>Opiniones de pacientes (hasta 3)</p>
-            {[0, 1, 2].map((i) => {
+            <p className={labelClass}>
+              Opiniones de pacientes{" "}
+              <span className="font-normal text-ink-soft">
+                (hasta {MAX_OPINIONES})
+              </span>
+            </p>
+            {Array.from({ length: numOpiniones }, (_, i) => i).map((i) => {
               const opinion = Array.isArray(clinic.opiniones)
                 ? (clinic.opiniones as { autor?: string; texto?: string }[])[i]
                 : undefined;
@@ -558,6 +616,15 @@ export function FichaClinicaForm({ clinic, action, municipios, zonas }: Props) {
                 </div>
               );
             })}
+            {numOpiniones < MAX_OPINIONES && (
+              <button
+                type="button"
+                onClick={() => setNumOpiniones((n) => Math.min(MAX_OPINIONES, n + 1))}
+                className="press mt-2 text-sm font-medium text-cyan-dark hover:underline"
+              >
+                + Añadir más opiniones
+              </button>
+            )}
           </div>
 
           <div className="mt-6">

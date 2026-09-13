@@ -13,10 +13,10 @@ export function ClinicaNav({
   const tab = (href: string, label: string, key: Seccion, badge?: number) => (
     <Link
       href={href}
-      className={`flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${
+      className={`flex items-center gap-2 rounded-full border px-4 py-2 text-sm font-semibold transition ${
         activo === key
-          ? "bg-teal text-paper"
-          : "bg-white text-ink-soft hover:text-teal"
+          ? "border-teal bg-teal text-paper"
+          : "border-line bg-white text-ink-soft hover:border-teal/40 hover:text-teal"
       }`}
     >
       {label}
