@@ -1,8 +1,10 @@
 import { notFound } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { DesbloquearButton } from "./desbloquear-button";
+import { FotoAmpliable } from "@/components/leads/foto-ampliable";
 import {
   PROGRESION_LABEL,
   CUANDO_LABEL,
@@ -42,7 +44,11 @@ export default async function LeadPage({
       .select("*")
       .eq("id", lead.solicitud_id)
       .maybeSingle(),
-    supabase.from("clinics").select("nombre").eq("id", lead.clinic_id).maybeSingle(),
+    supabase
+      .from("clinics")
+      .select("nombre, logo_url")
+      .eq("id", lead.clinic_id)
+      .maybeSingle(),
   ]);
 
   if (!solicitud) {
@@ -119,7 +125,7 @@ export default async function LeadPage({
   return (
     <main className="flex-1">
       <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-2xl items-center px-6 py-3">
+        <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3">
           <Image
             src="/brand/growwly-logo-gradient.png"
             alt="Growwly"
@@ -127,6 +133,12 @@ export default async function LeadPage({
             height={35}
             className="h-8 w-auto"
           />
+          <Link
+            href="/clinica/solicitudes"
+            className="text-sm font-medium text-cyan-dark hover:text-teal-dark"
+          >
+            ← Volver a solicitudes
+          </Link>
         </div>
       </header>
 
@@ -142,6 +154,19 @@ export default async function LeadPage({
           con lo que busca. Esta es la información que puedes ver antes de
           decidir si quieres enviarle una propuesta.
         </p>
+
+        {lead.estado !== "desbloqueado" && (
+          <div className="mt-6 rounded-xl bg-yellow p-6 text-center">
+            <p className="font-display text-lg font-extrabold text-teal-dark">
+              Desbloquea el perfil, estás a nada de generar un nuevo cliente
+            </p>
+            <p className="mt-1 text-sm text-teal-dark/80">
+              Verás el nombre, teléfono y email del paciente, además de su
+              historial médico y sus preferencias completas.
+            </p>
+            <DesbloquearButton token={token} />
+          </div>
+        )}
 
         <dl className="mt-6 divide-y divide-line rounded-xl border border-line bg-white text-sm">
           {perfilMedico?.sexo && (
@@ -187,8 +212,7 @@ export default async function LeadPage({
         {lead.estado !== "desbloqueado" && hayFotos && (
           <div className="mt-4">
             <div className="relative inline-block aspect-square w-40 overflow-hidden rounded-lg border border-line bg-white">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <FotoAmpliable
                 src={`/api/leads/${token}/foto-borrosa`}
                 alt="Foto del paciente (desenfocada)"
                 className="h-full w-full object-cover"
@@ -208,19 +232,17 @@ export default async function LeadPage({
                 key={url}
                 className="relative aspect-square overflow-hidden rounded-lg border border-line bg-white"
               >
-                <Image
+                <FotoAmpliable
                   src={url}
                   alt="Foto del paciente"
-                  fill
-                  sizes="120px"
-                  className="object-cover"
+                  className="h-full w-full object-cover"
                 />
               </div>
             ))}
           </div>
         )}
 
-        {lead.estado === "desbloqueado" ? (
+        {lead.estado === "desbloqueado" && (
           <div className="mt-8 rounded-xl bg-sage p-6">
             <p className="font-display text-lg text-sage-ink">
               Perfil completo
@@ -278,17 +300,6 @@ export default async function LeadPage({
                 <Row label="Fumador" value={etiqueta(FUMADOR_LABEL, solicitud.fumador)!} />
               )}
             </dl>
-          </div>
-        ) : (
-          <div className="mt-8 rounded-xl border border-dashed border-line bg-white p-6 text-center">
-            <p className="font-display text-lg text-teal-dark">
-              Desbloquear perfil completo
-            </p>
-            <p className="mt-1 text-sm text-ink-soft">
-              Verás el nombre, teléfono y email del paciente, además de
-              su historial médico y sus preferencias completas.
-            </p>
-            <DesbloquearButton token={token} />
           </div>
         )}
       </div>
