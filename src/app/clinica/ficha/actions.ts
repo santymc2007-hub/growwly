@@ -12,7 +12,7 @@ function isRealFile(value: FormDataEntryValue | null): value is File {
 }
 
 export async function actualizarMiFicha(formData: FormData) {
-  const { clinicId } = await requireClinicaActiva();
+  const { clinicId, profileId } = await requireClinicaActiva();
   const admin = createAdminClient();
 
   const str = (key: string) => {
@@ -112,12 +112,12 @@ export async function actualizarMiFicha(formData: FormData) {
   let camposPremium: Record<string, unknown> = {};
 
   try {
-    // Fotos antes/después: hasta 3 pares
+    // Fotos antes/después: hasta 10 pares
     const paresExistentes = Array.isArray(clinicaActual?.fotos_antes_despues)
       ? (clinicaActual.fotos_antes_despues as { antes: string; despues: string }[])
       : [];
     const nuevosPares: { antes: string; despues: string }[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 10; i++) {
       const antesFile = formData.get(`antes_${i}`);
       const despuesFile = formData.get(`despues_${i}`);
       const antesUrl = isRealFile(antesFile)
@@ -131,9 +131,9 @@ export async function actualizarMiFicha(formData: FormData) {
       }
     }
 
-    // Opiniones: hasta 3
+    // Opiniones: hasta 10
     const opiniones: { autor: string; texto: string }[] = [];
-    for (let i = 0; i < 3; i++) {
+    for (let i = 0; i < 10; i++) {
       const autor = str(`opinion_autor_${i}`);
       const texto = str(`opinion_texto_${i}`);
       if (autor && texto) opiniones.push({ autor, texto });
@@ -204,7 +204,15 @@ export async function actualizarMiFicha(formData: FormData) {
     redirect(`/clinica?error=${encodeURIComponent(error.message)}`);
   }
 
+  await admin
+    .from("profiles")
+    .update({ nombre: str("nombre_gestor") })
+    .eq("id", profileId);
+
   revalidatePath("/clinica");
+  revalidatePath("/clinica/solicitudes");
+  revalidatePath("/clinica/visibilidad");
+  revalidatePath("/clinica/facturacion");
   revalidatePath("/clinicas");
   redirect("/clinica?guardado=1");
 }

@@ -37,3 +37,20 @@ export function calcularCompletitud(clinic: Clinic): number {
   const rellenos = todosLosCampos.filter(Boolean).length;
   return Math.round((rellenos / todosLosCampos.length) * 100);
 }
+
+/**
+ * Mensaje motivacional según el tramo de completitud — sustituye al
+ * simple "Tu ficha está al X%" para empujar a rellenarla del todo.
+ */
+export function mensajeCompletitud(porcentaje: number): string {
+  if (porcentaje >= 75) {
+    return "¡Enhorabuena! Perfil impecable y listo para atraer todas las miradas.";
+  }
+  if (porcentaje >= 50) {
+    return "Ahora sí: tu clínica ya transmite la confianza que busca el paciente.";
+  }
+  if (porcentaje >= 25) {
+    return "Buen avance, aunque aún no basta para que te elijan a ti.";
+  }
+  return "Tu historia empieza aquí, pero así todavía no eres relevante para nadie.";
+}

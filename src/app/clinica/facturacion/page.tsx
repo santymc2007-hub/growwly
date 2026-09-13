@@ -1,11 +1,14 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { guardarDatosFacturacion } from "./actions";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
+import { ClinicaHeaderPerfil } from "@/components/clinica/clinica-header-perfil";
 import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
+import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
 
 type SearchParams = { guardado?: string };
 
@@ -16,12 +19,17 @@ export default async function FacturacionPage({
 }) {
   const { guardado } = await searchParams;
 
-  const { clinicId, clinicas } = await requireClinicaActiva();
+  const { clinicId, profileId, clinicas } = await requireClinicaActiva();
+
+  const authSupabase = await createClient();
+  const {
+    data: { user },
+  } = await authSupabase.auth.getUser();
 
   const supabase = createAdminClient();
   const { data: clinic } = await supabase
     .from("clinics")
-    .select("nombre, datos_facturacion")
+    .select("nombre, logo_url, fotos, datos_facturacion")
     .eq("id", clinicId)
     .maybeSingle();
 
@@ -42,14 +50,19 @@ export default async function FacturacionPage({
     "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 
   const solicitudesPendientes = await contarSolicitudesPendientes(clinicId);
+  const nombreGestor = await obtenerNombreGestor(profileId);
+  const fotoPrincipal = clinic.logo_url ?? clinic.fotos?.[0] ?? null;
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
       <div className="mx-auto max-w-[1200px] px-6 py-12">
-        <h1 className="font-display text-2xl text-teal-dark">
-          {clinic.nombre}
-        </h1>
+        <ClinicaHeaderPerfil
+          nombreClinica={clinic.nombre}
+          fotoPrincipal={fotoPrincipal}
+          email={user?.email ?? ""}
+          nombreGestor={nombreGestor}
+        />
 
         <div className="mt-4">
           <SelectorClinica clinicas={clinicas} clinicaActivaId={clinicId} />
