@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 const PAGINAS = [
   { href: "/legal/aviso-legal", label: "Aviso Legal" },
@@ -16,11 +17,16 @@ export function LegalLayout({
   activo: string;
   children: React.ReactNode;
 }) {
+  const pagina = PAGINAS.find((p) => p.href === activo);
+
   return (
     <main className="flex-1">
       <SiteHeader />
       <div className="mx-auto max-w-3xl px-6 py-12">
-        <nav className="flex flex-wrap gap-x-5 gap-y-2 border-b border-line pb-4 text-sm">
+        <Breadcrumbs
+          items={[{ label: pagina?.label ?? "Legal", href: activo }]}
+        />
+        <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-b border-line pb-4 text-sm">
           {PAGINAS.map((p) => (
             <Link
               key={p.href}

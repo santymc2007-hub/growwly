@@ -5,6 +5,7 @@ import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
@@ -82,7 +83,9 @@ export default async function ClinicasPage({
       >
         <SiteHeader />
         <div className="mx-auto max-w-[1600px] px-6 py-12">
-          <h1 className="font-display text-4xl text-ink sm:text-5xl">
+          <Breadcrumbs items={[{ label: "Clínicas", href: "/clinicas" }]} />
+
+          <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
             Clínicas <span className="text-teal-dark">capilares</span> en
             España
           </h1>
