@@ -1,6 +1,9 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import sharp from "sharp";
 
+export const runtime = "nodejs";
+export const dynamic = "force-dynamic";
+
 const BUCKET = "estudios-capilares";
 
 type Params = { token: string };
@@ -70,20 +73,32 @@ export async function GET(
     .from(BUCKET)
     .download(ruta);
   if (error || !archivo) {
+    console.error("foto-borrosa: no se pudo descargar del storage", error);
     return new Response("No se pudo leer la foto", { status: 502 });
   }
 
-  const bytes = Buffer.from(await archivo.arrayBuffer());
-  const borrosa = await sharp(bytes)
-    .resize(220) // primero se reduce mucho la resolución...
-    .blur(18) // ...y luego se desenfoca. Las dos cosas a la vez.
-    .jpeg({ quality: 60 })
-    .toBuffer();
+  try {
+    const bytes = Buffer.from(await archivo.arrayBuffer());
+    const borrosa = await sharp(bytes)
+      .resize(220) // primero se reduce mucho la resolución...
+      .blur(18) // ...y luego se desenfoca. Las dos cosas a la vez.
+      .jpeg({ quality: 60 })
+      .toBuffer();
 
-  return new Response(new Uint8Array(borrosa), {
-    headers: {
-      "Content-Type": "image/jpeg",
-      "Cache-Control": "private, max-age=3600",
-    },
-  });
+    return new Response(new Uint8Array(borrosa), {
+      headers: {
+        "Content-Type": "image/jpeg",
+        "Cache-Control": "private, max-age=3600",
+      },
+    });
+  } catch (err) {
+    // Si sharp falla en el entorno de despliegue, que se note en los
+    // logs y en la respuesta en vez de servir una imagen rota en
+    // silencio.
+    console.error("foto-borrosa: fallo al desenfocar con sharp", err);
+    const mensaje = err instanceof Error ? err.message : String(err);
+    return new Response(`No se pudo generar la foto desenfocada: ${mensaje}`, {
+      status: 500,
+    });
+  }
 }

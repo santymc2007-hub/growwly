@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
@@ -6,6 +5,7 @@ import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 type Params = { slug: string };
 
@@ -105,12 +105,12 @@ export default async function BlogPostPage({
       <article className="mx-auto max-w-[1600px] px-6 py-12">
         <div className="lg:flex lg:items-start lg:gap-10">
           <div className="lg:max-w-2xl lg:flex-1">
-            <Link
-              href="/blog"
-              className="text-sm font-medium text-cyan hover:text-cyan-dark"
-            >
-              ← Volver al blog
-            </Link>
+            <Breadcrumbs
+              items={[
+                { label: "Blog", href: "/blog" },
+                { label: post.titulo, href: `/blog/${post.slug}` },
+              ]}
+            />
 
             <h1 className="mt-4 font-display text-3xl text-teal-dark sm:text-4xl">
               {post.titulo}

@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
@@ -31,7 +32,9 @@ export default async function TratamientosPage() {
       <SiteHeader />
 
       <div className="mx-auto max-w-[1600px] px-6 py-12">
-        <h1 className="font-display text-3xl text-teal-dark">
+        <Breadcrumbs items={[{ label: "Tratamientos", href: "/tratamientos" }]} />
+
+        <h1 className="mt-3 font-display text-3xl text-teal-dark">
           Tratamientos capilares
         </h1>
         <p className="mt-2 text-ink-soft">

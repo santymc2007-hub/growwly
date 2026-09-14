@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { Breadcrumbs } from "@/components/breadcrumbs";
 
 export const metadata: Metadata = {
   title: "Blog | Growwly",
@@ -25,7 +26,9 @@ export default async function BlogPage() {
       <SiteHeader />
 
       <div className="mx-auto max-w-[1600px] px-6 py-12">
-        <h1 className="font-display text-3xl text-teal-dark">Blog</h1>
+        <Breadcrumbs items={[{ label: "Blog", href: "/blog" }]} />
+
+        <h1 className="mt-3 font-display text-3xl text-teal-dark">Blog</h1>
         <p className="mt-2 text-ink-soft">
           Consejos, novedades y todo lo que hay que saber sobre salud
           capilar.

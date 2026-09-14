@@ -27,7 +27,7 @@ export function FotoAmpliable({
 
       {abierta && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-6"
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/80 p-6"
           onClick={() => setAbierta(false)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}

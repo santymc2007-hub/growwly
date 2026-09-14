@@ -1,0 +1,294 @@
+import { notFound } from "next/navigation";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
+import { DesbloquearButton } from "@/app/leads/[token]/desbloquear-button";
+import { FotoAmpliable } from "@/components/leads/foto-ampliable";
+import {
+  PROGRESION_LABEL,
+  CUANDO_LABEL,
+  DONDE_LABEL,
+  PRIORIDAD_LABEL,
+  FUMADOR_LABEL,
+  CONDICIONES_MEDICAS_LABEL,
+  SEXO_LABEL,
+  labelTipoPerdida,
+  labelPresupuesto,
+  etiqueta,
+} from "@/lib/solicitud-labels";
+
+/**
+ * Contenido de la ficha de un lead (sin cabecera propia): lo comparten
+ * la página independiente (/leads/[token], para el enlace del email y
+ * la recarga completa) y el modal que se abre desde el listado de
+ * solicitudes del panel, para no perder la navegación del panel.
+ */
+export async function LeadDetalle({ token }: { token: string }) {
+  const supabase = createAdminClient();
+
+  const { data: lead } = await supabase
+    .from("leads_clinica")
+    .select("*")
+    .eq("token", token)
+    .maybeSingle();
+
+  if (!lead) {
+    notFound();
+  }
+
+  const [{ data: solicitud }, { data: clinica }] = await Promise.all([
+    supabase
+      .from("solicitudes_presupuesto")
+      .select("*")
+      .eq("id", lead.solicitud_id)
+      .maybeSingle(),
+    supabase
+      .from("clinics")
+      .select("nombre, logo_url")
+      .eq("id", lead.clinic_id)
+      .maybeSingle(),
+  ]);
+
+  if (!solicitud) {
+    notFound();
+  }
+
+  let resumenIA: string | null = null;
+  let hayFotos = false;
+  let fotoUrls: string[] = [];
+  if (solicitud.estudio_id) {
+    const { data: estudio } = await supabase
+      .from("estudios_capilares")
+      .select(
+        "resultado_texto, foto_frontal, foto_donante, foto_coronilla, foto_perfil_derecho, foto_perfil_izquierdo, fotos_adicionales",
+      )
+      .eq("id", solicitud.estudio_id)
+      .maybeSingle();
+    resumenIA = estudio?.resultado_texto ?? null;
+
+    if (estudio) {
+      const rutas = [
+        estudio.foto_frontal,
+        estudio.foto_donante,
+        estudio.foto_coronilla,
+        estudio.foto_perfil_derecho,
+        estudio.foto_perfil_izquierdo,
+        ...estudio.fotos_adicionales,
+      ].filter((r): r is string => Boolean(r));
+      hayFotos = rutas.length > 0;
+
+      // Las fotos originales, en limpio, solo se generan (y se
+      // mandan al navegador) una vez desbloqueado. Antes de eso solo
+      // se ve la portada desenfocada vía /api/leads/[token]/foto-borrosa,
+      // que hace el desenfoque en el servidor sobre los bytes reales.
+      if (lead.estado === "desbloqueado") {
+        const urls = await Promise.all(
+          rutas.map((r) => urlFirmadaFoto(supabase, r)),
+        );
+        fotoUrls = urls.filter((u): u is string => Boolean(u));
+      }
+    }
+  }
+
+  // Sexo y tipo de pérdida de cabello no identifican al paciente, así
+  // que se muestran ya en la vista anonimizada (antes de desbloquear).
+  const { data: perfilMedico } = await supabase
+    .from("profiles")
+    .select("sexo, tipo_perdida_cabello")
+    .eq("id", solicitud.user_id)
+    .maybeSingle();
+
+  let paciente: {
+    nombre: string | null;
+    apellidos: string | null;
+    telefono: string | null;
+    email: string | null;
+  } | null = null;
+  if (lead.estado === "desbloqueado") {
+    const { data } = await supabase
+      .from("profiles")
+      .select("nombre, apellidos, telefono, email")
+      .eq("id", solicitud.user_id)
+      .maybeSingle();
+    paciente = data ?? null;
+  }
+
+  if (lead.estado === "enviado") {
+    await supabase
+      .from("leads_clinica")
+      .update({ estado: "visto", visto_en: new Date().toISOString() })
+      .eq("id", lead.id);
+  }
+
+  return (
+    <>
+      <p className="text-sm uppercase tracking-wide text-ink-soft">
+        Solicitud de presupuesto
+      </p>
+      <h1 className="mt-2 font-display text-2xl text-teal-dark">
+        {clinica?.nombre ? `Hola, ${clinica.nombre}` : "Nueva solicitud"}
+      </h1>
+      <p className="mt-2 text-sm text-ink-soft">
+        Un paciente de Growwly ha pedido presupuesto y tu clínica encaja
+        con lo que busca. Esta es la información que puedes ver antes de
+        decidir si quieres enviarle una propuesta.
+      </p>
+
+      {lead.estado !== "desbloqueado" && (
+        <div className="mt-6 rounded-xl bg-yellow p-6 text-center">
+          <p className="font-display text-lg font-extrabold text-teal-dark">
+            Desbloquea el perfil, estás a nada de generar un nuevo cliente
+          </p>
+          <p className="mt-1 text-sm text-teal-dark/80">
+            Verás el nombre, teléfono y email del paciente, además de su
+            historial médico y sus preferencias completas.
+          </p>
+          <DesbloquearButton token={token} />
+        </div>
+      )}
+
+      <dl className="mt-6 divide-y divide-line rounded-xl border border-line bg-white text-sm">
+        {perfilMedico?.sexo && (
+          <Row label="Sexo" value={etiqueta(SEXO_LABEL, perfilMedico.sexo)!} />
+        )}
+        {perfilMedico?.tipo_perdida_cabello && (
+          <Row
+            label="Tipo de pérdida de cabello"
+            value={labelTipoPerdida(
+              perfilMedico.sexo,
+              perfilMedico.tipo_perdida_cabello,
+            )!}
+          />
+        )}
+        {solicitud.ciudad && <Row label="Ciudad" value={solicitud.ciudad} />}
+        {solicitud.tratamientos_interes.length > 0 && (
+          <Row
+            label="Tratamientos de interés"
+            value={solicitud.tratamientos_interes.join(", ")}
+          />
+        )}
+        {solicitud.dejar_decidir_medico && (
+          <Row
+            label="Tratamiento"
+            value="El paciente deja que el médico decida la técnica"
+          />
+        )}
+        {solicitud.presupuesto_rango && (
+          <Row
+            label="Presupuesto aproximado"
+            value={labelPresupuesto(solicitud.presupuesto_rango)}
+          />
+        )}
+      </dl>
+
+      {resumenIA && (
+        <div className="mt-4 rounded-xl bg-sage p-4 text-sm text-sage-ink">
+          <p className="font-medium">Primera impresión orientativa</p>
+          <p className="mt-1">{resumenIA}</p>
+        </div>
+      )}
+
+      {lead.estado !== "desbloqueado" && hayFotos && (
+        <div className="mt-4">
+          <div className="relative inline-block aspect-square w-40 overflow-hidden rounded-lg border border-line bg-white">
+            <FotoAmpliable
+              src={`/api/leads/${token}/foto-borrosa`}
+              alt="Foto del paciente (desenfocada)"
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <p className="mt-1 text-xs text-ink-soft">
+            Foto de muestra — se ve nítida, junto al resto, al
+            desbloquear el perfil.
+          </p>
+        </div>
+      )}
+
+      {lead.estado === "desbloqueado" && fotoUrls.length > 0 && (
+        <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
+          {fotoUrls.map((url) => (
+            <div
+              key={url}
+              className="relative aspect-square overflow-hidden rounded-lg border border-line bg-white"
+            >
+              <FotoAmpliable
+                src={url}
+                alt="Foto del paciente"
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ))}
+        </div>
+      )}
+
+      {lead.estado === "desbloqueado" && (
+        <div className="mt-8 rounded-xl bg-sage p-6">
+          <p className="font-display text-lg text-sage-ink">
+            Perfil completo
+          </p>
+          <dl className="mt-4 divide-y divide-sage-ink/10 text-sm">
+            {paciente?.nombre && (
+              <Row
+                label="Nombre"
+                value={`${paciente.nombre} ${paciente.apellidos ?? ""}`.trim()}
+              />
+            )}
+            {paciente?.telefono && (
+              <Row label="Teléfono" value={paciente.telefono} />
+            )}
+            {paciente?.email && <Row label="Email" value={paciente.email} />}
+            {solicitud.progresion_perdida && (
+              <Row
+                label="Progresión de la pérdida"
+                value={etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida)!}
+              />
+            )}
+            {solicitud.cuando_tratamiento && (
+              <Row
+                label="Cuándo"
+                value={etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento)!}
+              />
+            )}
+            {solicitud.donde_tratamiento && (
+              <Row
+                label="Dónde"
+                value={etiqueta(DONDE_LABEL, solicitud.donde_tratamiento)!}
+              />
+            )}
+            {solicitud.prioridad_decision && (
+              <Row
+                label="Lo más importante para el paciente"
+                value={etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision)!}
+              />
+            )}
+            {solicitud.alergias && (
+              <Row label="Alergias" value={solicitud.alergias} />
+            )}
+            {solicitud.condiciones_medicas.length > 0 && (
+              <Row
+                label="Condiciones médicas"
+                value={solicitud.condiciones_medicas
+                  .map((c) => CONDICIONES_MEDICAS_LABEL[c] ?? c)
+                  .join(", ")}
+              />
+            )}
+            {solicitud.cirugias_previas && (
+              <Row label="Cirugías previas" value={solicitud.cirugias_previas} />
+            )}
+            {solicitud.fumador && (
+              <Row label="Fumador" value={etiqueta(FUMADOR_LABEL, solicitud.fumador)!} />
+            )}
+          </dl>
+        </div>
+      )}
+    </>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-4 px-4 py-3">
+      <dt className="text-ink-soft">{label}</dt>
+      <dd className="text-right font-medium text-ink">{value}</dd>
+    </div>
+  );
+}
