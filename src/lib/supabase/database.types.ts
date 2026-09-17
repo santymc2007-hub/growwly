@@ -24,6 +24,7 @@ export interface Database {
         Row: {
           id: string;
           slug: string;
+          slugs_antiguos: string[];
           nombre: string;
           descripcion: string | null;
           comunidad_autonoma: string | null;
@@ -85,6 +86,7 @@ export interface Database {
         Insert: {
           id?: string;
           slug: string;
+          slugs_antiguos?: string[];
           nombre: string;
           descripcion?: string | null;
           comunidad_autonoma?: string | null;
@@ -146,6 +148,7 @@ export interface Database {
         Update: {
           id?: string;
           slug?: string;
+          slugs_antiguos?: string[];
           nombre?: string;
           descripcion?: string | null;
           comunidad_autonoma?: string | null;
