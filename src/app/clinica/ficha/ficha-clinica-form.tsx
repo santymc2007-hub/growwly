@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { Sparkles, Lock, Check } from "lucide-react";
 import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
@@ -81,22 +82,36 @@ export function FichaClinicaForm({
       )}
 
       {clinic.plan !== "premium" && (
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-green to-brand-blue p-5">
-          <div>
-            <p className="font-display text-lg font-bold text-teal-dark">
-              ✦ Pasa a Perfil detallado
-            </p>
-            <p className="mt-1 text-sm text-teal-dark/80">
-              Desbloquea precios visibles, fotos antes/después, opiniones de
-              pacientes, diplomas, ofertas y otros servicios en tu ficha.
-            </p>
+        <div className="rounded-3xl bg-gradient-to-r from-brand-green to-brand-blue p-6 shadow-lg shadow-teal/10 sm:p-7">
+          <div className="flex flex-wrap items-center justify-between gap-5">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-teal-dark">
+                <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                Perfil detallado
+              </div>
+              <p className="mt-2 font-display text-xl font-extrabold text-teal-dark sm:text-2xl">
+                Es lo que más convierte visitas en clientes
+              </p>
+              <ul className="mt-3 flex flex-col gap-1.5 text-sm font-medium text-teal-dark/90">
+                {[
+                  "Fotos antes/después y opiniones de pacientes reales",
+                  "Precios visibles — menos filtros previos, leads más listos para reservar",
+                  "Vídeo, equipo médico, diplomas y ofertas activas",
+                ].map((beneficio) => (
+                  <li key={beneficio} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                    {beneficio}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Link
+              href="/clinica/visibilidad"
+              className="press whitespace-nowrap rounded-full bg-white px-6 py-3 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
+            >
+              Solicitar Perfil detallado →
+            </Link>
           </div>
-          <Link
-            href="/clinica/visibilidad"
-            className="whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow transition hover:opacity-90"
-          >
-            Solicitar Perfil detallado →
-          </Link>
         </div>
       )}
 
@@ -462,19 +477,33 @@ export function FichaClinicaForm({
         </div>
       </section>
 
-      <section className="mt-2 rounded-xl border border-cyan/30 bg-cyan/5 p-4">
-        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
-          Contenido de Perfil detallado
-        </h2>
+      <section
+        className={`mt-2 rounded-xl border p-4 ${
+          clinic.plan === "premium"
+            ? "border-cyan/30 bg-cyan/5"
+            : "border-line bg-paper-dim/60"
+        }`}
+      >
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
+          <h2 className="font-display text-lg text-teal-dark">
+            Contenido de Perfil detallado
+          </h2>
+          {clinic.plan !== "premium" && (
+            <span className="flex items-center gap-1.5 rounded-full bg-ink-soft/10 px-3 py-1 text-xs font-bold text-ink-soft">
+              <Lock className="h-3.5 w-3.5" aria-hidden />
+              No visible en tu ficha pública
+            </span>
+          )}
+        </div>
         {clinic.plan === "premium" ? (
           <p className="mt-1 text-sm text-ink-soft">
             Visible en tu ficha pública.
           </p>
         ) : (
           <p className="mt-1 text-sm text-ink-soft">
-            Puedes rellenarlo ya — se guarda, pero no se publica hasta que
-            actives el Perfil detallado.{" "}
-            <Link href="/clinica/visibilidad" className="font-medium text-cyan-dark hover:underline">
+            Puedes rellenarlo ya — se guarda todo, listo para publicarse en
+            el momento en que actives el Perfil detallado.{" "}
+            <Link href="/clinica/visibilidad" className="font-bold text-cyan-dark hover:underline">
               Solicitar Perfil detallado →
             </Link>
           </p>
@@ -683,6 +712,21 @@ export function FichaClinicaForm({
               className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
             />
           </div>
+
+          {clinic.plan !== "premium" && (
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-teal-dark px-5 py-4">
+              <p className="text-sm font-medium text-paper">
+                Todo esto ya está guardado — actívalo para que lo vean tus
+                pacientes.
+              </p>
+              <Link
+                href="/clinica/visibilidad"
+                className="press whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow transition hover:opacity-90"
+              >
+                Solicitar Perfil detallado →
+              </Link>
+            </div>
+          )}
         </section>
 
       <div className="flex items-center gap-3 border-t border-line pt-6">
