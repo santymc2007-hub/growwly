@@ -15,6 +15,7 @@ import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
+import { FotosClinicaField } from "@/components/clinica/fotos-clinica-field";
 import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 
@@ -81,42 +82,8 @@ export function FichaClinicaForm({
         />
       )}
 
-      {clinic.plan !== "premium" && (
-        <div className="rounded-3xl bg-gradient-to-r from-brand-green to-brand-blue p-6 shadow-lg shadow-teal/10 sm:p-7">
-          <div className="flex flex-wrap items-center justify-between gap-5">
-            <div>
-              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-teal-dark">
-                <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                Perfil detallado
-              </div>
-              <p className="mt-2 font-display text-xl font-extrabold text-teal-dark sm:text-2xl">
-                Es lo que más convierte visitas en clientes
-              </p>
-              <ul className="mt-3 flex flex-col gap-1.5 text-sm font-medium text-teal-dark/90">
-                {[
-                  "Fotos antes/después y opiniones de pacientes reales",
-                  "Precios visibles — menos filtros previos, leads más listos para reservar",
-                  "Vídeo, equipo médico, diplomas y ofertas activas",
-                ].map((beneficio) => (
-                  <li key={beneficio} className="flex items-start gap-2">
-                    <Check className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
-                    {beneficio}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <Link
-              href="/clinica/visibilidad"
-              className="press whitespace-nowrap rounded-full bg-white px-6 py-3 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
-            >
-              Solicitar Perfil detallado →
-            </Link>
-          </div>
-        </div>
-      )}
-
-      <section>
-        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">Lo básico</h2>
+      <section className="rounded-2xl border border-line bg-white p-5">
+        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">Perfil Básico</h2>
         <div className="mt-4 grid gap-4">
           <div>
             <label htmlFor="nombre_gestor" className={labelClass}>
@@ -158,34 +125,14 @@ export function FichaClinicaForm({
           <div>
             <label className={labelClass}>
               Fotos de la clínica{" "}
-              <span className="font-normal text-ink-soft">(hasta 5)</span>
+              <span className="font-normal text-ink-soft">(hasta 10)</span>
             </label>
-
-            {clinic.fotos.length > 0 && (
-              <div className="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-5">
-                {clinic.fotos.map((foto) => (
-                  <div key={foto}>
-                    <div className="relative aspect-square overflow-hidden rounded-lg border border-line bg-sage">
-                      <Image src={foto} alt="" fill sizes="100px" className="object-cover" />
-                    </div>
-                    <label className="mt-1 flex items-center gap-1.5 text-xs text-ink-soft">
-                      <input type="checkbox" name="fotos_eliminar" value={foto} />
-                      Eliminar
-                    </label>
-                  </div>
-                ))}
-              </div>
-            )}
-            <input type="hidden" name="fotos_actuales" value={JSON.stringify(clinic.fotos)} />
-
-            <input
-              id="fotos_nuevas"
-              name="fotos_nuevas"
-              type="file"
-              accept="image/*"
-              multiple
-              className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
-            />
+            <p className="mt-0.5 text-xs text-ink-soft">
+              La primera es la que se usa como foto principal en los
+              listados — arrastra las fotos (o usa ‹ ›) para cambiar el
+              orden.
+            </p>
+            <FotosClinicaField fotosIniciales={clinic.fotos} max={10} />
           </div>
           <div>
             <label className={labelClass} htmlFor="descripcion">
@@ -476,6 +423,43 @@ export function FichaClinicaForm({
           </label>
         </div>
       </section>
+
+      {clinic.plan !== "premium" && (
+        <div className="rounded-3xl bg-gradient-to-r from-brand-green to-brand-blue p-6 shadow-lg shadow-teal/10 sm:p-7">
+          <div className="flex flex-wrap items-center justify-between gap-5">
+            <div>
+              <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-teal-dark">
+                <Sparkles className="h-3.5 w-3.5" aria-hidden />
+                Perfil detallado
+              </div>
+              <p className="mt-2 font-display text-xl font-extrabold text-teal-dark sm:text-2xl">
+                Es lo que más convierte visitas en clientes
+              </p>
+              <ul className="mt-3 flex flex-col gap-1.5 text-sm font-medium text-teal-dark/90">
+                {[
+                  "Fotos antes/después y opiniones de pacientes reales",
+                  "Ofertas",
+                  "Nombres del equipo y su especialidad — da seriedad y rigor",
+                  "Link a reserva de cita online, si ya tienes uno",
+                  "Vídeo de la clínica — mejora el awareness de tu marca",
+                  "Diplomas y certificados",
+                ].map((beneficio) => (
+                  <li key={beneficio} className="flex items-start gap-2">
+                    <Check className="mt-0.5 h-4 w-4 shrink-0" aria-hidden />
+                    {beneficio}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <Link
+              href="/clinica/visibilidad"
+              className="press whitespace-nowrap rounded-full bg-white px-6 py-3 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
+            >
+              Solicitar Perfil detallado →
+            </Link>
+          </div>
+        </div>
+      )}
 
       <section
         className={`mt-2 rounded-xl border p-4 ${
