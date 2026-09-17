@@ -15,6 +15,7 @@ import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
 import { comprimirFormData } from "@/lib/comprimir-imagen";
+import { OverlayCargando } from "@/components/ui/overlay-cargando";
 
 type Props = {
   clinic: Clinic;
@@ -69,6 +70,16 @@ export function FichaClinicaForm({
 
   return (
     <form onSubmit={onSubmit} className="flex flex-col gap-8">
+      {estado !== "idle" && (
+        <OverlayCargando
+          mensaje={
+            estado === "comprimiendo"
+              ? "Optimizando tus fotos…"
+              : "Guardando los cambios en tu ficha…"
+          }
+        />
+      )}
+
       {clinic.plan !== "premium" && (
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-green to-brand-blue p-5">
           <div>

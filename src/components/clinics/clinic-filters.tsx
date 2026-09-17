@@ -1,5 +1,6 @@
 "use client";
 
+import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ClinicFiltersProps = {
@@ -57,12 +58,19 @@ export function ClinicFilters({ provincias, ciudades, tecnicas }: ClinicFiltersP
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
+  const [buscando, startTransition] = useTransition();
 
   const options: Record<(typeof FIELDS)[number]["key"], string[]> = {
     provincia: provincias,
     ciudad: ciudades,
     tecnica: tecnicas,
   };
+
+  function navegar(query: string) {
+    startTransition(() => {
+      router.push(query ? `${pathname}?${query}` : pathname);
+    });
+  }
 
   function updateFilter(key: string, value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -74,8 +82,7 @@ export function ClinicFilters({ provincias, ciudades, tecnicas }: ClinicFiltersP
     if (key === "provincia") {
       params.delete("ciudad");
     }
-    const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
+    navegar(params.toString());
   }
 
   function toggleBooleanFilter(key: string) {
@@ -85,8 +92,7 @@ export function ClinicFilters({ provincias, ciudades, tecnicas }: ClinicFiltersP
     } else {
       params.set(key, "1");
     }
-    const query = params.toString();
-    router.push(query ? `${pathname}?${query}` : pathname);
+    navegar(params.toString());
   }
 
   const verificadoActivo = searchParams.get("verificado") === "1";
@@ -163,11 +169,24 @@ export function ClinicFilters({ provincias, ciudades, tecnicas }: ClinicFiltersP
       {hasActiveFilters && (
         <button
           type="button"
-          onClick={() => router.push(pathname)}
+          onClick={() => navegar("")}
           className="text-sm font-medium text-cyan hover:text-cyan-dark"
         >
           Quitar filtros
         </button>
+      )}
+
+      {buscando && (
+        <span
+          className="flex items-center gap-1.5 text-sm text-ink-soft"
+          aria-live="polite"
+        >
+          <span
+            className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-line border-t-teal"
+            aria-hidden
+          />
+          Buscando…
+        </span>
       )}
     </div>
   );
