@@ -83,7 +83,25 @@ export function FichaClinicaForm({
 
       <SeccionFicha titulo="Perfil Básico">
         <div className="grid gap-4">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_140px] sm:items-start">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[161px_1fr] sm:items-start">
+            <div>
+              <label htmlFor="logo" className={labelClass}>
+                Logo
+              </label>
+              <p className="mt-0.5 text-xs text-ink-soft">138×58px, apaisado</p>
+              {clinic.logo_url && (
+                <div className="relative mt-2 h-[58px] w-[138px] overflow-hidden rounded-lg border border-line bg-white p-1.5">
+                  <Image src={clinic.logo_url} alt="" fill sizes="138px" className="object-contain" />
+                </div>
+              )}
+              <input
+                id="logo"
+                name="logo"
+                type="file"
+                accept="image/*"
+                className="mt-2 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+              />
+            </div>
             <div>
               <label className={labelClass} htmlFor="nombre">
                 Nombre de la clínica
@@ -96,36 +114,6 @@ export function FichaClinicaForm({
                 className={inputClass}
               />
             </div>
-            <div>
-              <label htmlFor="logo" className={labelClass}>
-                Logo
-              </label>
-              <p className="mt-0.5 text-xs text-ink-soft">120×50px, apaisado</p>
-              {clinic.logo_url && (
-                <div className="relative mt-2 h-[50px] w-[120px] overflow-hidden rounded-lg border border-line bg-white p-1.5">
-                  <Image src={clinic.logo_url} alt="" fill sizes="120px" className="object-contain" />
-                </div>
-              )}
-              <input
-                id="logo"
-                name="logo"
-                type="file"
-                accept="image/*"
-                className="mt-2 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
-              />
-            </div>
-          </div>
-          <div>
-            <label className={labelClass}>
-              Fotos de la clínica{" "}
-              <span className="font-normal text-ink-soft">(hasta 10)</span>
-            </label>
-            <p className="mt-0.5 text-xs text-ink-soft">
-              La primera es la que se usa como foto principal en los
-              listados — arrastra las fotos (o usa ‹ ›) para cambiar el
-              orden.
-            </p>
-            <FotosClinicaField fotosIniciales={clinic.fotos} max={10} />
           </div>
           <div>
             <label className={labelClass} htmlFor="descripcion">
@@ -194,6 +182,18 @@ export function FichaClinicaForm({
               ciudadInicial={clinic.ciudad}
               zonaInicial={clinic.zona}
             />
+          </div>
+          <div>
+            <label className={labelClass}>
+              Fotos de la clínica{" "}
+              <span className="font-normal text-ink-soft">(hasta 10)</span>
+            </label>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              La primera es la que se usa como foto principal en los
+              listados — arrastra las fotos (o usa ‹ ›) para cambiar el
+              orden.
+            </p>
+            <FotosClinicaField fotosIniciales={clinic.fotos} max={10} />
           </div>
         </div>
       </SeccionFicha>
@@ -469,8 +469,8 @@ export function FichaClinicaForm({
           </p>
         ) : (
           <p className="mt-1 text-sm text-ink-soft">
-            Puedes rellenarlo ya — se guarda todo, listo para publicarse en
-            el momento en que actives el Perfil detallado.{" "}
+            Puedes rellenarlo aunque no esté público, a la espera de que lo
+            actives.{" "}
             <Link href="/clinica/visibilidad" className="font-bold text-cyan-dark hover:underline">
               Solicitar Perfil detallado →
             </Link>
@@ -682,14 +682,14 @@ export function FichaClinicaForm({
           </div>
 
           {clinic.plan !== "premium" && (
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-teal-dark px-5 py-4">
-              <p className="text-sm font-medium text-paper">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-green to-brand-blue px-5 py-4 shadow-md shadow-teal/10">
+              <p className="text-sm font-bold text-teal-dark">
                 Todo esto ya está guardado — actívalo para que lo vean tus
                 pacientes.
               </p>
               <Link
                 href="/clinica/visibilidad"
-                className="press whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow transition hover:opacity-90"
+                className="press whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
               >
                 Solicitar Perfil detallado →
               </Link>
