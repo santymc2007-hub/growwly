@@ -440,6 +440,14 @@ export function FichaClinicaForm({
             />
             Primera consulta gratis
           </label>
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="acepta_videoconsulta"
+              defaultChecked={clinic.acepta_videoconsulta}
+            />
+            Aceptamos videoconsulta
+          </label>
         </div>
       </section>
 
@@ -502,6 +510,24 @@ export function FichaClinicaForm({
               placeholder="https://www.youtube.com/watch?v=..."
               defaultValue={clinic.video_url ?? undefined}
               className={`${inputClass} mt-1`}
+            />
+          </div>
+
+          <div className="mt-6">
+            <label htmlFor="reserva_online_url" className={labelClass}>
+              Reserva tu cita online
+            </label>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Enlace externo a tu sistema de reservas (Calendly, tu propia
+              web...). Si lo rellenas, aparecerá un botón en tu ficha.
+            </p>
+            <input
+              id="reserva_online_url"
+              name="reserva_online_url"
+              type="url"
+              placeholder="https://..."
+              defaultValue={clinic.reserva_online_url ?? undefined}
+              className={`${inputClass} mt-2`}
             />
           </div>
 

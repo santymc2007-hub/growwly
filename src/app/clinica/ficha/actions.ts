@@ -97,6 +97,7 @@ export async function actualizarMiFicha(formData: FormData) {
     accesibilidad: str("accesibilidad"),
     financiacion: formData.get("financiacion") === "on",
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
+    acepta_videoconsulta: formData.get("acepta_videoconsulta") === "on",
   };
 
   // El contenido "premium" (antes/después, opiniones, certificados) se
@@ -163,6 +164,7 @@ export async function actualizarMiFicha(formData: FormData) {
       detalle_oferta: detalleOferta,
       descripcion_extendida: str("descripcion_extendida"),
       video_url: str("video_url"),
+      reserva_online_url: str("reserva_online_url"),
       medicos,
       fotos_antes_despues: nuevosPares,
       opiniones,
