@@ -16,12 +16,12 @@ import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
 import { FotosClinicaField } from "@/components/clinica/fotos-clinica-field";
+import { SeccionFicha } from "@/components/clinica/seccion-ficha";
 import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 
 type Props = {
   clinic: Clinic;
-  nombreGestor: string | null;
   action: (formData: FormData) => void;
   municipios: { provincia: string; nombre: string }[];
   zonas: { municipio: string; nombre: string }[];
@@ -36,7 +36,6 @@ const MAX_OPINIONES = 10;
 
 export function FichaClinicaForm({
   clinic,
-  nombreGestor,
   action,
   municipios,
   zonas,
@@ -82,45 +81,39 @@ export function FichaClinicaForm({
         />
       )}
 
-      <section className="rounded-2xl border border-line bg-white p-5">
-        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">Perfil Básico</h2>
-        <div className="mt-4 grid gap-4">
-          <div>
-            <label htmlFor="nombre_gestor" className={labelClass}>
-              Tu nombre{" "}
-              <span className="font-normal text-ink-soft">
-                (la persona que gestiona esta cuenta — sale en el saludo de la
-                cabecera)
-              </span>
-            </label>
-            <input
-              id="nombre_gestor"
-              name="nombre_gestor"
-              placeholder="Ej. María García"
-              defaultValue={nombreGestor ?? undefined}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label htmlFor="logo" className={labelClass}>
-              Logo de la clínica
-            </label>
-            <p className="mt-0.5 text-xs text-ink-soft">
-              Se mostrará a 120×50px — sube una imagen apaisada (no
-              cuadrada) para que no se vea diminuta ni recortada.
-            </p>
-            {clinic.logo_url && (
-              <div className="relative mt-2 h-[50px] w-[120px] overflow-hidden rounded-lg border border-line bg-white p-1.5">
-                <Image src={clinic.logo_url} alt="" fill sizes="120px" className="object-contain" />
-              </div>
-            )}
-            <input
-              id="logo"
-              name="logo"
-              type="file"
-              accept="image/*"
-              className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
-            />
+      <SeccionFicha titulo="Perfil Básico">
+        <div className="grid gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1fr_140px] sm:items-start">
+            <div>
+              <label className={labelClass} htmlFor="nombre">
+                Nombre de la clínica
+              </label>
+              <input
+                id="nombre"
+                name="nombre"
+                required
+                defaultValue={clinic.nombre}
+                className={inputClass}
+              />
+            </div>
+            <div>
+              <label htmlFor="logo" className={labelClass}>
+                Logo
+              </label>
+              <p className="mt-0.5 text-xs text-ink-soft">120×50px, apaisado</p>
+              {clinic.logo_url && (
+                <div className="relative mt-2 h-[50px] w-[120px] overflow-hidden rounded-lg border border-line bg-white p-1.5">
+                  <Image src={clinic.logo_url} alt="" fill sizes="120px" className="object-contain" />
+                </div>
+              )}
+              <input
+                id="logo"
+                name="logo"
+                type="file"
+                accept="image/*"
+                className="mt-2 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+              />
+            </div>
           </div>
           <div>
             <label className={labelClass}>
@@ -146,7 +139,7 @@ export function FichaClinicaForm({
               className={inputClass}
             />
           </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>
               <label className={labelClass} htmlFor="telefono">
                 Teléfono
@@ -170,17 +163,17 @@ export function FichaClinicaForm({
                 className={inputClass}
               />
             </div>
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="web">
-              Web
-            </label>
-            <input
-              id="web"
-              name="web"
-              defaultValue={clinic.web ?? undefined}
-              className={inputClass}
-            />
+            <div>
+              <label className={labelClass} htmlFor="web">
+                Web
+              </label>
+              <input
+                id="web"
+                name="web"
+                defaultValue={clinic.web ?? undefined}
+                className={inputClass}
+              />
+            </div>
           </div>
           <div>
             <label className={labelClass} htmlFor="direccion">
@@ -203,13 +196,10 @@ export function FichaClinicaForm({
             />
           </div>
         </div>
-      </section>
+      </SeccionFicha>
 
-      <section>
-        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
-          Redes sociales
-        </h2>
-        <div className="mt-4 grid grid-cols-2 gap-4">
+      <SeccionFicha titulo="Redes sociales">
+        <div className="grid grid-cols-2 gap-4">
           {(["instagram", "facebook", "tiktok"] as const).map((red) => (
             <div key={red}>
               <label className={labelClass} htmlFor={`red_${red}`}>
@@ -231,13 +221,10 @@ export function FichaClinicaForm({
             </div>
           ))}
         </div>
-      </section>
+      </SeccionFicha>
 
-      <section>
-        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
-          Técnicas e idiomas
-        </h2>
-        <div className="mt-4">
+      <SeccionFicha titulo="Técnicas e idiomas">
+        <div>
           <p className={labelClass}>Técnicas que ofrecéis</p>
           {Object.entries(TECNICAS_POR_CATEGORIA).map(([categoria, tecnicas]) => (
             <div key={categoria} className="mt-3">
@@ -282,13 +269,10 @@ export function FichaClinicaForm({
             ))}
           </div>
         </div>
-      </section>
+      </SeccionFicha>
 
-      <section>
-        <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
-          Servicios y precios
-        </h2>
-        <div className="mt-4 grid gap-4">
+      <SeccionFicha titulo="Servicios y precios">
+        <div className="grid gap-4">
           <div>
             <label className={labelClass} htmlFor="tipo_negocio">
               Tipo de negocio
@@ -422,7 +406,7 @@ export function FichaClinicaForm({
             Aceptamos videoconsulta
           </label>
         </div>
-      </section>
+      </SeccionFicha>
 
       {clinic.plan !== "premium" && (
         <div className="rounded-3xl bg-gradient-to-r from-brand-green to-brand-blue p-6 shadow-lg shadow-teal/10 sm:p-7">

@@ -12,7 +12,7 @@ function isRealFile(value: FormDataEntryValue | null): value is File {
 }
 
 export async function actualizarMiFicha(formData: FormData) {
-  const { clinicId, profileId } = await requireClinicaActiva();
+  const { clinicId } = await requireClinicaActiva();
   const admin = createAdminClient();
 
   const str = (key: string) => {
@@ -100,6 +100,10 @@ export async function actualizarMiFicha(formData: FormData) {
   }
 
   const camposComunes = {
+    // La ficha exige rellenar el nombre (required en el input), pero
+    // por si acaso llega vacío nunca se manda null — nombre es NOT
+    // NULL en la base de datos.
+    nombre: str("nombre") ?? undefined,
     descripcion: str("descripcion"),
     telefono: str("telefono"),
     email: str("email"),
@@ -218,11 +222,6 @@ export async function actualizarMiFicha(formData: FormData) {
   if (error) {
     redirect(`/clinica?error=${encodeURIComponent(error.message)}`);
   }
-
-  await admin
-    .from("profiles")
-    .update({ nombre: str("nombre_gestor") })
-    .eq("id", profileId);
 
   revalidatePath("/clinica");
   revalidatePath("/clinica/solicitudes");

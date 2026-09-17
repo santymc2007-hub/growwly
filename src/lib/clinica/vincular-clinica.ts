@@ -9,6 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export async function vincularClinica(
   userId: string,
   clinicId: string,
+  nombreGestor?: string | null,
 ): Promise<boolean> {
   const supabase = createAdminClient();
 
@@ -23,7 +24,12 @@ export async function vincularClinica(
 
   const { error } = await supabase
     .from("profiles")
-    .update({ role: "clinic", clinic_id: clinicId, clinic_status: "pendiente" })
+    .update({
+      role: "clinic",
+      clinic_id: clinicId,
+      clinic_status: "pendiente",
+      ...(nombreGestor ? { nombre: nombreGestor } : {}),
+    })
     .eq("id", userId);
 
   if (error) return false;

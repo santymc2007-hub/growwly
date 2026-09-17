@@ -68,6 +68,22 @@ export default async function RegistroClinicaPage({
         </div>
 
         <div>
+          <label htmlFor="nombre_gestor" className="text-sm font-medium text-ink">
+            Tu nombre{" "}
+            <span className="font-normal text-ink-soft">
+              (sale en el saludo de la cabecera del panel)
+            </span>
+          </label>
+          <input
+            id="nombre_gestor"
+            name="nombre_gestor"
+            placeholder="Ej. María García"
+            required
+            className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+          />
+        </div>
+
+        <div>
           <label htmlFor="email" className="text-sm font-medium text-ink">
             Email
           </label>
