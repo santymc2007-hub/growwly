@@ -417,8 +417,8 @@ export function FichaClinicaForm({
                 Perfil detallado
               </div>
               <p className="mt-2 font-display text-xl font-extrabold text-teal-dark sm:text-2xl">
-                El 80% de los pacientes se sienten más cómodos con las
-                fichas con más información
+                Las fichas con Perfil detallado reciben un 80% más de
+                clics a teléfono y web
               </p>
               <ul className="mt-3 flex flex-col gap-1.5 text-sm font-medium text-teal-dark/90">
                 {[
@@ -440,7 +440,7 @@ export function FichaClinicaForm({
               href="/clinica/visibilidad"
               className="press whitespace-nowrap rounded-full bg-white px-6 py-3 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
             >
-              Solicitar Perfil detallado →
+              Activar Perfil detallado →
             </Link>
           </div>
         </div>
@@ -473,7 +473,7 @@ export function FichaClinicaForm({
             Puedes rellenarlo aunque no esté público, a la espera de que lo
             actives.{" "}
             <Link href="/clinica/visibilidad" className="font-bold text-cyan-dark hover:underline">
-              Solicitar Perfil detallado →
+              Activar Perfil detallado →
             </Link>
           </p>
         )}
@@ -692,7 +692,7 @@ export function FichaClinicaForm({
                 href="/clinica/visibilidad"
                 className="press whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
               >
-                Solicitar Perfil detallado →
+                Activar Perfil detallado →
               </Link>
             </div>
           )}
