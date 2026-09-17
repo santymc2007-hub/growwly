@@ -1,6 +1,7 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { AprobarRechazarButtons } from "./botones";
 import { GestorGrupo } from "./gestor-grupo";
+import { verificarDominio } from "@/lib/clinica/verificar-dominio";
 
 export const dynamic = "force-dynamic";
 
@@ -27,11 +28,14 @@ export default async function ClinicasCuentasPage() {
 
   const { data: clinicasRelacionadas } =
     clinicIds.length > 0
-      ? await supabase.from("clinics").select("id, nombre").in("id", clinicIds)
+      ? await supabase.from("clinics").select("id, nombre, web").in("id", clinicIds)
       : { data: [] };
 
   const nombrePorClinicId = new Map(
     (clinicasRelacionadas ?? []).map((c) => [c.id, c.nombre]),
+  );
+  const webPorClinicId = new Map(
+    (clinicasRelacionadas ?? []).map((c) => [c.id, c.web]),
   );
 
   const { data: todasLasClinicas } = await supabase
@@ -74,27 +78,49 @@ export default async function ClinicasCuentasPage() {
               <tr>
                 <th className="px-4 py-3 font-medium">Clínica</th>
                 <th className="px-4 py-3 font-medium">Email de la cuenta</th>
+                <th className="px-4 py-3 font-medium">¿Coincide con su web?</th>
                 <th className="px-4 py-3 font-medium">Solicitado</th>
                 <th className="px-4 py-3 font-medium text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
-              {pendientes.map((p) => (
-                <tr key={p.id} className="border-t border-line">
-                  <td className="px-4 py-3 font-medium text-ink">
-                    {p.clinic_id
-                      ? (nombrePorClinicId.get(p.clinic_id) ?? "—")
-                      : "—"}
-                  </td>
-                  <td className="px-4 py-3 text-ink-soft">{p.email}</td>
-                  <td className="px-4 py-3 text-ink-soft">
-                    {new Date(p.created_at).toLocaleDateString("es-ES")}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <AprobarRechazarButtons profileId={p.id} />
-                  </td>
-                </tr>
-              ))}
+              {pendientes.map((p) => {
+                const web = p.clinic_id ? (webPorClinicId.get(p.clinic_id) ?? null) : null;
+                const verificacion = verificarDominio(p.email, web);
+                return (
+                  <tr key={p.id} className="border-t border-line">
+                    <td className="px-4 py-3 font-medium text-ink">
+                      {p.clinic_id
+                        ? (nombrePorClinicId.get(p.clinic_id) ?? "—")
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-ink-soft">{p.email}</td>
+                    <td className="px-4 py-3">
+                      {verificacion === "coincide" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-sage px-2.5 py-1 text-xs font-medium text-sage-ink">
+                          ✓ Coincide
+                        </span>
+                      )}
+                      {verificacion === "no_coincide" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-yellow/40 px-2.5 py-1 text-xs font-medium text-teal-dark">
+                          ⚠ No coincide — revisar
+                        </span>
+                      )}
+                      {verificacion === "sin_web" && (
+                        <span className="inline-flex items-center gap-1 rounded-full bg-paper-dim px-2.5 py-1 text-xs font-medium text-ink-soft">
+                          — Sin web registrada
+                        </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-ink-soft">
+                      {new Date(p.created_at).toLocaleDateString("es-ES")}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <AprobarRechazarButtons profileId={p.id} />
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
