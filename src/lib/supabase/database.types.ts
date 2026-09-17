@@ -40,6 +40,7 @@ export interface Database {
           idiomas: string[];
           financiacion: boolean;
           primera_consulta_gratis: boolean;
+          acepta_videoconsulta: boolean;
           fotos: string[];
           verificado: boolean;
           direccion: string | null;
@@ -52,6 +53,7 @@ export interface Database {
           leads_enabled: boolean;
           medicos: Json;
           video_url: string | null;
+          reserva_online_url: string | null;
           descripcion_extendida: string | null;
           visibilidad_fechas: Json;
           rating_google: number | null;
@@ -99,6 +101,7 @@ export interface Database {
           idiomas?: string[];
           financiacion?: boolean;
           primera_consulta_gratis?: boolean;
+          acepta_videoconsulta?: boolean;
           fotos?: string[];
           verificado?: boolean;
           direccion?: string | null;
@@ -111,6 +114,7 @@ export interface Database {
           leads_enabled?: boolean;
           medicos?: Json;
           video_url?: string | null;
+          reserva_online_url?: string | null;
           descripcion_extendida?: string | null;
           visibilidad_fechas?: Json;
           rating_google?: number | null;
@@ -158,6 +162,7 @@ export interface Database {
           idiomas?: string[];
           financiacion?: boolean;
           primera_consulta_gratis?: boolean;
+          acepta_videoconsulta?: boolean;
           fotos?: string[];
           verificado?: boolean;
           direccion?: string | null;
@@ -170,6 +175,7 @@ export interface Database {
           leads_enabled?: boolean;
           medicos?: Json;
           video_url?: string | null;
+          reserva_online_url?: string | null;
           descripcion_extendida?: string | null;
           visibilidad_fechas?: Json;
           rating_google?: number | null;

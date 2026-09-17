@@ -8,6 +8,7 @@ import { getSocialLinks } from "@/lib/social-links";
 import { formatearPrecio, slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { Carousel } from "@/components/clinics/carousel";
+import { AntesDespuesGaleria } from "@/components/clinics/antes-despues-galeria";
 import { ModuloValoraciones } from "@/components/clinics/modulo-valoraciones";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -395,6 +396,7 @@ export default async function ClinicaPage({
 
           {(clinic.primera_consulta_gratis ||
             clinic.financiacion ||
+            clinic.acepta_videoconsulta ||
             (esPremium && clinic.tiene_oferta)) && (
             <section className="mt-8 flex flex-wrap gap-3 text-sm">
               {esPremium && clinic.tiene_oferta && (
@@ -410,6 +412,11 @@ export default async function ClinicaPage({
               {clinic.financiacion && (
                 <span className="rounded-full border border-line px-3 py-1 text-ink-soft">
                   Financiación disponible
+                </span>
+              )}
+              {clinic.acepta_videoconsulta && (
+                <span className="rounded-full border border-line px-3 py-1 text-ink-soft">
+                  Acepta videoconsulta
                 </span>
               )}
             </section>
@@ -459,68 +466,13 @@ export default async function ClinicaPage({
               <h2 className="font-display text-lg text-teal-dark">
                 Antes y después
               </h2>
-              <div className="mt-3 max-w-md">
-                <Carousel
-                  slides={(clinic.fotos_antes_despues as { antes: string; despues: string }[]).map(
-                    (par, i) => (
-                      <div key={i} className="grid grid-cols-2 gap-1.5">
-                        <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
-                          <Image
-                            src={par.antes}
-                            alt={`${clinic.nombre} antes ${i + 1}`}
-                            fill
-                            sizes="220px"
-                            className="object-cover"
-                          />
-                          <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                            Antes
-                          </span>
-                        </div>
-                        <div className="relative aspect-square overflow-hidden rounded-lg bg-sage">
-                          <Image
-                            src={par.despues}
-                            alt={`${clinic.nombre} después ${i + 1}`}
-                            fill
-                            sizes="220px"
-                            className="object-cover"
-                          />
-                          <span className="absolute bottom-1 left-1 rounded bg-ink/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
-                            Después
-                          </span>
-                        </div>
-                      </div>
-                    ),
-                  )}
-                  slidesGrandes={(clinic.fotos_antes_despues as { antes: string; despues: string }[]).map(
-                    (par, i) => (
-                      <div key={i} className="grid grid-cols-2 gap-2">
-                        <div className="relative aspect-square overflow-hidden rounded-xl bg-black">
-                          <Image
-                            src={par.antes}
-                            alt={`${clinic.nombre} antes ${i + 1}`}
-                            fill
-                            sizes="45vw"
-                            className="object-contain"
-                          />
-                          <span className="absolute bottom-2 left-2 rounded bg-ink/70 px-2 py-1 text-xs font-medium text-white">
-                            Antes
-                          </span>
-                        </div>
-                        <div className="relative aspect-square overflow-hidden rounded-xl bg-black">
-                          <Image
-                            src={par.despues}
-                            alt={`${clinic.nombre} después ${i + 1}`}
-                            fill
-                            sizes="45vw"
-                            className="object-contain"
-                          />
-                          <span className="absolute bottom-2 left-2 rounded bg-ink/70 px-2 py-1 text-xs font-medium text-white">
-                            Después
-                          </span>
-                        </div>
-                      </div>
-                    ),
-                  )}
+              <p className="mt-1 text-xs text-ink-soft">
+                Arrastra para comparar.
+              </p>
+              <div className="mt-3">
+                <AntesDespuesGaleria
+                  pares={clinic.fotos_antes_despues as { antes: string; despues: string }[]}
+                  nombreClinica={clinic.nombre}
                 />
               </div>
             </section>
@@ -701,6 +653,17 @@ export default async function ClinicaPage({
           >
             Pedir presupuesto →
           </Link>
+
+          {esPremium && clinic.reserva_online_url && (
+            <a
+              href={clinic.reserva_online_url}
+              target="_blank"
+              rel="noreferrer"
+              className="press mt-2 inline-block rounded-full border border-teal px-5 py-2.5 text-sm font-bold text-teal-dark transition hover:bg-teal/5"
+            >
+              Reserva tu cita online ↗
+            </a>
+          )}
 
           {esPremium && socialLinks.length > 0 && (
             <>
