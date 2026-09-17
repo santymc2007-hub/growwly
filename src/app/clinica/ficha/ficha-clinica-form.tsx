@@ -417,7 +417,8 @@ export function FichaClinicaForm({
                 Perfil detallado
               </div>
               <p className="mt-2 font-display text-xl font-extrabold text-teal-dark sm:text-2xl">
-                Es lo que más convierte visitas en clientes
+                El 80% de los pacientes se sienten más cómodos con las
+                fichas con más información
               </p>
               <ul className="mt-3 flex flex-col gap-1.5 text-sm font-medium text-teal-dark/90">
                 {[
