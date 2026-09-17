@@ -120,7 +120,7 @@ export function FotosClinicaField({
       />
 
       {entradas.length > 0 && (
-        <div className="mt-2 grid grid-cols-3 gap-3 sm:grid-cols-5">
+        <div className="mt-2 grid grid-cols-4 gap-2 sm:grid-cols-7">
           {entradas.map((entrada, index) => (
             <div
               key={entrada.id}

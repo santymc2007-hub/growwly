@@ -9,11 +9,12 @@ export async function registrarClinica(formData: FormData) {
   const password = String(formData.get("password") ?? "");
   const password2 = String(formData.get("password2") ?? "");
   const clinicId = String(formData.get("clinic_id") ?? "").trim();
+  const nombreGestor = String(formData.get("nombre_gestor") ?? "").trim();
 
-  if (!email || !password || !clinicId) {
+  if (!email || !password || !clinicId || !nombreGestor) {
     redirect(
       `/clinica/registro?error=${encodeURIComponent(
-        "Email, contraseña y clínica son obligatorios.",
+        "Tu nombre, email, contraseña y clínica son obligatorios.",
       )}`,
     );
   }
@@ -26,7 +27,7 @@ export async function registrarClinica(formData: FormData) {
 
   const supabase = await createClient();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
-  const next = `/clinica/vincular/${clinicId}`;
+  const next = `/clinica/vincular/${clinicId}?nombre=${encodeURIComponent(nombreGestor)}`;
 
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -48,7 +49,7 @@ export async function registrarClinica(formData: FormData) {
   }
 
   if (data.user) {
-    await vincularClinica(data.user.id, clinicId);
+    await vincularClinica(data.user.id, clinicId, nombreGestor);
   }
 
   redirect("/clinica");

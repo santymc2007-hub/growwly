@@ -190,7 +190,6 @@ export default async function ClinicaPanelPage({
 
         <FichaClinicaForm
           clinic={clinic}
-          nombreGestor={nombreGestor}
           action={actualizarMiFicha}
           municipios={municipios}
           zonas={zonas}
