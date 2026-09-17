@@ -5,6 +5,7 @@ import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { crearEstudio } from "../actions";
 import { BotonAnalizar } from "./boton-analizar";
+import { OverlayAnalizando } from "./overlay-analizando";
 import { SlotFoto } from "./slot-foto";
 
 // Subir 5 fotos + analizarlas con IA puede superar los 10s por defecto
@@ -124,6 +125,7 @@ export default async function NuevoAnalisisPage({
         )}
 
         <form action={crearEstudio} className="flex flex-col gap-6">
+          <OverlayAnalizando />
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
             {SLOTS.map((slot) => (
               <SlotFoto key={slot.name} {...slot} />
