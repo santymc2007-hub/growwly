@@ -4,6 +4,7 @@ import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
+import { rangoUfsPorNorwood } from "@/lib/ai/rango-ufs";
 import { SiteHeader } from "@/components/site-header";
 import { BorrarEstudioButton } from "./borrar-estudio-button";
 
@@ -43,6 +44,7 @@ export default async function ResultadoAnalisisPage({
     createAdminClient(),
     estudio.foto_frontal,
   );
+  const rangoUfs = rangoUfsPorNorwood(estudio.norwood_estimado);
 
   return (
     <main className="flex-1">
@@ -109,6 +111,17 @@ export default async function ResultadoAnalisisPage({
                 <span className="inline-block rounded-full bg-sage px-3 py-1 text-xs font-medium text-sage-ink">
                   Estimación orientativa: {estudio.norwood_estimado}
                 </span>
+              )}
+              {estudio.es_alopecia_tratable && rangoUfs && (
+                <p className="mt-2 text-sm text-ink">
+                  Para ese grado, el rango de injerto que suelen manejar
+                  las clínicas está entre{" "}
+                  <strong>{rangoUfs.desde.toLocaleString("es-ES")}</strong>{" "}
+                  y{" "}
+                  <strong>{rangoUfs.hasta.toLocaleString("es-ES")}</strong>{" "}
+                  unidades foliculares (UFs) — varía según cada clínica y
+                  tu densidad donante.
+                </p>
               )}
               <p className="mt-3 text-sm leading-relaxed text-ink">
                 {estudio.resultado_texto}
