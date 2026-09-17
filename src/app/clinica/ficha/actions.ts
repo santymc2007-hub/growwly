@@ -39,22 +39,42 @@ export async function actualizarMiFicha(formData: FormData) {
 
   const detalleOferta = str("detalle_oferta");
 
-  // Fotos de la clínica: conservar - eliminadas + nuevas, con tope de 5.
-  const fotosActuales: string[] = (() => {
+  // El contenido "premium" (antes/después, opiniones, certificados) se
+  // guarda para CUALQUIER plan — así una clínica Básica puede dejarlo
+  // listo de antemano. El filtro real (que solo se vea en público si
+  // es Premium) vive en la página pública de la ficha, no aquí.
+  const { data: clinicaActual } = await admin
+    .from("clinics")
+    .select("fotos, fotos_antes_despues, opiniones, certificados")
+    .eq("id", clinicId)
+    .maybeSingle();
+
+  // Fotos de la clínica: el campo fotos_orden (rellenado por
+  // FotosClinicaField) describe el orden final exacto — existentes y
+  // nuevas intercaladas, tal y como las dejó la clínica arrastrándolas
+  // o con los botones ‹ ›. La primera es la que se usa como foto
+  // principal en los listados.
+  const MAX_FOTOS = 10;
+  type OrdenEntrada = { t: "e"; url: string } | { t: "n" };
+  const orden: OrdenEntrada[] = (() => {
     try {
-      return JSON.parse(String(formData.get("fotos_actuales") ?? "[]"));
+      return JSON.parse(String(formData.get("fotos_orden") ?? "[]"));
     } catch {
       return [];
     }
   })();
-  const fotosAEliminar = formData.getAll("fotos_eliminar").map(String);
-  const fotosConservadas = fotosActuales.filter((url) => !fotosAEliminar.includes(url));
 
-  let fotosNuevas: string[] = [];
+  let fotos: string[] = [];
   try {
     const archivosNuevos = formData.getAll("fotos_nuevas").filter(isRealFile);
-    const hueco = Math.max(0, 5 - fotosConservadas.length);
-    fotosNuevas = await uploadClinicPhotos(admin, archivosNuevos.slice(0, hueco));
+    const nuevasUrls = await uploadClinicPhotos(admin, archivosNuevos);
+    let cursorNuevas = 0;
+    fotos = orden
+      .map((entrada) =>
+        entrada.t === "e" ? entrada.url : nuevasUrls[cursorNuevas++],
+      )
+      .filter((url): url is string => Boolean(url))
+      .slice(0, MAX_FOTOS);
   } catch (e) {
     redirect(
       `/clinica?error=${encodeURIComponent(
@@ -62,10 +82,13 @@ export async function actualizarMiFicha(formData: FormData) {
       )}`,
     );
   }
-  if (fotosAEliminar.length > 0) {
-    await deleteClinicPhotos(admin, fotosAEliminar);
+
+  const fotosEliminadas = (clinicaActual?.fotos ?? []).filter(
+    (url) => !fotos.includes(url),
+  );
+  if (fotosEliminadas.length > 0) {
+    await deleteClinicPhotos(admin, fotosEliminadas);
   }
-  const fotos = [...fotosConservadas, ...fotosNuevas].slice(0, 5);
 
   let horariosEstructurados: Json = [];
   try {
@@ -99,16 +122,6 @@ export async function actualizarMiFicha(formData: FormData) {
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
     acepta_videoconsulta: formData.get("acepta_videoconsulta") === "on",
   };
-
-  // El contenido "premium" (antes/después, opiniones, certificados) se
-  // guarda para CUALQUIER plan — así una clínica Básica puede dejarlo
-  // listo de antemano. El filtro real (que solo se vea en público si
-  // es Premium) vive en la página pública de la ficha, no aquí.
-  const { data: clinicaActual } = await admin
-    .from("clinics")
-    .select("fotos_antes_despues, opiniones, certificados")
-    .eq("id", clinicId)
-    .maybeSingle();
 
   let camposPremium: Record<string, unknown> = {};
 
