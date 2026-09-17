@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { notFound, redirect } from "next/navigation";
+import { notFound, redirect, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import ReactMarkdown from "react-markdown";
@@ -21,6 +21,23 @@ async function findClinic(slug: string) {
     .from("clinics")
     .select("*")
     .eq("slug", slug)
+    .eq("publicado", true)
+    .maybeSingle();
+  return data;
+}
+
+/**
+ * Cuando una clínica cambia de nombre, su slug cambia con ella — pero
+ * el anterior queda guardado en slugs_antiguos, así que un enlace ya
+ * compartido o indexado con la URL vieja sigue encontrando la ficha
+ * aquí en vez de dar un 404.
+ */
+async function findClinicPorSlugAntiguo(slug: string) {
+  const supabase = await createClient();
+  const { data } = await supabase
+    .from("clinics")
+    .select("provincia, ciudad, slug")
+    .contains("slugs_antiguos", [slug])
     .eq("publicado", true)
     .maybeSingle();
   return data;
@@ -85,6 +102,16 @@ export default async function ClinicaPage({
   const clinic = await findClinic(slug);
 
   if (!clinic) {
+    const viaSlugAntiguo = await findClinicPorSlugAntiguo(slug);
+    if (viaSlugAntiguo) {
+      const ciudadSlugViejo = viaSlugAntiguo.ciudad
+        ? slugifyCiudad(viaSlugAntiguo.ciudad)
+        : "clinica";
+      const provinciaSlugViejo = slugifyProvincia(viaSlugAntiguo.provincia);
+      permanentRedirect(
+        `/clinicas/${provinciaSlugViejo}/${ciudadSlugViejo}/${viaSlugAntiguo.slug}`,
+      );
+    }
     notFound();
   }
 

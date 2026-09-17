@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
 import type { Json } from "@/lib/supabase/database.types";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
+import { slugify } from "@/lib/slugify";
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
@@ -45,9 +46,33 @@ export async function actualizarMiFicha(formData: FormData) {
   // es Premium) vive en la página pública de la ficha, no aquí.
   const { data: clinicaActual } = await admin
     .from("clinics")
-    .select("fotos, fotos_antes_despues, opiniones, certificados")
+    .select("nombre, slug, slugs_antiguos, fotos, fotos_antes_despues, opiniones, certificados")
     .eq("id", clinicId)
     .maybeSingle();
+
+  // Si cambia el nombre, el slug de la URL se actualiza para que siga
+  // reflejándolo — pero el slug anterior se guarda en slugs_antiguos:
+  // la ficha pública redirige (308, permanente) desde cualquiera de
+  // esos slugs viejos a la URL actual, así que un enlace ya compartido
+  // o indexado en Google nunca deja de funcionar.
+  const nombreNuevo = str("nombre");
+  let nuevoSlug: string | undefined;
+  let slugsAntiguos: string[] | undefined;
+  if (clinicaActual && nombreNuevo && nombreNuevo !== clinicaActual.nombre) {
+    const candidato = slugify(nombreNuevo);
+    if (candidato && candidato !== clinicaActual.slug) {
+      const { data: colision } = await admin
+        .from("clinics")
+        .select("id")
+        .eq("slug", candidato)
+        .neq("id", clinicId)
+        .maybeSingle();
+      nuevoSlug = colision ? `${candidato}-${clinicId.slice(0, 6)}` : candidato;
+      slugsAntiguos = Array.from(
+        new Set([...(clinicaActual.slugs_antiguos ?? []), clinicaActual.slug]),
+      );
+    }
+  }
 
   // Fotos de la clínica: el campo fotos_orden (rellenado por
   // FotosClinicaField) describe el orden final exacto — existentes y
@@ -216,6 +241,7 @@ export async function actualizarMiFicha(formData: FormData) {
       ...camposPremium,
       fotos,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
+      ...(nuevoSlug ? { slug: nuevoSlug, slugs_antiguos: slugsAntiguos } : {}),
     })
     .eq("id", clinicId);
 
