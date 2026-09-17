@@ -14,6 +14,7 @@ import { calcularCompletitud, mensajeCompletitud } from "@/lib/clinica/completit
 import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
 import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
 import { AvisoSolicitudesPendientes } from "@/components/clinica/aviso-solicitudes-pendientes";
+import { Toast } from "@/components/ui/toast";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -179,15 +180,12 @@ export default async function ClinicaPanelPage({
           </div>
         </div>
 
-        {guardado && (
-          <p className="mb-4 rounded-lg bg-sage px-4 py-3 text-sm text-sage-ink">
-            Cambios guardados.
-          </p>
-        )}
-        {error && (
-          <p className="mb-4 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
-            {decodeURIComponent(error)}
-          </p>
+        {(guardado || error) && (
+          <Toast
+            key={Date.now()}
+            tipo={error ? "error" : "exito"}
+            mensaje={error ? decodeURIComponent(error) : "Cambios guardados correctamente."}
+          />
         )}
 
         <FichaClinicaForm
