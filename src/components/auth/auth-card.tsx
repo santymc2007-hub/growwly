@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 type Variant = "clinica" | "paciente" | "admin";
@@ -35,21 +36,31 @@ export function AuthCard({
 
   return (
     <main
-      className="flex min-h-screen items-center justify-center px-6 py-12"
+      className="flex min-h-screen flex-col items-center justify-center px-6 py-12"
       style={{ backgroundImage: fondo }}
     >
-      <div className="w-full max-w-sm rounded-2xl bg-white p-8 shadow-xl shadow-teal/5">
-        <Image
-          src="/brand/growwly-logo-gradient.png"
-          alt="Growwly"
-          width={97}
-          height={33}
-          className="h-7 w-auto"
-        />
-        <p className="mt-4 text-xs font-medium uppercase tracking-[0.2em] text-ink-soft">
-          {etiqueta}
-        </p>
-        {children}
+      <div className="w-full max-w-sm">
+        <Link
+          href="/"
+          className="mb-4 inline-flex items-center gap-1.5 text-sm font-medium text-ink-soft hover:text-teal-dark"
+        >
+          ← Volver a growwly.es
+        </Link>
+        <div className="rounded-2xl bg-white p-8 shadow-xl shadow-teal/5">
+          <Link href="/" className="inline-block">
+            <Image
+              src="/brand/growwly-logo-gradient.png"
+              alt="Growwly"
+              width={97}
+              height={33}
+              className="h-7 w-auto"
+            />
+          </Link>
+          <p className="mt-4 text-xs font-medium uppercase tracking-[0.2em] text-ink-soft">
+            {etiqueta}
+          </p>
+          {children}
+        </div>
       </div>
     </main>
   );
