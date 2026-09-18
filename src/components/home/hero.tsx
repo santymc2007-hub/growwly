@@ -10,16 +10,8 @@ const BADGES = [
 
 export function Hero() {
   return (
-    <section className="relative overflow-hidden bg-gradient-to-b from-sage/25 via-sage/10 to-white">
-      <Image
-        src="/brand/textura-hojas.png"
-        alt=""
-        fill
-        priority
-        sizes="100vw"
-        className="pointer-events-none object-cover opacity-70"
-      />
-      <div className="relative mx-auto grid max-w-[1600px] items-center gap-10 px-6 py-12 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6 lg:py-16">
+    <section className="mx-auto max-w-[1600px] px-6 pt-6 sm:pt-8">
+      <div className="grid items-center gap-10 rounded-3xl bg-white p-6 shadow-sm sm:p-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6">
         <div className="text-left">
           <p className="text-xs font-bold uppercase tracking-widest text-teal">
             Tu pelo en buenas manos
@@ -55,7 +47,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="relative mx-auto aspect-[1416/1111] w-full max-w-2xl">
+        <div className="relative mx-auto aspect-[1140/894] w-full max-w-2xl">
           <Image
             src="/brand/hero-analisis-ia.png"
             alt="Análisis capilar con IA a partir de una foto"

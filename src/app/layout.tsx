@@ -5,7 +5,6 @@ import "@fontsource/geist/600.css";
 import "@fontsource/bricolage-grotesque/600.css";
 import "@fontsource/bricolage-grotesque/700.css";
 import "@fontsource/bricolage-grotesque/800.css";
-import "@fontsource/birthstone/400.css";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
