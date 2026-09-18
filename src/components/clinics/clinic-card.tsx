@@ -36,11 +36,11 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
         <ClinicBadges clinic={clinic} />
       </div>
 
-      <div className="flex flex-1 flex-col gap-2.5 p-4">
+      <div className="flex flex-1 flex-col gap-2 p-2.5 sm:gap-2.5 sm:p-4">
         {(clinic.logo_url || clinic.rating_google != null) && (
           <div className="flex items-center justify-between gap-2">
             {clinic.logo_url ? (
-              <div className="relative h-[50px] w-[120px] shrink-0 rounded-lg border border-line bg-white p-1.5">
+              <div className="relative h-9 w-20 shrink-0 rounded-lg border border-line bg-white p-1.5 sm:h-[50px] sm:w-[120px]">
                 <Image
                   src={clinic.logo_url}
                   alt=""
@@ -57,7 +57,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
         )}
 
         <div>
-          <h3 className="font-display text-lg leading-snug text-teal-dark">
+          <h3 className="font-display text-sm leading-snug text-teal-dark sm:text-lg">
             {clinic.nombre}
           </h3>
           {ubicacion && (
@@ -71,13 +71,13 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
         </div>
 
         {clinic.descripcion && (
-          <p className="line-clamp-2 text-sm text-ink-soft">
+          <p className="hidden line-clamp-2 text-sm text-ink-soft sm:block">
             {clinic.descripcion}
           </p>
         )}
 
         {clinic.tecnicas.length > 0 && (
-          <div className="flex flex-wrap gap-1.5">
+          <div className="hidden flex-wrap gap-1.5 sm:flex">
             {clinic.tecnicas.slice(0, 3).map((tecnica) => (
               <span
                 key={tecnica}
@@ -94,7 +94,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
             {clinic.primera_consulta_gratis && <span>1ª consulta gratis</span>}
             {clinic.financiacion && <span>Financiación disponible</span>}
           </div>
-          <span className="press shrink-0 rounded-full bg-gradient-to-r from-yellow to-orange px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
+          <span className="press hidden shrink-0 rounded-full bg-gradient-to-r from-yellow to-orange px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90 sm:inline-block">
             Ver ficha
           </span>
         </div>

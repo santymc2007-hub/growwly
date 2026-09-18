@@ -73,7 +73,7 @@ export default async function HomePage() {
       {/* A partir de aquí, todo el "desarrollo" de la home vive en una
           única caja blanca continua que flota sobre el fondo — logo,
           menú y hero son lo único que va directamente sobre el fondo. */}
-      <div className="mx-auto max-w-[1600px] px-6 pb-8 sm:pb-10">
+      <div className="mx-auto max-w-[1600px] px-3 pb-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Qué es Growwly */}
           <div className="px-6 py-8 sm:px-10 sm:py-10">
@@ -111,7 +111,7 @@ export default async function HomePage() {
               <h2 className="font-display text-4xl font-extrabold text-teal-dark">
                 Clínicas destacadas
               </h2>
-              <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+              <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
                 {destacadas.map((clinic) => (
                   <ClinicCard key={clinic.id} clinic={clinic} />
                 ))}
