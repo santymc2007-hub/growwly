@@ -10,7 +10,7 @@ const BADGES = [
 
 export function Hero() {
   return (
-    <section className="mx-auto max-w-[1600px] px-6 pt-5 pb-10 sm:py-14">
+    <section className="mx-auto max-w-[1600px] px-6 pt-2.5 pb-10 sm:py-14">
       <div className="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6">
         <div className="order-2 text-center lg:order-1 lg:text-left">
           <p className="text-xs font-bold uppercase tracking-widest text-teal">
