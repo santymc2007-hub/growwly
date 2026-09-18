@@ -127,7 +127,7 @@ export default async function HomePage() {
           )}
 
           {/* Así de fácil */}
-          <div id="como-funciona" className="border-t border-line px-6 py-10 sm:px-10">
+          <div id="como-funciona" className="border-t border-line bg-paper-dim px-6 py-10 sm:px-10">
             <div className="lg:grid lg:grid-cols-[1fr_320px] lg:items-center lg:gap-8">
               <div>
                 <h2 className="font-display text-4xl font-extrabold text-teal-dark">
