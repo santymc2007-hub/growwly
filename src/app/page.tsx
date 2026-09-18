@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { ScanSearch, Send, FileCheck2, CalendarCheck } from "lucide-react";
+import { Camera, Cpu, FileText, Mail, Check, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -37,24 +37,24 @@ export const metadata: Metadata = {
 
 const PASOS = [
   {
-    icono: ScanSearch,
-    titulo: "Evaluación inicial",
-    texto: "Completa tu perfil y sube fotos para una evaluación personalizada.",
+    icono: Camera,
+    titulo: "1. Sube tu foto",
+    texto: "Hazte una foto de la zona que te preocupa.",
   },
   {
-    icono: Send,
-    titulo: "Solicita propuesta",
-    texto: "Enviamos tu evaluación a las clínicas que se adaptan a tus necesidades.",
+    icono: Cpu,
+    titulo: "2. IA analiza",
+    texto: "Nuestro sistema de IA evalúa tu caso en segundos.",
   },
   {
-    icono: FileCheck2,
-    titulo: "Recibe ofertas",
-    texto: "Las clínicas te envían propuestas adaptadas a tus necesidades.",
+    icono: FileText,
+    titulo: "3. Recibe tu valoración",
+    texto: "Te damos un informe gratuito con el diagnóstico.",
   },
   {
-    icono: CalendarCheck,
-    titulo: "Reserva tu cita",
-    texto: "Elige la mejor opción y agenda tu intervención de forma segura.",
+    icono: Mail,
+    titulo: "4. Solicita presupuestos",
+    texto: "Recibe ofertas de clínicas especializadas que se ajustan a tu caso.",
   },
 ];
 
@@ -152,41 +152,85 @@ export default async function HomePage() {
 
       {clinicaDeLaSemana && <ClinicaDeLaSemana clinic={clinicaDeLaSemana} />}
 
-      {/* Cómo funciona */}
-      <section id="como-funciona" className="mx-auto max-w-[1600px] px-6 py-16">
-        <h2 className="font-display text-4xl font-extrabold text-teal-dark">
-          ¿Cómo funciona la valoración capilar con IA?
-        </h2>
-        <p className="mt-3 max-w-2xl text-lg text-ink-soft">
-          Un proceso simple y transparente que te conecta con las mejores
-          clínicas especializadas en tratamientos capilares.
-        </p>
+      {/* Así de fácil */}
+      <section id="como-funciona" className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sage/50 via-sage/15 to-white px-6 py-10 sm:px-10 sm:py-14 lg:grid lg:grid-cols-[1fr_320px] lg:items-center lg:gap-12">
+          <div>
+            <h2 className="font-display text-4xl font-extrabold text-teal-dark">
+              Así de fácil
+            </h2>
+            <p className="mt-3 max-w-md text-lg text-ink-soft">
+              Tu valoración capilar en 4 sencillos pasos.
+            </p>
 
-        <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {PASOS.map((paso, i) => {
-            const Icono = paso.icono;
-            return (
-              <div key={paso.titulo} className="relative">
-                <div className="h-full rounded-2xl border-2 border-sage bg-white p-6">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-sage/60 text-teal-dark">
-                    <Icono size={24} aria-hidden />
+            <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
+              {PASOS.map((paso, i) => {
+                const Icono = paso.icono;
+                return (
+                  <div key={paso.titulo} className="relative">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sage/70 text-teal-dark">
+                      <Icono size={24} aria-hidden />
+                    </div>
+                    <h3 className="mt-4 font-display text-base font-bold text-teal-dark">
+                      {paso.titulo}
+                    </h3>
+                    <p className="mt-1 text-sm text-ink-soft">{paso.texto}</p>
+                    {i < PASOS.length - 1 && (
+                      <span
+                        aria-hidden
+                        className="absolute -right-4 top-5 hidden text-xl font-bold text-cyan sm:block"
+                      >
+                        →
+                      </span>
+                    )}
                   </div>
-                  <h3 className="mt-4 font-display text-xl font-bold text-teal-dark">
-                    {paso.titulo}
-                  </h3>
-                  <p className="mt-2 text-base text-ink-soft">{paso.texto}</p>
-                </div>
-                {i < PASOS.length - 1 && (
-                  <span
-                    aria-hidden
-                    className="absolute -right-4 top-1/2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full bg-cyan text-lg font-bold text-white lg:flex"
-                  >
-                    ›
-                  </span>
-                )}
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="relative mt-16 hidden justify-self-center lg:flex">
+            <svg
+              aria-hidden
+              viewBox="0 0 100 100"
+              className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 text-brand-green/60"
+            >
+              <path
+                fill="currentColor"
+                d="M50 5c25 5 40 25 35 50-4 20-22 35-40 32C25 84 8 65 8 45 8 22 27 0 50 5Z"
+              />
+              <path
+                fill="currentColor"
+                opacity="0.6"
+                d="M70 30c14 6 20 20 15 34-4 12-16 20-28 17-10-3-18-14-16-27 2-14 15-28 29-24Z"
+              />
+            </svg>
+
+            <div className="relative h-[340px] w-[180px] rounded-[2rem] border-[6px] border-teal-dark bg-white shadow-xl">
+              <div className="relative h-full w-full overflow-hidden rounded-[1.4rem] bg-sage/40">
+                <Image
+                  src="/analisis/orientacion-trasera.png"
+                  alt=""
+                  fill
+                  sizes="180px"
+                  className="object-cover"
+                />
               </div>
-            );
-          })}
+              <div className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-dark shadow-sm">
+                <Sparkles size={16} className="text-yellow" aria-hidden />
+              </div>
+            </div>
+
+            <div className="absolute -bottom-8 -left-12 w-52 rounded-2xl bg-white p-4 shadow-lg">
+              <p className="text-sm font-bold text-teal-dark">Tu valoración</p>
+              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ink-soft">
+                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-green text-white">
+                  <Check size={10} aria-hidden />
+                </span>
+                Sin coste · En 1 minuto
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
