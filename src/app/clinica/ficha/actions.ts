@@ -26,7 +26,7 @@ export async function actualizarMiFicha(formData: FormData) {
   };
 
   const redesSociales: Record<string, string> = {};
-  for (const key of ["instagram", "facebook", "tiktok"]) {
+  for (const key of ["instagram", "facebook", "tiktok", "linkedin"]) {
     const value = formData.get(`red_${key}`);
     if (value && String(value).trim() !== "") {
       redesSociales[key] = String(value).trim();

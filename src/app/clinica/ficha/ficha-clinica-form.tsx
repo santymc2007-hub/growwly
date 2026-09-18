@@ -200,19 +200,26 @@ export function FichaClinicaForm({
 
       <SeccionFicha titulo="Redes sociales">
         <div className="grid grid-cols-2 gap-4">
-          {(["instagram", "facebook", "tiktok"] as const).map((red) => (
+          {(
+            [
+              { red: "instagram", label: "Instagram", placeholder: "@usuario" },
+              { red: "facebook", label: "Facebook", placeholder: "@usuario" },
+              { red: "tiktok", label: "TikTok", placeholder: "@usuario" },
+              {
+                red: "linkedin",
+                label: "LinkedIn",
+                placeholder: "company/nombre-clinica",
+              },
+            ] as const
+          ).map(({ red, label, placeholder }) => (
             <div key={red}>
               <label className={labelClass} htmlFor={`red_${red}`}>
-                {red === "instagram"
-                  ? "Instagram"
-                  : red === "facebook"
-                    ? "Facebook"
-                    : "TikTok"}
+                {label}
               </label>
               <input
                 id={`red_${red}`}
                 name={`red_${red}`}
-                placeholder="@usuario"
+                placeholder={placeholder}
                 defaultValue={
                   getRawSocialValue(clinic.redes_sociales, red) ?? undefined
                 }

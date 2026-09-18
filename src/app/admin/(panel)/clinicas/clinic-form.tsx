@@ -402,7 +402,7 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
         <p className="mt-1 text-xs text-ink-soft">
           Solo el usuario/handle, sin la URL completa (ej. "raizcapilarmadrid").
         </p>
-        <div className="mt-4 grid grid-cols-3 gap-4">
+        <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>
             <label className={labelClass} htmlFor="red_instagram">
               Instagram
@@ -441,6 +441,21 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
               defaultValue={getRawSocialValue(
                 clinic?.redes_sociales ?? null,
                 "tiktok",
+              )}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="red_linkedin">
+              LinkedIn
+            </label>
+            <input
+              id="red_linkedin"
+              name="red_linkedin"
+              placeholder="company/nombre-clinica"
+              defaultValue={getRawSocialValue(
+                clinic?.redes_sociales ?? null,
+                "linkedin",
               )}
               className={inputClass}
             />
