@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Camera, Cpu, FileText, Mail, Check, Sparkles } from "lucide-react";
+import { Camera, Cpu, FileText, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -128,7 +128,7 @@ export default async function HomePage() {
 
           {/* Así de fácil */}
           <div id="como-funciona" className="border-t border-line px-6 py-10 sm:px-10">
-            <div className="lg:grid lg:grid-cols-[1fr_320px] lg:items-center lg:gap-12">
+            <div className="lg:grid lg:grid-cols-[1fr_320px] lg:items-center lg:gap-8">
               <div>
                 <h2 className="font-display text-4xl font-extrabold text-teal-dark">
                   Así de fácil
@@ -163,31 +163,14 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              <div className="relative mt-16 hidden justify-self-center lg:flex">
-                <div className="relative h-[340px] w-[180px] rounded-[2rem] border-[6px] border-teal-dark bg-white shadow-xl">
-                  <div className="relative h-full w-full overflow-hidden rounded-[1.4rem] bg-sage/40">
-                    <Image
-                      src="/analisis/orientacion-trasera.png"
-                      alt=""
-                      fill
-                      sizes="180px"
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-dark shadow-sm">
-                    <Sparkles size={16} className="text-yellow" aria-hidden />
-                  </div>
-                </div>
-
-                <div className="absolute -bottom-8 -left-12 w-52 rounded-2xl bg-white p-4 shadow-lg">
-                  <p className="text-sm font-bold text-teal-dark">Tu valoración</p>
-                  <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ink-soft">
-                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-green text-white">
-                      <Check size={10} aria-hidden />
-                    </span>
-                    Sin coste · En 1 minuto
-                  </p>
-                </div>
+              <div className="relative mx-auto mt-12 hidden aspect-[1055/1385] w-full max-w-[320px] lg:mt-0 lg:block">
+                <Image
+                  src="/brand/asi-de-facil-phone.png"
+                  alt="Análisis capilar con IA en el móvil"
+                  fill
+                  sizes="320px"
+                  className="object-contain"
+                />
               </div>
             </div>
           </div>
