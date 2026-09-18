@@ -1,12 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Plus, Sparkles } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { crearEstudio } from "../actions";
-import { BotonAnalizar } from "./boton-analizar";
-import { OverlayAnalizando } from "./overlay-analizando";
-import { SlotFoto } from "./slot-foto";
+import { AnalisisForm } from "./analisis-form";
 
 // Subir 5 fotos + analizarlas con IA puede superar los 10s por defecto
 // de las funciones de Vercel.
@@ -124,47 +122,7 @@ export default async function NuevoAnalisisPage({
           </p>
         )}
 
-        <form action={crearEstudio} className="flex flex-col gap-6">
-          <OverlayAnalizando />
-          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-            {SLOTS.map((slot) => (
-              <SlotFoto key={slot.name} {...slot} />
-            ))}
-          </div>
-
-          <div className="flex items-start gap-4 rounded-2xl border border-dashed border-line bg-white p-5">
-            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sage text-sage-ink">
-              <Plus className="h-5 w-5" aria-hidden />
-            </div>
-            <div className="flex-1">
-              <label htmlFor="adicionales" className="text-sm font-medium text-ink">
-                Fotos adicionales{" "}
-                <span className="font-normal text-ink-soft">(opcional)</span>
-              </label>
-              <p className="mt-0.5 text-xs text-ink-soft">
-                Cualquier otra foto que ayude — primeros planos, otros
-                ángulos, distinta luz. Cuantas más, más fino será el análisis.
-              </p>
-              <input
-                id="adicionales"
-                name="adicionales"
-                type="file"
-                accept="image/*"
-                multiple
-                className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
-              />
-            </div>
-          </div>
-
-          <p className="max-w-2xl text-xs text-ink-soft">
-            Al continuar, aceptas que estas fotos se analicen de forma
-            orientativa con inteligencia artificial y se guarden asociadas a
-            tu cuenta (o a la que crees a continuación) para poder retomar tu
-            solicitud más adelante.
-          </p>
-
-          <BotonAnalizar />
-        </form>
+        <AnalisisForm action={crearEstudio} slots={SLOTS} />
       </div>
       <SiteFooter />
     </main>

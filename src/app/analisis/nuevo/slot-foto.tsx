@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useState } from "react";
+import { comprimirImagen } from "@/lib/comprimir-imagen";
 import { verificarFotoSubida } from "./verificar-action";
 
 type Estado = "vacio" | "comprobando" | "ok" | "aviso" | "error_tecnico";
@@ -33,8 +34,11 @@ export function SlotFoto({
     setMensaje("");
 
     try {
+      // Comprime antes de comprobarla — una foto de móvil sin optimizar
+      // (a veces en HEIC) puede hacer fallar la comprobación con IA.
+      const comprimida = await comprimirImagen(file);
       const fd = new FormData();
-      fd.append("foto", file);
+      fd.append("foto", comprimida);
       fd.append("orientacion", orientacion);
       const resultado = await verificarFotoSubida(fd);
 
