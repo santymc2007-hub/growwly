@@ -7,13 +7,7 @@ import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 
 type Tratamiento = { slug: string; nombre: string; categoria: string | null };
 
-export function MenuTratamientos({
-  tratamientos,
-  variant = "light",
-}: {
-  tratamientos: Tratamiento[];
-  variant?: "light" | "dark";
-}) {
+export function MenuTratamientos({ tratamientos }: { tratamientos: Tratamiento[] }) {
   const [abierto, setAbierto] = useState(false);
   const cerrarConRetraso = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -34,9 +28,7 @@ export function MenuTratamientos({
     <div className="relative" onMouseEnter={abrir} onMouseLeave={cerrar}>
       <Link
         href="/tratamientos"
-        className={`flex items-center gap-1 ${
-          variant === "dark" ? "hover:text-brand-green" : "hover:text-teal"
-        }`}
+        className="flex items-center gap-1 hover:text-teal"
         aria-expanded={abierto}
       >
         Tratamientos
