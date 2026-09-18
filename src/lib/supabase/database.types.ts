@@ -510,6 +510,7 @@ export interface Database {
           preguntas_frecuentes: Json;
           imagen_portada: string | null;
           autor: string;
+          autor_cargo: string | null;
           publicado: boolean;
           publicado_en: string | null;
           created_at: string;
@@ -524,6 +525,7 @@ export interface Database {
           preguntas_frecuentes?: Json;
           imagen_portada?: string | null;
           autor?: string;
+          autor_cargo?: string | null;
           publicado?: boolean;
           publicado_en?: string | null;
           created_at?: string;
@@ -538,6 +540,7 @@ export interface Database {
           preguntas_frecuentes?: Json;
           imagen_portada?: string | null;
           autor?: string;
+          autor_cargo?: string | null;
           publicado?: boolean;
           publicado_en?: string | null;
           created_at?: string;

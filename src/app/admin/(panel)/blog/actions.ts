@@ -29,7 +29,8 @@ function readPostFields(formData: FormData) {
     titulo: String(formData.get("titulo") ?? "").trim(),
     resumen: str("resumen"),
     contenido: String(formData.get("contenido") ?? ""),
-    autor: str("autor") ?? "Growwly",
+    autor: str("autor") ?? "El equipo de Growwly",
+    autor_cargo: str("autor_cargo"),
     publicado: formData.get("publicado") === "on",
     preguntas_frecuentes: faqs,
   };
@@ -67,6 +68,7 @@ export async function createPost(formData: FormData) {
     contenido: fields.contenido,
     preguntas_frecuentes: fields.preguntas_frecuentes,
     autor: fields.autor,
+    autor_cargo: fields.autor_cargo,
     publicado: fields.publicado,
     publicado_en: fields.publicado ? new Date().toISOString() : null,
     imagen_portada: imagenPortada,
@@ -123,6 +125,7 @@ export async function updatePost(id: string, formData: FormData) {
       contenido: fields.contenido,
       preguntas_frecuentes: fields.preguntas_frecuentes,
       autor: fields.autor,
+      autor_cargo: fields.autor_cargo,
       publicado: fields.publicado,
       imagen_portada: imagenPortada,
       ...(sePublicaPorPrimeraVez && {

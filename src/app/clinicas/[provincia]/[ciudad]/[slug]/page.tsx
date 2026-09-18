@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
+import { Star } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import ReactMarkdown from "react-markdown";
 import { getSocialLinks } from "@/lib/social-links";
@@ -227,6 +228,31 @@ export default async function ClinicaPage({
     ],
   };
 
+  // Cada opinión escrita a mano por la clínica se marca como su propio
+  // Review — es independiente de rating_google/resenas_google (la nota
+  // agregada que se trae de la ficha de Google Maps), que ya alimenta el
+  // aggregateRating de arriba.
+  const opiniones = Array.isArray(clinic.opiniones)
+    ? (clinic.opiniones as { autor: string; texto: string; puntuacion?: number }[])
+    : [];
+  const reviewsJsonLd = esPremium
+    ? opiniones
+        .filter((o) => o.puntuacion)
+        .map((o) => ({
+          "@context": "https://schema.org",
+          "@type": "Review",
+          itemReviewed: { "@type": "MedicalBusiness", name: clinic.nombre },
+          author: { "@type": "Person", name: o.autor },
+          reviewBody: o.texto,
+          reviewRating: {
+            "@type": "Rating",
+            ratingValue: o.puntuacion,
+            bestRating: 5,
+            worstRating: 1,
+          },
+        }))
+    : [];
+
   return (
     <main className="flex-1">
       <script
@@ -239,6 +265,14 @@ export default async function ClinicaPage({
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
+      {reviewsJsonLd.map((review, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          // eslint-disable-next-line react/no-danger
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(review) }}
+        />
+      ))}
       <SiteHeader />
 
       <div className="mx-auto max-w-[1600px] px-6 pt-8">
@@ -505,25 +539,38 @@ export default async function ClinicaPage({
             </section>
           )}
 
-          {esPremium && Array.isArray(clinic.opiniones) && clinic.opiniones.length > 0 && (
+          {esPremium && opiniones.length > 0 && (
             <section className="mt-8">
               <h2 className="font-display text-lg text-teal-dark">
                 Opiniones de pacientes
               </h2>
               <div className="mt-3 flex flex-col gap-3">
-                {(clinic.opiniones as { autor: string; texto: string }[]).map(
-                  (opinion, i) => (
-                    <blockquote
-                      key={i}
-                      className="rounded-xl border border-line bg-white/60 p-4 text-sm"
-                    >
-                      <p className="break-words text-ink-soft">&ldquo;{opinion.texto}&rdquo;</p>
-                      <footer className="mt-2 font-medium text-ink">
-                        — {opinion.autor}
-                      </footer>
-                    </blockquote>
-                  ),
-                )}
+                {opiniones.map((opinion, i) => (
+                  <blockquote
+                    key={i}
+                    className="rounded-xl border border-line bg-white/60 p-4 text-sm"
+                  >
+                    {opinion.puntuacion && (
+                      <div className="mb-1.5 flex gap-0.5" aria-hidden>
+                        {Array.from({ length: 5 }, (_, s) => (
+                          <Star
+                            key={s}
+                            size={14}
+                            className={
+                              s < opinion.puntuacion!
+                                ? "fill-yellow text-yellow"
+                                : "fill-transparent text-line"
+                            }
+                          />
+                        ))}
+                      </div>
+                    )}
+                    <p className="break-words text-ink-soft">&ldquo;{opinion.texto}&rdquo;</p>
+                    <footer className="mt-2 font-medium text-ink">
+                      — {opinion.autor}
+                    </footer>
+                  </blockquote>
+                ))}
               </div>
             </section>
           )}

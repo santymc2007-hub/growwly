@@ -67,7 +67,13 @@ export default async function BlogPostPage({
     headline: post.titulo,
     description: post.resumen ?? undefined,
     image: post.imagen_portada ?? undefined,
-    author: { "@type": "Organization", name: post.autor },
+    // Si hay cargo/credencial (ej. "Dermatólogo colegiado nº...") se marca
+    // como Person con jobTitle, que es lo que Google e IA leen como señal
+    // de autoridad (E-E-A-T). Sin cargo, se asume que firma "El equipo de
+    // Growwly" y se marca como Organization.
+    author: post.autor_cargo
+      ? { "@type": "Person", name: post.autor, jobTitle: post.autor_cargo }
+      : { "@type": "Organization", name: post.autor },
     datePublished: post.publicado_en ?? undefined,
     dateModified: post.updated_at,
     url: `${siteUrl}/blog/${post.slug}`,
@@ -117,6 +123,7 @@ export default async function BlogPostPage({
             </h1>
             <p className="mt-2 text-sm text-ink-soft">
               {post.autor}
+              {post.autor_cargo && ` — ${post.autor_cargo}`}
               {post.publicado_en &&
                 ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
                   day: "numeric",
