@@ -59,7 +59,24 @@ export function BlogForm({ action, post, error }: Props) {
           <input
             id="autor"
             name="autor"
-            defaultValue={post?.autor ?? "Growwly"}
+            defaultValue={post?.autor ?? "El equipo de Growwly"}
+            className={inputClass}
+          />
+        </div>
+
+        <div>
+          <label className={labelClass} htmlFor="autor_cargo">
+            Cargo o credencial del autor{" "}
+            <span className="text-xs font-normal text-ink-soft">
+              (opcional — ej. &ldquo;Dermatólogo colegiado nº 12345&rdquo;.
+              Refuerza la autoridad del artículo ante Google y las IA; déjalo
+              vacío si el autor es &ldquo;El equipo de Growwly&rdquo;)
+            </span>
+          </label>
+          <input
+            id="autor_cargo"
+            name="autor_cargo"
+            defaultValue={post?.autor_cargo ?? undefined}
             className={inputClass}
           />
         </div>

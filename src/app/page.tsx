@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import type { Metadata } from "next";
 import { ScanSearch, Send, FileCheck2, CalendarCheck } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
@@ -28,6 +29,10 @@ const SLIDE_POR_DEFECTO: HeroSlide = {
   activo: true,
   created_at: "",
   updated_at: "",
+};
+
+export const metadata: Metadata = {
+  alternates: { canonical: "/" },
 };
 
 const PASOS = [

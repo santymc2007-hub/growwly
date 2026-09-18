@@ -638,16 +638,33 @@ export function FichaClinicaForm({
             </p>
             {Array.from({ length: numOpiniones }, (_, i) => i).map((i) => {
               const opinion = Array.isArray(clinic.opiniones)
-                ? (clinic.opiniones as { autor?: string; texto?: string }[])[i]
+                ? (clinic.opiniones as { autor?: string; texto?: string; puntuacion?: number }[])[i]
                 : undefined;
               return (
                 <div key={i} className="mt-2 rounded-lg border border-line bg-white p-3">
-                  <input
-                    name={`opinion_autor_${i}`}
-                    placeholder="Nombre del paciente"
-                    defaultValue={opinion?.autor ?? undefined}
-                    className={inputClass}
-                  />
+                  <div className="flex flex-wrap items-center gap-3">
+                    <input
+                      name={`opinion_autor_${i}`}
+                      placeholder="Nombre del paciente"
+                      defaultValue={opinion?.autor ?? undefined}
+                      className={`${inputClass} mt-0 flex-1`}
+                    />
+                    <label className="flex items-center gap-2 text-sm text-ink-soft">
+                      Puntuación
+                      <select
+                        name={`opinion_puntuacion_${i}`}
+                        defaultValue={opinion?.puntuacion ?? 5}
+                        className="rounded-lg border border-line bg-white px-2 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+                      >
+                        {[5, 4, 3, 2, 1].map((n) => (
+                          <option key={n} value={n}>
+                            {"★".repeat(n)}
+                            {"☆".repeat(5 - n)}
+                          </option>
+                        ))}
+                      </select>
+                    </label>
+                  </div>
                   <textarea
                     name={`opinion_texto_${i}`}
                     rows={2}

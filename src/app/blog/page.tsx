@@ -10,6 +10,7 @@ export const metadata: Metadata = {
   title: "Blog | Growwly",
   description:
     "Artículos sobre salud capilar, tratamientos e injertos, y todo lo que hay que saber antes de dar el paso.",
+  alternates: { canonical: "/blog" },
 };
 
 export default async function BlogPage() {

@@ -174,12 +174,20 @@ export async function actualizarMiFicha(formData: FormData) {
       }
     }
 
-    // Opiniones: hasta 10
-    const opiniones: { autor: string; texto: string }[] = [];
+    // Opiniones: hasta 10. La puntuación (1-5) es la de esa opinión
+    // concreta escrita a mano — no tiene relación con rating_google, que
+    // es la nota agregada que en el futuro se traerá automáticamente de
+    // la ficha de Google Maps de la clínica. Sirve para poder marcar cada
+    // opinión con su propio schema.org Review (reviewRating) en la ficha
+    // pública.
+    const opiniones: { autor: string; texto: string; puntuacion: number }[] = [];
     for (let i = 0; i < 10; i++) {
       const autor = str(`opinion_autor_${i}`);
       const texto = str(`opinion_texto_${i}`);
-      if (autor && texto) opiniones.push({ autor, texto });
+      const puntuacion = num(`opinion_puntuacion_${i}`) ?? 5;
+      if (autor && texto) {
+        opiniones.push({ autor, texto, puntuacion: Math.min(5, Math.max(1, puntuacion)) });
+      }
     }
 
     // Certificados: se añaden a los que ya hubiera
