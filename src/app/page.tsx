@@ -78,23 +78,31 @@ export default async function HomePage() {
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Qué es Growwly */}
           <div className="px-6 py-8 sm:px-10 sm:py-10">
-            <div className="flex flex-col items-start gap-4 rounded-3xl bg-teal-dark px-6 py-8 sm:flex-row sm:items-center sm:gap-6 sm:px-10">
-              <Image
-                src="/brand/logo-h1.png"
-                alt="Growwly"
-                width={365}
-                height={130}
-                className="h-[61px] w-auto self-center sm:h-[68px] sm:self-auto"
-              />
-              <div className="hidden h-12 w-px bg-white/20 sm:block" aria-hidden />
-              <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
-                Es el directorio{" "}
-                <span className="inline-block bg-yellow px-1.5 text-teal-dark">
-                  Nº1
-                </span>{" "}
-                de clínicas y centros capilares verificados de España.
-                Tratamientos, opiniones y precios reales.
+            <div className="rounded-3xl bg-paper-dim px-6 py-10 text-center sm:px-10 sm:py-14">
+              <h2 className="font-display text-2xl font-extrabold text-teal-dark sm:text-3xl lg:text-4xl">
+                El directorio nº1 de clínicas capilares verificadas en España
               </h2>
+              <p className="mt-3 text-base text-ink-soft sm:text-lg">
+                Tratamientos, opiniones reales y precios sin fricción
+              </p>
+              <div className="mt-6 flex justify-center">
+                <span className="relative inline-block px-3 py-1.5">
+                  <svg
+                    aria-hidden
+                    viewBox="0 0 220 60"
+                    preserveAspectRatio="none"
+                    className="absolute -inset-x-3 -inset-y-1.5 h-[calc(100%+12px)] w-[calc(100%+24px)] text-yellow"
+                  >
+                    <path
+                      fill="currentColor"
+                      d="M8,32 C4,18 14,8 34,9 C70,6 150,4 195,10 C214,12 216,26 210,34 C214,42 210,54 190,52 C140,56 60,58 20,50 C4,47 3,40 8,32 Z"
+                    />
+                  </svg>
+                  <span className="relative font-display text-2xl font-bold text-teal-dark sm:text-3xl">
+                    Hair we go!
+                  </span>
+                </span>
+              </div>
             </div>
           </div>
 
