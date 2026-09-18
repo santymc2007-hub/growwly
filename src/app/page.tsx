@@ -126,7 +126,7 @@ export default async function HomePage() {
           )}
 
           {/* Así de fácil */}
-          <div id="como-funciona" className="border-t border-line bg-paper-dim px-6 py-10 sm:px-10">
+          <div id="como-funciona" className="border-t border-line bg-paper-dim px-6 py-5 sm:px-10">
             <div className="lg:grid lg:grid-cols-[1fr_368px] lg:items-center lg:gap-8">
               <div>
                 <h2 className="font-display text-4xl font-extrabold text-teal-dark">
@@ -142,9 +142,9 @@ export default async function HomePage() {
                       <Image
                         src={paso.icono}
                         alt=""
-                        width={56}
-                        height={56}
-                        className="h-14 w-14"
+                        width={112}
+                        height={112}
+                        className="h-28 w-28"
                       />
                       <h3 className="mt-4 font-display text-base font-bold text-teal-dark">
                         {paso.titulo}
@@ -153,7 +153,7 @@ export default async function HomePage() {
                       {i < PASOS.length - 1 && (
                         <span
                           aria-hidden
-                          className="absolute -right-4 top-5 hidden text-xl font-bold text-cyan sm:block"
+                          className="absolute -right-4 top-12 hidden text-xl font-bold text-cyan sm:block"
                         >
                           →
                         </span>
