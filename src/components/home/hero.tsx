@@ -47,7 +47,7 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="relative order-1 mx-auto aspect-[1140/894] w-full max-w-2xl lg:order-2">
+        <div className="relative order-1 mx-auto aspect-[1140/894] w-full max-w-[840px] lg:order-2">
           <Image
             src="/brand/hero-analisis-ia.png"
             alt="Análisis capilar con IA a partir de una foto"
