@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@fontsource/birthstone": "^5.3.0",
     "@fontsource/bricolage-grotesque": "^5.3.0",
     "@fontsource/geist": "^5.3.0",
     "@fontsource/montserrat": "^5.3.0",

@@ -8,28 +8,10 @@ import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
 import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
-import { HeroCarousel } from "@/components/home/hero-carousel";
+import { Hero } from "@/components/home/hero";
 import { AnnouncementBar } from "@/components/home/announcement-bar";
 import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
-import type { HeroSlide } from "@/lib/supabase/database.types";
-
-// Se usa solo si la tabla hero_slides está vacía (p. ej. antes de
-// ejecutar la migración, o si se desactivan todas las slides sin querer).
-const SLIDE_POR_DEFECTO: HeroSlide = {
-  id: "default",
-  orden: 0,
-  titular_html:
-    'Tu <span class="hl">valoración con IA</span> en un par de clics',
-  subtitulo: "¡Ah! Y con presupuesto personalizado",
-  color_fondo: "#1f5568",
-  imagen_url: "/brand/hero-persona.png",
-  enlace: "/analisis/nuevo",
-  texto_boton: "Quiero mi valoración",
-  activo: true,
-  created_at: "",
-  updated_at: "",
-};
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -72,16 +54,6 @@ export default async function HomePage() {
   const destacadas = data ?? [];
   const clinicaDeLaSemana = await obtenerClinicaDeLaSemana("Illes Balears");
 
-  const { data: slidesData } = await supabase
-    .from("hero_slides")
-    .select("*")
-    .eq("activo", true)
-    .order("orden", { ascending: true });
-  // Red de seguridad: si todavía no hay slides en BD (o las han
-  // desactivado todas), la home no se queda sin hero.
-  const slides =
-    slidesData && slidesData.length > 0 ? slidesData : [SLIDE_POR_DEFECTO];
-
   const { data: tratamientosData } = await supabase
     .from("tratamientos")
     .select("slug, nombre, categoria, imagen_portada")
@@ -96,15 +68,8 @@ export default async function HomePage() {
   return (
     <main className="flex-1">
       <AnnouncementBar />
-
-      {/* Header + hero fundidos en un único bloque de color continuo.
-          SiteHeader se pasa como children para que HeroCarousel pinte el
-          color de la slide activa directamente por style de React, sin
-          variables CSS de por medio (evita que se quede pegado a un
-          color viejo si algo no sincroniza a tiempo). */}
-      <HeroCarousel slides={slides}>
-        <SiteHeader variant="dark" />
-      </HeroCarousel>
+      <SiteHeader />
+      <Hero />
 
       {/* Qué es Growwly */}
       <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
