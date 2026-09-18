@@ -37,11 +37,11 @@ export async function SiteHeader() {
             alt="Growwly"
             width={365}
             height={130}
-            className="h-8 w-auto sm:h-9"
+            className="h-12 w-auto sm:h-[54px]"
             priority
           />
-          <span className="hidden h-6 w-px bg-line sm:block" aria-hidden />
-          <span className="hidden font-display text-sm font-semibold text-teal-dark sm:block">
+          <span className="hidden h-9 w-px bg-line sm:block" aria-hidden />
+          <span className="hidden font-display text-[21px] font-semibold text-teal-dark sm:block">
             Hair we go!
           </span>
         </Link>
