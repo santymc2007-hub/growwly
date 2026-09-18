@@ -1,7 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
-import { Camera, Cpu, FileText, Mail } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -19,22 +18,22 @@ export const metadata: Metadata = {
 
 const PASOS = [
   {
-    icono: Camera,
+    icono: "/brand/icono-paso-camara.png",
     titulo: "1. Sube tu foto",
     texto: "Hazte una foto de la zona que te preocupa.",
   },
   {
-    icono: Cpu,
+    icono: "/brand/icono-paso-ia.png",
     titulo: "2. IA analiza",
     texto: "Nuestro sistema de IA evalúa tu caso en segundos.",
   },
   {
-    icono: FileText,
+    icono: "/brand/icono-paso-documento.png",
     titulo: "3. Recibe tu valoración",
     texto: "Te damos un informe gratuito con el diagnóstico.",
   },
   {
-    icono: Mail,
+    icono: "/brand/icono-paso-envelope.png",
     titulo: "4. Solicita presupuestos",
     texto: "Recibe ofertas de clínicas especializadas que se ajustan a tu caso.",
   },
@@ -128,7 +127,7 @@ export default async function HomePage() {
 
           {/* Así de fácil */}
           <div id="como-funciona" className="border-t border-line bg-paper-dim px-6 py-10 sm:px-10">
-            <div className="lg:grid lg:grid-cols-[1fr_320px] lg:items-center lg:gap-8">
+            <div className="lg:grid lg:grid-cols-[1fr_368px] lg:items-center lg:gap-8">
               <div>
                 <h2 className="font-display text-4xl font-extrabold text-teal-dark">
                   Así de fácil
@@ -138,37 +137,38 @@ export default async function HomePage() {
                 </p>
 
                 <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
-                  {PASOS.map((paso, i) => {
-                    const Icono = paso.icono;
-                    return (
-                      <div key={paso.titulo} className="relative">
-                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sage/70 text-teal-dark">
-                          <Icono size={24} aria-hidden />
-                        </div>
-                        <h3 className="mt-4 font-display text-base font-bold text-teal-dark">
-                          {paso.titulo}
-                        </h3>
-                        <p className="mt-1 text-sm text-ink-soft">{paso.texto}</p>
-                        {i < PASOS.length - 1 && (
-                          <span
-                            aria-hidden
-                            className="absolute -right-4 top-5 hidden text-xl font-bold text-cyan sm:block"
-                          >
-                            →
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })}
+                  {PASOS.map((paso, i) => (
+                    <div key={paso.titulo} className="relative">
+                      <Image
+                        src={paso.icono}
+                        alt=""
+                        width={56}
+                        height={56}
+                        className="h-14 w-14"
+                      />
+                      <h3 className="mt-4 font-display text-base font-bold text-teal-dark">
+                        {paso.titulo}
+                      </h3>
+                      <p className="mt-1 text-sm text-ink-soft">{paso.texto}</p>
+                      {i < PASOS.length - 1 && (
+                        <span
+                          aria-hidden
+                          className="absolute -right-4 top-5 hidden text-xl font-bold text-cyan sm:block"
+                        >
+                          →
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               </div>
 
-              <div className="relative mx-auto mt-12 hidden aspect-[1055/1385] w-full max-w-[320px] lg:mt-0 lg:block">
+              <div className="relative mx-auto mt-12 hidden aspect-[1136/1385] w-full max-w-[368px] lg:mt-0 lg:block">
                 <Image
                   src="/brand/asi-de-facil-phone.png"
                   alt="Análisis capilar con IA en el móvil"
                   fill
-                  sizes="320px"
+                  sizes="368px"
                   className="object-contain"
                 />
               </div>
