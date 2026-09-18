@@ -66,7 +66,7 @@ export default async function HomePage() {
   ).filter((t): t is NonNullable<typeof t> => Boolean(t));
 
   return (
-    <main className="flex-1">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.png')] bg-cover bg-fixed bg-top">
       <AnnouncementBar />
       <SiteHeader />
       <Hero />
@@ -95,8 +95,8 @@ export default async function HomePage() {
 
       {/* Clínicas destacadas */}
       {destacadas.length > 0 && (
-        <section className="border-t border-line">
-          <div className="mx-auto max-w-[1600px] px-6 py-16">
+        <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
+          <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-10">
             <h2 className="font-display text-4xl font-extrabold text-teal-dark">
               Clínicas destacadas
             </h2>
