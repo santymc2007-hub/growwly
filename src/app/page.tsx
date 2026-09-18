@@ -71,156 +71,149 @@ export default async function HomePage() {
       <SiteHeader />
       <Hero />
 
-      {/* Qué es Growwly */}
-      <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
-        <div className="flex flex-col items-start gap-4 rounded-3xl bg-teal-dark px-6 py-8 sm:flex-row sm:items-center sm:gap-6 sm:px-10">
-          <Image
-            src="/brand/logo-h1.png"
-            alt="Growwly"
-            width={365}
-            height={130}
-            className="h-[61px] w-auto self-center sm:h-[68px] sm:self-auto"
-          />
-          <div className="hidden h-12 w-px bg-white/20 sm:block" aria-hidden />
-          <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
-            Es el directorio{" "}
-            <span className="inline-block bg-yellow px-1.5 text-teal-dark">
-              Nº1
-            </span>{" "}
-            de clínicas y centros capilares verificados de España.
-            Tratamientos, opiniones y precios reales.
-          </h2>
-        </div>
-      </section>
-
-      {/* Clínicas destacadas */}
-      {destacadas.length > 0 && (
-        <section className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
-          <div className="rounded-3xl bg-white p-6 shadow-sm sm:p-10">
-            <h2 className="font-display text-4xl font-extrabold text-teal-dark">
-              Clínicas destacadas
-            </h2>
-            <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-              {destacadas.map((clinic) => (
-                <ClinicCard key={clinic.id} clinic={clinic} />
-              ))}
+      {/* A partir de aquí, todo el "desarrollo" de la home vive en una
+          única caja blanca continua que flota sobre el fondo — logo,
+          menú y hero son lo único que va directamente sobre el fondo. */}
+      <div className="mx-auto max-w-[1600px] px-6 pb-8 sm:pb-10">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+          {/* Qué es Growwly */}
+          <div className="px-6 py-8 sm:px-10 sm:py-10">
+            <div className="flex flex-col items-start gap-4 rounded-3xl bg-teal-dark px-6 py-8 sm:flex-row sm:items-center sm:gap-6 sm:px-10">
+              <Image
+                src="/brand/logo-h1.png"
+                alt="Growwly"
+                width={365}
+                height={130}
+                className="h-[61px] w-auto self-center sm:h-[68px] sm:self-auto"
+              />
+              <div className="hidden h-12 w-px bg-white/20 sm:block" aria-hidden />
+              <h2 className="font-display text-xl font-bold text-white sm:text-2xl">
+                Es el directorio{" "}
+                <span className="inline-block bg-yellow px-1.5 text-teal-dark">
+                  Nº1
+                </span>{" "}
+                de clínicas y centros capilares verificados de España.
+                Tratamientos, opiniones y precios reales.
+              </h2>
             </div>
-            <Link
-              href="/clinicas"
-              className="press mt-8 inline-block rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-6 py-3 text-base font-medium text-teal-dark transition hover:opacity-90"
-            >
-              Ver todas las clínicas
-            </Link>
           </div>
-        </section>
-      )}
+
+          {/* Clínicas destacadas */}
+          {destacadas.length > 0 && (
+            <div className="border-t border-line px-6 py-10 sm:px-10">
+              <h2 className="font-display text-4xl font-extrabold text-teal-dark">
+                Clínicas destacadas
+              </h2>
+              <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+                {destacadas.map((clinic) => (
+                  <ClinicCard key={clinic.id} clinic={clinic} />
+                ))}
+              </div>
+              <Link
+                href="/clinicas"
+                className="press mt-8 inline-block rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-6 py-3 text-base font-medium text-teal-dark transition hover:opacity-90"
+              >
+                Ver todas las clínicas
+              </Link>
+            </div>
+          )}
+
+          {/* Así de fácil */}
+          <div id="como-funciona" className="border-t border-line px-6 py-10 sm:px-10">
+            <div className="lg:grid lg:grid-cols-[1fr_320px] lg:items-center lg:gap-12">
+              <div>
+                <h2 className="font-display text-4xl font-extrabold text-teal-dark">
+                  Así de fácil
+                </h2>
+                <p className="mt-3 max-w-md text-lg text-ink-soft">
+                  Tu valoración capilar en 4 sencillos pasos.
+                </p>
+
+                <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
+                  {PASOS.map((paso, i) => {
+                    const Icono = paso.icono;
+                    return (
+                      <div key={paso.titulo} className="relative">
+                        <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sage/70 text-teal-dark">
+                          <Icono size={24} aria-hidden />
+                        </div>
+                        <h3 className="mt-4 font-display text-base font-bold text-teal-dark">
+                          {paso.titulo}
+                        </h3>
+                        <p className="mt-1 text-sm text-ink-soft">{paso.texto}</p>
+                        {i < PASOS.length - 1 && (
+                          <span
+                            aria-hidden
+                            className="absolute -right-4 top-5 hidden text-xl font-bold text-cyan sm:block"
+                          >
+                            →
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="relative mt-16 hidden justify-self-center lg:flex">
+                <div className="relative h-[340px] w-[180px] rounded-[2rem] border-[6px] border-teal-dark bg-white shadow-xl">
+                  <div className="relative h-full w-full overflow-hidden rounded-[1.4rem] bg-sage/40">
+                    <Image
+                      src="/analisis/orientacion-trasera.png"
+                      alt=""
+                      fill
+                      sizes="180px"
+                      className="object-cover"
+                    />
+                  </div>
+                  <div className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-dark shadow-sm">
+                    <Sparkles size={16} className="text-yellow" aria-hidden />
+                  </div>
+                </div>
+
+                <div className="absolute -bottom-8 -left-12 w-52 rounded-2xl bg-white p-4 shadow-lg">
+                  <p className="text-sm font-bold text-teal-dark">Tu valoración</p>
+                  <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ink-soft">
+                    <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-green text-white">
+                      <Check size={10} aria-hidden />
+                    </span>
+                    Sin coste · En 1 minuto
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Tratamientos destacados */}
+          {tratamientosDestacados.length > 0 && (
+            <div className="border-t border-line px-6 py-10 sm:px-10">
+              <TratamientosDestacados tratamientos={tratamientosDestacados} />
+            </div>
+          )}
+
+          {/* CTA clínicas */}
+          <div className="border-t border-line px-6 py-10 sm:px-10">
+            <div className="flex flex-col items-center gap-3 rounded-3xl bg-gradient-to-br from-brand-blue/40 via-white to-brand-green/30 px-6 py-14 text-center">
+              <p className="font-display text-3xl font-bold text-teal-dark">
+                ¿Tienes una clínica capilar?
+              </p>
+              <p className="max-w-md text-base text-teal-dark/80">
+                Reclama tu ficha en el directorio y recibe solicitudes de
+                presupuesto de pacientes reales.
+              </p>
+              <Link
+                href="/clinica/registro"
+                className="press mt-2 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+              >
+                Únete
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {clinicaDeLaSemana && <ClinicaDeLaSemana clinic={clinicaDeLaSemana} />}
 
-      {/* Así de fácil */}
-      <section id="como-funciona" className="mx-auto max-w-[1600px] px-6 py-8 sm:py-10">
-        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-sage/50 via-sage/15 to-white px-6 py-10 sm:px-10 sm:py-14 lg:grid lg:grid-cols-[1fr_320px] lg:items-center lg:gap-12">
-          <div>
-            <h2 className="font-display text-4xl font-extrabold text-teal-dark">
-              Así de fácil
-            </h2>
-            <p className="mt-3 max-w-md text-lg text-ink-soft">
-              Tu valoración capilar en 4 sencillos pasos.
-            </p>
-
-            <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
-              {PASOS.map((paso, i) => {
-                const Icono = paso.icono;
-                return (
-                  <div key={paso.titulo} className="relative">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-full bg-sage/70 text-teal-dark">
-                      <Icono size={24} aria-hidden />
-                    </div>
-                    <h3 className="mt-4 font-display text-base font-bold text-teal-dark">
-                      {paso.titulo}
-                    </h3>
-                    <p className="mt-1 text-sm text-ink-soft">{paso.texto}</p>
-                    {i < PASOS.length - 1 && (
-                      <span
-                        aria-hidden
-                        className="absolute -right-4 top-5 hidden text-xl font-bold text-cyan sm:block"
-                      >
-                        →
-                      </span>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-
-          <div className="relative mt-16 hidden justify-self-center lg:flex">
-            <svg
-              aria-hidden
-              viewBox="0 0 100 100"
-              className="pointer-events-none absolute -right-8 -top-10 h-28 w-28 text-brand-green/60"
-            >
-              <path
-                fill="currentColor"
-                d="M50 5c25 5 40 25 35 50-4 20-22 35-40 32C25 84 8 65 8 45 8 22 27 0 50 5Z"
-              />
-              <path
-                fill="currentColor"
-                opacity="0.6"
-                d="M70 30c14 6 20 20 15 34-4 12-16 20-28 17-10-3-18-14-16-27 2-14 15-28 29-24Z"
-              />
-            </svg>
-
-            <div className="relative h-[340px] w-[180px] rounded-[2rem] border-[6px] border-teal-dark bg-white shadow-xl">
-              <div className="relative h-full w-full overflow-hidden rounded-[1.4rem] bg-sage/40">
-                <Image
-                  src="/analisis/orientacion-trasera.png"
-                  alt=""
-                  fill
-                  sizes="180px"
-                  className="object-cover"
-                />
-              </div>
-              <div className="absolute right-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg bg-teal-dark shadow-sm">
-                <Sparkles size={16} className="text-yellow" aria-hidden />
-              </div>
-            </div>
-
-            <div className="absolute -bottom-8 -left-12 w-52 rounded-2xl bg-white p-4 shadow-lg">
-              <p className="text-sm font-bold text-teal-dark">Tu valoración</p>
-              <p className="mt-1.5 flex items-center gap-1.5 text-xs text-ink-soft">
-                <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand-green text-white">
-                  <Check size={10} aria-hidden />
-                </span>
-                Sin coste · En 1 minuto
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <TratamientosDestacados tratamientos={tratamientosDestacados} />
-
-      {/* CTA clínicas */}
-      <section className="bg-paper">
-        <div className="mx-auto max-w-[1600px] px-6 py-14">
-          <div className="flex flex-col items-center gap-3 rounded-3xl bg-gradient-to-br from-brand-blue/40 via-white to-brand-green/30 px-6 py-14 text-center">
-            <p className="font-display text-3xl font-bold text-teal-dark">
-              ¿Tienes una clínica capilar?
-            </p>
-            <p className="max-w-md text-base text-teal-dark/80">
-              Reclama tu ficha en el directorio y recibe solicitudes de
-              presupuesto de pacientes reales.
-            </p>
-            <Link
-              href="/clinica/registro"
-              className="press mt-2 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
-            >
-              Únete
-            </Link>
-          </div>
-        </div>
-      </section>
       <SiteFooter />
     </main>
   );
