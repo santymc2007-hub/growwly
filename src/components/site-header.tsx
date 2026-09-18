@@ -33,7 +33,7 @@ export async function SiteHeader() {
       <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center gap-3">
           <Image
-            src="/brand/growwly-logo-gradient.png"
+            src="/brand/growwly-logo-verde.png"
             alt="Growwly"
             width={365}
             height={130}
