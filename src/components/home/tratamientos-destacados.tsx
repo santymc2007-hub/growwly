@@ -24,7 +24,7 @@ export function TratamientosDestacados({
   if (tratamientos.length === 0) return null;
 
   return (
-    <section className="mx-auto max-w-[1600px] px-6 py-16">
+    <div>
       <h2 className="font-display text-4xl font-extrabold text-teal-dark">
         Tratamientos capilares más demandados
       </h2>
@@ -78,6 +78,6 @@ export function TratamientosDestacados({
           );
         })}
       </div>
-    </section>
+    </div>
   );
 }
