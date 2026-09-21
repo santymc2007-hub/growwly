@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { logout } from "./actions";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { AdminMobileMenu } from "./admin-mobile-menu";
 
 export const dynamic = "force-dynamic";
 
@@ -46,7 +47,7 @@ export default async function PanelLayout({
 
   return (
     <div className="min-h-screen bg-paper-dim">
-      <header className="border-b border-line bg-teal text-paper">
+      <header className="relative border-b border-line bg-teal text-paper">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4">
           <div className="flex items-center gap-5">
             <Image
@@ -60,7 +61,7 @@ export default async function PanelLayout({
             <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-medium tracking-wide text-paper/80">
               PANEL
             </span>
-            <nav className="flex gap-4 text-sm">
+            <nav className="hidden gap-4 text-sm md:flex">
               <Link href="/admin/clinicas" className="hover:text-cyan">
                 Clínicas
               </Link>
@@ -111,7 +112,7 @@ export default async function PanelLayout({
               </Link>
             </nav>
           </div>
-          <form action={logout}>
+          <form action={logout} className="hidden md:block">
             <button
               type="submit"
               className="text-sm text-paper/80 hover:text-paper"
@@ -119,6 +120,11 @@ export default async function PanelLayout({
               Cerrar sesión
             </button>
           </form>
+          <AdminMobileMenu
+            pendientes={pendientes ?? 0}
+            totalSolicitudes={totalSolicitudes}
+            leadsNuevos={leadsNuevos ?? 0}
+          />
         </div>
       </header>
 
