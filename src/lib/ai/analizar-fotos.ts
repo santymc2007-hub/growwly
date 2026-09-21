@@ -86,7 +86,10 @@ export async function analizarFotosCapilares(
     },
     body: JSON.stringify({
       model: "claude-sonnet-5",
-      max_tokens: 500,
+      // 500 se quedaba corto y truncaba el JSON a mitad de frase en
+      // cuanto había varias fotos que comentar — el texto de la
+      // observación por sí solo ya puede rondar esa cifra.
+      max_tokens: 1024,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content }],
     }),
@@ -101,7 +104,14 @@ export async function analizarFotosCapilares(
   const textBlock = data.content?.find(
     (block: { type: string }) => block.type === "text",
   );
-  const raw = (textBlock?.text ?? "").trim();
+  // A pesar de que el prompt pide JSON sin backticks, a veces el modelo
+  // lo envuelve igualmente en un bloque ```json ... ``` — se retira antes
+  // de parsear en vez de fallar por algo puramente cosmético.
+  const raw = (textBlock?.text ?? "")
+    .trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/\s*```$/, "")
+    .trim();
 
   try {
     const parsed = JSON.parse(raw);
