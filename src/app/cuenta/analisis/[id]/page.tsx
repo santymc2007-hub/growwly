@@ -39,11 +39,11 @@ export default async function ResultadoAnalisisPage({
 
   // Las fotos viven en una carpeta por token de estudio, no por user_id,
   // así que para la URL firmada usamos el cliente admin (la comprobación
-  // de que este estudio es suyo ya se hizo arriba).
-  const fotoFrontalUrl = await urlFirmadaFoto(
-    createAdminClient(),
-    estudio.foto_frontal,
-  );
+  // de que este estudio es suyo ya se hizo arriba). El nuevo formulario
+  // de subida ya no distingue ángulos, así que la mayoría de estudios
+  // solo tienen fotos en fotos_adicionales.
+  const primeraFoto = estudio.foto_frontal ?? estudio.fotos_adicionales[0] ?? null;
+  const fotoFrontalUrl = await urlFirmadaFoto(createAdminClient(), primeraFoto);
   const rangoUfs = rangoUfsPorNorwood(estudio.norwood_estimado);
 
   return (
@@ -98,7 +98,7 @@ export default async function ResultadoAnalisisPage({
               <div className="relative aspect-square w-32 overflow-hidden rounded-xl border border-line bg-sage">
                 <Image
                   src={fotoFrontalUrl}
-                  alt="Tu foto frontal"
+                  alt="Una de tus fotos"
                   fill
                   sizes="128px"
                   className="object-cover"

@@ -1,40 +1,105 @@
 "use client";
 
-import { useState } from "react";
-import { Plus } from "lucide-react";
-import { comprimirFormData } from "@/lib/comprimir-imagen";
+import Image from "next/image";
+import { useRef, useState } from "react";
+import { Camera, Check, CloudUpload, ImagePlus, X } from "lucide-react";
+import { comprimirImagen } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
-import { SlotFoto } from "./slot-foto";
 
-type Slot = {
-  name: string;
-  orientacion: string;
-  label: string;
-  hint: string;
-  imagen: string;
-};
+const CARACTERISTICAS = [
+  { icono: "/analisis/ic-rapido.svg", texto: "Rápido y fácil" },
+  { icono: "/analisis/ic-verificado.svg", texto: "Clínicas verificadas" },
+  { icono: "/analisis/ic-gratuito.svg", texto: "100% Gratuito" },
+  { icono: "/analisis/ic-seguro.svg", texto: "Seguro y confidencial" },
+] as const;
+
+const GUIA: ReadonlyArray<{ imagen: string; etiqueta: string; espejo?: boolean }> = [
+  { imagen: "/analisis/guia-frontal.png", etiqueta: "Frontal" },
+  { imagen: "/analisis/guia-donante.png", etiqueta: "Zona donante" },
+  { imagen: "/analisis/guia-coronilla.png", etiqueta: "Coronilla" },
+  { imagen: "/analisis/guia-perfil-derecho.png", etiqueta: "Perfil derecho" },
+  {
+    imagen: "/analisis/guia-perfil-izquierdo.png",
+    etiqueta: "Perfil izquierdo",
+    espejo: true,
+  },
+];
+
+const CONSEJOS = [
+  {
+    icono: "/analisis/ic-buena-luz.png",
+    titulo: "Buena luz",
+    texto: "Luz natural y uniforme",
+  },
+  {
+    icono: "/analisis/ic-sin-filtros.png",
+    titulo: "Sin filtros",
+    texto: "Ni retoques ni añadidos",
+  },
+  {
+    icono: "/analisis/ic-cuero-visible.png",
+    titulo: "Cuero cabelludo visible",
+    texto: "Que se vea bien la zona afectada",
+  },
+] as const;
+
+type FotoAdjunta = { id: string; file: File; url: string };
 
 export function AnalisisForm({
   action,
-  slots,
+  initialError,
 }: {
   action: (formData: FormData) => void;
-  slots: readonly Slot[];
+  initialError?: string;
 }) {
+  const [fotos, setFotos] = useState<FotoAdjunta[]>([]);
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
+  const [arrastrando, setArrastrando] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const camaraRef = useRef<HTMLInputElement>(null);
 
-  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function agregarArchivos(lista: FileList | File[]) {
+    const archivos = Array.from(lista).filter((f) => f.type.startsWith("image/"));
+    if (archivos.length === 0) return;
+
     setEstado("comprimiendo");
     try {
       // Las fotos de móvil sin optimizar (a veces 5-10MB cada una, y a
-      // veces en HEIC) son la causa más habitual de que el análisis
-      // falle en el móvil — se comprimen aquí antes de subirlas, lo que
-      // de paso las deja siempre en JPEG.
-      const original = new FormData(e.currentTarget);
-      const comprimido = await comprimirFormData(original);
-      setEstado("enviando");
-      await action(comprimido);
+      // veces en HEIC) se comprimen en cuanto se añaden — así la
+      // miniatura ya es la versión ligera y no hay que repetir el
+      // trabajo al enviar el formulario.
+      const nuevas: FotoAdjunta[] = [];
+      for (const file of archivos) {
+        const comprimida = await comprimirImagen(file);
+        nuevas.push({
+          id: crypto.randomUUID(),
+          file: comprimida,
+          url: URL.createObjectURL(comprimida),
+        });
+      }
+      setFotos((prev) => [...prev, ...nuevas]);
+    } finally {
+      setEstado("idle");
+    }
+  }
+
+  function quitarFoto(id: string) {
+    setFotos((prev) => {
+      const foto = prev.find((f) => f.id === id);
+      if (foto) URL.revokeObjectURL(foto.url);
+      return prev.filter((f) => f.id !== id);
+    });
+  }
+
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (fotos.length === 0) return;
+
+    setEstado("enviando");
+    try {
+      const formData = new FormData();
+      for (const foto of fotos) formData.append("adicionales", foto.file);
+      await action(formData);
       // La action redirige internamente al terminar (tanto si va bien
       // como si hay error), así que normalmente no se llega más allá.
     } finally {
@@ -43,7 +108,7 @@ export function AnalisisForm({
   }
 
   return (
-    <form onSubmit={onSubmit} className="flex flex-col gap-6">
+    <>
       {estado !== "idle" && (
         <OverlayCargando
           mensaje={
@@ -54,54 +119,256 @@ export function AnalisisForm({
         />
       )}
 
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-        {slots.map((slot) => (
-          <SlotFoto key={slot.name} {...slot} />
-        ))}
+      {/* Hero: presentación + zona para añadir fotos */}
+      <div className="relative overflow-hidden bg-[url('/brand/textura-hojas.png')] bg-cover bg-top">
+        <div className="mx-auto grid max-w-[1600px] grid-cols-1 items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1fr_0.9fr] lg:gap-6 lg:px-12">
+          <div className="min-w-0">
+            <p className="text-xs font-bold uppercase tracking-widest text-teal">
+              Tu pelo en buenas manos
+            </p>
+            <h1 className="mt-3 font-display text-4xl font-extrabold leading-tight text-teal-dark sm:text-5xl">
+              Añade tus fotos
+            </h1>
+            <p className="mt-4 max-w-md text-base text-ink-soft">
+              Puedes subirlas todas juntas. Con una foto ya puedes empezar,
+              aunque a mayor número de fotos mayor fiabilidad en la
+              valoración.
+            </p>
+
+            {initialError && (
+              <p className="mt-4 max-w-md rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
+                {decodeURIComponent(initialError)}
+              </p>
+            )}
+
+            <div
+              onDragOver={(e) => {
+                e.preventDefault();
+                setArrastrando(true);
+              }}
+              onDragLeave={() => setArrastrando(false)}
+              onDrop={(e) => {
+                e.preventDefault();
+                setArrastrando(false);
+                agregarArchivos(e.dataTransfer.files);
+              }}
+              className={`mt-7 max-w-md rounded-2xl border-2 border-dashed p-8 text-center shadow-sm transition ${
+                arrastrando ? "border-teal bg-sage/40" : "border-line bg-white"
+              }`}
+            >
+              <CloudUpload className="mx-auto h-10 w-10 text-teal-dark" aria-hidden />
+              <p className="mt-3 font-display text-lg font-bold text-teal-dark">
+                Arrastra tus fotos aquí
+              </p>
+              <button
+                type="button"
+                onClick={() => inputRef.current?.click()}
+                className="press mt-4 inline-block rounded-full bg-yellow px-6 py-2.5 font-display text-sm font-bold text-teal-dark transition hover:opacity-90"
+              >
+                Seleccionar fotos
+              </button>
+              <p className="mt-2 text-xs text-ink-soft">
+                Puedes seleccionar varias imágenes a la vez
+              </p>
+
+              <div className="my-4 flex items-center gap-3 text-xs font-medium text-ink-soft">
+                <span className="h-px flex-1 bg-line" />
+                o
+                <span className="h-px flex-1 bg-line" />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => camaraRef.current?.click()}
+                className="press inline-flex items-center gap-2 rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-teal-dark transition hover:bg-paper-dim"
+              >
+                <Camera className="h-4 w-4" aria-hidden />
+                Hacer una foto
+              </button>
+
+              <input
+                ref={inputRef}
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) agregarArchivos(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+              <input
+                ref={camaraRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={(e) => {
+                  if (e.target.files) agregarArchivos(e.target.files);
+                  e.target.value = "";
+                }}
+              />
+            </div>
+          </div>
+
+          <div className="relative mx-auto aspect-[1546/1023] w-full max-w-xl">
+            <div
+              aria-hidden
+              className="absolute left-[30%] top-[38%] h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/50 blur-2xl"
+            />
+            <Image
+              src="/brand/analisis-pareja-fotos.webp"
+              alt="Pareja sujetando sus móviles, lista para subir sus fotos"
+              fill
+              sizes="(min-width: 1024px) 45vw, 90vw"
+              className="object-contain"
+              priority
+            />
+            <div
+              aria-hidden
+              className="absolute left-[30%] top-[38%] flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-teal-dark text-white shadow-lg sm:h-20 sm:w-20"
+            >
+              <span className="text-lg sm:text-xl">✨</span>
+              <span className="font-display text-xs font-bold sm:text-sm">IA</span>
+            </div>
+            <span
+              aria-hidden
+              className="absolute right-[6%] top-[10%] text-4xl sm:text-5xl"
+            >
+              😜
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-start gap-4 rounded-2xl border border-dashed border-line bg-white p-5">
-        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-sage text-sage-ink">
-          <Plus className="h-5 w-5" aria-hidden />
-        </div>
-        <div className="flex-1">
-          <label htmlFor="adicionales" className="text-sm font-medium text-ink">
-            Fotos adicionales{" "}
-            <span className="font-normal text-ink-soft">(opcional)</span>
-          </label>
-          <p className="mt-0.5 text-xs text-ink-soft">
-            Cualquier otra foto que ayude — primeros planos, otros ángulos,
-            distinta luz. Cuantas más, más fino será el análisis.
-          </p>
-          <input
-            id="adicionales"
-            name="adicionales"
-            type="file"
-            accept="image/*"
-            multiple
-            className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
-          />
+      {/* A partir de aquí, todo vive en una única caja blanca, como en la home */}
+      <div className="mx-auto max-w-[1600px] px-3 pb-8 sm:px-6 sm:pb-10">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+          {/* Características */}
+          <div className="px-6 py-8 sm:px-10">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 rounded-2xl bg-paper-dim px-6 py-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-10">
+              {CARACTERISTICAS.map(({ icono, texto }) => (
+                <div key={texto} className="flex items-center gap-3">
+                  <Image src={icono} alt="" width={28} height={28} className="h-7 w-7 shrink-0" />
+                  <span className="text-sm font-bold text-teal-dark">{texto}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Guía fotográfica */}
+          <div className="border-t border-line px-6 py-10 sm:px-10">
+            <h2 className="font-display text-xl font-bold text-teal-dark sm:text-2xl">
+              Aquí tienes una pequeña guía fotográfica de como tienen que ser
+              las fotos que subas
+            </h2>
+
+            <div className="mt-8 flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
+              <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-5">
+                {GUIA.map(({ imagen, etiqueta, espejo }) => (
+                  <div key={etiqueta} className="text-center">
+                    <div className="relative mx-auto aspect-square w-20 sm:w-24">
+                      <Image
+                        src={imagen}
+                        alt=""
+                        fill
+                        sizes="96px"
+                        className="object-contain"
+                        style={espejo ? { transform: "scaleX(-1)" } : undefined}
+                      />
+                    </div>
+                    <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-teal-dark">
+                      {etiqueta}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              <div className="flex flex-col gap-4 lg:w-64 lg:shrink-0">
+                {CONSEJOS.map(({ icono, titulo, texto }) => (
+                  <div key={titulo} className="flex items-start gap-3">
+                    <Image src={icono} alt="" width={28} height={28} className="h-7 w-7 shrink-0" />
+                    <div>
+                      <p className="text-sm font-bold text-teal-dark">{titulo}</p>
+                      <p className="text-xs text-ink-soft">{texto}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Fotos añadidas + envío */}
+          <div className="border-t border-line px-6 py-10 sm:px-10">
+            <form onSubmit={onSubmit}>
+              <div className="flex flex-wrap items-baseline gap-2">
+                <h2 className="font-display text-xl font-bold text-teal-dark">
+                  Tus fotos añadidas:
+                </h2>
+                <span className="text-base font-semibold text-ink-soft">
+                  {fotos.length} añadidas
+                </span>
+              </div>
+
+              <div className="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+                {fotos.map((foto) => (
+                  <div
+                    key={foto.id}
+                    className="relative aspect-square overflow-hidden rounded-xl border border-line bg-sage/30"
+                  >
+                    <Image src={foto.url} alt="" fill sizes="150px" className="object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => quitarFoto(foto.id)}
+                      aria-label="Quitar esta foto"
+                      className="absolute right-1.5 top-1.5 flex h-6 w-6 items-center justify-center rounded-full bg-white text-ink shadow transition hover:bg-error/10 hover:text-error-dark"
+                    >
+                      <X className="h-3.5 w-3.5" aria-hidden />
+                    </button>
+                  </div>
+                ))}
+
+                <button
+                  type="button"
+                  onClick={() => inputRef.current?.click()}
+                  className="flex aspect-square flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-line text-teal-dark transition hover:border-teal hover:bg-sage/20"
+                >
+                  <ImagePlus className="h-6 w-6" aria-hidden />
+                  <span className="text-xs font-semibold">Añadir más</span>
+                </button>
+              </div>
+
+              <div className="mt-8 flex flex-col items-start gap-4 border-t border-dashed border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex items-center gap-2.5">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-dark text-white">
+                    <Check className="h-3.5 w-3.5" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="text-sm font-bold text-teal-dark">
+                      {fotos.length > 0
+                        ? `${fotos.length} foto${fotos.length === 1 ? "" : "s"} lista${
+                            fotos.length === 1 ? "" : "s"
+                          } para valorar`
+                        : "Añade al menos una foto para poder valorarla"}
+                    </p>
+                    <p className="text-xs text-ink-soft">
+                      Valoración orientativa. No sustituye una consulta médica.
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={fotos.length === 0 || estado !== "idle"}
+                  className="press w-full rounded-full bg-yellow px-7 py-3.5 font-display text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
+                >
+                  {estado === "enviando" ? "Analizando tus fotos…" : "Analiza mis fotos"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       </div>
-
-      <p className="max-w-2xl text-xs text-ink-soft">
-        Al continuar, aceptas que estas fotos se analicen de forma
-        orientativa con inteligencia artificial y se guarden asociadas a tu
-        cuenta (o a la que crees a continuación) para poder retomar tu
-        solicitud más adelante.
-      </p>
-
-      <button
-        type="submit"
-        disabled={estado !== "idle"}
-        className="press mt-6 w-full rounded-full bg-ink px-7 py-4 font-display text-sm font-bold uppercase tracking-wide text-white transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
-      >
-        {estado === "comprimiendo"
-          ? "Optimizando tus fotos…"
-          : estado === "enviando"
-            ? "Subiendo y analizando tus fotos… puede tardar un momento"
-            : "Analizar mis fotos"}
-      </button>
-    </form>
+    </>
   );
 }
