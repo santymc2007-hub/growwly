@@ -120,7 +120,7 @@ export function AnalisisForm({
       )}
 
       {/* Hero: presentación + zona para añadir fotos */}
-      <div className="relative overflow-hidden bg-[url('/brand/textura-hojas.png')] bg-cover bg-top">
+      <div className="relative">
         <div className="mx-auto grid max-w-[1600px] grid-cols-1 items-center gap-10 px-6 py-14 sm:py-16 lg:grid-cols-[1fr_0.9fr] lg:gap-6 lg:px-12">
           <div className="min-w-0">
             <p className="text-xs font-bold uppercase tracking-widest text-teal">
@@ -211,32 +211,15 @@ export function AnalisisForm({
             </div>
           </div>
 
-          <div className="relative mx-auto aspect-[1546/1023] w-full max-w-xl">
-            <div
-              aria-hidden
-              className="absolute left-[30%] top-[38%] h-24 w-24 -translate-x-1/2 -translate-y-1/2 rounded-full bg-white/50 blur-2xl"
-            />
+          <div className="relative mx-auto hidden aspect-[1546/1023] w-full max-w-3xl lg:block">
             <Image
               src="/brand/analisis-pareja-fotos.webp"
               alt="Pareja sujetando sus móviles, lista para subir sus fotos"
               fill
-              sizes="(min-width: 1024px) 45vw, 90vw"
+              sizes="45vw"
               className="object-contain"
               priority
             />
-            <div
-              aria-hidden
-              className="absolute left-[30%] top-[38%] flex h-16 w-16 -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full bg-teal-dark text-white shadow-lg sm:h-20 sm:w-20"
-            >
-              <span className="text-lg sm:text-xl">✨</span>
-              <span className="font-display text-xs font-bold sm:text-sm">IA</span>
-            </div>
-            <span
-              aria-hidden
-              className="absolute right-[6%] top-[10%] text-4xl sm:text-5xl"
-            >
-              😜
-            </span>
           </div>
         </div>
       </div>
@@ -249,7 +232,13 @@ export function AnalisisForm({
             <div className="grid grid-cols-2 gap-x-4 gap-y-6 rounded-2xl bg-paper-dim px-6 py-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-10">
               {CARACTERISTICAS.map(({ icono, texto }) => (
                 <div key={texto} className="flex items-center gap-3">
-                  <Image src={icono} alt="" width={28} height={28} className="h-7 w-7 shrink-0" />
+                  <Image
+                    src={icono}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="h-7 w-7 shrink-0 sm:h-9 sm:w-9 lg:h-10 lg:w-10"
+                  />
                   <span className="text-sm font-bold text-teal-dark">{texto}</span>
                 </div>
               ))}
@@ -263,38 +252,42 @@ export function AnalisisForm({
               las fotos que subas
             </h2>
 
-            <div className="mt-8 flex flex-col gap-10 lg:flex-row lg:items-start lg:justify-between lg:gap-8">
-              <div className="grid grid-cols-3 gap-x-4 gap-y-6 sm:grid-cols-5">
-                {GUIA.map(({ imagen, etiqueta, espejo }) => (
-                  <div key={etiqueta} className="text-center">
-                    <div className="relative mx-auto aspect-square w-20 sm:w-24">
-                      <Image
-                        src={imagen}
-                        alt=""
-                        fill
-                        sizes="96px"
-                        className="object-contain"
-                        style={espejo ? { transform: "scaleX(-1)" } : undefined}
-                      />
-                    </div>
-                    <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-teal-dark">
-                      {etiqueta}
-                    </p>
+            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-8 sm:gap-x-10 lg:justify-start">
+              {GUIA.map(({ imagen, etiqueta, espejo }) => (
+                <div key={etiqueta} className="text-center">
+                  <div className="relative mx-auto aspect-square w-20 sm:w-32 lg:w-48 xl:w-56">
+                    <Image
+                      src={imagen}
+                      alt=""
+                      fill
+                      sizes="(min-width: 1280px) 224px, (min-width: 1024px) 192px, (min-width: 640px) 128px, 80px"
+                      className="object-contain"
+                      style={espejo ? { transform: "scaleX(-1)" } : undefined}
+                    />
                   </div>
-                ))}
-              </div>
+                  <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-teal-dark sm:text-xs">
+                    {etiqueta}
+                  </p>
+                </div>
+              ))}
+            </div>
 
-              <div className="flex flex-col gap-4 lg:w-64 lg:shrink-0">
-                {CONSEJOS.map(({ icono, titulo, texto }) => (
-                  <div key={titulo} className="flex items-start gap-3">
-                    <Image src={icono} alt="" width={28} height={28} className="h-7 w-7 shrink-0" />
-                    <div>
-                      <p className="text-sm font-bold text-teal-dark">{titulo}</p>
-                      <p className="text-xs text-ink-soft">{texto}</p>
-                    </div>
+            <div className="mt-10 flex flex-wrap justify-center gap-8 border-t border-line pt-8 sm:justify-start">
+              {CONSEJOS.map(({ icono, titulo, texto }) => (
+                <div key={titulo} className="flex max-w-xs items-start gap-3">
+                  <Image
+                    src={icono}
+                    alt=""
+                    width={40}
+                    height={40}
+                    className="h-7 w-7 shrink-0 sm:h-9 sm:w-9 lg:h-10 lg:w-10"
+                  />
+                  <div>
+                    <p className="text-sm font-bold text-teal-dark">{titulo}</p>
+                    <p className="text-xs text-ink-soft">{texto}</p>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
           </div>
 
