@@ -76,27 +76,25 @@ export default async function ClinicasPage({
   const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
 
   return (
-    <main className="flex-1">
-      <header
-        className="bg-cover bg-center"
-        style={{ backgroundImage: "url(/brand/fondo-hero.png)" }}
-      >
-        <SiteHeader />
-        <div className="mx-auto max-w-[1600px] px-6 py-12">
-          <Breadcrumbs items={[{ label: "Clínicas", href: "/clinicas" }]} />
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.png')] bg-cover bg-fixed bg-top">
+      <SiteHeader />
 
-          <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
-            Clínicas <span className="text-teal-dark">capilares</span> en
-            España
-          </h1>
-          <p className="mt-3 max-w-xl text-ink-soft">
-            Compara clínicas por ciudad, técnica e idioma antes de pedir cita.
-          </p>
-        </div>
-      </header>
+      <div className="mx-auto max-w-[1600px] px-6 pb-20 pt-8 sm:pb-24">
+        <Breadcrumbs items={[{ label: "Clínicas", href: "/clinicas" }]} />
 
-      <div className="mx-auto max-w-[1600px] px-6 py-10">
-        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
+          Clínicas <span className="text-teal-dark">capilares</span> en
+          España
+        </h1>
+        <p className="mt-3 max-w-xl text-ink-soft">
+          Compara clínicas por ciudad, técnica e idioma antes de pedir cita.
+        </p>
+      </div>
+
+      {/* Barra de filtros flotante: a caballo entre el fondo y el panel
+          blanco de más abajo, como una tarjeta elevada. */}
+      <div className="relative z-10 mx-auto -mt-12 max-w-[1600px] px-3 sm:-mt-14 sm:px-6">
+        <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <p className="text-sm text-ink-soft">
             {filtradas.length}{" "}
             {filtradas.length === 1
@@ -105,43 +103,49 @@ export default async function ClinicasPage({
           </p>
           <ClinicFilters provincias={provincias} ciudades={ciudades} tecnicas={tecnicas} />
         </div>
+      </div>
 
-        {ciudades.length > 1 && (
-          <p className="mt-4 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
-            <span>Explora por ciudad:</span>
-            {ciudades.map((c) => {
-              const clinicaDeEstaCiudad = clinicas.find((cl) => cl.ciudad === c);
-              const provinciaSlug = clinicaDeEstaCiudad
-                ? slugifyProvincia(clinicaDeEstaCiudad.provincia)
-                : slugifyProvincia("Illes Balears");
-              return (
-                <Link
-                  key={c}
-                  href={`/clinicas/${provinciaSlug}/${slugifyCiudad(c)}`}
-                  className="text-cyan hover:text-cyan-dark"
-                >
-                  {c}
-                </Link>
-              );
-            })}
-          </p>
-        )}
+      <div className="mx-auto max-w-[1600px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+          <div className="px-6 py-8 sm:px-10">
+            {ciudades.length > 1 && (
+              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
+                <span>Explora por ciudad:</span>
+                {ciudades.map((c) => {
+                  const clinicaDeEstaCiudad = clinicas.find((cl) => cl.ciudad === c);
+                  const provinciaSlug = clinicaDeEstaCiudad
+                    ? slugifyProvincia(clinicaDeEstaCiudad.provincia)
+                    : slugifyProvincia("Illes Balears");
+                  return (
+                    <Link
+                      key={c}
+                      href={`/clinicas/${provinciaSlug}/${slugifyCiudad(c)}`}
+                      className="text-cyan hover:text-cyan-dark"
+                    >
+                      {c}
+                    </Link>
+                  );
+                })}
+              </p>
+            )}
 
-        {filtradas.length > 0 ? (
-          <div className="mt-8">
-            <VistaListaMapa clinicas={filtradas} />
+            <div className={ciudades.length > 1 ? "mt-8" : undefined}>
+              {filtradas.length > 0 ? (
+                <VistaListaMapa clinicas={filtradas} />
+              ) : (
+                <div className="rounded-3xl border border-dashed border-line bg-paper-dim/50 py-16 text-center">
+                  <p className="font-display text-xl text-teal-dark">
+                    Sin resultados
+                  </p>
+                  <p className="mt-2 text-sm text-ink-soft">
+                    No hay clínicas que encajen con estos filtros. Prueba a
+                    quitar alguno.
+                  </p>
+                </div>
+              )}
+            </div>
           </div>
-        ) : (
-          <div className="mt-16 rounded-3xl border border-dashed border-line bg-paper-dim/50 py-16 text-center">
-            <p className="font-display text-xl text-teal-dark">
-              Sin resultados
-            </p>
-            <p className="mt-2 text-sm text-ink-soft">
-              No hay clínicas que encajen con estos filtros. Prueba a quitar
-              alguno.
-            </p>
-          </div>
-        )}
+        </div>
       </div>
       <SiteFooter />
     </main>
