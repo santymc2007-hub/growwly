@@ -29,22 +29,16 @@ const CONSEJOS = [
     icono: "/analisis/ic-buena-luz.png",
     titulo: "Buena luz",
     texto: "Luz natural y uniforme",
-    w: 51,
-    h: 58,
   },
   {
     icono: "/analisis/ic-sin-filtros.png",
     titulo: "Sin filtros",
     texto: "Ni retoques ni añadidos",
-    w: 45,
-    h: 35,
   },
   {
     icono: "/analisis/ic-cuero-visible.png",
     titulo: "Cuero cabelludo visible",
     texto: "Que se vea bien la zona afectada",
-    w: 51,
-    h: 29,
   },
 ] as const;
 
@@ -288,14 +282,14 @@ export function AnalisisForm({
               </div>
 
               <div className="flex flex-wrap justify-center gap-8 border-t border-line pt-8 sm:justify-start lg:w-[280px] lg:flex-none lg:flex-col lg:flex-nowrap lg:justify-start lg:gap-6 lg:border-t-0 lg:pt-2">
-                {CONSEJOS.map(({ icono, titulo, texto, w, h }) => (
+                {CONSEJOS.map(({ icono, titulo, texto }) => (
                   <div key={titulo} className="flex max-w-xs items-start gap-3">
                     <Image
                       src={icono}
                       alt=""
-                      width={w}
-                      height={h}
-                      className="h-6 w-auto shrink-0 translate-y-0.5 lg:h-8"
+                      width={50}
+                      height={50}
+                      className="h-6 w-6 shrink-0 lg:h-8 lg:w-8"
                     />
                     <div>
                       <p className="text-sm font-bold text-teal-dark">{titulo}</p>
