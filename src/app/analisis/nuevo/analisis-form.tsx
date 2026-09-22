@@ -6,40 +6,45 @@ import { Camera, Check, CloudUpload, ImagePlus, X } from "lucide-react";
 import { comprimirImagen } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 
+// width/height = tamaño real del icono (svg viewBox o png), para que el
+// navegador escale manteniendo su proporción en vez de forzarlo a un
+// cuadrado y deformarlo.
 const CARACTERISTICAS = [
-  { icono: "/analisis/ic-rapido.svg", texto: "Rápido y fácil" },
-  { icono: "/analisis/ic-verificado.svg", texto: "Clínicas verificadas" },
-  { icono: "/analisis/ic-gratuito.svg", texto: "100% Gratuito" },
-  { icono: "/analisis/ic-seguro.svg", texto: "Seguro y confidencial" },
+  { icono: "/analisis/ic-rapido.svg", texto: "Rápido y fácil", w: 34, h: 63 },
+  { icono: "/analisis/ic-verificado.svg", texto: "Clínicas verificadas", w: 56, h: 53 },
+  { icono: "/analisis/ic-gratuito.svg", texto: "100% Gratuito", w: 44, h: 63 },
+  { icono: "/analisis/ic-seguro.svg", texto: "Seguro y confidencial", w: 63, h: 60 },
 ] as const;
 
-const GUIA: ReadonlyArray<{ imagen: string; etiqueta: string; espejo?: boolean }> = [
+const GUIA = [
   { imagen: "/analisis/guia-frontal.png", etiqueta: "Frontal" },
   { imagen: "/analisis/guia-donante.png", etiqueta: "Zona donante" },
   { imagen: "/analisis/guia-coronilla.png", etiqueta: "Coronilla" },
   { imagen: "/analisis/guia-perfil-derecho.png", etiqueta: "Perfil derecho" },
-  {
-    imagen: "/analisis/guia-perfil-izquierdo.png",
-    etiqueta: "Perfil izquierdo",
-    espejo: true,
-  },
-];
+  { imagen: "/analisis/guia-perfil-izquierdo.png", etiqueta: "Perfil izquierdo" },
+] as const;
 
 const CONSEJOS = [
   {
     icono: "/analisis/ic-buena-luz.png",
     titulo: "Buena luz",
     texto: "Luz natural y uniforme",
+    w: 51,
+    h: 58,
   },
   {
     icono: "/analisis/ic-sin-filtros.png",
     titulo: "Sin filtros",
     texto: "Ni retoques ni añadidos",
+    w: 45,
+    h: 35,
   },
   {
     icono: "/analisis/ic-cuero-visible.png",
     titulo: "Cuero cabelludo visible",
     texto: "Que se vea bien la zona afectada",
+    w: 51,
+    h: 29,
   },
 ] as const;
 
@@ -229,17 +234,22 @@ export function AnalisisForm({
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Características */}
           <div className="px-6 py-8 sm:px-10">
-            <div className="grid grid-cols-2 gap-x-4 gap-y-6 rounded-2xl bg-paper-dim px-6 py-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-10">
-              {CARACTERISTICAS.map(({ icono, texto }) => (
-                <div key={texto} className="flex items-center gap-3">
+            <div className="grid grid-cols-2 gap-x-4 gap-y-6 rounded-2xl bg-paper-dim px-6 py-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-10 lg:flex-nowrap lg:divide-x lg:divide-line">
+              {CARACTERISTICAS.map(({ icono, texto, w, h }) => (
+                <div
+                  key={texto}
+                  className="flex items-center gap-3 lg:flex-1 lg:justify-center lg:px-6"
+                >
                   <Image
                     src={icono}
                     alt=""
-                    width={40}
-                    height={40}
-                    className="h-7 w-7 shrink-0 sm:h-9 sm:w-9 lg:h-10 lg:w-10"
+                    width={w}
+                    height={h}
+                    className="h-7 w-auto shrink-0 sm:h-9 lg:h-10"
                   />
-                  <span className="text-sm font-bold text-teal-dark">{texto}</span>
+                  <span className="text-sm font-bold text-teal-dark lg:whitespace-nowrap">
+                    {texto}
+                  </span>
                 </div>
               ))}
             </div>
@@ -252,42 +262,43 @@ export function AnalisisForm({
               las fotos que subas
             </h2>
 
-            <div className="mt-8 flex flex-wrap justify-center gap-x-6 gap-y-8 sm:gap-x-10 lg:justify-start">
-              {GUIA.map(({ imagen, etiqueta, espejo }) => (
-                <div key={etiqueta} className="text-center">
-                  <div className="relative mx-auto aspect-square w-20 sm:w-32 lg:w-48 xl:w-56">
-                    <Image
-                      src={imagen}
-                      alt=""
-                      fill
-                      sizes="(min-width: 1280px) 224px, (min-width: 1024px) 192px, (min-width: 640px) 128px, 80px"
-                      className="object-contain"
-                      style={espejo ? { transform: "scaleX(-1)" } : undefined}
-                    />
+            <div className="mt-8 flex flex-col gap-8 lg:flex-row lg:items-start lg:justify-between lg:gap-10">
+              <div className="flex flex-wrap justify-center gap-x-6 gap-y-8 sm:gap-x-10 lg:flex-nowrap lg:justify-start">
+                {GUIA.map(({ imagen, etiqueta }) => (
+                  <div key={etiqueta} className="text-center">
+                    <div className="relative mx-auto aspect-square w-20 sm:w-32 lg:w-40 xl:w-48">
+                      <Image
+                        src={imagen}
+                        alt=""
+                        fill
+                        sizes="(min-width: 1280px) 192px, (min-width: 1024px) 160px, (min-width: 640px) 128px, 80px"
+                        className="object-contain"
+                      />
+                    </div>
+                    <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-teal-dark sm:text-xs">
+                      {etiqueta}
+                    </p>
                   </div>
-                  <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-teal-dark sm:text-xs">
-                    {etiqueta}
-                  </p>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
 
-            <div className="mt-10 flex flex-wrap justify-center gap-8 border-t border-line pt-8 sm:justify-start">
-              {CONSEJOS.map(({ icono, titulo, texto }) => (
-                <div key={titulo} className="flex max-w-xs items-start gap-3">
-                  <Image
-                    src={icono}
-                    alt=""
-                    width={40}
-                    height={40}
-                    className="h-7 w-7 shrink-0 sm:h-9 sm:w-9 lg:h-10 lg:w-10"
-                  />
-                  <div>
-                    <p className="text-sm font-bold text-teal-dark">{titulo}</p>
-                    <p className="text-xs text-ink-soft">{texto}</p>
+              <div className="flex flex-wrap justify-center gap-8 border-t border-line pt-8 sm:justify-start lg:flex-col lg:flex-nowrap lg:justify-start lg:gap-6 lg:border-t-0 lg:pt-2">
+                {CONSEJOS.map(({ icono, titulo, texto, w, h }) => (
+                  <div key={titulo} className="flex max-w-xs items-start gap-3">
+                    <Image
+                      src={icono}
+                      alt=""
+                      width={w}
+                      height={h}
+                      className="h-6 w-auto shrink-0 translate-y-0.5"
+                    />
+                    <div>
+                      <p className="text-sm font-bold text-teal-dark">{titulo}</p>
+                      <p className="text-xs text-ink-soft">{texto}</p>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
 
