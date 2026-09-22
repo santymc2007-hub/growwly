@@ -56,6 +56,7 @@ export function AnalisisForm({
   const [arrastrando, setArrastrando] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const camaraRef = useRef<HTMLInputElement>(null);
+  const fotosAnadidasRef = useRef<HTMLDivElement>(null);
 
   async function agregarArchivos(lista: FileList | File[]) {
     const archivos = Array.from(lista).filter((f) => f.type.startsWith("image/"));
@@ -77,6 +78,9 @@ export function AnalisisForm({
         });
       }
       setFotos((prev) => [...prev, ...nuevas]);
+      // Baja hasta "Tus fotos añadidas" para que se vean las miniaturas
+      // y el botón de analizar sin tener que buscarlos manualmente.
+      fotosAnadidasRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
     } finally {
       setEstado("idle");
     }
@@ -302,7 +306,10 @@ export function AnalisisForm({
           </div>
 
           {/* Fotos añadidas + envío */}
-          <div className="border-t border-line px-6 py-10 sm:px-10 lg:border-t-0 lg:pb-10 lg:pt-2">
+          <div
+            ref={fotosAnadidasRef}
+            className="border-t border-line px-6 py-10 sm:px-10 lg:border-t-0 lg:pb-10 lg:pt-2"
+          >
             <div className="lg:rounded-2xl lg:bg-paper-dim lg:px-8 lg:py-7">
               <form onSubmit={onSubmit}>
                 <div className="flex flex-wrap items-baseline gap-2">
