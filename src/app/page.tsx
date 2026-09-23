@@ -118,7 +118,7 @@ export default async function HomePage() {
               </div>
               <Link
                 href="/clinicas"
-                className="press mt-8 inline-block rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-6 py-3 text-base font-medium text-teal-dark transition hover:opacity-90"
+                className="press mt-8 inline-block rounded-full bg-yellow px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
               >
                 Ver todas las clínicas
               </Link>
