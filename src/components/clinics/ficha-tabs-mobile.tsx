@@ -45,10 +45,10 @@ export function FichaTabsMobile({
         </button>
       </div>
 
-      <div className={tab === "informacion" ? "block" : "hidden lg:block"}>
+      <div className={`min-w-0 ${tab === "informacion" ? "block" : "hidden lg:block"}`}>
         {informacion}
       </div>
-      <div className={tab === "contacto" ? "block" : "hidden lg:block"}>
+      <div className={`min-w-0 ${tab === "contacto" ? "block" : "hidden lg:block"}`}>
         {contacto}
       </div>
     </div>
