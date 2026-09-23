@@ -82,7 +82,7 @@ export function ClinicCardCompact({ clinic }: { clinic: Clinic }) {
           </div>
         )}
 
-        <span className="press mt-auto inline-block w-fit rounded-full bg-gradient-to-r from-yellow to-orange px-3 py-1 text-xs font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90">
+        <span className="press mt-auto inline-block w-fit rounded-full bg-yellow px-3 py-1 text-xs font-bold text-teal-dark shadow-sm shadow-yellow/30 transition group-hover:opacity-90">
           Ver ficha
         </span>
       </div>

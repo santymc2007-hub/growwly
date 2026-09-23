@@ -114,7 +114,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
               </span>
             )}
           </div>
-          <span className="press hidden shrink-0 rounded-full bg-gradient-to-r from-yellow to-orange px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition group-hover:opacity-90 sm:inline-block">
+          <span className="press hidden shrink-0 rounded-full bg-yellow px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm shadow-yellow/30 transition group-hover:opacity-90 sm:inline-block">
             Ver ficha
           </span>
         </div>
