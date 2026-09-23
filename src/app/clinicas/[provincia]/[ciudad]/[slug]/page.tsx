@@ -2,16 +2,34 @@ import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
-import { Phone, Mail, Globe, MapPin, Megaphone, CheckCircle2 } from "lucide-react";
+import {
+  Phone,
+  Mail,
+  Globe,
+  MapPin,
+  Megaphone,
+  CheckCircle2,
+  DoorOpen,
+  MoveHorizontal,
+  Bath,
+  SlidersHorizontal,
+  Signpost,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import ReactMarkdown from "react-markdown";
 import { getSocialLinks } from "@/lib/social-links";
-import { formatearPrecio, slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
+import {
+  formatearPrecio,
+  slugifyCiudad,
+  slugifyProvincia,
+  ACCESIBILIDAD_OPCIONES,
+} from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { Carousel } from "@/components/clinics/carousel";
 import { AntesDespuesGaleria } from "@/components/clinics/antes-despues-galeria";
 import { ModuloValoraciones } from "@/components/clinics/modulo-valoraciones";
 import { ModuloOpiniones } from "@/components/clinics/modulo-opiniones";
+import { FichaTabsMobile } from "@/components/clinics/ficha-tabs-mobile";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 
@@ -107,6 +125,14 @@ function WhatsAppIcon({ className }: { className?: string }) {
     </svg>
   );
 }
+
+const ICONO_ACCESIBILIDAD: Record<string, typeof DoorOpen> = {
+  entrada_sin_escalones: DoorOpen,
+  pasillos_amplios: MoveHorizontal,
+  aseos_adaptados: Bath,
+  mobiliario_ajustable: SlidersHorizontal,
+  senalizacion_clara: Signpost,
+};
 
 function LinkedinIcon({ className }: { className?: string }) {
   return (
@@ -335,9 +361,10 @@ export default async function ClinicaPage({
 
       <div className="mx-auto max-w-[1600px] px-3 pb-8 pt-6 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
-          <div className="grid gap-10 px-6 py-8 sm:px-10 lg:grid-cols-[1fr_360px]">
-            <div className="min-w-0">
-              <div className="flex flex-wrap items-start justify-between gap-3">
+          <FichaTabsMobile
+            informacion={
+            <div className="min-w-0 lg:flex lg:flex-col">
+              <div className="flex flex-wrap items-start justify-between gap-3 lg:order-10">
                 <div className="flex items-center gap-4">
                   {clinic.logo_url && (
                     <div className="relative h-14 w-28 shrink-0 sm:h-20 sm:w-44">
@@ -351,7 +378,7 @@ export default async function ClinicaPage({
                     </div>
                   )}
                   <div>
-                    <h1 className="font-display text-3xl text-teal-dark">
+                    <h1 className="font-display text-[25px] text-teal-dark sm:text-3xl">
                       {clinic.nombre}
                     </h1>
                     {ubicacion && <p className="mt-1 text-ink-soft">{ubicacion}</p>}
@@ -366,17 +393,17 @@ export default async function ClinicaPage({
               </div>
 
               {clinic.fotos.length > 0 ? (
-                <div className="mt-5">
+                <div className="mt-5 lg:order-20">
                   <Carousel fotos={clinic.fotos} nombreClinica={clinic.nombre} />
                 </div>
               ) : (
-                <div className="mt-5 flex aspect-[16/9] w-full items-center justify-center rounded-3xl bg-sage text-sage-ink">
+                <div className="mt-5 flex aspect-[16/9] w-full items-center justify-center rounded-3xl bg-sage text-sage-ink lg:order-20">
                   Sin fotos todavía
                 </div>
               )}
 
               {hayDestacados && (
-                <section className="mt-6 rounded-2xl border border-yellow/50 bg-yellow/10 p-5">
+                <section className="mt-6 rounded-2xl border border-yellow/50 bg-yellow/10 p-5 lg:order-30">
                   <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-orange">
                     <Megaphone className="h-3.5 w-3.5" aria-hidden />
                     Importante
@@ -411,17 +438,17 @@ export default async function ClinicaPage({
               )}
 
               {clinic.descripcion && (
-                <p className="mt-6 break-words text-ink-soft">{clinic.descripcion}</p>
+                <p className="mt-6 break-words text-ink-soft lg:order-40">{clinic.descripcion}</p>
               )}
 
               {esPremium && clinic.descripcion_extendida && (
-                <section className="prose prose-teal mt-6 max-w-none prose-headings:font-display prose-headings:text-teal-dark">
+                <section className="prose prose-teal mt-6 max-w-none prose-headings:font-display prose-headings:text-teal-dark lg:order-50">
                   <ReactMarkdown>{clinic.descripcion_extendida}</ReactMarkdown>
                 </section>
               )}
 
               {clinic.tecnicas.length > 0 && (
-                <section className="mt-8">
+                <section className="mt-8 lg:order-60">
                   <h2 className="font-display text-lg text-teal-dark">
                     Técnicas
                   </h2>
@@ -449,7 +476,7 @@ export default async function ClinicaPage({
               )}
 
               {esPremium && clinic.servicios_adicionales.length > 0 && (
-                <section className="mt-8">
+                <section className="mt-8 lg:order-70">
                   <h2 className="font-display text-lg text-teal-dark">
                     Otros servicios
                   </h2>
@@ -467,7 +494,7 @@ export default async function ClinicaPage({
               )}
 
               {clinic.idiomas.length > 0 && (
-                <section className="mt-8">
+                <section className="mt-8 lg:order-80">
                   <h2 className="font-display text-lg text-teal-dark">
                     Idiomas
                   </h2>
@@ -485,7 +512,7 @@ export default async function ClinicaPage({
               )}
 
               {esPremium && clinic.video_url && urlEmbedVideo(clinic.video_url) && (
-                <section className="mt-8">
+                <section className="mt-8 lg:order-100">
                   <h2 className="font-display text-lg text-teal-dark">Vídeo</h2>
                   <div className="relative mt-3 aspect-video w-full overflow-hidden rounded-xl">
                     <iframe
@@ -499,7 +526,7 @@ export default async function ClinicaPage({
               )}
 
               {medicos.length > 0 && (
-                <section className="mt-8">
+                <section className="mt-8 lg:order-90">
                   <h2 className="font-display text-lg text-teal-dark">
                     Equipo médico
                   </h2>
@@ -532,30 +559,51 @@ export default async function ClinicaPage({
                 </section>
               )}
 
-              {esPremium && Array.isArray(clinic.fotos_antes_despues) && clinic.fotos_antes_despues.length > 0 && (
-                <section className="mt-8">
-                  <h2 className="font-display text-lg text-teal-dark">
-                    Antes y después
-                  </h2>
-                  <p className="mt-1 text-xs text-ink-soft">
-                    Arrastra para comparar.
-                  </p>
-                  <div className="mt-3">
-                    <AntesDespuesGaleria
-                      pares={clinic.fotos_antes_despues as { antes: string; despues: string }[]}
-                      nombreClinica={clinic.nombre}
-                    />
+              {esPremium &&
+                ((Array.isArray(clinic.fotos_antes_despues) &&
+                  clinic.fotos_antes_despues.length > 0) ||
+                  opiniones.length > 0) && (
+                  <div className="mt-8 lg:order-110">
+                    {/* Cabecera común solo en escritorio — en móvil cada
+                        bloque conserva su propio título de siempre. */}
+                    <h2 className="hidden font-display text-lg text-teal-dark lg:block">
+                      Nuestros clientes
+                    </h2>
+
+                    {Array.isArray(clinic.fotos_antes_despues) &&
+                      clinic.fotos_antes_despues.length > 0 && (
+                        <section>
+                          <h2 className="font-display text-lg text-teal-dark lg:hidden">
+                            Antes y después
+                          </h2>
+                          <p className="mt-1 text-xs text-ink-soft lg:hidden">
+                            Arrastra para comparar.
+                          </p>
+                          <div className="mt-3 lg:mt-4">
+                            <AntesDespuesGaleria
+                              pares={
+                                clinic.fotos_antes_despues as {
+                                  antes: string;
+                                  despues: string;
+                                  descripcion?: string;
+                                }[]
+                              }
+                              nombreClinica={clinic.nombre}
+                            />
+                          </div>
+                        </section>
+                      )}
+
+                    <ModuloOpiniones opiniones={opiniones} />
                   </div>
-                </section>
-              )}
+                )}
 
-              {esPremium && <ModuloOpiniones opiniones={opiniones} />}
-
-              <p className="mt-10 text-xs text-ink-soft">
+              <p className="mt-10 text-xs text-ink-soft lg:order-120">
                 Última actualización: {actualizado}
               </p>
             </div>
-
+            }
+            contacto={
             <div className="flex min-w-0 flex-col gap-6">
               <ModuloValoraciones
                 ratingGoogle={clinic.rating_google}
@@ -684,14 +732,34 @@ export default async function ClinicaPage({
                   )
                 )}
 
-                {clinic.accesibilidad && (
+                {(clinic.accesibilidad_checks.length > 0 || clinic.accesibilidad) && (
                   <>
                     <h2 className="mt-6 font-display text-lg text-teal-dark">
                       Accesibilidad
                     </h2>
-                    <p className="mt-2 break-words text-sm text-ink-soft">
-                      {clinic.accesibilidad}
-                    </p>
+                    {clinic.accesibilidad_checks.length > 0 && (
+                      <ul className="mt-2 flex flex-col gap-1.5">
+                        {ACCESIBILIDAD_OPCIONES.filter((op) =>
+                          clinic.accesibilidad_checks.includes(op.clave),
+                        ).map((op) => {
+                          const Icono = ICONO_ACCESIBILIDAD[op.clave];
+                          return (
+                            <li
+                              key={op.clave}
+                              className="flex items-center gap-2 text-sm text-ink-soft"
+                            >
+                              <Icono className="h-4 w-4 shrink-0 text-cyan-dark" aria-hidden />
+                              {op.etiqueta}
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                    {clinic.accesibilidad && (
+                      <p className="mt-2 break-words text-sm text-ink-soft">
+                        {clinic.accesibilidad}
+                      </p>
+                    )}
                   </>
                 )}
 
@@ -799,7 +867,8 @@ export default async function ClinicaPage({
                 )}
               </aside>
             </div>
-          </div>
+            }
+          />
         </div>
       </div>
       <SiteFooter />

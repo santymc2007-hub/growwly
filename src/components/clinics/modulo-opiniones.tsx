@@ -23,10 +23,13 @@ export function ModuloOpiniones({ opiniones }: { opiniones: Opinion[] }) {
 
   return (
     <section className="mt-8">
-      <h2 className="font-display text-lg text-teal-dark">
+      {/* En escritorio va agrupada bajo la cabecera "Nuestros
+          clientes" (ver page.tsx) — en móvil conserva su propio
+          título, porque ahí no se fusiona con antes/después. */}
+      <h2 className="font-display text-lg text-teal-dark lg:hidden">
         Opiniones de pacientes
       </h2>
-      <div className="relative mt-3">
+      <div className="relative mt-3 lg:mt-0">
         <div
           ref={scrollRef}
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"

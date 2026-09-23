@@ -147,6 +147,7 @@ export async function actualizarMiFicha(formData: FormData) {
     rango_precios: str("rango_precios"),
     horarios_estructurados: horariosEstructurados,
     accesibilidad: str("accesibilidad"),
+    accesibilidad_checks: formData.getAll("accesibilidad_checks").map(String),
     financiacion: formData.get("financiacion") === "on",
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
     acepta_videoconsulta: formData.get("acepta_videoconsulta") === "on",
@@ -157,12 +158,17 @@ export async function actualizarMiFicha(formData: FormData) {
   try {
     // Fotos antes/después: hasta 10 pares
     const paresExistentes = Array.isArray(clinicaActual?.fotos_antes_despues)
-      ? (clinicaActual.fotos_antes_despues as { antes: string; despues: string }[])
+      ? (clinicaActual.fotos_antes_despues as {
+          antes: string;
+          despues: string;
+          descripcion?: string;
+        }[])
       : [];
-    const nuevosPares: { antes: string; despues: string }[] = [];
+    const nuevosPares: { antes: string; despues: string; descripcion?: string }[] = [];
     for (let i = 0; i < 10; i++) {
       const antesFile = formData.get(`antes_${i}`);
       const despuesFile = formData.get(`despues_${i}`);
+      const descripcion = str(`antes_despues_descripcion_${i}`);
       const antesUrl = isRealFile(antesFile)
         ? (await uploadClinicPhotos(admin, [antesFile]))[0]
         : paresExistentes[i]?.antes;
@@ -170,7 +176,11 @@ export async function actualizarMiFicha(formData: FormData) {
         ? (await uploadClinicPhotos(admin, [despuesFile]))[0]
         : paresExistentes[i]?.despues;
       if (antesUrl && despuesUrl) {
-        nuevosPares.push({ antes: antesUrl, despues: despuesUrl });
+        nuevosPares.push({
+          antes: antesUrl,
+          despues: despuesUrl,
+          ...(descripcion ? { descripcion } : {}),
+        });
       }
     }
 
