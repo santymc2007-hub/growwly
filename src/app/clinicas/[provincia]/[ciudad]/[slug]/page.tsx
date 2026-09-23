@@ -7,7 +7,6 @@ import {
   Mail,
   Globe,
   MapPin,
-  Megaphone,
   CheckCircle2,
   DoorOpen,
   MoveHorizontal,
@@ -365,28 +364,36 @@ export default async function ClinicaPage({
             informacion={
             <div className="min-w-0 lg:flex lg:flex-col">
               <div className="flex flex-wrap items-start justify-between gap-3 lg:order-10">
-                <div className="flex items-center gap-4">
+                <div className="flex flex-wrap items-center gap-3 sm:gap-5">
                   {clinic.logo_url && (
-                    <div className="relative h-14 w-28 shrink-0 sm:h-20 sm:w-44">
-                      <Image
-                        src={clinic.logo_url}
-                        alt=""
-                        fill
-                        sizes="176px"
-                        className="object-contain object-left"
+                    <>
+                      <div className="relative h-12 w-24 shrink-0 sm:h-20 sm:w-44 lg:h-24 lg:w-60">
+                        <Image
+                          src={clinic.logo_url}
+                          alt=""
+                          fill
+                          sizes="240px"
+                          className="object-contain object-left"
+                        />
+                      </div>
+                      <div
+                        className="hidden h-12 w-px shrink-0 bg-line sm:block sm:h-16"
+                        aria-hidden
                       />
-                    </div>
+                    </>
                   )}
                   <div>
-                    <h1 className="font-display text-[25px] text-teal-dark sm:text-3xl">
-                      {clinic.nombre}
-                    </h1>
-                    {ubicacion && <p className="mt-1 text-ink-soft">{ubicacion}</p>}
-                    {clinic.tipo_negocio && (
-                      <p className="mt-1 text-xs uppercase tracking-wide text-ink-soft/70">
-                        {clinic.tipo_negocio}
-                      </p>
-                    )}
+                    <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
+                      <h1 className="font-display text-[25px] text-teal-dark sm:text-3xl lg:text-4xl">
+                        {clinic.nombre}
+                      </h1>
+                      {clinic.tipo_negocio && (
+                        <span className="text-xs uppercase tracking-wide text-ink-soft/70 sm:text-sm">
+                          {clinic.tipo_negocio}
+                        </span>
+                      )}
+                    </div>
+                    {ubicacion && <p className="mt-1.5 text-ink-soft">{ubicacion}</p>}
                   </div>
                 </div>
                 {clinic.verificado && <VerifiedBadge />}
@@ -403,33 +410,29 @@ export default async function ClinicaPage({
               )}
 
               {hayDestacados && (
-                <section className="mt-6 rounded-2xl border border-yellow/50 bg-yellow/10 p-5 lg:order-30">
-                  <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-orange">
-                    <Megaphone className="h-3.5 w-3.5" aria-hidden />
-                    Importante
-                  </p>
-                  <ul className="mt-3 flex flex-col gap-2">
+                <section className="mt-6 rounded-2xl border border-yellow/50 bg-yellow/10 p-4 lg:order-30">
+                  <ul className="flex flex-wrap gap-2.5">
                     {esPremium && clinic.tiene_oferta && (
-                      <li className="flex items-center gap-2 text-sm font-semibold text-teal-dark">
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-orange" aria-hidden />
+                      <li className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-sm">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-green" aria-hidden />
                         {clinic.detalle_oferta || "Oferta activa"}
                       </li>
                     )}
                     {clinic.primera_consulta_gratis && (
-                      <li className="flex items-center gap-2 text-sm font-semibold text-teal-dark">
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-orange" aria-hidden />
+                      <li className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-sm">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-green" aria-hidden />
                         1ª consulta gratis
                       </li>
                     )}
                     {clinic.financiacion && (
-                      <li className="flex items-center gap-2 text-sm font-semibold text-teal-dark">
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-orange" aria-hidden />
+                      <li className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-sm">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-green" aria-hidden />
                         Financiación disponible
                       </li>
                     )}
                     {clinic.acepta_videoconsulta && (
-                      <li className="flex items-center gap-2 text-sm font-semibold text-teal-dark">
-                        <CheckCircle2 className="h-4 w-4 shrink-0 text-orange" aria-hidden />
+                      <li className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-sm font-semibold text-ink shadow-sm">
+                        <CheckCircle2 className="h-4 w-4 shrink-0 text-green" aria-hidden />
                         Acepta videoconsulta
                       </li>
                     )}

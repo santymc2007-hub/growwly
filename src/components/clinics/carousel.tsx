@@ -9,13 +9,14 @@ type Props = {
   autoplayMs?: number;
 };
 
-const MINIATURAS_POR_PAGINA = 4;
+const MINIATURAS_GRID = 8;
 
 /**
- * Escritorio: como mucho 4 miniaturas a la vez — con el resto,
- * flechas para pasar de página (no crece en vertical con muchas
- * fotos). Clicar cualquiera abre el visor a pantalla completa en
- * esa foto.
+ * Escritorio: foto principal grande a la izquierda (con flechas para
+ * ir pasando) y una rejilla de hasta 8 miniaturas a la derecha — si
+ * hay más fotos, la última miniatura lo indica ("+N fotos") y abre el
+ * visor ahí. Clicar la principal o cualquier miniatura abre el visor
+ * a pantalla completa en esa foto.
  *
  * Móvil/tablet: una foto a la vez con autoplay y transición simple,
  * más flechas y puntos — el espacio vertical no es un problema ahí.
@@ -27,7 +28,6 @@ const MINIATURAS_POR_PAGINA = 4;
  */
 export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
   const [index, setIndex] = useState(0);
-  const [paginaMiniaturas, setPaginaMiniaturas] = useState(0);
   const [modalAbierto, setModalAbierto] = useState(false);
   const count = fotos.length;
   const touchStartX = useRef<number | null>(null);
@@ -102,56 +102,72 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
     </button>
   );
 
-  const totalPaginas = Math.ceil(count / MINIATURAS_POR_PAGINA);
-  const inicioPagina = paginaMiniaturas * MINIATURAS_POR_PAGINA;
-  const miniaturasVisibles = fotos
-    .slice(inicioPagina, inicioPagina + MINIATURAS_POR_PAGINA)
-    .map((foto, i) => ({ foto, indiceReal: inicioPagina + i }));
+  const otras = fotos
+    .map((foto, indiceReal) => ({ foto, indiceReal }))
+    .filter(({ indiceReal }) => indiceReal !== 0);
+  const miniaturasGrid = otras.slice(0, MINIATURAS_GRID);
+  const fotosRestantes = otras.length - miniaturasGrid.length;
 
   return (
     <>
-      {/* Escritorio: miniaturas paginadas (máx. 4 a la vez) */}
-      <div className="relative hidden lg:block">
-        <div className="grid grid-cols-4 gap-2">
-          {miniaturasVisibles.map(({ foto, indiceReal }) => (
-            <button
-              key={`${foto}-${indiceReal}`}
-              type="button"
-              onClick={() => abrir(indiceReal)}
-              className="press group relative aspect-square overflow-hidden rounded-xl bg-sage"
-              aria-label={`Ver foto ${indiceReal + 1} en grande`}
-            >
-              <Image
-                src={foto}
-                alt={`${nombreClinica} foto ${indiceReal + 1}`}
-                fill
-                sizes="200px"
-                className="object-cover transition duration-300 group-hover:scale-105"
-                priority={indiceReal === 0}
-              />
-            </button>
-          ))}
+      {/* Escritorio: foto principal + rejilla de hasta 8 miniaturas */}
+      <div className="hidden gap-2 lg:grid lg:h-[420px] lg:grid-cols-[1.1fr_1fr]">
+        <div className="group relative h-full overflow-hidden rounded-2xl bg-sage">
+          <button
+            type="button"
+            onClick={() => abrir(index)}
+            className="press absolute inset-0 h-full w-full cursor-zoom-in"
+            aria-label="Ver foto en grande"
+          >
+            <Image
+              src={fotos[index]}
+              alt={`${nombreClinica} foto ${index + 1}`}
+              fill
+              sizes="45vw"
+              className="object-cover transition duration-300 group-hover:scale-[1.02]"
+              priority
+            />
+          </button>
+          {count > 1 && (
+            <>
+              {flecha("izq", anterior)}
+              {flecha("der", siguiente)}
+            </>
+          )}
         </div>
-        {totalPaginas > 1 && (
-          <>
-            {flecha("izq", () =>
-              setPaginaMiniaturas((p) => (p - 1 + totalPaginas) % totalPaginas),
-            )}
-            {flecha("der", () => setPaginaMiniaturas((p) => (p + 1) % totalPaginas))}
-            <div className="mt-2 flex justify-center gap-1.5">
-              {Array.from({ length: totalPaginas }).map((_, i) => (
+
+        {miniaturasGrid.length > 0 && (
+          <div className="grid grid-cols-2 grid-rows-4 gap-2">
+            {miniaturasGrid.map(({ foto, indiceReal }, i) => {
+              const esUltimaConMas = i === miniaturasGrid.length - 1 && fotosRestantes > 0;
+              return (
                 <button
-                  key={i}
+                  key={`${foto}-${indiceReal}`}
                   type="button"
-                  onClick={() => setPaginaMiniaturas(i)}
-                  aria-label={`Ver fotos ${i * MINIATURAS_POR_PAGINA + 1} a ${Math.min((i + 1) * MINIATURAS_POR_PAGINA, count)}`}
-                  className={`h-1.5 rounded-full transition-all ${
-                    i === paginaMiniaturas ? "w-5 bg-teal-dark" : "w-1.5 bg-line"
-                  }`}
-                />
-              ))}
-            </div>
-          </>
+                  onClick={() => abrir(indiceReal)}
+                  className="press group relative overflow-hidden rounded-xl bg-sage"
+                  aria-label={
+                    esUltimaConMas
+                      ? `Ver las ${fotosRestantes} fotos restantes`
+                      : `Ver foto ${indiceReal + 1} en grande`
+                  }
+                >
+                  <Image
+                    src={foto}
+                    alt={`${nombreClinica} foto ${indiceReal + 1}`}
+                    fill
+                    sizes="150px"
+                    className="object-cover transition duration-300 group-hover:scale-105"
+                  />
+                  {esUltimaConMas && (
+                    <span className="absolute inset-0 flex items-center justify-center bg-ink/50 text-sm font-semibold text-white">
+                      +{fotosRestantes} fotos
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
 
