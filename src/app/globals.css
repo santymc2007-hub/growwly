@@ -156,6 +156,20 @@ summary {
   animation: toast-in 200ms var(--ease-out);
 }
 
+/* Carrusel de fotos (ficha de clínica): fundido simple al cambiar de
+   foto, tanto en el autoplay de móvil como al navegar en el visor. */
+@keyframes carousel-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.carousel-fade {
+  animation: carousel-fade 350ms var(--ease-out);
+}
+
 /* Resaltado de titulares (hero, WYSIWYG del panel): mismo amarillo de
    marca en todos lados, nunca un color libre elegido en el editor. */
 .hl {

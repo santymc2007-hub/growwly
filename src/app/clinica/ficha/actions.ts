@@ -202,11 +202,18 @@ export async function actualizarMiFicha(formData: FormData) {
     ];
 
     // Equipo médico: hasta 3
-    const medicos: { nombre: string; especialidad: string }[] = [];
+    const medicos: { nombre: string; especialidad: string; linkedin?: string }[] = [];
     for (let i = 0; i < 3; i++) {
       const nombreMedico = str(`medico_nombre_${i}`);
       const especialidad = str(`medico_especialidad_${i}`);
-      if (nombreMedico) medicos.push({ nombre: nombreMedico, especialidad: especialidad ?? "" });
+      const linkedin = str(`medico_linkedin_${i}`);
+      if (nombreMedico) {
+        medicos.push({
+          nombre: nombreMedico,
+          especialidad: especialidad ?? "",
+          ...(linkedin ? { linkedin } : {}),
+        });
+      }
     }
 
     camposPremium = {

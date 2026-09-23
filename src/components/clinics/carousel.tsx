@@ -1,18 +1,30 @@
 "use client";
 
-import { useEffect, useState, type ReactNode } from "react";
+import Image from "next/image";
+import { useEffect, useRef, useState, type TouchEvent } from "react";
 
 type Props = {
-  slides: ReactNode[];
-  slidesGrandes?: ReactNode[];
+  fotos: string[];
+  nombreClinica: string;
   autoplayMs?: number;
 };
 
-export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
+/**
+ * Escritorio: cuadrícula de miniaturas (todas las fotos a la vez, sin
+ * autoplay — ocupa menos espacio vertical que una foto grande). Clicar
+ * cualquiera abre el visor a pantalla completa en esa foto.
+ *
+ * Móvil/tablet: una foto a la vez con autoplay y transición simple,
+ * más flechas y puntos — el espacio vertical no es un problema ahí.
+ *
+ * El visor (modal) es común a ambos: flechas, deslizar con el dedo, y
+ * se cierra con la X o tocando fuera de la foto.
+ */
+export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
   const [index, setIndex] = useState(0);
   const [modalAbierto, setModalAbierto] = useState(false);
-  const count = slides.length;
-  const grandes = slidesGrandes ?? slides;
+  const count = fotos.length;
+  const touchStartX = useRef<number | null>(null);
 
   useEffect(() => {
     if (count <= 1 || modalAbierto) return;
@@ -37,6 +49,23 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
   const anterior = () => setIndex((i) => (i - 1 + count) % count);
   const siguiente = () => setIndex((i) => (i + 1) % count);
 
+  function abrir(i: number) {
+    setIndex(i);
+    setModalAbierto(true);
+  }
+
+  function onTouchStart(e: TouchEvent) {
+    touchStartX.current = e.touches[0].clientX;
+  }
+  function onTouchEnd(e: TouchEvent) {
+    if (touchStartX.current == null) return;
+    const delta = e.changedTouches[0].clientX - touchStartX.current;
+    touchStartX.current = null;
+    if (Math.abs(delta) < 40) return;
+    if (delta < 0) siguiente();
+    else anterior();
+  }
+
   const flecha = (dir: "izq" | "der", onClick: () => void) => (
     <button
       type="button"
@@ -55,34 +84,71 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
 
   return (
     <>
-      <div className="relative">
-        <button
-          type="button"
-          onClick={() => setModalAbierto(true)}
-          className="block w-full cursor-zoom-in"
-          aria-label="Ver más grande"
-        >
-          {slides[index]}
-        </button>
-        {count > 1 && (
-          <>
-            {flecha("izq", anterior)}
-            {flecha("der", siguiente)}
-            <div className="mt-2 flex justify-center gap-1.5">
-              {Array.from({ length: count }).map((_, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => setIndex(i)}
-                  aria-label={`Ir a la foto ${i + 1}`}
-                  className={`h-1.5 rounded-full transition-all ${
-                    i === index ? "w-5 bg-teal-dark" : "w-1.5 bg-line"
-                  }`}
-                />
-              ))}
+      {/* Escritorio: miniaturas */}
+      <div className="hidden gap-2 lg:grid lg:grid-cols-4">
+        {fotos.map((foto, i) => (
+          <button
+            key={`${foto}-${i}`}
+            type="button"
+            onClick={() => abrir(i)}
+            className="press group relative aspect-square overflow-hidden rounded-xl bg-sage"
+            aria-label={`Ver foto ${i + 1} en grande`}
+          >
+            <Image
+              src={foto}
+              alt={`${nombreClinica} foto ${i + 1}`}
+              fill
+              sizes="200px"
+              className="object-cover transition duration-300 group-hover:scale-105"
+              priority={i === 0}
+            />
+          </button>
+        ))}
+      </div>
+
+      {/* Móvil/tablet: carrusel con autoplay */}
+      <div className="lg:hidden">
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => abrir(index)}
+            className="block w-full cursor-zoom-in"
+            aria-label="Ver más grande"
+          >
+            <div
+              key={index}
+              className="carousel-fade relative aspect-[16/9] w-full overflow-hidden rounded-3xl bg-sage"
+            >
+              <Image
+                src={fotos[index]}
+                alt={`${nombreClinica} foto ${index + 1}`}
+                fill
+                sizes="100vw"
+                className="object-cover"
+                priority={index === 0}
+              />
             </div>
-          </>
-        )}
+          </button>
+          {count > 1 && (
+            <>
+              {flecha("izq", anterior)}
+              {flecha("der", siguiente)}
+              <div className="mt-2 flex justify-center gap-1.5">
+                {fotos.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => setIndex(i)}
+                    aria-label={`Ir a la foto ${i + 1}`}
+                    className={`h-1.5 rounded-full transition-all ${
+                      i === index ? "w-5 bg-teal-dark" : "w-1.5 bg-line"
+                    }`}
+                  />
+                ))}
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {modalAbierto && (
@@ -105,8 +171,23 @@ export function Carousel({ slides, slidesGrandes, autoplayMs = 3000 }: Props) {
           >
             ✕
           </button>
-          <div className="modal-anim relative z-10 w-full max-w-4xl">
-            {grandes[index]}
+          <div
+            className="modal-anim relative z-10 w-full max-w-4xl"
+            onTouchStart={onTouchStart}
+            onTouchEnd={onTouchEnd}
+          >
+            <div
+              key={index}
+              className="carousel-fade relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black"
+            >
+              <Image
+                src={fotos[index]}
+                alt={`${nombreClinica} foto ${index + 1}`}
+                fill
+                sizes="90vw"
+                className="object-contain"
+              />
+            </div>
             {count > 1 && (
               <>
                 {flecha("izq", anterior)}
