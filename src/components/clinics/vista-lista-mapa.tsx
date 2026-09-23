@@ -1,11 +1,27 @@
 "use client";
 
 import { useState } from "react";
+import dynamic from "next/dynamic";
 import { List, MapIcon } from "lucide-react";
 import { ClinicCard } from "./clinic-card";
 import { ClinicCardCompact } from "./clinic-card-compact";
-import { ClinicsMap } from "./clinics-map";
 import type { Clinic } from "@/lib/supabase/database.types";
+
+// Leaflet solo funciona en el navegador (usa "window"/"document" al
+// cargarse) y su JS no es pequeño — cargarlo solo cuando se abre la
+// vista de mapa evita que ese peso entre en el bundle de "/clinicas"
+// para quien nunca cambia de la vista de lista.
+const ClinicsMap = dynamic(
+  () => import("./clinics-map").then((m) => m.ClinicsMap),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="flex h-full min-h-[420px] w-full items-center justify-center rounded-2xl bg-sage/40 text-sm text-ink-soft">
+        Cargando mapa…
+      </div>
+    ),
+  },
+);
 
 export function VistaListaMapa({ clinicas }: { clinicas: Clinic[] }) {
   const [vista, setVista] = useState<"lista" | "mapa">("lista");

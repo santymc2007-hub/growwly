@@ -65,7 +65,7 @@ export default async function HomePage() {
   ).filter((t): t is NonNullable<typeof t> => Boolean(t));
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.png')] bg-cover bg-fixed bg-top">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <AnnouncementBar />
       <SiteHeader />
       <Hero />

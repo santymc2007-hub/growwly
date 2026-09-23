@@ -313,7 +313,7 @@ export default async function ClinicaPage({
       : [];
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.png')] bg-cover bg-fixed bg-top">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
