@@ -7,6 +7,7 @@ import { Sparkles, Lock, Check } from "lucide-react";
 import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
+  ACCESIBILIDAD_OPCIONES,
   PRECIO_OPCIONES,
   TIPOS_NEGOCIO,
   formatearPrecio,
@@ -374,15 +375,32 @@ export function FichaClinicaForm({
             </div>
           </div>
           <div>
-            <label className={labelClass} htmlFor="accesibilidad">
-              Accesibilidad
+            <p className={labelClass}>Accesibilidad</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {ACCESIBILIDAD_OPCIONES.map(({ clave, etiqueta }) => (
+                <label
+                  key={clave}
+                  className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    name="accesibilidad_checks"
+                    value={clave}
+                    defaultChecked={clinic.accesibilidad_checks?.includes(clave)}
+                  />
+                  {etiqueta}
+                </label>
+              ))}
+            </div>
+            <label className="mt-3 block text-xs text-ink-soft" htmlFor="accesibilidad">
+              Notas adicionales de accesibilidad (opcional)
             </label>
             <input
               id="accesibilidad"
               name="accesibilidad"
-              placeholder="Ej. Acceso sin escalones, ascensor, aseo adaptado"
+              placeholder="Ej. Ascensor de 90cm, plaza de aparcamiento reservada..."
               defaultValue={clinic.accesibilidad ?? undefined}
-              className={inputClass}
+              className={`${inputClass} mt-1`}
             />
           </div>
         </div>
@@ -590,40 +608,54 @@ export function FichaClinicaForm({
             </p>
             {Array.from({ length: numAntesDespues }, (_, i) => i).map((i) => {
               const par = Array.isArray(clinic.fotos_antes_despues)
-                ? (clinic.fotos_antes_despues as { antes?: string; despues?: string }[])[i]
+                ? (
+                    clinic.fotos_antes_despues as {
+                      antes?: string;
+                      despues?: string;
+                      descripcion?: string;
+                    }[]
+                  )[i]
                 : undefined;
               return (
-                <div key={i} className="mt-2 grid grid-cols-2 gap-3">
-                  <div>
-                    <label htmlFor={`antes_${i}`} className="block text-xs text-ink-soft">
-                      Antes {i + 1}
-                    </label>
-                    <input
-                      id={`antes_${i}`}
-                      name={`antes_${i}`}
-                      type="file"
-                      accept="image/*"
-                      className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
-                    />
-                    {par?.antes && (
-                      <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
-                    )}
+                <div key={i} className="mt-2 rounded-lg border border-line p-2.5">
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label htmlFor={`antes_${i}`} className="block text-xs text-ink-soft">
+                        Antes {i + 1}
+                      </label>
+                      <input
+                        id={`antes_${i}`}
+                        name={`antes_${i}`}
+                        type="file"
+                        accept="image/*"
+                        className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+                      />
+                      {par?.antes && (
+                        <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
+                      )}
+                    </div>
+                    <div>
+                      <label htmlFor={`despues_${i}`} className="block text-xs text-ink-soft">
+                        Después {i + 1}
+                      </label>
+                      <input
+                        id={`despues_${i}`}
+                        name={`despues_${i}`}
+                        type="file"
+                        accept="image/*"
+                        className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+                      />
+                      {par?.despues && (
+                        <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
+                      )}
+                    </div>
                   </div>
-                  <div>
-                    <label htmlFor={`despues_${i}`} className="block text-xs text-ink-soft">
-                      Después {i + 1}
-                    </label>
-                    <input
-                      id={`despues_${i}`}
-                      name={`despues_${i}`}
-                      type="file"
-                      accept="image/*"
-                      className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
-                    />
-                    {par?.despues && (
-                      <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
-                    )}
-                  </div>
+                  <input
+                    name={`antes_despues_descripcion_${i}`}
+                    placeholder="Breve descripción del caso (opcional)"
+                    defaultValue={par?.descripcion ?? undefined}
+                    className={`${inputClass} mt-2`}
+                  />
                 </div>
               );
             })}

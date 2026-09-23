@@ -117,6 +117,14 @@ export function categoriaDeTecnica(tecnica: string): string | null {
   return null;
 }
 
+export const ACCESIBILIDAD_OPCIONES = [
+  { clave: "entrada_sin_escalones", etiqueta: "Entrada sin escalones" },
+  { clave: "pasillos_amplios", etiqueta: "Pasillos amplios" },
+  { clave: "aseos_adaptados", etiqueta: "Aseos adaptados" },
+  { clave: "mobiliario_ajustable", etiqueta: "Mobiliario clínico ajustable" },
+  { clave: "senalizacion_clara", etiqueta: "Señalización clara" },
+] as const;
+
 export const IDIOMAS_DISPONIBLES = [
   "Español",
   "Inglés",

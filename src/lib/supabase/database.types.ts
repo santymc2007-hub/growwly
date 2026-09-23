@@ -49,6 +49,7 @@ export interface Database {
           precio_desde: number | null;
           precio_hasta: number | null;
           accesibilidad: string | null;
+          accesibilidad_checks: string[];
           horarios: string | null;
           logo_url: string | null;
           leads_enabled: boolean;
@@ -111,6 +112,7 @@ export interface Database {
           precio_desde?: number | null;
           precio_hasta?: number | null;
           accesibilidad?: string | null;
+          accesibilidad_checks?: string[];
           horarios?: string | null;
           logo_url?: string | null;
           leads_enabled?: boolean;
@@ -173,6 +175,7 @@ export interface Database {
           precio_desde?: number | null;
           precio_hasta?: number | null;
           accesibilidad?: string | null;
+          accesibilidad_checks?: string[];
           horarios?: string | null;
           logo_url?: string | null;
           leads_enabled?: boolean;

@@ -32,28 +32,7 @@ export function AntesDespuesSlider({
   return (
     <div
       ref={containerRef}
-      role="slider"
-      tabIndex={0}
-      aria-label={`Comparar antes y después — ${alt}`}
-      aria-valuenow={Math.round(pos)}
-      aria-valuemin={0}
-      aria-valuemax={100}
-      className="relative aspect-square w-full touch-none select-none overflow-hidden rounded-xl bg-sage outline-none focus-visible:ring-2 focus-visible:ring-teal"
-      onPointerDown={(e) => {
-        arrastrando.current = true;
-        e.currentTarget.setPointerCapture(e.pointerId);
-        actualizarDesdeX(e.clientX);
-      }}
-      onPointerMove={(e) => {
-        if (arrastrando.current) actualizarDesdeX(e.clientX);
-      }}
-      onPointerUp={() => {
-        arrastrando.current = false;
-      }}
-      onKeyDown={(e) => {
-        if (e.key === "ArrowLeft") setPos((p) => Math.max(0, p - 5));
-        if (e.key === "ArrowRight") setPos((p) => Math.min(100, p + 5));
-      }}
+      className="relative aspect-square w-full select-none overflow-hidden rounded-xl bg-sage"
     >
       <Image
         src={despues}
@@ -82,11 +61,36 @@ export function AntesDespuesSlider({
         </span>
       </div>
 
+      {/* El arrastre solo se inicia desde este tirador (la línea +
+          el círculo central) — nunca desde el resto de la foto, para
+          no chocar con el scroll vertical de la página en móvil. */}
       <div
-        className="pointer-events-none absolute inset-y-0 w-0.5 bg-white shadow"
+        role="slider"
+        tabIndex={0}
+        aria-label={`Comparar antes y después — ${alt}`}
+        aria-valuenow={Math.round(pos)}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        className="absolute inset-y-0 w-8 -translate-x-1/2 touch-none outline-none"
         style={{ left: `${pos}%` }}
+        onPointerDown={(e) => {
+          arrastrando.current = true;
+          e.currentTarget.setPointerCapture(e.pointerId);
+          actualizarDesdeX(e.clientX);
+        }}
+        onPointerMove={(e) => {
+          if (arrastrando.current) actualizarDesdeX(e.clientX);
+        }}
+        onPointerUp={() => {
+          arrastrando.current = false;
+        }}
+        onKeyDown={(e) => {
+          if (e.key === "ArrowLeft") setPos((p) => Math.max(0, p - 5));
+          if (e.key === "ArrowRight") setPos((p) => Math.min(100, p + 5));
+        }}
       >
-        <div className="absolute top-1/2 left-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-xs text-teal-dark shadow-md">
+        <div className="pointer-events-none absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-white shadow" />
+        <div className="pointer-events-none absolute top-1/2 left-1/2 flex h-8 w-8 -translate-x-1/2 -translate-y-1/2 items-center justify-center rounded-full bg-white text-xs text-teal-dark shadow-md focus-visible:ring-2 focus-visible:ring-teal">
           ↔
         </div>
       </div>

@@ -9,19 +9,25 @@ type Props = {
   autoplayMs?: number;
 };
 
+const MINIATURAS_POR_PAGINA = 4;
+
 /**
- * Escritorio: cuadrícula de miniaturas (todas las fotos a la vez, sin
- * autoplay — ocupa menos espacio vertical que una foto grande). Clicar
- * cualquiera abre el visor a pantalla completa en esa foto.
+ * Escritorio: como mucho 4 miniaturas a la vez — con el resto,
+ * flechas para pasar de página (no crece en vertical con muchas
+ * fotos). Clicar cualquiera abre el visor a pantalla completa en
+ * esa foto.
  *
  * Móvil/tablet: una foto a la vez con autoplay y transición simple,
  * más flechas y puntos — el espacio vertical no es un problema ahí.
  *
- * El visor (modal) es común a ambos: flechas, deslizar con el dedo, y
- * se cierra con la X o tocando fuera de la foto.
+ * El visor (modal) es común a ambos: respeta la proporción real de
+ * cada foto (sin recortarla), limitado a un ancho/alto máximo;
+ * flechas, deslizar con el dedo, teclado (← → para navegar, Esc para
+ * cerrar) y se cierra con la X o tocando fuera de la foto.
  */
 export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
   const [index, setIndex] = useState(0);
+  const [paginaMiniaturas, setPaginaMiniaturas] = useState(0);
   const [modalAbierto, setModalAbierto] = useState(false);
   const count = fotos.length;
   const touchStartX = useRef<number | null>(null);
@@ -43,6 +49,20 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
       document.body.style.overflow = previo;
     };
   }, [modalAbierto]);
+
+  // Navegación por teclado en el visor: ← → para pasar de foto, Esc
+  // para cerrar. (Antes del "return null" de más abajo: los hooks
+  // tienen que llamarse siempre, en el mismo orden, en cada render.)
+  useEffect(() => {
+    if (!modalAbierto || count === 0) return;
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "ArrowLeft") setIndex((i) => (i - 1 + count) % count);
+      else if (e.key === "ArrowRight") setIndex((i) => (i + 1) % count);
+      else if (e.key === "Escape") setModalAbierto(false);
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [modalAbierto, count]);
 
   if (count === 0) return null;
 
@@ -82,28 +102,57 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
     </button>
   );
 
+  const totalPaginas = Math.ceil(count / MINIATURAS_POR_PAGINA);
+  const inicioPagina = paginaMiniaturas * MINIATURAS_POR_PAGINA;
+  const miniaturasVisibles = fotos
+    .slice(inicioPagina, inicioPagina + MINIATURAS_POR_PAGINA)
+    .map((foto, i) => ({ foto, indiceReal: inicioPagina + i }));
+
   return (
     <>
-      {/* Escritorio: miniaturas */}
-      <div className="hidden gap-2 lg:grid lg:grid-cols-4">
-        {fotos.map((foto, i) => (
-          <button
-            key={`${foto}-${i}`}
-            type="button"
-            onClick={() => abrir(i)}
-            className="press group relative aspect-square overflow-hidden rounded-xl bg-sage"
-            aria-label={`Ver foto ${i + 1} en grande`}
-          >
-            <Image
-              src={foto}
-              alt={`${nombreClinica} foto ${i + 1}`}
-              fill
-              sizes="200px"
-              className="object-cover transition duration-300 group-hover:scale-105"
-              priority={i === 0}
-            />
-          </button>
-        ))}
+      {/* Escritorio: miniaturas paginadas (máx. 4 a la vez) */}
+      <div className="relative hidden lg:block">
+        <div className="grid grid-cols-4 gap-2">
+          {miniaturasVisibles.map(({ foto, indiceReal }) => (
+            <button
+              key={`${foto}-${indiceReal}`}
+              type="button"
+              onClick={() => abrir(indiceReal)}
+              className="press group relative aspect-square overflow-hidden rounded-xl bg-sage"
+              aria-label={`Ver foto ${indiceReal + 1} en grande`}
+            >
+              <Image
+                src={foto}
+                alt={`${nombreClinica} foto ${indiceReal + 1}`}
+                fill
+                sizes="200px"
+                className="object-cover transition duration-300 group-hover:scale-105"
+                priority={indiceReal === 0}
+              />
+            </button>
+          ))}
+        </div>
+        {totalPaginas > 1 && (
+          <>
+            {flecha("izq", () =>
+              setPaginaMiniaturas((p) => (p - 1 + totalPaginas) % totalPaginas),
+            )}
+            {flecha("der", () => setPaginaMiniaturas((p) => (p + 1) % totalPaginas))}
+            <div className="mt-2 flex justify-center gap-1.5">
+              {Array.from({ length: totalPaginas }).map((_, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  onClick={() => setPaginaMiniaturas(i)}
+                  aria-label={`Ver fotos ${i * MINIATURAS_POR_PAGINA + 1} a ${Math.min((i + 1) * MINIATURAS_POR_PAGINA, count)}`}
+                  className={`h-1.5 rounded-full transition-all ${
+                    i === paginaMiniaturas ? "w-5 bg-teal-dark" : "w-1.5 bg-line"
+                  }`}
+                />
+              ))}
+            </div>
+          </>
+        )}
       </div>
 
       {/* Móvil/tablet: carrusel con autoplay */}
@@ -172,22 +221,21 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
             ✕
           </button>
           <div
-            className="modal-anim relative z-10 w-full max-w-4xl"
+            className="modal-anim relative z-10 flex max-h-[85vh] max-w-[92vw] items-center justify-center"
             onTouchStart={onTouchStart}
             onTouchEnd={onTouchEnd}
           >
-            <div
+            {/* Sin "fill": el tamaño real de la imagen manda (proporción
+                intacta, sin recorte), solo limitado por el máximo. */}
+            <Image
               key={index}
-              className="carousel-fade relative aspect-[16/9] w-full overflow-hidden rounded-2xl bg-black"
-            >
-              <Image
-                src={fotos[index]}
-                alt={`${nombreClinica} foto ${index + 1}`}
-                fill
-                sizes="90vw"
-                className="object-contain"
-              />
-            </div>
+              src={fotos[index]}
+              alt={`${nombreClinica} foto ${index + 1}`}
+              width={1600}
+              height={1200}
+              sizes="92vw"
+              className="carousel-fade h-auto max-h-[85vh] w-auto max-w-[92vw] rounded-2xl object-contain"
+            />
             {count > 1 && (
               <>
                 {flecha("izq", anterior)}
