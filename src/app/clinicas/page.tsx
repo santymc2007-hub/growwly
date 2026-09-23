@@ -76,7 +76,7 @@ export default async function ClinicasPage({
   const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.png')] bg-cover bg-fixed bg-top">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <SiteHeader />
 
       <div className="mx-auto max-w-[1600px] px-6 pb-20 pt-8 sm:pb-24">

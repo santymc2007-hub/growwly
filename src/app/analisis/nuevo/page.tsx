@@ -18,7 +18,7 @@ export default async function NuevoAnalisisPage({
   const { error } = await searchParams;
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.png')] bg-cover bg-fixed bg-top">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <AnnouncementBar />
       <SiteHeader />
       <AnalisisForm action={crearEstudio} initialError={error} />
