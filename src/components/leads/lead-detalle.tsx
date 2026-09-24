@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { DesbloquearButton } from "@/app/leads/[token]/desbloquear-button";
+import { PropuestaForm } from "@/components/leads/propuesta-form";
 import { FotoAmpliable } from "@/components/leads/foto-ampliable";
 import {
   PROGRESION_LABEL,
@@ -36,18 +37,24 @@ export async function LeadDetalle({ token }: { token: string }) {
     notFound();
   }
 
-  const [{ data: solicitud }, { data: clinica }] = await Promise.all([
-    supabase
-      .from("solicitudes_presupuesto")
-      .select("*")
-      .eq("id", lead.solicitud_id)
-      .maybeSingle(),
-    supabase
-      .from("clinics")
-      .select("nombre, logo_url")
-      .eq("id", lead.clinic_id)
-      .maybeSingle(),
-  ]);
+  const [{ data: solicitud }, { data: clinica }, { data: propuestaExistente }] =
+    await Promise.all([
+      supabase
+        .from("solicitudes_presupuesto")
+        .select("*")
+        .eq("id", lead.solicitud_id)
+        .maybeSingle(),
+      supabase
+        .from("clinics")
+        .select("nombre, logo_url")
+        .eq("id", lead.clinic_id)
+        .maybeSingle(),
+      supabase
+        .from("propuestas_clinica")
+        .select("*")
+        .eq("lead_id", lead.id)
+        .maybeSingle(),
+    ]);
 
   if (!solicitud) {
     notFound();
@@ -287,6 +294,18 @@ export async function LeadDetalle({ token }: { token: string }) {
             )}
           </dl>
         </div>
+      )}
+
+      {(lead.estado === "desbloqueado" || lead.estado === "propuesta_enviada") && (
+        <PropuestaForm
+          token={token}
+          tratamientoSugerido={
+            solicitud.dejar_decidir_medico
+              ? ""
+              : solicitud.tratamientos_interes.join(", ")
+          }
+          propuestaExistente={propuestaExistente ?? null}
+        />
       )}
     </>
   );

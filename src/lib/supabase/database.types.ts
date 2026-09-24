@@ -484,6 +484,7 @@ export interface Database {
           visto_en: string | null;
           desbloqueado_en: string | null;
           match_score: number | null;
+          propuesta_enviada_en: string | null;
         };
         Insert: {
           id?: string;
@@ -495,6 +496,7 @@ export interface Database {
           visto_en?: string | null;
           desbloqueado_en?: string | null;
           match_score?: number | null;
+          propuesta_enviada_en?: string | null;
         };
         Update: {
           id?: string;
@@ -506,6 +508,55 @@ export interface Database {
           visto_en?: string | null;
           desbloqueado_en?: string | null;
           match_score?: number | null;
+          propuesta_enviada_en?: string | null;
+        };
+        Relationships: [];
+      };
+      propuestas_clinica: {
+        Row: {
+          id: string;
+          lead_id: string;
+          tratamiento: string | null;
+          tipo_precio: string;
+          precio_min: number | null;
+          precio_max: number | null;
+          tipo_consulta: string | null;
+          disponibilidad: string | null;
+          incluye: string[];
+          mensaje: string | null;
+          valido_hasta: string | null;
+          creado_en: string;
+          actualizado_en: string;
+        };
+        Insert: {
+          id?: string;
+          lead_id: string;
+          tratamiento?: string | null;
+          tipo_precio: string;
+          precio_min?: number | null;
+          precio_max?: number | null;
+          tipo_consulta?: string | null;
+          disponibilidad?: string | null;
+          incluye?: string[];
+          mensaje?: string | null;
+          valido_hasta?: string | null;
+          creado_en?: string;
+          actualizado_en?: string;
+        };
+        Update: {
+          id?: string;
+          lead_id?: string;
+          tratamiento?: string | null;
+          tipo_precio?: string;
+          precio_min?: number | null;
+          precio_max?: number | null;
+          tipo_consulta?: string | null;
+          disponibilidad?: string | null;
+          incluye?: string[];
+          mensaje?: string | null;
+          valido_hasta?: string | null;
+          creado_en?: string;
+          actualizado_en?: string;
         };
         Relationships: [];
       };
