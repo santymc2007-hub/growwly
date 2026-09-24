@@ -25,6 +25,7 @@ import {
 } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { Carousel } from "@/components/clinics/carousel";
+import { BotonPedirCita } from "@/components/clinics/boton-pedir-cita";
 import { AntesDespuesGaleria } from "@/components/clinics/antes-despues-galeria";
 import { ModuloValoraciones } from "@/components/clinics/modulo-valoraciones";
 import { ModuloOpiniones } from "@/components/clinics/modulo-opiniones";
@@ -882,7 +883,13 @@ export default async function ClinicaPage({
           />
         </div>
       </div>
+
+      {/* Espacio reservado para que la barra fija de "Pedir cita" en
+          móvil no tape el final del contenido ni el footer. */}
+      <div className="h-24 lg:hidden" aria-hidden />
+
       <SiteFooter />
+      <BotonPedirCita clinicId={clinic.id} clinicNombre={clinic.nombre} />
     </main>
   );
 }
