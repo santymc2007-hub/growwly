@@ -485,6 +485,7 @@ export interface Database {
           desbloqueado_en: string | null;
           match_score: number | null;
           propuesta_enviada_en: string | null;
+          seleccionado_en: string | null;
         };
         Insert: {
           id?: string;
@@ -497,6 +498,7 @@ export interface Database {
           desbloqueado_en?: string | null;
           match_score?: number | null;
           propuesta_enviada_en?: string | null;
+          seleccionado_en?: string | null;
         };
         Update: {
           id?: string;
@@ -509,6 +511,7 @@ export interface Database {
           desbloqueado_en?: string | null;
           match_score?: number | null;
           propuesta_enviada_en?: string | null;
+          seleccionado_en?: string | null;
         };
         Relationships: [];
       };

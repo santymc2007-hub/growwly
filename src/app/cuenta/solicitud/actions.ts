@@ -1,10 +1,12 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notificarClinicasDeSolicitud } from "@/lib/leads/notificar-clinicas";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
+import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
 
 export type DatosSolicitud = {
   estudioId: string | null;
@@ -137,6 +139,88 @@ export async function crearSolicitud(
   }
 
   return { id: solicitud.id };
+}
+
+/**
+ * Fase 5: el paciente elige una de las propuestas recibidas. Solo esa
+ * clínica se queda con el lead — el resto (con o sin propuesta
+ * enviada) pasa a "no_seleccionado", y el nombre/teléfono/email del
+ * paciente se libera únicamente a la clínica elegida (antes de esto,
+ * solo veía el historial médico y las preferencias).
+ */
+export async function elegirClinica(solicitudId: string, leadId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/cuenta/login");
+  }
+
+  const { data: solicitud } = await supabase
+    .from("solicitudes_presupuesto")
+    .select("id")
+    .eq("id", solicitudId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!solicitud) return;
+
+  const admin = createAdminClient();
+
+  const { data: leadElegido } = await admin
+    .from("leads_clinica")
+    .select("id, solicitud_id, clinic_id, estado")
+    .eq("id", leadId)
+    .eq("solicitud_id", solicitudId)
+    .maybeSingle();
+
+  if (!leadElegido) return;
+
+  const estadoElegido = leadElegido.estado as EstadoLead;
+  if (!transicionValida(estadoElegido, "seleccionado")) return;
+
+  const ahora = new Date().toISOString();
+
+  await admin
+    .from("leads_clinica")
+    .update({ estado: "seleccionado", seleccionado_en: ahora })
+    .eq("id", leadElegido.id);
+
+  await registrarEventoLead(admin, {
+    event: "clinic_selected",
+    solicitudId,
+    leadId: leadElegido.id,
+    clinicId: leadElegido.clinic_id,
+  });
+  await registrarEventoLead(admin, {
+    event: "contact_released",
+    solicitudId,
+    leadId: leadElegido.id,
+    clinicId: leadElegido.clinic_id,
+  });
+
+  const { data: otrosLeads } = await admin
+    .from("leads_clinica")
+    .select("id, estado, clinic_id")
+    .eq("solicitud_id", solicitudId)
+    .neq("id", leadElegido.id);
+
+  for (const otro of otrosLeads ?? []) {
+    const estadoOtro = otro.estado as EstadoLead;
+    if (!transicionValida(estadoOtro, "no_seleccionado")) continue;
+
+    await admin.from("leads_clinica").update({ estado: "no_seleccionado" }).eq("id", otro.id);
+    await registrarEventoLead(admin, {
+      event: "lead_lost",
+      solicitudId,
+      leadId: otro.id,
+      clinicId: otro.clinic_id,
+    });
+  }
+
+  revalidatePath(`/cuenta/solicitud/${solicitudId}`);
 }
 
 export async function borrarSolicitud(id: string) {

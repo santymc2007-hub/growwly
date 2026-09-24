@@ -1,5 +1,5 @@
 import type { Database } from "@/lib/supabase/database.types";
-import { ESTADOS_LEAD, type EstadoLead } from "@/lib/leads/estados-lead";
+import { ESTADOS_LEAD, ORDEN_PIPELINE, type EstadoLead } from "@/lib/leads/estados-lead";
 
 type LeadRow = Database["public"]["Tables"]["leads_clinica"]["Row"];
 
@@ -10,23 +10,39 @@ export type PasoTimeline = {
   status: "completado" | "actual" | "pendiente";
 };
 
-/** Los pasos que sí se enseñan en la línea de tiempo — el "camino
- * feliz" del pipeline. Los estados negativos (no_seleccionado,
- * no_convertido, cancelado) no tienen su propio paso: se enseñan
- * aparte, como un aviso de por qué se cortó el proceso. */
-const PASOS_CAMINO_FELIZ: { estado: EstadoLead; label: string }[] = [
-  { estado: "enviado", label: "Enviado a la clínica" },
-  { estado: "visto", label: "Visto por la clínica" },
-  { estado: "desbloqueado", label: "Perfil desbloqueado" },
-  { estado: "propuesta_enviada", label: "Propuesta enviada" },
-  { estado: "seleccionado", label: "Elegido por el paciente" },
-  { estado: "cita_pendiente", label: "Cita pendiente de fecha" },
-  { estado: "cita_programada", label: "Cita programada" },
-  { estado: "cita_realizada", label: "Cita realizada" },
-  { estado: "convertido", label: "Tratamiento realizado" },
-];
+/** Las etiquetas de los pasos que sí se enseñan en la línea de tiempo
+ * — el orden es el mismo ORDEN_PIPELINE de estados-lead.ts (fuente
+ * única de verdad), para que no se puedan desincronizar. Los estados
+ * negativos (no_seleccionado, no_convertido, cancelado) no tienen su
+ * propio paso: se enseñan aparte, como un aviso de por qué se cortó
+ * el proceso. */
+const LABEL_PASO: Record<
+  | "enviado"
+  | "visto"
+  | "desbloqueado"
+  | "propuesta_enviada"
+  | "seleccionado"
+  | "cita_pendiente"
+  | "cita_programada"
+  | "cita_realizada"
+  | "convertido",
+  string
+> = {
+  enviado: "Enviado a la clínica",
+  visto: "Visto por la clínica",
+  desbloqueado: "Perfil desbloqueado",
+  propuesta_enviada: "Propuesta enviada",
+  seleccionado: "Elegido por el paciente",
+  cita_pendiente: "Cita pendiente de fecha",
+  cita_programada: "Cita programada",
+  cita_realizada: "Cita realizada",
+  convertido: "Tratamiento realizado",
+};
 
-const ORDEN_CAMINO_FELIZ = PASOS_CAMINO_FELIZ.map((p) => p.estado);
+const PASOS_CAMINO_FELIZ = ORDEN_PIPELINE.map((estado) => ({
+  estado,
+  label: LABEL_PASO[estado as keyof typeof LABEL_PASO],
+}));
 
 /** Por qué se cortó el proceso, para los estados que no siguen el
  * camino feliz — no tienen una posición fija en la línea de tiempo
@@ -40,10 +56,11 @@ const AVISO_ESTADO_NEGATIVO: Partial<Record<EstadoLead, string>> = {
 /**
  * Construye la línea de tiempo visual de un lead a partir de las
  * fechas que ya se guardan directamente en `leads_clinica`
- * (enviado_en, visto_en, desbloqueado_en, propuesta_enviada_en) — los
- * pasos futuros (Fase 5-6, todavía sin columna de fecha propia) se
- * marcan completados por posición en cuanto el estado actual los ha
- * superado, aunque no tengan fecha exacta guardada todavía.
+ * (enviado_en, visto_en, desbloqueado_en, propuesta_enviada_en,
+ * seleccionado_en) — los pasos futuros (Fase 6, todavía sin columna
+ * de fecha propia) se marcan completados por posición en cuanto el
+ * estado actual los ha superado, aunque no tengan fecha exacta
+ * guardada todavía.
  */
 export function construirPasosTimeline(lead: LeadRow): {
   pasos: PasoTimeline[];
@@ -55,9 +72,10 @@ export function construirPasosTimeline(lead: LeadRow): {
     visto: lead.visto_en,
     desbloqueado: lead.desbloqueado_en,
     propuesta_enviada: lead.propuesta_enviada_en,
+    seleccionado: lead.seleccionado_en,
   };
 
-  const idxActual = ORDEN_CAMINO_FELIZ.indexOf(estadoActual);
+  const idxActual = ORDEN_PIPELINE.indexOf(estadoActual);
 
   const pasos: PasoTimeline[] = PASOS_CAMINO_FELIZ.map(({ estado, label }, idx) => {
     const fecha = fechaPorEstado[estado] ?? null;

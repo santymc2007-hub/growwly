@@ -8,9 +8,9 @@
  * string suelto en `leads_clinica.estado`, siempre a través de este
  * módulo.
  *
- * La interfaz visual de hoy (panel de la clínica, `/leads/[token]`)
- * solo conoce enviado/visto/desbloqueado — el resto del pipeline
- * existe en la base de datos desde ya, pero nada lo dispara todavía.
+ * Fase 4 activó "propuesta_enviada" y Fase 5 "seleccionado" /
+ * "no_seleccionado" (con liberación de contacto al paciente incluida)
+ * — "cita_pendiente" en adelante sigue sin disparador todavía.
  */
 export const ESTADOS_LEAD = [
   "enviado",
@@ -64,13 +64,48 @@ export function esEstadoFinal(estado: EstadoLead): boolean {
 
 /**
  * Comprueba si se puede pasar de un estado a otro siguiendo el
- * pipeline normal, o cancelando desde cualquier punto no finalizado.
- * Pensada para que las Server Actions de fases futuras validen antes
- * de escribir en `leads_clinica.estado`, en vez de fiarse a ciegas de
- * lo que les llega.
+ * pipeline normal, cancelando desde cualquier punto no finalizado, o
+ * quedando fuera (no_seleccionado) porque el paciente ha elegido otra
+ * clínica — puede pasarle a una clínica que todavía no había enviado
+ * propuesta, así que "no_seleccionado" se trata igual que "cancelado":
+ * alcanzable desde cualquier estado no finalizado, no solo desde
+ * "propuesta_enviada". Pensada para que las Server Actions de fases
+ * futuras validen antes de escribir en `leads_clinica.estado`, en vez
+ * de fiarse a ciegas de lo que les llega.
  */
 export function transicionValida(desde: EstadoLead, hasta: EstadoLead): boolean {
   if (desde === hasta) return false;
-  if (hasta === "cancelado") return !esEstadoFinal(desde);
+  if (hasta === "cancelado" || hasta === "no_seleccionado") return !esEstadoFinal(desde);
   return TRANSICIONES[desde].includes(hasta);
+}
+
+/**
+ * El orden del "camino feliz" del pipeline (sin los estados negativos
+ * que se salen de la línea recta) — fuente única para la línea de
+ * tiempo visual y para saber, por posición, si un estado ya pasó por
+ * "seleccionado" o más allá.
+ */
+export const ORDEN_PIPELINE: EstadoLead[] = [
+  "enviado",
+  "visto",
+  "desbloqueado",
+  "propuesta_enviada",
+  "seleccionado",
+  "cita_pendiente",
+  "cita_programada",
+  "cita_realizada",
+  "convertido",
+];
+
+/**
+ * El paciente elige una clínica sin ver su contacto de antemano — el
+ * nombre/teléfono/email solo se libera a la clínica elegida, a partir
+ * de que se la selecciona (Fase 5). "no_convertido" se incluye aparte
+ * porque implica que hubo cita, es decir que el contacto ya se liberó
+ * antes de llegar a ese estado final.
+ */
+export function contactoLiberado(estado: EstadoLead): boolean {
+  if (estado === "no_convertido") return true;
+  const idx = ORDEN_PIPELINE.indexOf(estado);
+  return idx !== -1 && idx >= ORDEN_PIPELINE.indexOf("seleccionado");
 }
