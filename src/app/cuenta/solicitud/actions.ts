@@ -4,6 +4,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notificarClinicasDeSolicitud } from "@/lib/leads/notificar-clinicas";
+import { registrarEventoLead } from "@/lib/leads/lead-events";
 
 export type DatosSolicitud = {
   estudioId: string | null;
@@ -102,6 +103,11 @@ export async function crearSolicitud(
   }
 
   const supabaseAdmin = createAdminClient();
+  await registrarEventoLead(supabaseAdmin, {
+    event: "lead_created",
+    solicitudId: solicitud.id,
+  });
+
   try {
     const { candidatas, notificadas, ultimoError } =
       await notificarClinicasDeSolicitud(supabaseAdmin, solicitud.id);

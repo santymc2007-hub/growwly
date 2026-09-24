@@ -536,6 +536,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      lead_events: {
+        Row: {
+          id: string;
+          event: string;
+          solicitud_id: string | null;
+          lead_id: string | null;
+          clinic_id: string | null;
+          metadata: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          event: string;
+          solicitud_id?: string | null;
+          lead_id?: string | null;
+          clinic_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          event?: string;
+          solicitud_id?: string | null;
+          lead_id?: string | null;
+          clinic_id?: string | null;
+          metadata?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
       blog_posts: {
         Row: {
           id: string;
