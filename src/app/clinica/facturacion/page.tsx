@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { guardarDatosFacturacion } from "./actions";
+import { cambiarPublicacion } from "../ficha/actions";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { ClinicaHeaderPerfil } from "@/components/clinica/clinica-header-perfil";
@@ -29,13 +30,16 @@ export default async function FacturacionPage({
   const supabase = createAdminClient();
   const { data: clinic } = await supabase
     .from("clinics")
-    .select("nombre, logo_url, fotos, datos_facturacion")
+    .select("nombre, logo_url, fotos, datos_facturacion, publicado")
     .eq("id", clinicId)
     .maybeSingle();
 
   if (!clinic) {
     notFound();
   }
+
+  const publicarAction = cambiarPublicacion.bind(null, true);
+  const darDeBajaAction = cambiarPublicacion.bind(null, false);
 
   const datos =
     clinic.datos_facturacion && typeof clinic.datos_facturacion === "object"
@@ -70,6 +74,38 @@ export default async function FacturacionPage({
 
         <div className="mt-4">
           <ClinicaNav activo="facturacion" solicitudesPendientes={solicitudesPendientes} />
+        </div>
+
+        <div
+          className={`mb-6 flex flex-col items-start justify-between gap-3 rounded-2xl p-4 sm:flex-row sm:items-center ${
+            clinic.publicado ? "bg-sage" : "bg-paper-dim"
+          }`}
+        >
+          <div>
+            <p
+              className={`text-sm font-medium ${clinic.publicado ? "text-sage-ink" : "text-ink"}`}
+            >
+              {clinic.publicado
+                ? "Tu ficha está visible en el directorio"
+                : "Tu ficha está de baja — no aparece en el directorio"}
+            </p>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Puedes darla de baja o volver a publicarla cuando quieras; tus
+              datos no se pierden.
+            </p>
+          </div>
+          <form action={clinic.publicado ? darDeBajaAction : publicarAction}>
+            <button
+              type="submit"
+              className={`shrink-0 rounded-full px-4 py-2 text-sm font-medium ${
+                clinic.publicado
+                  ? "border border-error text-error hover:bg-error/10"
+                  : "bg-teal text-paper hover:bg-teal-dark"
+              }`}
+            >
+              {clinic.publicado ? "Dar de baja" : "Volver a publicar"}
+            </button>
+          </form>
         </div>
 
         <div className="mb-6 rounded-2xl border border-line bg-white p-4 text-sm text-ink-soft">

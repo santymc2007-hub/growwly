@@ -836,10 +836,10 @@ export default async function ClinicaPage({
                 )}
 
                 <Link
-                  href="/cuenta/solicitud/nueva"
+                  href="/analisis/nuevo"
                   className="press mt-5 block rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
                 >
-                  Pedir presupuesto →
+                  Valoración gratuita →
                 </Link>
 
                 {esPremium && clinic.reserva_online_url && (

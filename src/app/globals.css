@@ -75,6 +75,9 @@
     "Segoe UI", sans-serif;
   --font-sans: "Geist", -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
+  /* Manuscrita, solo para acentos puntuales con "chispa" (p. ej. el
+     rótulo "Growwly Score") — nunca para texto largo ni de lectura. */
+  --font-hand: "Caveat", cursive;
 }
 
 body {

@@ -291,7 +291,7 @@ export async function cambiarPublicacion(publicar: boolean) {
     .update({ publicado: publicar })
     .eq("id", clinicId);
 
-  revalidatePath("/clinica");
+  revalidatePath("/clinica/facturacion");
   revalidatePath("/clinicas");
-  redirect("/clinica");
+  redirect("/clinica/facturacion");
 }
