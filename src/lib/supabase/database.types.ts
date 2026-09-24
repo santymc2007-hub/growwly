@@ -486,6 +486,16 @@ export interface Database {
           match_score: number | null;
           propuesta_enviada_en: string | null;
           seleccionado_en: string | null;
+          fecha_cita: string | null;
+          cita_pendiente_en: string | null;
+          cita_programada_en: string | null;
+          cita_realizada_en: string | null;
+          convertido_en: string | null;
+          no_convertido_en: string | null;
+          feedback_puntuacion: number | null;
+          feedback_comentario: string | null;
+          feedback_recibido_en: string | null;
+          recordatorio_feedback_enviado_en: string | null;
         };
         Insert: {
           id?: string;
@@ -499,6 +509,16 @@ export interface Database {
           match_score?: number | null;
           propuesta_enviada_en?: string | null;
           seleccionado_en?: string | null;
+          fecha_cita?: string | null;
+          cita_pendiente_en?: string | null;
+          cita_programada_en?: string | null;
+          cita_realizada_en?: string | null;
+          convertido_en?: string | null;
+          no_convertido_en?: string | null;
+          feedback_puntuacion?: number | null;
+          feedback_comentario?: string | null;
+          feedback_recibido_en?: string | null;
+          recordatorio_feedback_enviado_en?: string | null;
         };
         Update: {
           id?: string;
@@ -512,6 +532,16 @@ export interface Database {
           match_score?: number | null;
           propuesta_enviada_en?: string | null;
           seleccionado_en?: string | null;
+          fecha_cita?: string | null;
+          cita_pendiente_en?: string | null;
+          cita_programada_en?: string | null;
+          cita_realizada_en?: string | null;
+          convertido_en?: string | null;
+          no_convertido_en?: string | null;
+          feedback_puntuacion?: number | null;
+          feedback_comentario?: string | null;
+          feedback_recibido_en?: string | null;
+          recordatorio_feedback_enviado_en?: string | null;
         };
         Relationships: [];
       };

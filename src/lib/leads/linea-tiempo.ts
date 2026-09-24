@@ -55,12 +55,11 @@ const AVISO_ESTADO_NEGATIVO: Partial<Record<EstadoLead, string>> = {
 
 /**
  * Construye la línea de tiempo visual de un lead a partir de las
- * fechas que ya se guardan directamente en `leads_clinica`
- * (enviado_en, visto_en, desbloqueado_en, propuesta_enviada_en,
- * seleccionado_en) — los pasos futuros (Fase 6, todavía sin columna
- * de fecha propia) se marcan completados por posición en cuanto el
- * estado actual los ha superado, aunque no tengan fecha exacta
- * guardada todavía.
+ * fechas que ya se guardan directamente en `leads_clinica` — todos
+ * los pasos del camino feliz tienen ya su propia columna de fecha
+ * desde la Fase 6. Solo "convertido" (último paso) se sigue marcando
+ * completado sin fecha extra: coincide con el estado actual, así que
+ * ya tiene su propio caso ("actual") en el switch de abajo.
  */
 export function construirPasosTimeline(lead: LeadRow): {
   pasos: PasoTimeline[];
@@ -73,6 +72,10 @@ export function construirPasosTimeline(lead: LeadRow): {
     desbloqueado: lead.desbloqueado_en,
     propuesta_enviada: lead.propuesta_enviada_en,
     seleccionado: lead.seleccionado_en,
+    cita_pendiente: lead.cita_pendiente_en,
+    cita_programada: lead.cita_programada_en,
+    cita_realizada: lead.cita_realizada_en,
+    convertido: lead.convertido_en,
   };
 
   const idxActual = ORDEN_PIPELINE.indexOf(estadoActual);
