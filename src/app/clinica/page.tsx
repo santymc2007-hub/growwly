@@ -12,6 +12,9 @@ import { ClinicaHeaderPerfil } from "@/components/clinica/clinica-header-perfil"
 import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
 import { calcularCompletitud, mensajeCompletitud } from "@/lib/clinica/completitud";
 import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
+import { calcularMetricasLeadsClinica } from "@/lib/leads/metricas-clinica";
+import { calcularGrowwlyScore } from "@/lib/leads/growwly-score";
+import { SelloGrowwlyScore } from "@/components/clinica/sello-growwly-score";
 import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
 import { AvisoSolicitudesPendientes } from "@/components/clinica/aviso-solicitudes-pendientes";
 import { Toast } from "@/components/ui/toast";
@@ -102,6 +105,8 @@ export default async function ClinicaPanelPage({
   const darDeBajaAction = cambiarPublicacion.bind(null, false);
 
   const porcentaje = calcularCompletitud(clinic);
+  const metricasLeads = await calcularMetricasLeadsClinica(admin, clinicId);
+  const growwlyScore = calcularGrowwlyScore(clinic, metricasLeads);
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
@@ -121,6 +126,10 @@ export default async function ClinicaPanelPage({
 
         <div className="mt-4">
           <ClinicaNav activo="ficha" solicitudesPendientes={solicitudesPendientes} />
+        </div>
+
+        <div className="mb-6 mt-4">
+          <SelloGrowwlyScore score={growwlyScore} />
         </div>
 
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-stretch">

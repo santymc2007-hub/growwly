@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
+import { SelloMatchScore } from "@/components/cuenta/sello-match-score";
 import { BorrarSolicitudButton } from "./borrar-solicitud-button";
 import {
   PROGRESION_LABEL,
@@ -52,6 +54,19 @@ export default async function SolicitudDetallePage({
     notFound();
   }
 
+  // RLS de "leads_clinica" es solo para el backend — hace falta el
+  // cliente admin incluso para que el propio paciente vea cuántas
+  // clínicas encajaron con su solicitud.
+  const { data: leads } = await createAdminClient()
+    .from("leads_clinica")
+    .select("match_score")
+    .eq("solicitud_id", solicitud.id);
+
+  const matchScores = (leads ?? [])
+    .map((l) => l.match_score)
+    .filter((m): m is number => m != null);
+  const mejorMatchScore = matchScores.length > 0 ? Math.max(...matchScores) : null;
+
   return (
     <main className="flex-1">
       <SiteHeader />
@@ -72,11 +87,17 @@ export default async function SolicitudDetallePage({
             {solicitud.clinicas_notificadas === null
               ? "La estamos haciendo llegar a las clínicas que mejor encajen con lo que buscas."
               : solicitud.clinicas_notificadas > 0
-                ? `Se la hemos hecho llegar a ${solicitud.clinicas_notificadas} ${
-                    solicitud.clinicas_notificadas === 1 ? "clínica" : "clínicas"
-                  }. Te avisaremos cuando tengas propuestas.`
+                ? "Te avisaremos cuando tengas propuestas."
                 : "No hemos encontrado clínicas que encajen exactamente con esa ciudad o técnica todavía — puedes revisar tu solicitud o ampliar tus preferencias."}
           </p>
+          {solicitud.clinicas_notificadas != null &&
+            solicitud.clinicas_notificadas > 0 &&
+            mejorMatchScore != null && (
+              <SelloMatchScore
+                matchScore={mejorMatchScore}
+                numeroClinicas={solicitud.clinicas_notificadas}
+              />
+            )}
           {solicitud.notificacion_error && (
             <p className="mt-2 rounded-lg bg-white/60 px-3 py-2 text-xs text-sage-ink">
               Detalle técnico: {solicitud.notificacion_error}
