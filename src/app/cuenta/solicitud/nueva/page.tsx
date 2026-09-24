@@ -26,6 +26,7 @@ export default async function NuevaSolicitudPage() {
         .from("clinics")
         .select("ciudad")
         .eq("publicado", true)
+        .eq("verificado_admin", true)
         .not("ciudad", "is", null),
     ]);
 

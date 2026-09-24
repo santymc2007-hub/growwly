@@ -68,6 +68,7 @@ export interface Database {
           detalle_oferta: string | null;
           destacado: boolean;
           publicado: boolean;
+          verificado_admin: boolean;
           destacado_solicitado: boolean;
           plan: string;
           plan_solicitado: string | null;
@@ -131,6 +132,7 @@ export interface Database {
           detalle_oferta?: string | null;
           destacado?: boolean;
           publicado?: boolean;
+          verificado_admin?: boolean;
           destacado_solicitado?: boolean;
           plan?: string;
           plan_solicitado?: string | null;
@@ -194,6 +196,7 @@ export interface Database {
           detalle_oferta?: string | null;
           destacado?: boolean;
           publicado?: boolean;
+          verificado_admin?: boolean;
           destacado_solicitado?: boolean;
           plan?: string;
           plan_solicitado?: string | null;

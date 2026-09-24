@@ -545,6 +545,22 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"
+            name="verificado_admin"
+            defaultChecked={clinic?.verificado_admin ?? true}
+          />
+          Autenticidad verificada por admin{" "}
+          <span className="text-xs text-ink-soft">
+            (control exclusivo de admin, por encima de &quot;Publicada&quot;:
+            sin esto marcado la ficha no se ve en la web pase lo que pase con
+            el interruptor de la propia clínica — así puedes pausarla en
+            cualquier momento, por ejemplo por impago. Se desmarca solo al
+            crearse una clínica nueva desde /clinica/registro, hasta que
+            confirmes que es quien dice ser)
+          </span>
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
             name="destacado"
             defaultChecked={clinic?.destacado}
           />

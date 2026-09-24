@@ -47,6 +47,7 @@ export default async function ClinicasPage({
     .from("clinics")
     .select("*")
     .eq("publicado", true)
+    .eq("verificado_admin", true)
     .order("destacado", { ascending: false })
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });

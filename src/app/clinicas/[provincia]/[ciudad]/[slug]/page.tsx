@@ -15,6 +15,7 @@ import {
   Signpost,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import ReactMarkdown from "react-markdown";
 import { getSocialLinks } from "@/lib/social-links";
 import {
@@ -42,6 +43,7 @@ async function findClinic(slug: string) {
     .select("*")
     .eq("slug", slug)
     .eq("publicado", true)
+    .eq("verificado_admin", true)
     .maybeSingle();
   return data;
 }
@@ -59,6 +61,7 @@ async function findClinicPorSlugAntiguo(slug: string) {
     .select("provincia, ciudad, slug")
     .contains("slugs_antiguos", [slug])
     .eq("publicado", true)
+    .eq("verificado_admin", true)
     .maybeSingle();
   return data;
 }
@@ -187,6 +190,17 @@ export default async function ClinicaPage({
   const tratamientoSlugPorTecnica = new Map(
     (tratamientosPublicados ?? []).map((t) => [t.tecnica_relacionada as string, t.slug]),
   );
+
+  // RLS de "profiles" solo deja ver el propio perfil a quien está
+  // autenticado como ese usuario — un visitante anónimo no vería nada
+  // con el cliente normal, así que aquí hace falta el admin.
+  const { data: perfilAprobado } = await createAdminClient()
+    .from("profiles")
+    .select("id")
+    .eq("clinic_id", clinic.id)
+    .eq("clinic_status", "aprobado")
+    .maybeSingle();
+  const yaReclamada = Boolean(perfilAprobado);
 
   const ubicacion = [
     clinic.zona,
@@ -402,7 +416,17 @@ export default async function ClinicaPage({
                     )}
                   </div>
                 </div>
-                {clinic.verificado && <VerifiedBadge />}
+                <div className="flex flex-col items-end gap-2">
+                  {clinic.verificado && <VerifiedBadge />}
+                  {!yaReclamada && (
+                    <Link
+                      href={`/clinica/registro?clinic=${clinic.id}`}
+                      className="text-xs font-medium text-cyan hover:text-cyan-dark"
+                    >
+                      ¿Eres el propietario? Reclama esta clínica →
+                    </Link>
+                  )}
+                </div>
               </div>
 
               {clinic.fotos.length > 0 ? (
