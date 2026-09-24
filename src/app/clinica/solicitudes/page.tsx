@@ -1,5 +1,16 @@
 import Link from "next/link";
-import { Lock, Eye, Unlock, ChevronRight } from "lucide-react";
+import {
+  Lock,
+  Eye,
+  Unlock,
+  ChevronRight,
+  FileText,
+  Trophy,
+  XCircle,
+  Clock3,
+  Calendar,
+  CheckCircle2,
+} from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
@@ -8,12 +19,14 @@ import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { ClinicaHeaderPerfil } from "@/components/clinica/clinica-header-perfil";
 import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
+import { type EstadoLead } from "@/lib/leads/estados-lead";
+import { construirPasosTimeline } from "@/lib/leads/linea-tiempo";
+import { EvolucionLead } from "@/components/leads/evolucion-lead";
 
-type Estado = "enviado" | "visto" | "desbloqueado";
 type SearchParams = { estado?: string };
 
 const ESTADO_INFO: Record<
-  Estado,
+  EstadoLead,
   {
     label: string;
     icono: typeof Lock;
@@ -45,9 +58,72 @@ const ESTADO_INFO: Record<
     badge: "bg-sage-ink/15 text-sage-ink",
     mensaje: "Ya tienes acceso completo al perfil de este paciente.",
   },
+  propuesta_enviada: {
+    label: "Propuesta enviada",
+    icono: FileText,
+    tarjeta: "border-teal/30 bg-teal/10 hover:border-teal/50",
+    badge: "bg-teal/20 text-teal-dark",
+    mensaje: "Le has enviado tu propuesta — está pendiente de que el paciente elija.",
+  },
+  seleccionado: {
+    label: "¡Elegido!",
+    icono: Trophy,
+    tarjeta: "border-teal-dark/30 bg-teal-dark/10 hover:border-teal-dark/50",
+    badge: "bg-teal-dark text-paper",
+    mensaje: "El paciente te ha elegido a ti. Contacta para programar la cita.",
+  },
+  cita_pendiente: {
+    label: "Cita pendiente",
+    icono: Clock3,
+    tarjeta: "border-teal/30 bg-teal/10 hover:border-teal/50",
+    badge: "bg-teal/20 text-teal-dark",
+    mensaje: "El paciente te ha elegido — falta fijar la fecha de la cita.",
+  },
+  cita_programada: {
+    label: "Cita programada",
+    icono: Calendar,
+    tarjeta: "border-teal/30 bg-teal/10 hover:border-teal/50",
+    badge: "bg-teal/20 text-teal-dark",
+    mensaje: "La cita ya tiene fecha.",
+  },
+  cita_realizada: {
+    label: "Cita realizada",
+    icono: CheckCircle2,
+    tarjeta: "border-sage-ink/20 bg-sage hover:border-sage-ink/40",
+    badge: "bg-sage-ink/15 text-sage-ink",
+    mensaje: "El paciente ya ha pasado por la clínica.",
+  },
+  convertido: {
+    label: "Tratamiento realizado",
+    icono: Trophy,
+    tarjeta: "border-sage-ink/30 bg-sage hover:border-sage-ink/50",
+    badge: "bg-sage-ink text-paper",
+    mensaje: "¡Enhorabuena! El paciente completó el tratamiento con vosotros.",
+  },
+  no_seleccionado: {
+    label: "No elegido",
+    icono: XCircle,
+    tarjeta: "border-line bg-paper-dim/40 hover:border-line",
+    badge: "bg-paper-dim text-ink-soft",
+    mensaje: "El paciente ha elegido otra clínica.",
+  },
+  no_convertido: {
+    label: "No convertido",
+    icono: XCircle,
+    tarjeta: "border-line bg-paper-dim/40 hover:border-line",
+    badge: "bg-paper-dim text-ink-soft",
+    mensaje: "Hubo cita, pero el paciente no siguió adelante con el tratamiento.",
+  },
+  cancelado: {
+    label: "Cancelado",
+    icono: XCircle,
+    tarjeta: "border-line bg-paper-dim/40 hover:border-line",
+    badge: "bg-paper-dim text-ink-soft",
+    mensaje: "El proceso se canceló.",
+  },
 };
 
-const FILTROS: { valor: Estado | "todos"; label: string }[] = [
+const FILTROS: { valor: EstadoLead | "todos"; label: string }[] = [
   { valor: "todos", label: "Todas" },
   { valor: "enviado", label: "Nuevas" },
   { valor: "visto", label: "Vistas sin gestionar" },
@@ -150,14 +226,19 @@ export default async function SolicitudesClinicaPage({
         {leadsFiltrados.length > 0 ? (
           <ul className="mt-4 flex flex-col gap-3">
             {leadsFiltrados.map((lead) => {
-              const info = ESTADO_INFO[lead.estado as Estado] ?? ESTADO_INFO.enviado;
+              const estado = lead.estado as EstadoLead;
+              const info = ESTADO_INFO[estado] ?? ESTADO_INFO.enviado;
               const Icono = info.icono;
+              // La evolución solo tiene sentido una vez desbloqueado el
+              // lead — antes de eso el único "paso" visible sería
+              // enviado/visto, que ya se ve en la propia tarjeta.
+              const mostrarEvolucion = estado !== "enviado" && estado !== "visto";
+              const { pasos, avisoNegativo } = mostrarEvolucion
+                ? construirPasosTimeline(lead)
+                : { pasos: [], avisoNegativo: null };
               return (
-                <li key={lead.id}>
-                  <Link
-                    href={`/leads/${lead.token}`}
-                    className={`flex items-center gap-4 rounded-2xl border p-4 transition ${info.tarjeta}`}
-                  >
+                <li key={lead.id} className={`rounded-2xl border p-4 transition ${info.tarjeta}`}>
+                  <Link href={`/leads/${lead.token}`} className="flex items-center gap-4">
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
                       <Icono className="h-5 w-5 text-teal-dark" aria-hidden />
                     </div>
@@ -178,6 +259,10 @@ export default async function SolicitudesClinicaPage({
                     </span>
                     <ChevronRight className="h-5 w-5 shrink-0 text-ink-soft" aria-hidden />
                   </Link>
+
+                  {mostrarEvolucion && (
+                    <EvolucionLead pasos={pasos} avisoNegativo={avisoNegativo} />
+                  )}
                 </li>
               );
             })}
