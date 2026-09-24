@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { SelloMatchScore } from "@/components/cuenta/sello-match-score";
 import { PropuestaRecibidaCard } from "@/components/cuenta/propuesta-recibida-card";
+import { FeedbackForm } from "@/components/cuenta/feedback-form";
 import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import { BorrarSolicitudButton } from "./borrar-solicitud-button";
 import {
@@ -63,7 +64,9 @@ export default async function SolicitudDetallePage({
   const admin = createAdminClient();
   const { data: leads } = await admin
     .from("leads_clinica")
-    .select("id, estado, clinic_id, match_score")
+    .select(
+      "id, estado, clinic_id, match_score, fecha_cita, feedback_puntuacion, feedback_recibido_en",
+    )
     .eq("solicitud_id", solicitud.id);
 
   const todosLeads = leads ?? [];
@@ -190,8 +193,30 @@ export default async function SolicitudDetallePage({
                 {propuestaSeleccionada.mensaje}
               </p>
             )}
+            {leadSeleccionado?.fecha_cita && (
+              <p className="mt-3 rounded-lg bg-white/70 p-3 text-sm text-ink">
+                <span className="font-medium">Tu cita: </span>
+                {new Date(leadSeleccionado.fecha_cita).toLocaleString("es-ES", {
+                  day: "numeric",
+                  month: "long",
+                  year: "numeric",
+                  hour: "2-digit",
+                  minute: "2-digit",
+                })}
+              </p>
+            )}
           </div>
         )}
+
+        {leadSeleccionado &&
+          ["cita_realizada", "convertido", "no_convertido"].includes(leadSeleccionado.estado) &&
+          (leadSeleccionado.feedback_recibido_en ? (
+            <p className="mt-4 text-sm text-ink-soft">
+              Gracias por tu valoración — ya se la hemos hecho llegar a la clínica.
+            </p>
+          ) : (
+            <FeedbackForm solicitudId={solicitud.id} leadId={leadSeleccionado.id} />
+          ))}
 
         {!clinicaSeleccionada && leadsConPropuesta.length > 0 && (
           <div className="mt-6">

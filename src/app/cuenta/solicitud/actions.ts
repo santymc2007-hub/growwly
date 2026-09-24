@@ -223,6 +223,72 @@ export async function elegirClinica(solicitudId: string, leadId: string) {
   revalidatePath(`/cuenta/solicitud/${solicitudId}`);
 }
 
+/**
+ * Fase 6: el paciente valora cómo fue con la clínica que eligió, tras
+ * la cita — 1 a 5 estrellas + comentario opcional. Se puede dar desde
+ * "cita_realizada" en adelante (incluye convertido/no_convertido,
+ * porque ese resultado lo cierra la clínica después de la cita) y
+ * solo una vez.
+ */
+export async function enviarFeedback(
+  solicitudId: string,
+  leadId: string,
+  formData: FormData,
+) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/cuenta/login");
+  }
+
+  const { data: solicitud } = await supabase
+    .from("solicitudes_presupuesto")
+    .select("id")
+    .eq("id", solicitudId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+
+  if (!solicitud) return;
+
+  const puntuacion = Number(formData.get("puntuacion"));
+  if (!Number.isInteger(puntuacion) || puntuacion < 1 || puntuacion > 5) return;
+  const comentario = String(formData.get("comentario") ?? "").trim() || null;
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin
+    .from("leads_clinica")
+    .select("id, solicitud_id, clinic_id, estado, feedback_recibido_en")
+    .eq("id", leadId)
+    .eq("solicitud_id", solicitudId)
+    .maybeSingle();
+
+  if (!lead || lead.feedback_recibido_en) return;
+
+  const estadosConCita: EstadoLead[] = ["cita_realizada", "convertido", "no_convertido"];
+  if (!estadosConCita.includes(lead.estado as EstadoLead)) return;
+
+  await admin
+    .from("leads_clinica")
+    .update({
+      feedback_puntuacion: puntuacion,
+      feedback_comentario: comentario,
+      feedback_recibido_en: new Date().toISOString(),
+    })
+    .eq("id", lead.id);
+
+  await registrarEventoLead(admin, {
+    event: "feedback_received",
+    solicitudId,
+    leadId: lead.id,
+    clinicId: lead.clinic_id,
+  });
+
+  revalidatePath(`/cuenta/solicitud/${solicitudId}`);
+}
+
 export async function borrarSolicitud(id: string) {
   const supabase = await createClient();
   const {

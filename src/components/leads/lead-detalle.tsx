@@ -5,6 +5,7 @@ import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import { DesbloquearButton } from "@/app/leads/[token]/desbloquear-button";
 import { PropuestaForm } from "@/components/leads/propuesta-form";
+import { CitaSeguimiento } from "@/components/leads/cita-seguimiento";
 import { FotoAmpliable } from "@/components/leads/foto-ampliable";
 import {
   PROGRESION_LABEL,
@@ -331,6 +332,14 @@ export async function LeadDetalle({ token }: { token: string }) {
           propuestaExistente={propuestaExistente ?? null}
         />
       )}
+
+      <CitaSeguimiento
+        token={token}
+        estado={estado}
+        fechaCita={lead.fecha_cita}
+        feedbackPuntuacion={lead.feedback_puntuacion}
+        feedbackComentario={lead.feedback_comentario}
+      />
     </>
   );
 }

@@ -3,6 +3,10 @@
     {
       "path": "/api/cron/expirar-visibilidad",
       "schedule": "0 4 * * *"
+    },
+    {
+      "path": "/api/cron/recordatorio-feedback",
+      "schedule": "0 9 * * *"
     }
   ]
 }
