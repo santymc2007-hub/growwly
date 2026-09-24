@@ -5,7 +5,11 @@ import { slugifyCiudad } from "@/lib/clinic-options";
 export async function SiteFooter() {
   const supabase = await createClient();
   const [{ data: clinicas }, { data: tratamientos }] = await Promise.all([
-    supabase.from("clinics").select("ciudad").eq("publicado", true),
+    supabase
+      .from("clinics")
+      .select("ciudad")
+      .eq("publicado", true)
+      .eq("verificado_admin", true),
     supabase
       .from("tratamientos")
       .select("slug, nombre")

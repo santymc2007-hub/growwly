@@ -43,7 +43,13 @@ export async function notificarClinicasDeSolicitud(
   let query = supabaseAdmin
     .from("clinics")
     .select("id, nombre, email, ciudad, tecnicas")
-    .not("email", "is", null);
+    .not("email", "is", null)
+    // Antes no se filtraba aquí por publicado/verificado_admin: una
+    // clínica recién creada por sí misma (pendiente de que admin
+    // confirme que es de verdad quien dice ser) podía recibir datos
+    // reales de pacientes antes de pasar esa verificación.
+    .eq("publicado", true)
+    .eq("verificado_admin", true);
 
   // "ciudad" filtra estrictamente por su municipio. "provincia" /
   // "comunidad" / "sin_preferencia" de momento no filtran por ubicación:

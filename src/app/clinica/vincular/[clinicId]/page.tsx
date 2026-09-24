@@ -3,7 +3,7 @@ import { createClient } from "@/lib/supabase/server";
 import { vincularClinica } from "@/lib/clinica/vincular-clinica";
 
 type Params = { clinicId: string };
-type SearchParams = { nombre?: string };
+type SearchParams = { nombre?: string; nueva?: string };
 
 export default async function VincularClinicaPage({
   params,
@@ -13,7 +13,7 @@ export default async function VincularClinicaPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { clinicId } = await params;
-  const { nombre } = await searchParams;
+  const { nombre, nueva } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -24,6 +24,6 @@ export default async function VincularClinicaPage({
     redirect("/clinica/login");
   }
 
-  await vincularClinica(user.id, clinicId, nombre);
+  await vincularClinica(user.id, clinicId, nombre, { autoAprobar: nueva === "1" });
   redirect("/clinica");
 }

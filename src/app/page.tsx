@@ -45,6 +45,7 @@ export default async function HomePage() {
     .from("clinics")
     .select("*")
     .eq("publicado", true)
+    .eq("verificado_admin", true)
     .or("destacado.eq.true,destacado_home.eq.true")
     .order("destacado_home", { ascending: false })
     .order("destacado", { ascending: false })

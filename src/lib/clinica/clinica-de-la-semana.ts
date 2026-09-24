@@ -28,6 +28,7 @@ export async function obtenerClinicaDeLaSemana(
     .select("*")
     .eq("provincia", provincia)
     .eq("publicado", true)
+    .eq("verificado_admin", true)
     .eq("plan", "premium")
     .order("id", { ascending: true }); // orden estable para que el índice no salte
 

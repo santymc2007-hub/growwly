@@ -5,11 +5,20 @@ import { createAdminClient } from "@/lib/supabase/admin";
  * "pendiente" hasta que el admin lo apruebe. Solo vincula si esa
  * clínica todavía no tiene una cuenta aprobada (para que dos personas
  * no puedan reclamar la misma clínica a la vez sin control).
+ *
+ * `autoAprobar` es para cuando la propia clínica se acaba de crear
+ * desde cero (fila nueva en `clinics`, sin dueño previo): ahí no hay
+ * disputa de propiedad posible, así que se da acceso al panel — para
+ * poder rellenar la ficha — sin esperar a que admin apruebe la
+ * cuenta. Lo que SÍ sigue bloqueado hasta que admin lo confirme es
+ * que la ficha se vea en la web (columna `verificado_admin` en
+ * `clinics`, ajena a esto).
  */
 export async function vincularClinica(
   userId: string,
   clinicId: string,
   nombreGestor?: string | null,
+  opciones?: { autoAprobar?: boolean },
 ): Promise<boolean> {
   const supabase = createAdminClient();
 
@@ -27,7 +36,7 @@ export async function vincularClinica(
     .update({
       role: "clinic",
       clinic_id: clinicId,
-      clinic_status: "pendiente",
+      clinic_status: opciones?.autoAprobar ? "aprobado" : "pendiente",
       ...(nombreGestor ? { nombre: nombreGestor } : {}),
     })
     .eq("id", userId);

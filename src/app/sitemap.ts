@@ -12,7 +12,8 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     supabase
       .from("clinics")
       .select("slug, provincia, ciudad, updated_at")
-      .eq("publicado", true),
+      .eq("publicado", true)
+      .eq("verificado_admin", true),
     supabase
       .from("blog_posts")
       .select("slug, updated_at")

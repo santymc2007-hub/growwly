@@ -20,6 +20,7 @@ async function getClinicasDeCiudad(provinciaReal: string, ciudadSlug: string) {
     .select("*")
     .eq("provincia", provinciaReal)
     .eq("publicado", true)
+    .eq("verificado_admin", true)
     .order("destacado_ciudad", { ascending: false })
     .order("destacado", { ascending: false })
     .order("orden", { ascending: true })

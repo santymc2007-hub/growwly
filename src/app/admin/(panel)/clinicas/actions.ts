@@ -53,6 +53,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
     verificado: formData.get("verificado") === "on",
     publicado: formData.get("publicado") === "on",
+    verificado_admin: formData.get("verificado_admin") === "on",
     destacado: formData.get("destacado") === "on",
     plan: str("plan") ?? "basico",
     leads_enabled: formData.get("leads_enabled") === "on",

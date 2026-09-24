@@ -104,7 +104,11 @@ export default async function AdminClinicasPage({
                 <tr
                   key={clinic.id}
                   className={`border-t border-line ${
-                    !clinic.publicado ? "bg-error/5" : ""
+                    !clinic.verificado_admin
+                      ? "bg-orange/5"
+                      : !clinic.publicado
+                        ? "bg-error/5"
+                        : ""
                   }`}
                 >
                   <td className="px-4 py-3">
@@ -123,6 +127,14 @@ export default async function AdminClinicasPage({
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap gap-1.5">
+                      {!clinic.verificado_admin && (
+                        <Link
+                          href={`/admin/clinicas/${clinic.id}/editar`}
+                          className="rounded-full bg-orange/20 px-2.5 py-1 text-xs font-medium text-orange hover:bg-orange/30"
+                        >
+                          ⚠ Sin verificar — no visible
+                        </Link>
+                      )}
                       {clinic.verificado ? (
                         <VerifiedBadge />
                       ) : (
