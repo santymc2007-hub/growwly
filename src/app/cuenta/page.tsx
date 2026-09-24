@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { User, Camera, Mail, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { MUNICIPIOS_MALLORCA } from "@/lib/clinic-options";
+import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import {
   actualizarPerfil,
   cambiarEmail,
@@ -52,11 +55,46 @@ export default async function CuentaPage({
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
+  // RLS de "leads_clinica" es solo para el backend — hace falta el
+  // cliente admin para saber, por solicitud, cuántas propuestas ha
+  // recibido el paciente y si ya eligió clínica.
+  const infoPropuestasPorSolicitud = new Map<
+    string,
+    { propuestasPendientes: number; clinicaElegida: boolean }
+  >();
+  if (solicitudes && solicitudes.length > 0) {
+    const admin = createAdminClient();
+    const { data: leads } = await admin
+      .from("leads_clinica")
+      .select("solicitud_id, estado")
+      .in(
+        "solicitud_id",
+        solicitudes.map((s) => s.id),
+      );
+
+    for (const lead of leads ?? []) {
+      const estado = lead.estado as EstadoLead;
+      const actual = infoPropuestasPorSolicitud.get(lead.solicitud_id) ?? {
+        propuestasPendientes: 0,
+        clinicaElegida: false,
+      };
+      if (estado === "propuesta_enviada") actual.propuestasPendientes++;
+      if (contactoLiberado(estado)) actual.clinicaElegida = true;
+      infoPropuestasPorSolicitud.set(lead.solicitud_id, actual);
+    }
+  }
+
   const fechaActual = profile?.fecha_nacimiento
     ? new Date(profile.fecha_nacimiento)
     : null;
   const anioActual = new Date().getFullYear();
   const anios = Array.from({ length: 77 }, (_, i) => anioActual - 14 - i);
+
+  const totalPropuestasPendientes = Array.from(
+    infoPropuestasPorSolicitud.values(),
+  ).reduce((total, info) => total + info.propuestasPendientes, 0);
+
+  const inicial = (profile?.nombre ?? user.email ?? "?").charAt(0).toUpperCase();
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
@@ -64,11 +102,25 @@ export default async function CuentaPage({
 
       <div className="mx-auto max-w-[1600px] px-6 py-10">
         <div className="flex items-center justify-between">
-          <div>
-            <h1 className="font-display text-2xl text-teal-dark">
-              Mi cuenta
-            </h1>
-            <p className="mt-1 text-sm text-ink-soft">{user.email}</p>
+          <div className="flex items-center gap-3">
+            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal font-display text-lg font-bold text-paper">
+              {inicial}
+            </span>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="font-display text-2xl text-teal-dark">
+                  Mi cuenta
+                </h1>
+                {totalPropuestasPendientes > 0 && (
+                  <span className="flex items-center gap-1 rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-bold text-cyan-dark">
+                    <Mail className="h-3.5 w-3.5" aria-hidden />
+                    {totalPropuestasPendientes}{" "}
+                    {totalPropuestasPendientes === 1 ? "propuesta nueva" : "propuestas nuevas"}
+                  </span>
+                )}
+              </div>
+              <p className="mt-1 text-sm text-ink-soft">{user.email}</p>
+            </div>
           </div>
           <form action={cerrarSesionPaciente}>
             <button
@@ -100,8 +152,9 @@ export default async function CuentaPage({
           {/* Columna 1: datos del perfil */}
           <section className="flex flex-col gap-6">
             <div className="rounded-2xl border border-line bg-white p-5">
-              <h2 className="font-display text-lg text-teal-dark">
-                Mis datos
+              <h2 className="flex items-center gap-2 font-display text-lg text-teal-dark">
+                <User className="h-5 w-5 text-teal" aria-hidden />
+                Mis datos personales
               </h2>
               <form
                 action={actualizarPerfil}
@@ -285,8 +338,9 @@ export default async function CuentaPage({
           {/* Columna 2: análisis capilar */}
           <section className="flex flex-col rounded-2xl border border-line bg-white p-5">
             <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg text-teal-dark">
-                Mi análisis
+              <h2 className="flex items-center gap-2 font-display text-lg text-teal-dark">
+                <Camera className="h-5 w-5 text-teal" aria-hidden />
+                Mis análisis
               </h2>
               <Link
                 href="/analisis/nuevo"
@@ -332,15 +386,18 @@ export default async function CuentaPage({
             )}
           </section>
 
-          {/* Columna 3: solicitudes de presupuesto */}
-          <section className="flex flex-col rounded-2xl border border-line bg-white p-5">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg text-teal-dark">
+          {/* Columna 3: solicitudes de presupuesto — con más peso visual,
+              porque aquí es donde el paciente se entera de si tiene
+              propuestas esperando o ya ha elegido clínica. */}
+          <section className="flex flex-col rounded-2xl border-2 border-teal/25 bg-teal/5 p-5">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <h2 className="flex items-center gap-2 font-display text-lg text-teal-dark">
+                <Mail className="h-5 w-5 text-teal" aria-hidden />
                 Mis presupuestos
               </h2>
               <Link
                 href="/cuenta/solicitud/nueva"
-                className="rounded-full bg-cyan px-3 py-1.5 text-xs font-medium text-white hover:bg-cyan-dark"
+                className="shrink-0 rounded-full bg-cyan px-3 py-1.5 text-xs font-medium text-white hover:bg-cyan-dark"
               >
                 + Pedir
               </Link>
@@ -348,27 +405,43 @@ export default async function CuentaPage({
 
             {solicitudes && solicitudes.length > 0 ? (
               <ul className="mt-4 flex flex-col gap-2">
-                {solicitudes.map((s) => (
-                  <li
-                    key={s.id}
-                    className="flex flex-col gap-1 rounded-xl border border-line px-3 py-2 text-sm"
-                  >
-                    <Link
-                      href={`/cuenta/solicitud/${s.id}`}
-                      className="flex items-center justify-between hover:text-teal"
+                {solicitudes.map((s) => {
+                  const info = infoPropuestasPorSolicitud.get(s.id);
+                  return (
+                    <li
+                      key={s.id}
+                      className="flex flex-col gap-1 rounded-xl border border-line bg-white px-3 py-2 text-sm"
                     >
-                      <span className="text-ink">
-                        {new Date(s.created_at).toLocaleDateString("es-ES")}
-                      </span>
-                      <span className="text-xs capitalize text-ink-soft">
-                        {s.estado}
-                      </span>
-                    </Link>
-                    <div className="flex justify-end">
-                      <BorrarSolicitudButton id={s.id} />
-                    </div>
-                  </li>
-                ))}
+                      <Link
+                        href={`/cuenta/solicitud/${s.id}`}
+                        className="flex items-center justify-between hover:text-teal"
+                      >
+                        <span className="text-ink">
+                          {new Date(s.created_at).toLocaleDateString("es-ES")}
+                        </span>
+                        {info?.clinicaElegida ? (
+                          <span className="flex items-center gap-1 rounded-full bg-sage px-2 py-0.5 text-xs font-semibold text-sage-ink">
+                            <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                            Clínica elegida
+                          </span>
+                        ) : info && info.propuestasPendientes > 0 ? (
+                          <span className="flex items-center gap-1 rounded-full bg-cyan/15 px-2 py-0.5 text-xs font-bold text-cyan-dark">
+                            <Mail className="h-3.5 w-3.5" aria-hidden />
+                            {info.propuestasPendientes}{" "}
+                            {info.propuestasPendientes === 1 ? "propuesta" : "propuestas"}
+                          </span>
+                        ) : (
+                          <span className="text-xs capitalize text-ink-soft">
+                            {s.estado}
+                          </span>
+                        )}
+                      </Link>
+                      <div className="flex justify-end">
+                        <BorrarSolicitudButton id={s.id} />
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             ) : (
               <p className="mt-3 text-sm text-ink-soft">

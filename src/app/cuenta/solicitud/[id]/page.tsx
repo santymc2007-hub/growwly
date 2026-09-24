@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { ClipboardList } from "lucide-react";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -119,7 +120,7 @@ export default async function SolicitudDetallePage({
     : null;
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
 
       <div className="mx-auto max-w-xl px-6 py-12">
@@ -249,7 +250,8 @@ export default async function SolicitudDetallePage({
         )}
 
         <div className="mt-6 flex items-center justify-between">
-          <h1 className="font-display text-xl text-teal-dark">
+          <h1 className="flex items-center gap-2 font-display text-xl text-teal-dark">
+            <ClipboardList className="h-5 w-5 text-teal" aria-hidden />
             Resumen de tu solicitud
           </h1>
           <BorrarSolicitudButton id={solicitud.id} />
