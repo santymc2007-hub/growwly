@@ -1,9 +1,12 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { SelloMatchScore } from "@/components/cuenta/sello-match-score";
+import { PropuestaRecibidaCard } from "@/components/cuenta/propuesta-recibida-card";
+import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import { BorrarSolicitudButton } from "./borrar-solicitud-button";
 import {
   PROGRESION_LABEL,
@@ -57,15 +60,60 @@ export default async function SolicitudDetallePage({
   // RLS de "leads_clinica" es solo para el backend — hace falta el
   // cliente admin incluso para que el propio paciente vea cuántas
   // clínicas encajaron con su solicitud.
-  const { data: leads } = await createAdminClient()
+  const admin = createAdminClient();
+  const { data: leads } = await admin
     .from("leads_clinica")
-    .select("match_score")
+    .select("id, estado, clinic_id, match_score")
     .eq("solicitud_id", solicitud.id);
 
-  const matchScores = (leads ?? [])
+  const todosLeads = leads ?? [];
+  const matchScores = todosLeads
     .map((l) => l.match_score)
     .filter((m): m is number => m != null);
   const mejorMatchScore = matchScores.length > 0 ? Math.max(...matchScores) : null;
+
+  // El paciente solo ve datos de clínica en dos casos: propuestas ya
+  // recibidas (para poder elegir) y la clínica que ya eligió (Fase 5)
+  // — el resto de leads (enviado/visto/desbloqueado/no_seleccionado…)
+  // no se muestran uno a uno, solo cuentan para el sello de arriba.
+  const leadSeleccionado = todosLeads.find((l) => contactoLiberado(l.estado as EstadoLead));
+  const leadsConPropuesta = todosLeads.filter((l) => l.estado === "propuesta_enviada");
+
+  const leadsRelevantes = leadSeleccionado
+    ? [leadSeleccionado]
+    : leadsConPropuesta;
+
+  const [{ data: clinicasRelevantes }, { data: propuestasRelevantes }] =
+    leadsRelevantes.length > 0
+      ? await Promise.all([
+          admin
+            .from("clinics")
+            .select("id, nombre, logo_url")
+            .in(
+              "id",
+              leadsRelevantes.map((l) => l.clinic_id),
+            ),
+          admin
+            .from("propuestas_clinica")
+            .select("*")
+            .in(
+              "lead_id",
+              leadsRelevantes.map((l) => l.id),
+            ),
+        ])
+      : [{ data: [] }, { data: [] }];
+
+  const clinicaPorId = new Map((clinicasRelevantes ?? []).map((c) => [c.id, c]));
+  const propuestaPorLeadId = new Map(
+    (propuestasRelevantes ?? []).map((p) => [p.lead_id, p]),
+  );
+
+  const clinicaSeleccionada = leadSeleccionado
+    ? clinicaPorId.get(leadSeleccionado.clinic_id)
+    : null;
+  const propuestaSeleccionada = leadSeleccionado
+    ? propuestaPorLeadId.get(leadSeleccionado.id)
+    : null;
 
   return (
     <main className="flex-1">
@@ -104,6 +152,76 @@ export default async function SolicitudDetallePage({
             </p>
           )}
         </div>
+
+        {clinicaSeleccionada && (
+          <div className="mt-6 rounded-xl border border-teal-dark/20 bg-teal-dark/5 p-5">
+            <div className="flex items-center gap-3">
+              {clinicaSeleccionada.logo_url ? (
+                <span className="relative h-10 w-10 shrink-0 overflow-hidden rounded-full bg-sage">
+                  <Image
+                    src={clinicaSeleccionada.logo_url}
+                    alt=""
+                    fill
+                    sizes="40px"
+                    className="object-cover"
+                  />
+                </span>
+              ) : (
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-sage text-sm font-bold text-sage-ink">
+                  {clinicaSeleccionada.nombre.charAt(0).toUpperCase()}
+                </span>
+              )}
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wide text-teal-dark">
+                  Has elegido esta clínica
+                </p>
+                <p className="font-display text-lg text-teal-dark">
+                  {clinicaSeleccionada.nombre}
+                </p>
+              </div>
+            </div>
+            <p className="mt-3 text-sm text-teal-dark/80">
+              Le hemos compartido tu nombre, teléfono y email para que pueda
+              contactarte. El resto de clínicas ya no tienen acceso a tu
+              solicitud.
+            </p>
+            {propuestaSeleccionada?.mensaje && (
+              <p className="mt-3 rounded-lg bg-white/70 p-3 text-sm text-ink">
+                {propuestaSeleccionada.mensaje}
+              </p>
+            )}
+          </div>
+        )}
+
+        {!clinicaSeleccionada && leadsConPropuesta.length > 0 && (
+          <div className="mt-6">
+            <h2 className="font-display text-lg text-teal-dark">
+              Propuestas recibidas ({leadsConPropuesta.length})
+            </h2>
+            <p className="mt-1 text-sm text-ink-soft">
+              Revisa cada propuesta y elige la clínica con la que quieras
+              seguir adelante — solo compartiremos tu contacto con la que
+              elijas.
+            </p>
+            <div className="mt-4 flex flex-col gap-4">
+              {leadsConPropuesta.map((lead) => {
+                const clinica = clinicaPorId.get(lead.clinic_id);
+                const propuesta = propuestaPorLeadId.get(lead.id);
+                if (!clinica || !propuesta) return null;
+                return (
+                  <PropuestaRecibidaCard
+                    key={lead.id}
+                    solicitudId={solicitud.id}
+                    leadId={lead.id}
+                    nombreClinica={clinica.nombre}
+                    logoUrl={clinica.logo_url}
+                    propuesta={propuesta}
+                  />
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         <div className="mt-6 flex items-center justify-between">
           <h1 className="font-display text-xl text-teal-dark">

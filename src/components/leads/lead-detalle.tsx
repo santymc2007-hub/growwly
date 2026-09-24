@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
+import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import { DesbloquearButton } from "@/app/leads/[token]/desbloquear-button";
 import { PropuestaForm } from "@/components/leads/propuesta-form";
 import { FotoAmpliable } from "@/components/leads/foto-ampliable";
@@ -36,6 +37,14 @@ export async function LeadDetalle({ token }: { token: string }) {
   if (!lead) {
     notFound();
   }
+
+  const estado = lead.estado as EstadoLead;
+  // "Desbloquear" da acceso al historial médico, preferencias y fotos
+  // — pero el contacto (nombre/teléfono/email) no se libera hasta que
+  // el paciente elige esta clínica (Fase 5), así que son dos gates
+  // distintos.
+  const yaDesbloqueado = estado !== "enviado" && estado !== "visto";
+  const contactoOk = contactoLiberado(estado);
 
   const [{ data: solicitud }, { data: clinica }, { data: propuestaExistente }] =
     await Promise.all([
@@ -88,7 +97,7 @@ export async function LeadDetalle({ token }: { token: string }) {
       // mandan al navegador) una vez desbloqueado. Antes de eso solo
       // se ve la portada desenfocada vía /api/leads/[token]/foto-borrosa,
       // que hace el desenfoque en el servidor sobre los bytes reales.
-      if (lead.estado === "desbloqueado") {
+      if (yaDesbloqueado) {
         const urls = await Promise.all(
           rutas.map((r) => urlFirmadaFoto(supabase, r)),
         );
@@ -111,7 +120,7 @@ export async function LeadDetalle({ token }: { token: string }) {
     telefono: string | null;
     email: string | null;
   } | null = null;
-  if (lead.estado === "desbloqueado") {
+  if (contactoOk) {
     const { data } = await supabase
       .from("profiles")
       .select("nombre, apellidos, telefono, email")
@@ -148,16 +157,25 @@ export async function LeadDetalle({ token }: { token: string }) {
         decidir si quieres enviarle una propuesta.
       </p>
 
-      {lead.estado !== "desbloqueado" && (
+      {!yaDesbloqueado && (
         <div className="mt-6 rounded-xl bg-yellow p-6 text-center">
           <p className="font-display text-lg font-extrabold text-teal-dark">
             Desbloquea el perfil, estás a nada de generar un nuevo cliente
           </p>
           <p className="mt-1 text-sm text-teal-dark/80">
-            Verás el nombre, teléfono y email del paciente, además de su
-            historial médico y sus preferencias completas.
+            Verás su historial médico, preferencias y fotos completas para
+            preparar tu propuesta. El nombre, teléfono y email se liberan
+            si el paciente te elige a ti entre las propuestas recibidas.
           </p>
           <DesbloquearButton token={token} />
+        </div>
+      )}
+
+      {yaDesbloqueado && !contactoOk && (
+        <div className="mt-6 rounded-xl bg-sage/60 p-4 text-sm text-sage-ink">
+          El paciente todavía no ha elegido clínica. Si te elige a ti tras
+          ver tu propuesta, verás aquí su nombre, teléfono y email para
+          poder contactarle.
         </div>
       )}
 
@@ -202,7 +220,7 @@ export async function LeadDetalle({ token }: { token: string }) {
         </div>
       )}
 
-      {lead.estado !== "desbloqueado" && hayFotos && (
+      {!yaDesbloqueado && hayFotos && (
         <div className="mt-4">
           <div className="relative inline-block aspect-square w-40 overflow-hidden rounded-lg border border-line bg-white">
             <FotoAmpliable
@@ -218,7 +236,7 @@ export async function LeadDetalle({ token }: { token: string }) {
         </div>
       )}
 
-      {lead.estado === "desbloqueado" && fotoUrls.length > 0 && (
+      {yaDesbloqueado && fotoUrls.length > 0 && (
         <div className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
           {fotoUrls.map((url) => (
             <div
@@ -235,11 +253,17 @@ export async function LeadDetalle({ token }: { token: string }) {
         </div>
       )}
 
-      {lead.estado === "desbloqueado" && (
+      {yaDesbloqueado && (
         <div className="mt-8 rounded-xl bg-sage p-6">
           <p className="font-display text-lg text-sage-ink">
             Perfil completo
           </p>
+          {!contactoOk && (
+            <p className="mt-1 text-xs text-sage-ink/70">
+              El contacto (nombre, teléfono, email) se liberará si el
+              paciente elige tu clínica.
+            </p>
+          )}
           <dl className="mt-4 divide-y divide-sage-ink/10 text-sm">
             {paciente?.nombre && (
               <Row
@@ -296,7 +320,7 @@ export async function LeadDetalle({ token }: { token: string }) {
         </div>
       )}
 
-      {(lead.estado === "desbloqueado" || lead.estado === "propuesta_enviada") && (
+      {(estado === "desbloqueado" || estado === "propuesta_enviada") && (
         <PropuestaForm
           token={token}
           tratamientoSugerido={
