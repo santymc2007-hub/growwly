@@ -2,6 +2,9 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
+import { calcularMetricasLeadsClinica } from "@/lib/leads/metricas-clinica";
+import { calcularGrowwlyScore } from "@/lib/leads/growwly-score";
+import { calcularMatchScore } from "@/lib/leads/match-score";
 import {
   PROGRESION_LABEL,
   CUANDO_LABEL,
@@ -11,12 +14,18 @@ import {
 /**
  * Tope de clínicas que reciben un mismo lead. Repartir un lead entre
  * demasiadas clínicas lo devalúa: cada una sabe que compite contra
- * muchas más y deja de prestarle atención. De momento el desempate
- * entre candidatas es "destacado" primero (ya es un criterio de pago
- * existente) — cuando haya datos reales en `lead_events`, este orden
- * pasará a basarse en el Growwly Score.
+ * muchas más y deja de prestarle atención.
  */
 const MAX_CLINICAS_POR_SOLICITUD = 5;
+
+/**
+ * Cómo se combinan Growwly Score (cómo trabaja la clínica en general)
+ * y Match Score (cuánto encaja con ESTE lead en concreto) para decidir
+ * a quién se manda. Empieza en 50/50 — se podrá ajustar con datos
+ * reales, igual que el resto de constantes de este módulo.
+ */
+const PESO_GROWWLY_SCORE_EN_ROUTING = 0.5;
+const PESO_MATCH_SCORE_EN_ROUTING = 0.5;
 
 /**
  * Busca las clínicas que encajan con una solicitud (ciudad + técnicas de
@@ -54,9 +63,8 @@ export async function notificarClinicasDeSolicitud(
 
   let query = supabaseAdmin
     .from("clinics")
-    .select("id, nombre, email, ciudad, tecnicas")
+    .select("*")
     .not("email", "is", null)
-    .order("destacado", { ascending: false })
     // Antes no se filtraba aquí por publicado/verificado_admin: una
     // clínica recién creada por sí misma (pendiente de que admin
     // confirme que es de verdad quien dice ser) podía recibir datos
@@ -86,17 +94,37 @@ export async function notificarClinicasDeSolicitud(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
   const candidatas = (clinicas ?? []).filter((c) => c.email).length;
-  const seleccionadas = (clinicas ?? []).slice(0, MAX_CLINICAS_POR_SOLICITUD);
+
+  // Growwly Score (cómo trabaja la clínica) + Match Score (cuánto
+  // encaja con ESTA solicitud) -> Routing Score. Se manda el lead a
+  // las MAX_CLINICAS_POR_SOLICITUD mejores, no a todas las que
+  // encajen por criterios obligatorios.
+  const conPuntuacion = await Promise.all(
+    (clinicas ?? []).map(async (clinica) => {
+      const metricas = await calcularMetricasLeadsClinica(supabaseAdmin, clinica.id);
+      const growwlyScore = calcularGrowwlyScore(clinica, metricas);
+      const matchScore = calcularMatchScore(solicitud, clinica);
+      const routingScore =
+        growwlyScore.total * PESO_GROWWLY_SCORE_EN_ROUTING +
+        matchScore * PESO_MATCH_SCORE_EN_ROUTING;
+      return { clinica, matchScore, routingScore };
+    }),
+  );
+
+  const seleccionadas = conPuntuacion
+    .sort((a, b) => b.routingScore - a.routingScore)
+    .slice(0, MAX_CLINICAS_POR_SOLICITUD);
+
   let notificadas = 0;
   let ultimoError: string | null = null;
 
-  for (const clinica of seleccionadas) {
+  for (const { clinica, matchScore } of seleccionadas) {
     if (!clinica.email) continue;
 
     const { data: lead } = await supabaseAdmin
       .from("leads_clinica")
       .upsert(
-        { solicitud_id: solicitud.id, clinic_id: clinica.id },
+        { solicitud_id: solicitud.id, clinic_id: clinica.id, match_score: matchScore },
         { onConflict: "solicitud_id,clinic_id", ignoreDuplicates: true },
       )
       .select()

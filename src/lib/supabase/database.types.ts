@@ -483,6 +483,7 @@ export interface Database {
           enviado_en: string;
           visto_en: string | null;
           desbloqueado_en: string | null;
+          match_score: number | null;
         };
         Insert: {
           id?: string;
@@ -493,6 +494,7 @@ export interface Database {
           enviado_en?: string;
           visto_en?: string | null;
           desbloqueado_en?: string | null;
+          match_score?: number | null;
         };
         Update: {
           id?: string;
@@ -503,6 +505,7 @@ export interface Database {
           enviado_en?: string;
           visto_en?: string | null;
           desbloqueado_en?: string | null;
+          match_score?: number | null;
         };
         Relationships: [];
       };
