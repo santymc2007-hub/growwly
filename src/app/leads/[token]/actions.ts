@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
+import { notificarPacientePropuesta } from "@/lib/leads/notificar-paciente";
 import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
 
 /**
@@ -124,6 +125,11 @@ export async function guardarPropuesta(token: string, formData: FormData) {
         event: "proposal_sent",
         solicitudId: lead.solicitud_id,
         leadId: lead.id,
+        clinicId: lead.clinic_id,
+      });
+
+      await notificarPacientePropuesta(supabase, {
+        solicitudId: lead.solicitud_id,
         clinicId: lead.clinic_id,
       });
     }
