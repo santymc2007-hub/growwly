@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { registrarEventoLead } from "@/lib/leads/lead-events";
 
 /**
  * Desbloquea un lead para que la clínica vea el perfil completo del
@@ -14,10 +15,21 @@ import { createAdminClient } from "@/lib/supabase/admin";
 export async function desbloquearLead(token: string) {
   const supabase = createAdminClient();
 
-  await supabase
+  const { data: lead } = await supabase
     .from("leads_clinica")
     .update({ estado: "desbloqueado", desbloqueado_en: new Date().toISOString() })
-    .eq("token", token);
+    .eq("token", token)
+    .select("id, solicitud_id, clinic_id")
+    .maybeSingle();
+
+  if (lead) {
+    await registrarEventoLead(supabase, {
+      event: "lead_unlocked",
+      solicitudId: lead.solicitud_id,
+      leadId: lead.id,
+      clinicId: lead.clinic_id,
+    });
+  }
 
   revalidatePath(`/leads/${token}`);
 }

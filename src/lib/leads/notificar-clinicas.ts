@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
+import { registrarEventoLead } from "@/lib/leads/lead-events";
 import {
   PROGRESION_LABEL,
   CUANDO_LABEL,
@@ -8,9 +9,20 @@ import {
 } from "@/lib/solicitud-labels";
 
 /**
+ * Tope de clínicas que reciben un mismo lead. Repartir un lead entre
+ * demasiadas clínicas lo devalúa: cada una sabe que compite contra
+ * muchas más y deja de prestarle atención. De momento el desempate
+ * entre candidatas es "destacado" primero (ya es un criterio de pago
+ * existente) — cuando haya datos reales en `lead_events`, este orden
+ * pasará a basarse en el Growwly Score.
+ */
+const MAX_CLINICAS_POR_SOLICITUD = 4;
+
+/**
  * Busca las clínicas que encajan con una solicitud (ciudad + técnicas de
- * interés), crea un lead con token único por cada una, y les manda un
- * email con un resumen anonimizado + el enlace a ese lead.
+ * interés), crea un lead con token único por cada una (como mucho
+ * MAX_CLINICAS_POR_SOLICITUD), y les manda un email con un resumen
+ * anonimizado + el enlace a ese lead.
  *
  * `supabaseAdmin` debe ser el cliente con la clave secreta (createAdminClient),
  * porque necesita leer todas las clínicas y escribir en leads_clinica
@@ -44,6 +56,7 @@ export async function notificarClinicasDeSolicitud(
     .from("clinics")
     .select("id, nombre, email, ciudad, tecnicas")
     .not("email", "is", null)
+    .order("destacado", { ascending: false })
     // Antes no se filtraba aquí por publicado/verificado_admin: una
     // clínica recién creada por sí misma (pendiente de que admin
     // confirme que es de verdad quien dice ser) podía recibir datos
@@ -73,10 +86,11 @@ export async function notificarClinicasDeSolicitud(
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
   const candidatas = (clinicas ?? []).filter((c) => c.email).length;
+  const seleccionadas = (clinicas ?? []).slice(0, MAX_CLINICAS_POR_SOLICITUD);
   let notificadas = 0;
   let ultimoError: string | null = null;
 
-  for (const clinica of clinicas ?? []) {
+  for (const clinica of seleccionadas) {
     if (!clinica.email) continue;
 
     const { data: lead } = await supabaseAdmin
@@ -89,6 +103,13 @@ export async function notificarClinicasDeSolicitud(
       .single();
 
     if (!lead) continue;
+
+    await registrarEventoLead(supabaseAdmin, {
+      event: "lead_assigned",
+      solicitudId: solicitud.id,
+      leadId: lead.id,
+      clinicId: clinica.id,
+    });
 
     const enlace = `${siteUrl}/leads/${lead.token}`;
     const html = construirHtmlEmail({

@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
+import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { DesbloquearButton } from "@/app/leads/[token]/desbloquear-button";
 import { FotoAmpliable } from "@/components/leads/foto-ampliable";
 import {
@@ -117,6 +118,13 @@ export async function LeadDetalle({ token }: { token: string }) {
       .from("leads_clinica")
       .update({ estado: "visto", visto_en: new Date().toISOString() })
       .eq("id", lead.id);
+
+    await registrarEventoLead(supabase, {
+      event: "lead_opened",
+      solicitudId: lead.solicitud_id,
+      leadId: lead.id,
+      clinicId: lead.clinic_id,
+    });
   }
 
   return (
