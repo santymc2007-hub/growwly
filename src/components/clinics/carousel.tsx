@@ -110,9 +110,13 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
 
   return (
     <>
-      {/* Escritorio: foto principal + rejilla de hasta 8 miniaturas */}
-      <div className="hidden gap-2 lg:grid lg:h-[420px] lg:grid-cols-[1.1fr_1fr]">
-        <div className="group relative h-full overflow-hidden rounded-2xl bg-sage">
+      {/* Escritorio: foto principal (730px) + rejilla de miniaturas más
+          estrechas (160px) — con minmax() en vez de anchos fijos a
+          secas: en monitores anchos llegan a esos 730/160px exactos,
+          pero se van encogiendo con normalidad en portátiles más
+          estrechos en vez de desbordar la columna. */}
+      <div className="hidden gap-2 lg:grid lg:h-[420px] lg:grid-cols-[minmax(0,730px)_minmax(0,328px)]">
+        <div className="group relative h-full min-w-0 overflow-hidden rounded-2xl bg-sage">
           <button
             type="button"
             onClick={() => abrir(index)}
@@ -137,7 +141,7 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
         </div>
 
         {miniaturasGrid.length > 0 && (
-          <div className="grid grid-cols-2 grid-rows-4 gap-2">
+          <div className="grid grid-cols-[minmax(0,160px)_minmax(0,160px)] grid-rows-4 gap-2">
             {miniaturasGrid.map(({ foto, indiceReal }, i) => {
               const esUltimaConMas = i === miniaturasGrid.length - 1 && fotosRestantes > 0;
               return (
@@ -145,6 +149,7 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
                   key={`${foto}-${indiceReal}`}
                   type="button"
                   onClick={() => abrir(indiceReal)}
+                  onMouseEnter={() => setIndex(indiceReal)}
                   className="press group relative overflow-hidden rounded-xl bg-sage"
                   aria-label={
                     esUltimaConMas
@@ -182,7 +187,7 @@ export function Carousel({ fotos, nombreClinica, autoplayMs = 4000 }: Props) {
           >
             <div
               key={index}
-              className="carousel-fade relative aspect-[16/9] w-full overflow-hidden rounded-3xl bg-sage"
+              className="carousel-fade relative aspect-[14/9] w-full overflow-hidden rounded-3xl bg-sage"
             >
               <Image
                 src={fotos[index]}
