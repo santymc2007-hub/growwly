@@ -503,6 +503,36 @@ export interface Database {
         };
         Relationships: [];
       };
+      solicitudes_cita_directa: {
+        Row: {
+          id: string;
+          clinic_id: string;
+          nombre: string;
+          telefono: string;
+          email: string | null;
+          mensaje: string | null;
+          creado_en: string;
+        };
+        Insert: {
+          id?: string;
+          clinic_id: string;
+          nombre: string;
+          telefono: string;
+          email?: string | null;
+          mensaje?: string | null;
+          creado_en?: string;
+        };
+        Update: {
+          id?: string;
+          clinic_id?: string;
+          nombre?: string;
+          telefono?: string;
+          email?: string | null;
+          mensaje?: string | null;
+          creado_en?: string;
+        };
+        Relationships: [];
+      };
       blog_posts: {
         Row: {
           id: string;
