@@ -56,7 +56,7 @@ export default async function HomePage() {
 
   const { data: tratamientosData } = await supabase
     .from("tratamientos")
-    .select("slug, nombre, categoria, imagen_portada")
+    .select("slug, nombre, categoria, imagen_portada, resumen")
     .eq("publicado", true)
     .order("nombre", { ascending: true });
   // Un tratamiento real por categoría (el primero alfabéticamente),
@@ -185,20 +185,40 @@ export default async function HomePage() {
 
           {/* CTA clínicas */}
           <div className="border-t border-line px-6 py-10 sm:px-10">
-            <div className="flex flex-col items-center gap-3 rounded-3xl bg-gradient-to-br from-brand-blue/40 via-white to-brand-green/30 px-6 py-14 text-center">
-              <p className="font-display text-3xl font-bold text-teal-dark">
-                ¿Tienes una clínica capilar?
-              </p>
-              <p className="max-w-md text-base text-teal-dark/80">
-                Reclama tu ficha en el directorio y recibe solicitudes de
-                presupuesto de pacientes reales.
-              </p>
-              <Link
-                href="/clinica/registro"
-                className="press mt-2 inline-block rounded-full bg-gradient-to-r from-yellow to-orange px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
-              >
-                Únete
-              </Link>
+            <div className="flex flex-col overflow-hidden rounded-3xl lg:flex-row lg:items-stretch">
+              <div className="flex flex-col justify-center gap-3 bg-gradient-to-br from-teal-dark to-cyan-dark px-8 py-10 text-white sm:px-10 lg:w-[38%] lg:shrink-0">
+                <p className="font-display text-2xl font-extrabold sm:text-3xl">
+                  ¿Tienes una clínica capilar?
+                </p>
+                <p className="max-w-sm text-white/85">
+                  Únete a Growwly y llega a miles de personas que buscan el
+                  mejor tratamiento.
+                </p>
+                <Link
+                  href="/clinica/registro"
+                  className="press mt-2 inline-block w-fit rounded-full bg-yellow px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
+                >
+                  Únete ahora →
+                </Link>
+              </div>
+
+              <div className="relative min-h-[200px] flex-1">
+                <Image
+                  src="/brand/banner-clinica-foto.webp"
+                  alt=""
+                  fill
+                  sizes="(min-width: 1024px) 62vw, 100vw"
+                  className="object-cover"
+                />
+                <p
+                  className="font-hand absolute right-6 top-6 -rotate-3 text-right text-2xl leading-snug text-teal-dark sm:text-3xl"
+                  style={{ textShadow: "0 1px 6px rgba(255,255,255,0.7)" }}
+                >
+                  Juntos hacemos
+                  <br />
+                  crecer tu negocio
+                </p>
+              </div>
             </div>
           </div>
         </div>
