@@ -4,7 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { FichaClinicaForm } from "./ficha/ficha-clinica-form";
-import { actualizarMiFicha, cambiarPublicacion } from "./ficha/actions";
+import { actualizarMiFicha } from "./ficha/actions";
 import { ClinicaNav } from "./clinica-nav";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
@@ -101,9 +101,6 @@ export default async function ClinicaPanelPage({
   const nombreGestor = await obtenerNombreGestor(profileId);
   const fotoPrincipal = clinic.logo_url ?? clinic.fotos?.[0] ?? null;
 
-  const publicarAction = cambiarPublicacion.bind(null, true);
-  const darDeBajaAction = cambiarPublicacion.bind(null, false);
-
   const porcentaje = calcularCompletitud(clinic);
   const metricasLeads = await calcularMetricasLeadsClinica(admin, clinicId);
   const growwlyScore = calcularGrowwlyScore(clinic, metricasLeads);
@@ -126,10 +123,6 @@ export default async function ClinicaPanelPage({
 
         <div className="mt-4">
           <ClinicaNav activo="ficha" solicitudesPendientes={solicitudesPendientes} />
-        </div>
-
-        <div className="mb-6 mt-4">
-          <SelloGrowwlyScore score={growwlyScore} />
         </div>
 
         <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-stretch">
@@ -156,37 +149,7 @@ export default async function ClinicaPanelPage({
             )}
           </div>
 
-          <div
-            className={`flex flex-col justify-center gap-3 rounded-2xl p-4 md:w-[30%] ${
-              clinic.publicado ? "bg-sage" : "bg-paper-dim"
-            }`}
-          >
-            <div>
-              <p
-                className={`text-sm font-medium ${clinic.publicado ? "text-sage-ink" : "text-ink"}`}
-              >
-                {clinic.publicado
-                  ? "Tu ficha está visible en el directorio"
-                  : "Tu ficha está de baja — no aparece en el directorio"}
-              </p>
-              <p className="mt-0.5 text-xs text-ink-soft">
-                Puedes darla de baja o volver a publicarla cuando quieras; tus
-                datos no se pierden.
-              </p>
-            </div>
-            <form action={clinic.publicado ? darDeBajaAction : publicarAction}>
-              <button
-                type="submit"
-                className={`rounded-full px-4 py-2 text-sm font-medium ${
-                  clinic.publicado
-                    ? "border border-error text-error hover:bg-error/10"
-                    : "bg-teal text-paper hover:bg-teal-dark"
-                }`}
-              >
-                {clinic.publicado ? "Dar de baja" : "Volver a publicar"}
-              </button>
-            </form>
-          </div>
+          <SelloGrowwlyScore score={growwlyScore} />
         </div>
 
         {(guardado || error) && (
