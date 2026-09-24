@@ -49,7 +49,11 @@ export async function notificarClinicasDeSolicitud(
     // confirme que es de verdad quien dice ser) podía recibir datos
     // reales de pacientes antes de pasar esa verificación.
     .eq("publicado", true)
-    .eq("verificado_admin", true);
+    .eq("verificado_admin", true)
+    // El reparto de leads es un beneficio del plan premium ("Perfil
+    // detallado") — una clínica en plan básico no entra en este flujo,
+    // aunque esté publicada y verificada.
+    .eq("plan", "premium");
 
   // "ciudad" filtra estrictamente por su municipio. "provincia" /
   // "comunidad" / "sin_preferencia" de momento no filtran por ubicación:
