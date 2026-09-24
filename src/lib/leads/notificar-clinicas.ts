@@ -16,7 +16,7 @@ import {
  * existente) — cuando haya datos reales en `lead_events`, este orden
  * pasará a basarse en el Growwly Score.
  */
-const MAX_CLINICAS_POR_SOLICITUD = 4;
+const MAX_CLINICAS_POR_SOLICITUD = 5;
 
 /**
  * Busca las clínicas que encajan con una solicitud (ciudad + técnicas de
