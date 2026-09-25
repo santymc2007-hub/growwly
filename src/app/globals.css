@@ -78,6 +78,10 @@
   /* Manuscrita, solo para acentos puntuales con "chispa" (p. ej. el
      rótulo "Growwly Score") — nunca para texto largo ni de lectura. */
   --font-hand: "Caveat", cursive;
+  /* Serif editorial, para el estilo "Comentado" del editor de
+     contenido (tratamientos/blog) — un bloque destacado que se
+     distingue del cuerpo del artículo sin salirse de la paleta. */
+  --font-serif: "Lora", Georgia, "Times New Roman", serif;
 }
 
 body {

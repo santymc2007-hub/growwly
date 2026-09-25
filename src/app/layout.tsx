@@ -6,6 +6,9 @@ import "@fontsource/bricolage-grotesque/600.css";
 import "@fontsource/bricolage-grotesque/700.css";
 import "@fontsource/bricolage-grotesque/800.css";
 import "@fontsource/caveat/700.css";
+import "@fontsource/lora/400.css";
+import "@fontsource/lora/400-italic.css";
+import "@fontsource/lora/600.css";
 import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";

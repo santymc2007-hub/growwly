@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { Tratamiento } from "@/lib/supabase/database.types";
 import { TECNICAS_DISPONIBLES, CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
+import { EditorContenido } from "@/components/admin/editor-contenido";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -136,17 +137,12 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
           <label className={labelClass} htmlFor="contenido">
             Contenido{" "}
             <span className="text-xs text-ink-soft">
-              (cuerpo de la ficha: qué es, para quién, proceso,
-              recuperación — Markdown: ## para H2, listas con -, **negrita**)
+              (qué es, para quién, proceso, recuperación)
             </span>
           </label>
-          <textarea
-            id="contenido"
-            name="contenido"
-            rows={16}
-            defaultValue={tratamiento?.contenido ?? undefined}
-            className={`${inputClass} font-mono text-xs`}
-          />
+          <div className="mt-1">
+            <EditorContenido name="contenido" defaultValue={tratamiento?.contenido} />
+          </div>
         </div>
 
         <div>
