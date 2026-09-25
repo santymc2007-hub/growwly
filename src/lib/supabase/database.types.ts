@@ -666,6 +666,7 @@ export interface Database {
           autor_cargo: string | null;
           publicado: boolean;
           publicado_en: string | null;
+          tags: string[];
           created_at: string;
           updated_at: string;
         };
@@ -681,6 +682,7 @@ export interface Database {
           autor_cargo?: string | null;
           publicado?: boolean;
           publicado_en?: string | null;
+          tags?: string[];
           created_at?: string;
           updated_at?: string;
         };
@@ -696,6 +698,7 @@ export interface Database {
           autor_cargo?: string | null;
           publicado?: boolean;
           publicado_en?: string | null;
+          tags?: string[];
           created_at?: string;
           updated_at?: string;
         };

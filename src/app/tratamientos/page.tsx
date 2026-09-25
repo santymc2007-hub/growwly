@@ -28,45 +28,51 @@ export default async function TratamientosPage() {
   );
 
   return (
-    <main className="flex-1">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <SiteHeader />
 
-      <div className="mx-auto max-w-[1600px] px-6 py-12">
+      <div className="mx-auto max-w-[1600px] px-6 pb-10 pt-8">
         <Breadcrumbs items={[{ label: "Tratamientos", href: "/tratamientos" }]} />
 
-        <h1 className="mt-3 font-display text-3xl text-teal-dark">
-          Tratamientos capilares
+        <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
+          Tratamientos <span className="text-teal-dark">capilares</span>
         </h1>
-        <p className="mt-2 text-ink-soft">
+        <p className="mt-3 max-w-xl text-ink-soft">
           Qué son, para quién están indicados, y cómo es el proceso —
           explicado antes de que pidas presupuesto a ninguna clínica.
         </p>
+      </div>
 
-        {CATEGORIAS_TRATAMIENTO.map((categoria) => {
-          const deEstaCategoria = tratamientos.filter((t) => t.categoria === categoria);
-          if (deEstaCategoria.length === 0) return null;
-          return (
-            <section key={categoria} className="mt-12 first:mt-10">
-              <h2 className="font-display text-xl text-teal-dark">{categoria}</h2>
-              <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {deEstaCategoria.map((t) => (
-                  <TarjetaTratamiento key={t.id} t={t} />
-                ))}
-              </div>
-            </section>
-          );
-        })}
+      <div className="mx-auto max-w-[1600px] px-3 pb-8 sm:px-6 sm:pb-10">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+          <div className="px-6 py-8 sm:px-10">
+            {CATEGORIAS_TRATAMIENTO.map((categoria) => {
+              const deEstaCategoria = tratamientos.filter((t) => t.categoria === categoria);
+              if (deEstaCategoria.length === 0) return null;
+              return (
+                <section key={categoria} className="mt-12 first:mt-0">
+                  <h2 className="font-display text-xl text-teal-dark">{categoria}</h2>
+                  <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                    {deEstaCategoria.map((t) => (
+                      <TarjetaTratamiento key={t.id} t={t} />
+                    ))}
+                  </div>
+                </section>
+              );
+            })}
 
-        {sinCategoria.length > 0 && (
-          <section className="mt-12">
-            <h2 className="font-display text-xl text-teal-dark">Otros</h2>
-            <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {sinCategoria.map((t) => (
-                <TarjetaTratamiento key={t.id} t={t} />
-              ))}
-            </div>
-          </section>
-        )}
+            {sinCategoria.length > 0 && (
+              <section className="mt-12 first:mt-0">
+                <h2 className="font-display text-xl text-teal-dark">Otros</h2>
+                <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {sinCategoria.map((t) => (
+                    <TarjetaTratamiento key={t.id} t={t} />
+                  ))}
+                </div>
+              </section>
+            )}
+          </div>
+        </div>
       </div>
       <SiteFooter />
     </main>

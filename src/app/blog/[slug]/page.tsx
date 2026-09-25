@@ -6,6 +6,8 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { BuscadorBlog } from "@/components/blog/buscador-blog";
+import { EtiquetasBlog } from "@/components/blog/etiquetas-blog";
 
 type Params = { slug: string };
 
@@ -93,7 +95,7 @@ export default async function BlogPostPage({
       : null;
 
   return (
-    <main className="flex-1">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
@@ -108,71 +110,90 @@ export default async function BlogPostPage({
       )}
       <SiteHeader />
 
-      <article className="mx-auto max-w-[1600px] px-6 py-12">
-        <div className="lg:flex lg:items-start lg:gap-10">
-          <div className="lg:max-w-2xl lg:flex-1">
-            <Breadcrumbs
-              items={[
-                { label: "Blog", href: "/blog" },
-                { label: post.titulo, href: `/blog/${post.slug}` },
-              ]}
-            />
-
-            <h1 className="mt-4 font-display text-3xl text-teal-dark sm:text-4xl">
-              {post.titulo}
-            </h1>
-            <p className="mt-2 text-sm text-ink-soft">
-              {post.autor}
-              {post.autor_cargo && ` — ${post.autor_cargo}`}
-              {post.publicado_en &&
-                ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
-                  day: "numeric",
-                  month: "long",
-                  year: "numeric",
-                })}`}
-            </p>
-
-            <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-              <ReactMarkdown>{post.contenido}</ReactMarkdown>
-            </div>
-
-            {faqs.length > 0 && (
-              <section className="mt-10">
-                <h2 className="font-display text-xl text-teal-dark">
-                  Preguntas frecuentes
-                </h2>
-                <div className="mt-4 flex flex-col gap-3">
-                  {faqs.map((f, i) => (
-                    <details
-                      key={i}
-                      className="rounded-lg border border-line bg-white p-4"
-                    >
-                      <summary className="cursor-pointer font-medium text-ink">
-                        {f.pregunta}
-                      </summary>
-                      <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
-                    </details>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
-
+      <article className="mx-auto max-w-[1600px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {post.imagen_portada && (
-            <aside className="mt-8 lg:sticky lg:top-8 lg:mt-0 lg:w-[360px] lg:shrink-0">
-              <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-                <div className="relative aspect-[4/3] w-full bg-sage">
-                  <Image
-                    src={post.imagen_portada}
-                    alt={post.titulo}
-                    fill
-                    sizes="360px"
-                    className="object-cover"
-                  />
-                </div>
-              </div>
-            </aside>
+            <div className="relative aspect-[16/6] w-full bg-sage sm:aspect-[21/6]">
+              <Image
+                src={post.imagen_portada}
+                alt={post.titulo}
+                fill
+                sizes="1600px"
+                priority
+                className="object-cover"
+              />
+            </div>
           )}
+
+          <div className="px-6 py-8 sm:px-10">
+            <div className="lg:flex lg:items-start lg:gap-10">
+              <div className="lg:max-w-2xl lg:flex-1">
+                <Breadcrumbs
+                  items={[
+                    { label: "Blog", href: "/blog" },
+                    { label: post.titulo, href: `/blog/${post.slug}` },
+                  ]}
+                />
+
+                <h1 className="mt-4 font-display text-3xl text-teal-dark sm:text-4xl">
+                  {post.titulo}
+                </h1>
+                <p className="mt-2 text-sm text-ink-soft">
+                  {post.autor}
+                  {post.autor_cargo && ` — ${post.autor_cargo}`}
+                  {post.publicado_en &&
+                    ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
+                      day: "numeric",
+                      month: "long",
+                      year: "numeric",
+                    })}`}
+                </p>
+
+                <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
+                  <ReactMarkdown>{post.contenido}</ReactMarkdown>
+                </div>
+
+                {faqs.length > 0 && (
+                  <section className="mt-10">
+                    <h2 className="font-display text-xl text-teal-dark">
+                      Preguntas frecuentes
+                    </h2>
+                    <div className="mt-4 flex flex-col gap-3">
+                      {faqs.map((f, i) => (
+                        <details
+                          key={i}
+                          className="rounded-lg border border-line bg-white p-4"
+                        >
+                          <summary className="cursor-pointer font-medium text-ink">
+                            {f.pregunta}
+                          </summary>
+                          <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
+                        </details>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </div>
+
+              <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:mt-0 lg:w-[300px] lg:shrink-0">
+                {post.tags.length > 0 && (
+                  <div className="rounded-2xl border border-line bg-white p-5">
+                    <p className="font-display text-lg text-teal-dark">Etiquetas</p>
+                    <div className="mt-3">
+                      <EtiquetasBlog tags={post.tags} />
+                    </div>
+                  </div>
+                )}
+
+                <div className="rounded-2xl border border-line bg-white p-5">
+                  <p className="font-display text-lg text-teal-dark">Buscar en el blog</p>
+                  <div className="mt-3">
+                    <BuscadorBlog />
+                  </div>
+                </div>
+              </aside>
+            </div>
+          </div>
         </div>
       </article>
       <SiteFooter />

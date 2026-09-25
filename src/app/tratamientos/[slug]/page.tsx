@@ -7,7 +7,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
-import { formatearPrecio } from "@/lib/clinic-options";
+import { NavTratamientos } from "@/components/tratamientos/nav-tratamientos";
 import type { Clinic } from "@/lib/supabase/database.types";
 
 type Params = { slug: string };
@@ -84,6 +84,13 @@ export default async function TratamientoPage({
     precioMax = hasta.length > 0 ? Math.max(...hasta) : null;
   }
 
+  // Para el nav de "todos los tratamientos" del sidebar.
+  const { data: todosTratamientos } = await supabase
+    .from("tratamientos")
+    .select("slug, nombre, categoria")
+    .eq("publicado", true)
+    .order("nombre", { ascending: true });
+
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
 
@@ -148,7 +155,7 @@ export default async function TratamientoPage({
       : null;
 
   return (
-    <main className="flex-1">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
@@ -168,118 +175,111 @@ export default async function TratamientoPage({
       )}
       <SiteHeader />
 
-      <article className="mx-auto max-w-[1600px] px-6 py-12">
-        <div className="lg:flex lg:items-start lg:gap-10">
-          <div className="lg:max-w-2xl lg:flex-1">
-            <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
-              <Link href="/tratamientos" className="hover:text-cyan">
-                Tratamientos
-              </Link>
-              <span aria-hidden>/</span>
-              <span className="text-ink">{tratamiento.nombre}</span>
-            </nav>
-
-            <h1 className="mt-3 font-display text-3xl text-teal-dark sm:text-4xl">
-              {tratamiento.nombre}
-            </h1>
-            {tratamiento.duracion_orientativa && (
-              <p className="mt-2 text-sm text-ink-soft">
-                Duración orientativa: {tratamiento.duracion_orientativa}
-              </p>
-            )}
-
-            <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-              <ReactMarkdown>{tratamiento.contenido}</ReactMarkdown>
+      <article className="mx-auto max-w-[1600px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
+        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+          {tratamiento.imagen_portada ? (
+            <div className="relative aspect-[16/6] w-full bg-sage sm:aspect-[21/6]">
+              <Image
+                src={tratamiento.imagen_portada}
+                alt={tratamiento.nombre}
+                fill
+                sizes="1600px"
+                priority
+                className="object-cover"
+              />
             </div>
+          ) : (
+            <div className="flex aspect-[16/6] w-full items-center justify-center bg-gradient-to-br from-brand-green to-brand-blue sm:aspect-[21/6]">
+              <span className="font-display text-2xl font-bold text-white">
+                {tratamiento.nombre}
+              </span>
+            </div>
+          )}
 
-            {faqs.length > 0 && (
-              <section className="mt-10">
-                <h2 className="font-display text-xl text-teal-dark">
-                  Preguntas frecuentes
-                </h2>
-                <div className="mt-4 flex flex-col gap-3">
-                  {faqs.map((f, i) => (
-                    <details
-                      key={i}
-                      className="rounded-lg border border-line bg-white p-4"
-                    >
-                      <summary className="cursor-pointer font-medium text-ink">
-                        {f.pregunta}
-                      </summary>
-                      <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
-                    </details>
-                  ))}
-                </div>
-              </section>
-            )}
-          </div>
+          <div className="px-6 py-8 sm:px-10">
+            <div className="lg:flex lg:items-start lg:gap-10">
+              <div className="lg:max-w-2xl lg:flex-1">
+                <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
+                  <Link href="/tratamientos" className="hover:text-cyan">
+                    Tratamientos
+                  </Link>
+                  <span aria-hidden>/</span>
+                  <span className="text-ink">{tratamiento.nombre}</span>
+                </nav>
 
-          <aside className="mt-8 lg:sticky lg:top-8 lg:mt-0 lg:w-[360px] lg:shrink-0">
-            <div className="overflow-hidden rounded-2xl border border-line bg-white shadow-sm">
-              {tratamiento.imagen_portada ? (
-                <div className="relative aspect-[4/3] w-full bg-sage">
-                  <Image
-                    src={tratamiento.imagen_portada}
-                    alt={tratamiento.nombre}
-                    fill
-                    sizes="360px"
-                    className="object-cover"
-                  />
-                </div>
-              ) : (
-                <div className="flex aspect-[4/3] w-full items-center justify-center bg-gradient-to-br from-brand-green to-brand-blue">
-                  <span className="font-display text-lg font-bold text-white">
-                    {tratamiento.nombre}
-                  </span>
-                </div>
-              )}
-              <div className="p-5">
-                {(precioMin !== null || precioMax !== null) && (
-                  <p className="inline-block rounded-full bg-sage px-4 py-1.5 text-sm font-medium text-sage-ink">
-                    {precioMin !== null && precioMax !== null
-                      ? `${formatearPrecio(precioMin)} - ${formatearPrecio(precioMax)}`
-                      : precioMin !== null
-                        ? `desde ${formatearPrecio(precioMin)}`
-                        : `hasta ${formatearPrecio(precioMax!)}`}
+                <h1 className="mt-3 font-display text-3xl text-teal-dark sm:text-4xl">
+                  {tratamiento.nombre}
+                </h1>
+                {tratamiento.duracion_orientativa && (
+                  <p className="mt-2 text-sm text-ink-soft">
+                    Duración orientativa: {tratamiento.duracion_orientativa}
                   </p>
                 )}
-                <p className="mt-2 text-xs text-ink-soft">
-                  Precio orientativo en el directorio — cada clínica confirma
-                  el suyo en su presupuesto.
-                </p>
+
+                <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
+                  <ReactMarkdown>{tratamiento.contenido}</ReactMarkdown>
+                </div>
+
+                {faqs.length > 0 && (
+                  <section className="mt-10">
+                    <h2 className="font-display text-xl text-teal-dark">
+                      Preguntas frecuentes
+                    </h2>
+                    <div className="mt-4 flex flex-col gap-3">
+                      {faqs.map((f, i) => (
+                        <details
+                          key={i}
+                          className="rounded-lg border border-line bg-white p-4"
+                        >
+                          <summary className="cursor-pointer font-medium text-ink">
+                            {f.pregunta}
+                          </summary>
+                          <p className="mt-2 text-sm text-ink-soft">{f.respuesta}</p>
+                        </details>
+                      ))}
+                    </div>
+                  </section>
+                )}
+              </div>
+
+              <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:mt-0 lg:w-[360px] lg:shrink-0">
                 {tratamiento.tecnica_relacionada && (
                   <Link
                     href={`/clinicas?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
-                    className="press mt-4 block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-2.5 text-center text-sm font-bold text-teal-dark shadow-sm shadow-orange/20 transition hover:opacity-90"
+                    className="press block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-3 text-center text-sm font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
                   >
                     Ver clínicas con esta técnica
                   </Link>
                 )}
-              </div>
+                <NavTratamientos
+                  tratamientos={todosTratamientos ?? []}
+                  activoSlug={tratamiento.slug}
+                />
+              </aside>
             </div>
-          </aside>
-        </div>
 
-        {clinicasConTecnica.length > 0 && (
-          <section className="mt-14">
-            <h2 className="font-display text-xl text-teal-dark">
-              Clínicas que ofrecen {tratamiento.nombre.toLowerCase()}
-            </h2>
-            <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-              {clinicasConTecnica.map((c) => (
-                <ClinicCard key={c.id} clinic={c} />
-              ))}
-            </div>
-            {tratamiento.tecnica_relacionada && (
-              <Link
-                href={`/clinicas?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
-                className="mt-4 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
-              >
-                Ver todas las clínicas con esta técnica →
-              </Link>
+            {clinicasConTecnica.length > 0 && (
+              <section className="mt-14">
+                <h2 className="font-display text-xl text-teal-dark">
+                  Clínicas que ofrecen {tratamiento.nombre.toLowerCase()}
+                </h2>
+                <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {clinicasConTecnica.map((c) => (
+                    <ClinicCard key={c.id} clinic={c} />
+                  ))}
+                </div>
+                {tratamiento.tecnica_relacionada && (
+                  <Link
+                    href={`/clinicas?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
+                    className="mt-4 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
+                  >
+                    Ver todas las clínicas con esta técnica →
+                  </Link>
+                )}
+              </section>
             )}
-          </section>
-        )}
+          </div>
+        </div>
       </article>
       <SiteFooter />
     </main>
