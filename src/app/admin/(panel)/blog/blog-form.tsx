@@ -111,6 +111,23 @@ export function BlogForm({ action, post, error }: Props) {
         </div>
 
         <div>
+          <label className={labelClass} htmlFor="tags">
+            Etiquetas{" "}
+            <span className="text-xs text-ink-soft">
+              (separadas por comas — ej. minoxidil, fue, alopecia. Se usan
+              para el buscador y el filtro por etiqueta de /blog)
+            </span>
+          </label>
+          <input
+            id="tags"
+            name="tags"
+            defaultValue={post?.tags?.join(", ") ?? ""}
+            placeholder="minoxidil, fue, alopecia"
+            className={inputClass}
+          />
+        </div>
+
+        <div>
           <label className={labelClass} htmlFor="contenido">
             Contenido{" "}
             <span className="text-xs text-ink-soft">

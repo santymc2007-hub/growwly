@@ -25,6 +25,11 @@ function readPostFields(formData: FormData) {
     if (pregunta && respuesta) faqs.push({ pregunta, respuesta });
   }
 
+  const tags = String(formData.get("tags") ?? "")
+    .split(",")
+    .map((t) => t.trim())
+    .filter(Boolean);
+
   return {
     titulo: String(formData.get("titulo") ?? "").trim(),
     resumen: str("resumen"),
@@ -33,6 +38,7 @@ function readPostFields(formData: FormData) {
     autor_cargo: str("autor_cargo"),
     publicado: formData.get("publicado") === "on",
     preguntas_frecuentes: faqs,
+    tags,
   };
 }
 
@@ -72,6 +78,7 @@ export async function createPost(formData: FormData) {
     publicado: fields.publicado,
     publicado_en: fields.publicado ? new Date().toISOString() : null,
     imagen_portada: imagenPortada,
+    tags: fields.tags,
   });
 
   if (error) {
@@ -128,6 +135,7 @@ export async function updatePost(id: string, formData: FormData) {
       autor_cargo: fields.autor_cargo,
       publicado: fields.publicado,
       imagen_portada: imagenPortada,
+      tags: fields.tags,
       ...(sePublicaPorPrimeraVez && {
         publicado_en: new Date().toISOString(),
       }),
