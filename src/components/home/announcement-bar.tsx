@@ -25,7 +25,7 @@ const REDES = [
 export function AnnouncementBar() {
   return (
     <div className="hidden bg-brand-green px-6 py-2 text-xs font-medium text-teal-dark sm:block">
-      <div className="mx-auto flex max-w-[1600px] items-center justify-between">
+      <div className="mx-auto flex max-w-[1400px] items-center justify-between">
         <span className="flex items-center gap-1.5">
           <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
           Directorio Nº1 de clínicas capilares verificadas

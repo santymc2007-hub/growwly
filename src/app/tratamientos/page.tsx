@@ -31,7 +31,7 @@ export default async function TratamientosPage() {
     <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <SiteHeader />
 
-      <div className="mx-auto max-w-[1600px] px-6 pb-10 pt-8">
+      <div className="mx-auto max-w-[1400px] px-6 pb-10 pt-8">
         <Breadcrumbs items={[{ label: "Tratamientos", href: "/tratamientos" }]} />
 
         <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
@@ -43,7 +43,7 @@ export default async function TratamientosPage() {
         </p>
       </div>
 
-      <div className="mx-auto max-w-[1600px] px-3 pb-8 sm:px-6 sm:pb-10">
+      <div className="mx-auto max-w-[1400px] px-3 pb-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           <div className="px-6 py-8 sm:px-10">
             {CATEGORIAS_TRATAMIENTO.map((categoria) => {

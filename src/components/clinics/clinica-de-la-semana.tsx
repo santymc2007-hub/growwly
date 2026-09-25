@@ -14,7 +14,7 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
 
   return (
     <section className="border-t border-line bg-paper-dim">
-      <div className="mx-auto max-w-[1600px] px-6 py-14">
+      <div className="mx-auto max-w-[1400px] px-6 py-14">
         <h2 className="font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
           Clínica de la semana
         </h2>
