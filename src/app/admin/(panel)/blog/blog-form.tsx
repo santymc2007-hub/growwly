@@ -176,6 +176,18 @@ export function BlogForm({ action, post, error }: Props) {
             (visible en /blog — desmárcalo para dejarlo en borrador)
           </span>
         </label>
+
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="destacado_home"
+            defaultChecked={post?.destacado_home}
+          />
+          Destacar en la portada (Home){" "}
+          <span className="text-xs text-ink-soft">
+            (máximo 4 entradas destacadas a la vez)
+          </span>
+        </label>
       </div>
 
       <div className="mt-8 flex gap-3">

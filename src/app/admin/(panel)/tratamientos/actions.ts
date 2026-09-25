@@ -7,9 +7,24 @@ import { slugify } from "@/lib/slugify";
 import { uploadBlogPhoto, deleteBlogPhoto } from "@/lib/supabase/blog-storage";
 
 const MAX_FAQS = 6;
+const MAX_DESTACADOS_HOME = 4;
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
+}
+
+/** Máximo 4 tratamientos marcados como destacados en home a la vez. */
+async function superaLimiteDestacados(
+  supabase: ReturnType<typeof createAdminClient>,
+  excludeId?: string,
+): Promise<boolean> {
+  let query = supabase
+    .from("tratamientos")
+    .select("id", { count: "exact", head: true })
+    .eq("destacado_home", true);
+  if (excludeId) query = query.neq("id", excludeId);
+  const { count } = await query;
+  return (count ?? 0) >= MAX_DESTACADOS_HOME;
 }
 
 function readFields(formData: FormData) {
@@ -34,6 +49,7 @@ function readFields(formData: FormData) {
     duracion_orientativa: str("duracion_orientativa"),
     publicado: formData.get("publicado") === "on",
     preguntas_frecuentes: faqs,
+    destacado_home: formData.get("destacado_home") === "on",
   };
 }
 
@@ -46,6 +62,15 @@ export async function createTratamiento(formData: FormData) {
   }
 
   const supabase = createAdminClient();
+
+  if (fields.destacado_home && (await superaLimiteDestacados(supabase))) {
+    redirect(
+      `/admin/tratamientos/nuevo?error=${encodeURIComponent(
+        `Ya hay ${MAX_DESTACADOS_HOME} tratamientos destacados en la home. Quita uno antes de añadir otro.`,
+      )}`,
+    );
+  }
+
   const slug = slugify(fields.nombre);
 
   let imagenPortada: string | null = null;
@@ -73,6 +98,7 @@ export async function createTratamiento(formData: FormData) {
     publicado: fields.publicado,
     preguntas_frecuentes: fields.preguntas_frecuentes,
     imagen_portada: imagenPortada,
+    destacado_home: fields.destacado_home,
   });
 
   if (error) {
@@ -93,6 +119,17 @@ export async function updateTratamiento(id: string, formData: FormData) {
   }
 
   const supabase = createAdminClient();
+
+  if (
+    fields.destacado_home &&
+    (await superaLimiteDestacados(supabase, id))
+  ) {
+    redirect(
+      `/admin/tratamientos/${id}/editar?error=${encodeURIComponent(
+        `Ya hay ${MAX_DESTACADOS_HOME} tratamientos destacados en la home. Quita uno antes de añadir otro.`,
+      )}`,
+    );
+  }
 
   const { data: actual } = await supabase
     .from("tratamientos")
@@ -127,6 +164,7 @@ export async function updateTratamiento(id: string, formData: FormData) {
       publicado: fields.publicado,
       preguntas_frecuentes: fields.preguntas_frecuentes,
       imagen_portada: imagenPortada,
+      destacado_home: fields.destacado_home,
     })
     .eq("id", id);
 

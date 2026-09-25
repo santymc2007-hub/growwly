@@ -10,6 +10,7 @@ import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
 import { Hero } from "@/components/home/hero";
 import { AnnouncementBar } from "@/components/home/announcement-bar";
 import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
+import { BlogDestacado } from "@/components/home/blog-destacado";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
@@ -56,14 +57,31 @@ export default async function HomePage() {
 
   const { data: tratamientosData } = await supabase
     .from("tratamientos")
-    .select("slug, nombre, categoria, imagen_portada, resumen")
+    .select("slug, nombre, categoria, imagen_portada, resumen, destacado_home")
     .eq("publicado", true)
     .order("nombre", { ascending: true });
-  // Un tratamiento real por categoría (el primero alfabéticamente),
-  // nunca inventado — así las 4 tarjetas siempre enlazan a fichas que existen.
-  const tratamientosDestacados = CATEGORIAS_TRATAMIENTO.map((categoria) =>
-    (tratamientosData ?? []).find((t) => t.categoria === categoria),
-  ).filter((t): t is NonNullable<typeof t> => Boolean(t));
+  // Si el admin ha marcado tratamientos como destacados a mano, se
+  // usan esos (hasta 4). Si no ha marcado ninguno todavía, se cae al
+  // criterio anterior: un tratamiento real por categoría, nunca
+  // inventado, para que las tarjetas siempre enlacen a fichas que existen.
+  const destacadosManualTratamientos = (tratamientosData ?? [])
+    .filter((t) => t.destacado_home)
+    .slice(0, 4);
+  const tratamientosDestacados =
+    destacadosManualTratamientos.length > 0
+      ? destacadosManualTratamientos
+      : CATEGORIAS_TRATAMIENTO.map((categoria) =>
+          (tratamientosData ?? []).find((t) => t.categoria === categoria),
+        ).filter((t): t is NonNullable<typeof t> => Boolean(t));
+
+  const { data: postsDestacadosData } = await supabase
+    .from("blog_posts")
+    .select("slug, titulo, resumen, imagen_portada")
+    .eq("publicado", true)
+    .eq("destacado_home", true)
+    .order("publicado_en", { ascending: false })
+    .limit(4);
+  const postsDestacados = postsDestacadosData ?? [];
 
   return (
     <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
@@ -180,6 +198,13 @@ export default async function HomePage() {
           {tratamientosDestacados.length > 0 && (
             <div className="border-t border-line px-6 py-10 sm:px-10">
               <TratamientosDestacados tratamientos={tratamientosDestacados} />
+            </div>
+          )}
+
+          {/* Del blog */}
+          {postsDestacados.length > 0 && (
+            <div className="border-t border-line px-6 py-10 sm:px-10">
+              <BlogDestacado posts={postsDestacados} />
             </div>
           )}
 

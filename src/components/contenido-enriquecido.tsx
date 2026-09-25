@@ -20,9 +20,9 @@ const ALLOWED_TAGS = [
   "code",
   "pre",
 ];
-const ALLOWED_ATTR = ["style", "href", "target", "rel"];
+const ALLOWED_ATTR = ["style", "href", "target", "rel", "data-estilo"];
 
-function esHtml(contenido: string): boolean {
+export function esHtml(contenido: string): boolean {
   return /<[a-z][\s\S]*>/i.test(contenido);
 }
 

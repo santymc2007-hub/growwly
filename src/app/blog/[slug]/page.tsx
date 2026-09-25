@@ -127,7 +127,7 @@ export default async function BlogPostPage({
 
           <div className="px-6 py-8 sm:px-10">
             <div className="lg:flex lg:items-start lg:gap-10">
-              <div className="lg:max-w-2xl lg:flex-1">
+              <div className="lg:max-w-3xl lg:flex-1">
                 <Breadcrumbs
                   items={[
                     { label: "Blog", href: "/blog" },
