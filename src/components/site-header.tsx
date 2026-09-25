@@ -40,8 +40,8 @@ export async function SiteHeader() {
             className="h-12 w-auto sm:h-[54px]"
             priority
           />
-          <span className="hidden h-9 w-px bg-line sm:block" aria-hidden />
-          <span className="hidden font-display text-[21px] font-semibold text-teal-dark sm:block">
+          <span className="h-7 w-px bg-line sm:h-9" aria-hidden />
+          <span className="font-display text-sm font-semibold text-teal-dark sm:text-[21px]">
             Hair we go!
           </span>
         </Link>

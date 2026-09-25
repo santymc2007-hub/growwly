@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
@@ -84,7 +85,8 @@ export default async function HomePage() {
   const postsDestacados = postsDestacadosData ?? [];
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
+    <main className="relative flex-1">
+      <FondoTextura />
       <AnnouncementBar />
       <SiteHeader />
       <Hero />

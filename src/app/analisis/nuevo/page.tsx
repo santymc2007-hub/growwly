@@ -1,4 +1,5 @@
 import { SiteHeader } from "@/components/site-header";
+import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { AnnouncementBar } from "@/components/home/announcement-bar";
 import { crearEstudio } from "../actions";
@@ -18,7 +19,8 @@ export default async function NuevoAnalisisPage({
   const { error } = await searchParams;
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
+    <main className="relative flex-1">
+      <FondoTextura />
       <AnnouncementBar />
       <SiteHeader />
       <AnalisisForm action={crearEstudio} initialError={error} />

@@ -3,6 +3,7 @@ import Image from "next/image";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
@@ -28,7 +29,8 @@ export default async function TratamientosPage() {
   );
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
+    <main className="relative flex-1">
+      <FondoTextura />
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 pb-10 pt-8">

@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { NavTratamientos } from "@/components/tratamientos/nav-tratamientos";
@@ -155,7 +156,8 @@ export default async function TratamientoPage({
       : null;
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
+    <main className="relative flex-1">
+      <FondoTextura />
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
