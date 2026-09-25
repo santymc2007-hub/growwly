@@ -49,7 +49,7 @@ export default async function BlogPage({
   }
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 pb-10 pt-8">
