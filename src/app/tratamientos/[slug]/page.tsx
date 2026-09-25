@@ -175,7 +175,7 @@ export default async function TratamientoPage({
       )}
       <SiteHeader />
 
-      <article className="mx-auto max-w-[1600px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
+      <article className="mx-auto max-w-[1400px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {tratamiento.imagen_portada ? (
             <div className="relative aspect-[16/6] w-full bg-sage sm:aspect-[21/6]">

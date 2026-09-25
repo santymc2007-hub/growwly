@@ -23,7 +23,7 @@ export async function SiteFooter() {
 
   return (
     <footer className="border-t border-line bg-paper-dim">
-      <div className="mx-auto max-w-[1600px] px-6 py-10 text-sm text-ink-soft">
+      <div className="mx-auto max-w-[1400px] px-6 py-10 text-sm text-ink-soft">
         <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
           <div>
             <p className="text-xs font-medium uppercase tracking-wide text-ink">

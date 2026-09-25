@@ -348,7 +348,7 @@ export default async function ClinicaPage({
       ))}
       <SiteHeader />
 
-      <div className="mx-auto max-w-[1600px] px-6 pt-8">
+      <div className="mx-auto max-w-[1400px] px-6 pt-8">
         <nav aria-label="Migas de pan" className="flex flex-wrap items-center gap-1.5 text-sm text-ink-soft">
           <Link href="/clinicas" className="hover:text-cyan">
             Clínicas
@@ -373,7 +373,7 @@ export default async function ClinicaPage({
         </nav>
       </div>
 
-      <div className="mx-auto max-w-[1600px] px-3 pb-8 pt-6 sm:px-6 sm:pb-10">
+      <div className="mx-auto max-w-[1400px] px-3 pb-8 pt-6 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           <FichaTabsMobile
             informacion={

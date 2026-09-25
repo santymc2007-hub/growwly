@@ -74,7 +74,7 @@ export default async function HomePage() {
       {/* A partir de aquí, todo el "desarrollo" de la home vive en una
           única caja blanca continua que flota sobre el fondo — logo,
           menú y hero son lo único que va directamente sobre el fondo. */}
-      <div className="mx-auto max-w-[1600px] px-3 pb-8 sm:px-6 sm:pb-10">
+      <div className="mx-auto max-w-[1400px] px-3 pb-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Qué es Growwly */}
           <div className="px-6 py-8 sm:px-10 sm:py-10">

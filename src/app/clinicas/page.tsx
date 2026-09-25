@@ -80,7 +80,7 @@ export default async function ClinicasPage({
     <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
       <SiteHeader />
 
-      <div className="mx-auto max-w-[1600px] px-6 pb-20 pt-8 sm:pb-24">
+      <div className="mx-auto max-w-[1400px] px-6 pb-20 pt-8 sm:pb-24">
         <Breadcrumbs items={[{ label: "Clínicas", href: "/clinicas" }]} />
 
         <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
@@ -94,7 +94,7 @@ export default async function ClinicasPage({
 
       {/* Barra de filtros flotante: a caballo entre el fondo y el panel
           blanco de más abajo, como una tarjeta elevada. */}
-      <div className="relative z-10 mx-auto -mt-12 max-w-[1600px] px-3 sm:-mt-14 sm:px-6">
+      <div className="relative z-10 mx-auto -mt-12 max-w-[1400px] px-3 sm:-mt-14 sm:px-6">
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <p className="text-sm text-ink-soft">
             {filtradas.length}{" "}
@@ -106,7 +106,7 @@ export default async function ClinicasPage({
         </div>
       </div>
 
-      <div className="mx-auto max-w-[1600px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
+      <div className="mx-auto max-w-[1400px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           <div className="px-6 py-8 sm:px-10">
             {ciudades.length > 1 && (

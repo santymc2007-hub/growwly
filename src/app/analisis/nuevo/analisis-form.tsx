@@ -124,7 +124,7 @@ export function AnalisisForm({
 
       {/* Hero: presentación + zona para añadir fotos */}
       <div className="relative">
-        <div className="relative mx-auto max-w-[1600px] px-6 py-14 sm:py-16 lg:px-12 lg:py-0">
+        <div className="relative mx-auto max-w-[1400px] px-6 py-14 sm:py-16 lg:px-12 lg:py-0">
           <div className="relative z-10 min-w-0 lg:max-w-[430px] lg:py-11">
             <p className="text-xs font-bold uppercase tracking-widest text-teal">
               Tu pelo en buenas manos
@@ -233,7 +233,7 @@ export function AnalisisForm({
       </div>
 
       {/* A partir de aquí, todo vive en una única caja blanca, como en la home */}
-      <div className="mx-auto max-w-[1600px] px-3 pb-8 sm:px-6 sm:pb-10">
+      <div className="mx-auto max-w-[1400px] px-3 pb-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Características */}
           <div className="px-6 py-8 sm:px-10">

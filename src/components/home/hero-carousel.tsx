@@ -66,7 +66,7 @@ export function HeroCarousel({
             </>
           )}
 
-          <div className="mx-auto grid max-w-[1600px] items-end gap-6 px-6 pt-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
+          <div className="mx-auto grid max-w-[1400px] items-end gap-6 px-6 pt-6 lg:grid-cols-[0.85fr_1.15fr] lg:px-12">
             <div className="order-1 self-center text-left lg:order-1">
               <h1
                 className="font-display text-[28px] font-extrabold leading-tight text-white sm:text-[44px] lg:text-[56px]"
