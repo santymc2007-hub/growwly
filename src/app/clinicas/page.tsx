@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
+import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
@@ -77,7 +78,8 @@ export default async function ClinicasPage({
   const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
+    <main className="relative flex-1">
+      <FondoTextura />
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 pb-20 pt-8 sm:pb-24">

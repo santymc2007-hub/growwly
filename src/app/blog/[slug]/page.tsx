@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
+import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { BuscadorBlog } from "@/components/blog/buscador-blog";
@@ -95,7 +96,8 @@ export default async function BlogPostPage({
       : null;
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
+    <main className="relative flex-1">
+      <FondoTextura />
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
