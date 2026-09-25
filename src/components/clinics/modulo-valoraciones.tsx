@@ -42,15 +42,21 @@ export function ModuloValoraciones({
 }) {
   if (ratingGoogle == null && ratingDoctoralia == null) return null;
 
+  // Postgres devuelve las columnas "numeric" como string vía PostgREST
+  // (para no perder precisión), aunque el tipo generado diga `number`.
+  const valorGoogle = ratingGoogle != null ? Number(ratingGoogle) : null;
+  const valorDoctoralia =
+    ratingDoctoralia != null ? Number(ratingDoctoralia) : null;
+
   return (
     <div className="rounded-3xl border border-yellow/40 bg-gradient-to-br from-yellow/20 via-white to-orange/10 p-6 shadow-sm">
-      {ratingGoogle != null && (
+      {valorGoogle != null && (
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <Estrellas valor={ratingGoogle} />
+            <Estrellas valor={valorGoogle} />
             <div>
               <p className="font-display text-2xl font-extrabold leading-none text-teal-dark">
-                {ratingGoogle.toFixed(1)}
+                {valorGoogle.toFixed(1)}
               </p>
               <p className="mt-0.5 text-xs text-ink-soft">
                 Google
@@ -61,12 +67,12 @@ export function ModuloValoraciones({
           <GoogleG />
         </div>
       )}
-      {ratingDoctoralia != null && (
+      {valorDoctoralia != null && (
         <div className="mt-4 flex items-center gap-3 border-t border-yellow/30 pt-4">
-          <Estrellas valor={ratingDoctoralia} />
+          <Estrellas valor={valorDoctoralia} />
           <div>
             <p className="font-display text-2xl font-extrabold leading-none text-teal-dark">
-              {ratingDoctoralia.toFixed(1)}
+              {valorDoctoralia.toFixed(1)}
             </p>
             <p className="mt-0.5 text-xs text-ink-soft">
               Doctoralia

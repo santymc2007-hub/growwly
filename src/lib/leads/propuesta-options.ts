@@ -36,7 +36,9 @@ export function formatearPrecioPropuesta(propuesta: {
   precio_min: number | null;
   precio_max: number | null;
 }): string {
-  const fmt = (n: number) => `${n.toLocaleString("es-ES")} €`;
+  // Postgres devuelve las columnas "numeric" como string vía PostgREST
+  // (para no perder precisión), aunque el tipo generado diga `number`.
+  const fmt = (n: number) => `${Number(n).toLocaleString("es-ES")} €`;
   switch (propuesta.tipo_precio) {
     case "cerrado":
       return propuesta.precio_min != null ? fmt(propuesta.precio_min) : "Precio cerrado";

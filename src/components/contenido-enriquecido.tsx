@@ -1,4 +1,5 @@
 import ReactMarkdown from "react-markdown";
+import sanitizeHtml from "sanitize-html";
 
 const PROSE_CLASS =
   "prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan prose-blockquote:font-serif prose-blockquote:text-lg prose-blockquote:not-italic prose-blockquote:text-ink";
@@ -21,6 +22,24 @@ const ALLOWED_TAGS = [
 ];
 const ALLOWED_ATTR = ["style", "href", "target", "rel", "data-estilo"];
 
+const SANITIZE_OPTIONS: sanitizeHtml.IOptions = {
+  allowedTags: ALLOWED_TAGS,
+  allowedAttributes: { "*": ALLOWED_ATTR },
+  // Los estilos que guarda el editor son CSS inline literal (ver
+  // estilo-texto-mark.ts) — se permiten las propiedades concretas que
+  // usa, en vez de abrir "style" a cualquier valor.
+  allowedStyles: {
+    "*": {
+      color: [/^#[0-9a-fA-F]{3,8}$/, /^rgb\(.*\)$/],
+      "font-family": [/.*/],
+      "font-weight": [/.*/],
+      "font-size": [/.*/],
+      "font-style": [/.*/],
+      "line-height": [/.*/],
+    },
+  },
+};
+
 export function esHtml(contenido: string): boolean {
   return /<[a-z][\s\S]*>/i.test(contenido);
 }
@@ -32,26 +51,18 @@ export function esHtml(contenido: string): boolean {
  * mano en Markdown. Ahora el editor guarda HTML. Para no romper nada
  * ya publicado, se detecta el formato por contenido (¿tiene alguna
  * etiqueta HTML?) en vez de depender de una columna nueva o de
- * migrar datos: si es HTML se sanea con DOMPurify y se pinta tal
- * cual; si no, sigue pasando por ReactMarkdown como siempre.
+ * migrar datos: si es HTML se sanea y se pinta tal cual; si no, sigue
+ * pasando por ReactMarkdown como siempre.
  *
- * isomorphic-dompurify se importa de forma perezosa (solo cuando el
- * contenido es realmente HTML) porque, al cargarse, inicializa un
- * jsdom completo — un peso y una superficie de fallo que no tiene
- * sentido pagar en cada ficha de tratamiento o post cuando, de
- * momento, ninguno usa todavía el HTML del editor nuevo.
+ * Se sanea con sanitize-html (puro JS, sin dependencias nativas) y no
+ * con isomorphic-dompurify: ese paquete inicializa un jsdom completo
+ * en cuanto se importa, y jsdom es una fuente habitual de fallos al
+ * desplegar en funciones serverless de Vercel (archivos que su
+ * empaquetado no traza correctamente, como xhr-sync-worker.js).
  */
-export async function ContenidoEnriquecido({
-  contenido,
-}: {
-  contenido: string;
-}) {
+export function ContenidoEnriquecido({ contenido }: { contenido: string }) {
   if (esHtml(contenido)) {
-    const { default: DOMPurify } = await import("isomorphic-dompurify");
-    const limpio = DOMPurify.sanitize(contenido, {
-      ALLOWED_TAGS,
-      ALLOWED_ATTR,
-    });
+    const limpio = sanitizeHtml(contenido, SANITIZE_OPTIONS);
     return (
       <div
         className={PROSE_CLASS}
