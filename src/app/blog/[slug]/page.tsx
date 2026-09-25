@@ -1,13 +1,13 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { BuscadorBlog } from "@/components/blog/buscador-blog";
 import { EtiquetasBlog } from "@/components/blog/etiquetas-blog";
+import { ContenidoEnriquecido } from "@/components/contenido-enriquecido";
 
 type Params = { slug: string };
 
@@ -149,9 +149,7 @@ export default async function BlogPostPage({
                     })}`}
                 </p>
 
-                <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-                  <ReactMarkdown>{post.contenido}</ReactMarkdown>
-                </div>
+                <ContenidoEnriquecido contenido={post.contenido} />
 
                 {faqs.length > 0 && (
                   <section className="mt-10">

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import type { BlogPost } from "@/lib/supabase/database.types";
 import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
+import { EditorContenido } from "@/components/admin/editor-contenido";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -129,19 +130,11 @@ export function BlogForm({ action, post, error }: Props) {
 
         <div>
           <label className={labelClass} htmlFor="contenido">
-            Contenido{" "}
-            <span className="text-xs text-ink-soft">
-              (cuerpo del post — Markdown: ## para H2, ### para H3,
-              **negrita**, - listas, [enlace](https://...))
-            </span>
+            Contenido
           </label>
-          <textarea
-            id="contenido"
-            name="contenido"
-            rows={16}
-            defaultValue={post?.contenido ?? undefined}
-            className={`${inputClass} font-mono text-xs`}
-          />
+          <div className="mt-1">
+            <EditorContenido name="contenido" defaultValue={post?.contenido} />
+          </div>
         </div>
 
         <div>

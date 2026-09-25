@@ -2,12 +2,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import ReactMarkdown from "react-markdown";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { NavTratamientos } from "@/components/tratamientos/nav-tratamientos";
+import { ContenidoEnriquecido } from "@/components/contenido-enriquecido";
 import type { Clinic } from "@/lib/supabase/database.types";
 
 type Params = { slug: string };
@@ -216,9 +216,7 @@ export default async function TratamientoPage({
                   </p>
                 )}
 
-                <div className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-                  <ReactMarkdown>{tratamiento.contenido}</ReactMarkdown>
-                </div>
+                <ContenidoEnriquecido contenido={tratamiento.contenido} />
 
                 {faqs.length > 0 && (
                   <section className="mt-10">
