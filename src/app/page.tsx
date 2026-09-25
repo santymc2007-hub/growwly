@@ -84,7 +84,7 @@ export default async function HomePage() {
   const postsDestacados = postsDestacadosData ?? [];
 
   return (
-    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top lg:bg-fixed">
+    <main className="relative flex-1 bg-[url('/brand/textura-hojas.webp')] bg-cover bg-top bg-fixed">
       <AnnouncementBar />
       <SiteHeader />
       <Hero />
