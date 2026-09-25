@@ -1,12 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
 import { TextStyle } from "@tiptap/extension-text-style";
 import Color from "@tiptap/extension-color";
 import Placeholder from "@tiptap/extension-placeholder";
 import { Bold, Italic, List, ListOrdered } from "lucide-react";
+import { EstiloTexto, type TipoEstiloTexto } from "./estilo-texto-mark";
+import { esHtml } from "@/components/contenido-enriquecido";
+import { markdownAHtml } from "@/lib/markdown-a-html";
 
 const COLORES = [
   { nombre: "Teal", valor: "#00768f" },
@@ -16,18 +19,27 @@ const COLORES = [
 ];
 
 const PROSE_CLASS =
-  "prose prose-teal max-w-none min-h-[280px] rounded-b-lg border border-t-0 border-line bg-white px-3 py-2 text-sm focus:outline-none prose-headings:font-display prose-headings:text-teal-dark prose-blockquote:font-serif prose-blockquote:text-base prose-blockquote:not-italic prose-blockquote:text-ink prose-a:text-cyan";
+  "prose prose-teal max-w-none min-h-[280px] rounded-b-lg border border-t-0 border-line bg-white px-3 py-2 text-sm focus:outline-none prose-a:text-cyan";
+
+/**
+ * Convierte el contenido guardado a HTML antes de dárselo a Tiptap.
+ * Tiptap interpreta `content` como HTML — el contenido antiguo está en
+ * Markdown, y pasárselo tal cual lo mete todo en un único párrafo con
+ * los asteriscos y `#` literales en vez de negrita/títulos reales.
+ */
+function contenidoInicialComoHtml(defaultValue?: string | null): string {
+  if (!defaultValue) return "";
+  return esHtml(defaultValue) ? defaultValue : markdownAHtml(defaultValue);
+}
 
 /**
  * Editor de "contenido" (tratamientos y blog) — negrita, cursiva,
- * listas, 4 estilos de bloque (Párrafo/Título/Subtítulo/Comentado) y
- * una paleta de color acotada a los tonos de marca. Guarda HTML en un
- * input oculto con el mismo `name` que antes tenía el textarea, así
- * que las Server Actions existentes no necesitan cambios.
- *
- * El contenido ya publicado sigue en Markdown — se sigue leyendo tal
- * cual (ver ContenidoEnriquecido), este editor solo escribe HTML a
- * partir de ahora.
+ * listas, 4 estilos de texto (Párrafo/Título/Subtítulo/Comentado) y
+ * una paleta de color acotada a los tonos de marca. Los 4 estilos son
+ * una marca en línea (como la negrita), se aplican sobre el texto
+ * seleccionado, no sobre todo el bloque. Guarda HTML en un input
+ * oculto con el mismo `name` que antes tenía el textarea, así que las
+ * Server Actions existentes no necesitan cambios.
  */
 export function EditorContenido({
   name,
@@ -36,17 +48,22 @@ export function EditorContenido({
   name: string;
   defaultValue?: string | null;
 }) {
-  const [html, setHtml] = useState(defaultValue ?? "");
+  const contenidoInicial = useMemo(
+    () => contenidoInicialComoHtml(defaultValue),
+    [defaultValue],
+  );
+  const [html, setHtml] = useState(contenidoInicial);
 
   const editor = useEditor({
     immediatelyRender: false,
     extensions: [
-      StarterKit.configure({ heading: { levels: [2, 3] } }),
+      StarterKit.configure({ heading: false, blockquote: false }),
       TextStyle,
       Color,
+      EstiloTexto,
       Placeholder.configure({ placeholder: "Escribe el contenido…" }),
     ],
-    content: defaultValue || "",
+    content: contenidoInicial,
     onUpdate: ({ editor }) => setHtml(editor.getHTML()),
     editorProps: {
       attributes: { class: PROSE_CLASS },
@@ -66,30 +83,39 @@ export function EditorContenido({
     );
   }
 
+  function aplicarEstilo(tipo: TipoEstiloTexto | null) {
+    if (!editor) return;
+    if (tipo === null) {
+      editor.chain().focus().unsetEstiloTexto().run();
+    } else {
+      editor.chain().focus().setEstiloTexto(tipo).run();
+    }
+  }
+
   return (
     <div>
       <div className="flex flex-wrap items-center gap-1 rounded-t-lg border border-line bg-paper-dim px-2 py-1.5">
         <BotonEstilo
-          activo={editor.isActive("paragraph")}
-          onClick={() => editor.chain().focus().setParagraph().run()}
+          activo={!editor.isActive("estiloTexto")}
+          onClick={() => aplicarEstilo(null)}
         >
           Párrafo
         </BotonEstilo>
         <BotonEstilo
-          activo={editor.isActive("heading", { level: 2 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()}
+          activo={editor.isActive("estiloTexto", { tipo: "titulo" })}
+          onClick={() => aplicarEstilo("titulo")}
         >
           Título
         </BotonEstilo>
         <BotonEstilo
-          activo={editor.isActive("heading", { level: 3 })}
-          onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()}
+          activo={editor.isActive("estiloTexto", { tipo: "subtitulo" })}
+          onClick={() => aplicarEstilo("subtitulo")}
         >
           Subtítulo
         </BotonEstilo>
         <BotonEstilo
-          activo={editor.isActive("blockquote")}
-          onClick={() => editor.chain().focus().toggleBlockquote().run()}
+          activo={editor.isActive("estiloTexto", { tipo: "comentado" })}
+          onClick={() => aplicarEstilo("comentado")}
         >
           Comentado
         </BotonEstilo>

@@ -667,6 +667,7 @@ export interface Database {
           publicado: boolean;
           publicado_en: string | null;
           tags: string[];
+          destacado_home: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -683,6 +684,7 @@ export interface Database {
           publicado?: boolean;
           publicado_en?: string | null;
           tags?: string[];
+          destacado_home?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -699,6 +701,7 @@ export interface Database {
           publicado?: boolean;
           publicado_en?: string | null;
           tags?: string[];
+          destacado_home?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -717,6 +720,7 @@ export interface Database {
           preguntas_frecuentes: Json;
           imagen_portada: string | null;
           publicado: boolean;
+          destacado_home: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -732,6 +736,7 @@ export interface Database {
           preguntas_frecuentes?: Json;
           imagen_portada?: string | null;
           publicado?: boolean;
+          destacado_home?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -747,6 +752,7 @@ export interface Database {
           preguntas_frecuentes?: Json;
           imagen_portada?: string | null;
           publicado?: boolean;
+          destacado_home?: boolean;
           created_at?: string;
           updated_at?: string;
         };

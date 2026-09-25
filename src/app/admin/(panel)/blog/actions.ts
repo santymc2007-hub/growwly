@@ -7,9 +7,24 @@ import { slugify } from "@/lib/slugify";
 import { uploadBlogPhoto, deleteBlogPhoto } from "@/lib/supabase/blog-storage";
 
 const MAX_FAQS = 6;
+const MAX_DESTACADOS_HOME = 4;
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
+}
+
+/** Máximo 4 entradas marcadas como destacadas en home a la vez. */
+async function superaLimiteDestacados(
+  supabase: ReturnType<typeof createAdminClient>,
+  excludeId?: string,
+): Promise<boolean> {
+  let query = supabase
+    .from("blog_posts")
+    .select("id", { count: "exact", head: true })
+    .eq("destacado_home", true);
+  if (excludeId) query = query.neq("id", excludeId);
+  const { count } = await query;
+  return (count ?? 0) >= MAX_DESTACADOS_HOME;
 }
 
 function readPostFields(formData: FormData) {
@@ -39,6 +54,7 @@ function readPostFields(formData: FormData) {
     publicado: formData.get("publicado") === "on",
     preguntas_frecuentes: faqs,
     tags,
+    destacado_home: formData.get("destacado_home") === "on",
   };
 }
 
@@ -51,6 +67,15 @@ export async function createPost(formData: FormData) {
   }
 
   const supabase = createAdminClient();
+
+  if (fields.destacado_home && (await superaLimiteDestacados(supabase))) {
+    redirect(
+      `/admin/blog/nuevo?error=${encodeURIComponent(
+        `Ya hay ${MAX_DESTACADOS_HOME} entradas destacadas en la home. Quita una antes de añadir otra.`,
+      )}`,
+    );
+  }
+
   const slug = slugify(fields.titulo);
 
   let imagenPortada: string | null = null;
@@ -79,6 +104,7 @@ export async function createPost(formData: FormData) {
     publicado_en: fields.publicado ? new Date().toISOString() : null,
     imagen_portada: imagenPortada,
     tags: fields.tags,
+    destacado_home: fields.destacado_home,
   });
 
   if (error) {
@@ -99,6 +125,17 @@ export async function updatePost(id: string, formData: FormData) {
   }
 
   const supabase = createAdminClient();
+
+  if (
+    fields.destacado_home &&
+    (await superaLimiteDestacados(supabase, id))
+  ) {
+    redirect(
+      `/admin/blog/${id}/editar?error=${encodeURIComponent(
+        `Ya hay ${MAX_DESTACADOS_HOME} entradas destacadas en la home. Quita una antes de añadir otra.`,
+      )}`,
+    );
+  }
 
   const { data: actual } = await supabase
     .from("blog_posts")
@@ -136,6 +173,7 @@ export async function updatePost(id: string, formData: FormData) {
       publicado: fields.publicado,
       imagen_portada: imagenPortada,
       tags: fields.tags,
+      destacado_home: fields.destacado_home,
       ...(sePublicaPorPrimeraVez && {
         publicado_en: new Date().toISOString(),
       }),

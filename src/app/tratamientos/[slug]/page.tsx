@@ -198,7 +198,7 @@ export default async function TratamientoPage({
 
           <div className="px-6 py-8 sm:px-10">
             <div className="lg:flex lg:items-start lg:gap-10">
-              <div className="lg:max-w-2xl lg:flex-1">
+              <div className="lg:max-w-3xl lg:flex-1">
                 <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
                   <Link href="/tratamientos" className="hover:text-cyan">
                     Tratamientos
