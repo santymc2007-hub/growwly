@@ -1,5 +1,4 @@
 import ReactMarkdown from "react-markdown";
-import DOMPurify from "isomorphic-dompurify";
 
 const PROSE_CLASS =
   "prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan prose-blockquote:font-serif prose-blockquote:text-lg prose-blockquote:not-italic prose-blockquote:text-ink";
@@ -35,9 +34,20 @@ export function esHtml(contenido: string): boolean {
  * etiqueta HTML?) en vez de depender de una columna nueva o de
  * migrar datos: si es HTML se sanea con DOMPurify y se pinta tal
  * cual; si no, sigue pasando por ReactMarkdown como siempre.
+ *
+ * isomorphic-dompurify se importa de forma perezosa (solo cuando el
+ * contenido es realmente HTML) porque, al cargarse, inicializa un
+ * jsdom completo — un peso y una superficie de fallo que no tiene
+ * sentido pagar en cada ficha de tratamiento o post cuando, de
+ * momento, ninguno usa todavía el HTML del editor nuevo.
  */
-export function ContenidoEnriquecido({ contenido }: { contenido: string }) {
+export async function ContenidoEnriquecido({
+  contenido,
+}: {
+  contenido: string;
+}) {
   if (esHtml(contenido)) {
+    const { default: DOMPurify } = await import("isomorphic-dompurify");
     const limpio = DOMPurify.sanitize(contenido, {
       ALLOWED_TAGS,
       ALLOWED_ATTR,
