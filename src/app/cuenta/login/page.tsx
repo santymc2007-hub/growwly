@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { iniciarSesionPaciente } from "./actions";
 import { AuthCard } from "@/components/auth/auth-card";
+import { BotonGoogle } from "@/components/auth/boton-google";
 
 type SearchParams = { error?: string; claim?: string };
 
@@ -22,9 +23,11 @@ export default async function CuentaLoginPage({
         </p>
       )}
 
+      <BotonGoogle claim={claim} origen="login" />
+
       <form
         action={iniciarSesionPaciente}
-        className="mt-8 flex flex-col gap-4"
+        className="mt-6 flex flex-col gap-4"
       >
         {claim && <input type="hidden" name="claim" value={claim} />}
         <div>

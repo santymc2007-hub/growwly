@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { BotonGoogle } from "@/components/auth/boton-google";
 import { registrarPaciente } from "./actions";
 import { AuthCard } from "@/components/auth/auth-card";
 
@@ -22,7 +23,9 @@ export default async function RegistroPage({
           : "Para guardar tu análisis y pedir presupuesto a clínicas."}
       </p>
 
-      <form action={registrarPaciente} className="mt-8 flex flex-col gap-4">
+      <BotonGoogle claim={claim} origen="registro" />
+
+      <form action={registrarPaciente} className="mt-6 flex flex-col gap-4">
         {claim && <input type="hidden" name="claim" value={claim} />}
         <div className="grid grid-cols-2 gap-4">
           <div>
