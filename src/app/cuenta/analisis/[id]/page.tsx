@@ -12,7 +12,7 @@ import { InformeCapilarVista } from "@/components/informe/informe-capilar";
 import { leerInforme } from "@/lib/informe/sanear";
 import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
 import { calcularFiabilidad } from "@/lib/informe/fiabilidad";
-import { calcularMatchPrevio } from "@/lib/informe/match-previo";
+import { contarClinicasParaFlujo } from "@/lib/informe/clinicas-flujo";
 
 type Params = { id: string };
 
@@ -54,7 +54,7 @@ export default async function ResultadoAnalisisPage({
   if (informe) {
     const admin = createAdminClient();
     const [{ data: profile }, fotos] = await Promise.all([
-      supabase.from("profiles").select("nombre, ciudad").eq("id", user.id).maybeSingle(),
+      supabase.from("profiles").select("nombre").eq("id", user.id).maybeSingle(),
       Promise.all(
         informe.fotos.map(async (f) => ({
           url: await urlFirmadaFoto(admin, f.ruta),
@@ -63,7 +63,7 @@ export default async function ResultadoAnalisisPage({
         })),
       ),
     ]);
-    const match = await calcularMatchPrevio(admin, informe.flujo, profile?.ciudad ?? null);
+    const clinicasDisponibles = await contarClinicasParaFlujo(admin, informe.flujo);
     const fecha = new Date(estudio.created_at).toLocaleDateString("es-ES", {
       day: "numeric",
       month: "long",
@@ -86,7 +86,7 @@ export default async function ResultadoAnalisisPage({
             contenido={CONTENIDO_FLUJOS[informe.flujo]}
             fiabilidad={calcularFiabilidad(informe)}
             fotos={fotos}
-            match={match}
+            clinicasDisponibles={clinicasDisponibles}
           />
         </div>
       </main>

@@ -42,7 +42,7 @@ export function InformeCapilarVista({
   contenido,
   fiabilidad,
   fotos,
-  match,
+  clinicasDisponibles,
 }: {
   estudioId: string;
   fecha: string;
@@ -51,7 +51,8 @@ export function InformeCapilarVista({
   contenido: ContenidoFlujo;
   fiabilidad: Fiabilidad;
   fotos: FotoConUrl[];
-  match: { pct: number; clinicas: number } | null;
+  /** Clínicas de Growwly que tratan este tipo de caso (no es un match). */
+  clinicasDisponibles: number;
 }) {
   const hrefPresupuesto = `/cuenta/solicitud/nueva?estudio=${estudioId}`;
   const metrica = contenido.rec.metrica(informe);
@@ -383,16 +384,17 @@ export function InformeCapilarVista({
             </ul>
           </section>
 
-          {/* Match Score + CTA */}
+          {/* Clínicas que tratan este caso + CTA. No hay Match Score
+              todavía: se calcula con el formulario, que va después. */}
           <section className="flex flex-col gap-4 rounded-3xl bg-paper-dim p-7">
-            {match && (
+            {clinicasDisponibles > 0 && (
               <div className="flex items-center gap-4">
-                <span className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-full bg-white font-display text-2xl font-extrabold text-teal-dark shadow-sm">
-                  {match.pct}%
+                <span className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-full bg-white font-display text-3xl font-extrabold text-teal-dark shadow-sm">
+                  {clinicasDisponibles}
                 </span>
                 <p className="text-[15px] leading-relaxed text-sage-ink">
-                  <strong className="font-semibold">Tu Match Score es del {match.pct}%.</strong>{" "}
-                  {contenido.match.texto(match.clinicas)}
+                  <strong className="font-semibold">{contenido.clinicas.texto(clinicasDisponibles)}</strong>{" "}
+                  Con el formulario elegiremos las {Math.min(5, clinicasDisponibles)} que mejor encajen contigo.
                 </p>
               </div>
             )}
@@ -400,7 +402,7 @@ export function InformeCapilarVista({
               href={hrefPresupuesto}
               className="press flex h-[52px] items-center justify-center rounded-full bg-yellow font-display text-[17px] font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
             >
-              {contenido.match.boton}
+              {contenido.clinicas.boton}
             </Link>
             <p className="flex items-center justify-center gap-1.5 text-center text-[13px] text-ink-soft">
               <Lock className="h-3.5 w-3.5" aria-hidden /> Gratis y sin compromiso. Tus datos solo llegan a esas clínicas.

@@ -68,8 +68,14 @@ export type ContenidoFlujo = {
   };
   esperar: { titulo: string; pasos: { when: string; what: string }[] };
   cta: { titulo: string; boton: string };
-  match: { texto: (n: number) => string; boton: string };
-  /** Técnicas del catálogo (clinic-options) para el Match Score previo. */
+  /**
+   * Bloque de la columna derecha. NO es un Match Score: el match real
+   * solo se puede calcular con los datos del formulario de presupuesto,
+   * que va después del informe. Aquí solo se dice cuántas clínicas
+   * tratan este tipo de caso.
+   */
+  clinicas: { texto: (n: number) => string; boton: string };
+  /** Técnicas del catálogo (clinic-options) que tratan este flujo. */
   tecnicas: string[];
 };
 
@@ -79,8 +85,9 @@ function conNombre(nombre: string | null, resto: string): string {
     : resto.charAt(0).toUpperCase() + resto.slice(1);
 }
 
-const clinicas = (n: number, que: string) =>
-  `Hemos encontrado ${n} ${n === 1 ? "clínica" : "clínicas"} ${que}.`;
+/** "3 clínicas de Growwly tratan casos como el tuyo." */
+const clinicas = (n: number, singular: string, plural: string) =>
+  `${n === 1 ? "clínica" : "clínicas"} de Growwly ${n === 1 ? singular : plural}.`;
 
 const TRATAMIENTOS_POSIBLES_TOPICO_INYECTABLE: Tile = {
   label: "Tratamientos posibles",
@@ -190,7 +197,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Recibe hasta 5 presupuestos de clínicas que encajan contigo", boton: "Solicitar presupuesto" },
-    match: { texto: (n) => clinicas(n, "que se ajustan a tu caso"), boton: "Pedir presupuesto" },
+    clinicas: { texto: (n) => clinicas(n, "trata casos como el tuyo", "tratan casos como el tuyo"), boton: "Pedir presupuesto" },
     tecnicas: ["Injerto FUE", "Injerto DHI", "Injerto sin afeitado", "Minoxidil", "Finasteride / Dutasteride", "PRP"],
   },
 
@@ -253,7 +260,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    match: { texto: (n) => clinicas(n, "con tratamientos para alopecia femenina"), boton: "Pedir consulta" },
+    clinicas: { texto: (n) => clinicas(n, "trata la alopecia femenina", "tratan la alopecia femenina"), boton: "Pedir consulta" },
     tecnicas: ["Consulta tricológica", "Analítica capilar", "Minoxidil", "PRP", "Mesoterapia capilar"],
   },
 
@@ -315,7 +322,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    match: { texto: (n) => clinicas(n, "con consulta capilar que se ajustan a tu caso"), boton: "Pedir consulta" },
+    clinicas: { texto: (n) => clinicas(n, "tiene consulta capilar para tu caso", "tienen consulta capilar para tu caso"), boton: "Pedir consulta" },
     tecnicas: ["Consulta tricológica", "Analítica capilar", "Minoxidil", "Mesoterapia capilar", "PRP"],
   },
 
@@ -378,7 +385,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide cita a las 5 clínicas que mejor encajan contigo", boton: "Solicitar cita" },
-    match: { texto: (n) => clinicas(n, "con consulta capilar cerca de ti"), boton: "Pedir cita" },
+    clinicas: { texto: (n) => clinicas(n, "tiene consulta capilar para tu caso", "tienen consulta capilar para tu caso"), boton: "Pedir cita" },
     tecnicas: ["Consulta tricológica", "Analítica capilar"],
   },
 
@@ -443,7 +450,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    match: { texto: (n) => clinicas(n, "con consulta capilar que se ajustan a tu caso"), boton: "Pedir consulta" },
+    clinicas: { texto: (n) => clinicas(n, "tiene consulta capilar para tu caso", "tienen consulta capilar para tu caso"), boton: "Pedir consulta" },
     tecnicas: ["Consulta tricológica", "Minoxidil", "Mesoterapia capilar", "PRP"],
   },
 
@@ -504,7 +511,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    match: { texto: (n) => clinicas(n, "con tricología que se ajustan a tu caso"), boton: "Pedir consulta" },
+    clinicas: { texto: (n) => clinicas(n, "tiene consulta de tricología", "tienen consulta de tricología"), boton: "Pedir consulta" },
     tecnicas: ["Consulta tricológica", "Analítica capilar"],
   },
 
@@ -559,7 +566,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide una revisión a las 5 clínicas que mejor encajan contigo", boton: "Solicitar revisión" },
-    match: { texto: (n) => clinicas(n, "que hacen revisiones capilares cerca de ti"), boton: "Pedir revisión" },
+    clinicas: { texto: (n) => clinicas(n, "hace revisiones capilares", "hacen revisiones capilares"), boton: "Pedir revisión" },
     tecnicas: ["Consulta tricológica"],
   },
 };
