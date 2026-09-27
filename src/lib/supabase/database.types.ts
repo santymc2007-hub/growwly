@@ -348,6 +348,8 @@ export interface Database {
           estado: string;
           fotos_adicionales: string[];
           error_detalle: string | null;
+          flujo: string | null;
+          informe: Json | null;
           created_at: string;
         };
         Insert: {
@@ -365,6 +367,8 @@ export interface Database {
           estado?: string;
           fotos_adicionales?: string[];
           error_detalle?: string | null;
+          flujo?: string | null;
+          informe?: Json | null;
           created_at?: string;
         };
         Update: {
@@ -382,6 +386,8 @@ export interface Database {
           estado?: string;
           fotos_adicionales?: string[];
           error_detalle?: string | null;
+          flujo?: string | null;
+          informe?: Json | null;
           created_at?: string;
         };
         Relationships: [];

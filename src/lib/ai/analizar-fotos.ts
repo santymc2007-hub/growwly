@@ -1,34 +1,72 @@
+import { sanearRespuestaIA, type InformeSinRutas } from "@/lib/informe/sanear";
+
 const SYSTEM_PROMPT = `Eres un asistente que da una PRIMERA IMPRESIÓN VISUAL orientativa
 sobre el aspecto del cabello y cuero cabelludo a partir de fotos, para un
 directorio de clínicas capilares (Growwly). Esto NO es un diagnóstico médico
-y no debes presentarlo como tal.
+y no debes presentarlo como tal. Solo sabes lo que se ve en las fotos: no
+conoces la edad, el sexo, los antecedentes ni las causas, así que no las
+supongas ni las menciones.
 
-Reglas estrictas:
-- Nunca uses lenguaje de diagnóstico definitivo ("tienes alopecia X").
-  Usa siempre lenguaje orientativo ("por lo que se aprecia en las fotos...",
-  "el patrón visible podría encajar con...").
-- Si el patrón de pérdida de cabello visible se parece a una alopecia
-  androgenética típica en un hombre, puedes situarlo de forma orientativa
-  en un rango aproximado de la escala Norwood-Hamilton (ej. "Norwood II-III"),
-  dejando claro que es una estimación visual, no clínica.
-- Cuantas más fotos y ángulos tengas, más fino puede ser el matiz, pero
-  puede que solo tengas una o dos — haz lo que puedas con lo disponible.
-- Si las fotos no muestran un patrón de pérdida de cabello relevante, o la
-  calidad/ángulo no permite valorarlo, dilo con claridad y no fuerces una
-  estimación.
-- Nunca alarmes ni uses un tono negativo. Tono cercano, tranquilizador,
-  profesional.
-- Termina siempre recomendando una consulta presencial con un especialista
-  para una valoración real.
-- Responde ÚNICAMENTE con un JSON válido (sin texto antes ni después, sin
-  backticks) con esta forma exacta:
-  {
-    "resultado_texto": "3 a 5 frases en español con la observación orientativa",
-    "norwood_estimado": "Norwood II-III" o null si no aplica o no es concluyente,
-    "es_alopecia_tratable": true, false, o null si no está claro — true si el
-      patrón observado es de un tipo que normalmente se abordaría con las
-      técnicas de este directorio (injertos, mesoterapia, PRP...)
-  }`;
+Tu trabajo es clasificar lo que se ve en UNO de estos 7 flujos:
+- "alopecia_androgenetica_masculina": entradas y/o coronilla (vértex) con
+  pérdida, patrón típico masculino. Grado en escala Norwood: "I", "II",
+  "III", "IV", "V", "VI" o "VII".
+- "alopecia_androgenetica_femenina": raya central ensanchada y menos
+  volumen arriba, con la línea frontal conservada. Grado en escala Ludwig:
+  "I", "II" o "III".
+- "efluvio_telogeno": pérdida de densidad difusa y repartida por toda la
+  cabeza, sin zonas calvas ni patrón claro. Grado: "Leve", "Moderada" o
+  "Intensa".
+- "alopecia_areata": una o varias zonas redondas sin pelo, de bordes bien
+  definidos. Grado: "Placa única", "Varias placas" o "Extensa".
+- "alopecia_por_traccion": pérdida en el borde de la frente y las sienes,
+  con pelo fino o roto en esa línea, típica de peinados tirantes. Grado:
+  "Inicial" o "Avanzada".
+- "cuero_cabelludo": sin pérdida importante de pelo pero con descamación,
+  escamas o rojez visibles en la piel. Grado: "Leve", "Moderada" o
+  "Intensa".
+- "sin_signos": densidad normal, sin nada relevante. Grado: "Sin signos" o
+  "Signos leves".
+
+Reglas:
+- Si dudas entre dos flujos, elige el que mejor encaje con el patrón visible.
+  Si la calidad no permite ver nada, usa "sin_signos" con grado "Sin signos"
+  y dilo en "detalle".
+- Intensidad de cada zona (entradas, frontal, media, coronilla, raya): una de
+  "conservada", "leve", "moderada" o "marcada". "raya" es la raya central.
+- "zona_donante" (nuca): "buena", "media", "limitada" o "no_valorable" si no
+  hay ninguna foto donde se vea.
+- "placas": solo en alopecia areata, número de placas visibles; si no, null.
+- "candidato_injerto": solo en alopecia androgenética masculina ("si",
+  "a_valorar" o "no", según grado y zona donante); si no, null.
+- "observaciones": 4 frases MUY cortas (máx. 8 palabras) de lo que se ve,
+  cada una con un "tono": "conservada", "leve", "moderada", "marcada" o
+  "donante" (para la nuca).
+- "fotos": una entrada por foto, en el mismo orden en que te llegan, con su
+  "indice" (empezando en 1), el "angulo" que muestra ("frontal",
+  "coronilla", "donante", "perfil_derecho", "perfil_izquierdo", "raya" u
+  "otra") y su "calidad" ("buena", "mejorable" o "mala") según luz, enfoque
+  y si se ve bien el cuero cabelludo.
+- "detalle": una frase corta (máx. 14 palabras, en minúscula) que describa
+  dónde está la pérdida, p. ej. "entradas marcadas y pérdida inicial en coronilla".
+- "resultado_texto": 3 a 4 frases en español, tono orientativo y
+  tranquilizador ("el patrón visible podría encajar con..."), para que una
+  clínica entienda el caso. Nunca lenguaje de diagnóstico definitivo.
+
+Responde ÚNICAMENTE con un JSON válido (sin texto antes ni después, sin
+backticks) con esta forma exacta:
+{
+  "flujo": "...",
+  "grado": "...",
+  "detalle": "...",
+  "zonas": { "entradas": "...", "frontal": "...", "media": "...", "coronilla": "...", "raya": "..." },
+  "zona_donante": "...",
+  "placas": null,
+  "candidato_injerto": null,
+  "observaciones": [ { "texto": "...", "tono": "..." } ],
+  "fotos": [ { "indice": 1, "angulo": "...", "calidad": "..." } ],
+  "resultado_texto": "..."
+}`;
 
 export type FotoParaAnalizar = {
   /** Etiqueta legible: "Vista frontal", "Foto adicional 1", etc. */
@@ -41,6 +79,8 @@ export type ResultadoAnalisis = {
   resultado_texto: string;
   norwood_estimado: string | null;
   es_alopecia_tratable: boolean | null;
+  /** Informe estructurado por flujo, sin las rutas de las fotos. */
+  informe: InformeSinRutas;
 };
 
 export async function analizarFotosCapilares(
@@ -65,13 +105,13 @@ export async function analizarFotosCapilares(
       }
   > = [];
 
-  for (const foto of fotos) {
-    content.push({ type: "text", text: foto.etiqueta });
+  fotos.forEach((foto, i) => {
+    content.push({ type: "text", text: `Foto ${i + 1} (${foto.etiqueta})` });
     content.push({
       type: "image",
       source: { type: "base64", media_type: foto.mediaType, data: foto.base64 },
     });
-  }
+  });
   content.push({
     type: "text",
     text: `Analiza estas ${fotos.length} foto(s) según las reglas indicadas y responde solo con el JSON.`,
@@ -86,10 +126,9 @@ export async function analizarFotosCapilares(
     },
     body: JSON.stringify({
       model: "claude-sonnet-5",
-      // 500 se quedaba corto y truncaba el JSON a mitad de frase en
-      // cuanto había varias fotos que comentar — el texto de la
-      // observación por sí solo ya puede rondar esa cifra.
-      max_tokens: 1024,
+      // El JSON estructurado (zonas, observaciones, una entrada por foto)
+      // es bastante más largo que el antiguo resultado_texto suelto.
+      max_tokens: 2048,
       system: SYSTEM_PROMPT,
       messages: [{ role: "user", content }],
     }),
@@ -113,19 +152,24 @@ export async function analizarFotosCapilares(
     .replace(/\s*```$/, "")
     .trim();
 
+  let parsed: unknown;
   try {
-    const parsed = JSON.parse(raw);
-    return {
-      resultado_texto: String(parsed.resultado_texto ?? ""),
-      norwood_estimado: parsed.norwood_estimado ?? null,
-      es_alopecia_tratable:
-        typeof parsed.es_alopecia_tratable === "boolean"
-          ? parsed.es_alopecia_tratable
-          : null,
-    };
+    parsed = JSON.parse(raw);
   } catch {
     throw new Error(
       `La IA no devolvió un resultado interpretable. Respuesta cruda: ${raw.slice(0, 300)}`,
     );
   }
+
+  const { informe, resultadoTexto } = sanearRespuestaIA(parsed, fotos.length);
+
+  return {
+    resultado_texto: resultadoTexto,
+    // Se siguen rellenando los campos antiguos: los usan el listado de
+    // /cuenta, el asistente de solicitud y el resumen que ven las clínicas.
+    norwood_estimado:
+      informe.flujo === "alopecia_androgenetica_masculina" ? `Norwood ${informe.grado}` : null,
+    es_alopecia_tratable: informe.flujo !== "sin_signos",
+    informe,
+  };
 }

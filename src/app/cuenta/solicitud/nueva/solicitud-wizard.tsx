@@ -19,6 +19,8 @@ type Props = {
     "id" | "created_at" | "norwood_estimado" | "estado"
   >[];
   ciudadesConClinicas: string[];
+  /** Estudio que llega preseleccionado desde el botón del informe. */
+  estudioInicialId?: string | null;
 };
 
 const TOTAL_PASOS = 6;
@@ -41,6 +43,7 @@ export function SolicitudWizard({
   profile,
   estudios,
   ciudadesConClinicas,
+  estudioInicialId,
 }: Props) {
   const router = useRouter();
   const [paso, setPaso] = useState(1);
@@ -49,7 +52,9 @@ export function SolicitudWizard({
 
   const estudiosListos = estudios.filter((e) => e.estado === "listo");
   const [estudioId, setEstudioId] = useState<string | null>(
-    estudiosListos[0]?.id ?? null,
+    estudiosListos.find((e) => e.id === estudioInicialId)?.id ??
+      estudiosListos[0]?.id ??
+      null,
   );
 
   // Paso 1: Perfil Personal

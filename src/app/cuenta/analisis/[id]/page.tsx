@@ -7,6 +7,12 @@ import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { rangoUfsPorNorwood } from "@/lib/ai/rango-ufs";
 import { SiteHeader } from "@/components/site-header";
 import { BorrarEstudioButton } from "./borrar-estudio-button";
+import { FondoTextura } from "@/components/fondo-textura";
+import { InformeCapilarVista } from "@/components/informe/informe-capilar";
+import { leerInforme } from "@/lib/informe/sanear";
+import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
+import { calcularFiabilidad } from "@/lib/informe/fiabilidad";
+import { calcularMatchPrevio } from "@/lib/informe/match-previo";
 
 type Params = { id: string };
 
@@ -42,6 +48,51 @@ export default async function ResultadoAnalisisPage({
   // de que este estudio es suyo ya se hizo arriba). El nuevo formulario
   // de subida ya no distingue ángulos, así que la mayoría de estudios
   // solo tienen fotos en fotos_adicionales.
+  // Estudios nuevos: informe estructurado por flujo (7 plantillas).
+  // Los antiguos (sin `informe`) siguen con la vista sencilla de abajo.
+  const informe = estudio.estado === "listo" ? leerInforme(estudio.informe) : null;
+  if (informe) {
+    const admin = createAdminClient();
+    const [{ data: profile }, fotos] = await Promise.all([
+      supabase.from("profiles").select("nombre, ciudad").eq("id", user.id).maybeSingle(),
+      Promise.all(
+        informe.fotos.map(async (f) => ({
+          url: await urlFirmadaFoto(admin, f.ruta),
+          angulo: f.angulo,
+          calidad: f.calidad,
+        })),
+      ),
+    ]);
+    const match = await calcularMatchPrevio(admin, informe.flujo, profile?.ciudad ?? null);
+    const fecha = new Date(estudio.created_at).toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    return (
+      <main className="relative flex-1">
+        <FondoTextura />
+        <SiteHeader />
+        <div className="mx-auto max-w-[1400px] px-3 pb-10 pt-2 sm:px-6">
+          <div className="mb-3 flex justify-end">
+            <BorrarEstudioButton id={estudio.id} />
+          </div>
+          <InformeCapilarVista
+            estudioId={estudio.id}
+            fecha={fecha}
+            nombre={profile?.nombre ?? null}
+            informe={informe}
+            contenido={CONTENIDO_FLUJOS[informe.flujo]}
+            fiabilidad={calcularFiabilidad(informe)}
+            fotos={fotos}
+            match={match}
+          />
+        </div>
+      </main>
+    );
+  }
+
   const primeraFoto = estudio.foto_frontal ?? estudio.fotos_adicionales[0] ?? null;
   const fotoFrontalUrl = await urlFirmadaFoto(createAdminClient(), primeraFoto);
   const rangoUfs = rangoUfsPorNorwood(estudio.norwood_estimado);

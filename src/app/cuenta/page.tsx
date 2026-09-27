@@ -13,6 +13,8 @@ import {
   cerrarSesionPaciente,
 } from "./actions";
 import { BorrarEstudioButton } from "./analisis/[id]/borrar-estudio-button";
+import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
+import type { Flujo } from "@/lib/informe/tipos";
 import { BorrarSolicitudButton } from "./solicitud/[id]/borrar-solicitud-button";
 
 type SearchParams = { error?: string; guardado?: string; aviso?: string };
@@ -45,7 +47,7 @@ export default async function CuentaPage({
 
   const { data: estudios } = await supabase
     .from("estudios_capilares")
-    .select("id, estado, norwood_estimado, created_at")
+    .select("id, estado, norwood_estimado, flujo, created_at")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
@@ -363,7 +365,9 @@ export default async function CuentaPage({
                     >
                       <span className="text-ink">
                         {new Date(e.created_at).toLocaleDateString("es-ES")}
-                        {e.norwood_estimado && ` · ${e.norwood_estimado}`}
+                        {e.flujo && e.flujo in CONTENIDO_FLUJOS
+                          ? ` · ${CONTENIDO_FLUJOS[e.flujo as Flujo].etiqueta}`
+                          : e.norwood_estimado && ` · ${e.norwood_estimado}`}
                       </span>
                       <span className="text-xs text-ink-soft">
                         {e.estado === "listo"
