@@ -5,6 +5,12 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { notificarPacientePropuesta } from "@/lib/leads/notificar-paciente";
 import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
+import {
+  MAX_OPCIONES_CITA,
+  datetimeLocalMadridAIso,
+  type OpcionCita,
+} from "@/lib/leads/opciones-cita";
+import { notificarPacienteFechas } from "@/lib/leads/notificar-cita";
 
 /**
  * Desbloquea un lead para que la clínica vea el perfil completo del
@@ -163,8 +169,9 @@ export async function programarCita(token: string, formData: FormData) {
 
     const fechaCitaRaw = String(formData.get("fecha_cita") ?? "").trim();
     if (!fechaCitaRaw) return;
-    const fechaCita = new Date(fechaCitaRaw);
-    if (Number.isNaN(fechaCita.getTime())) return;
+    const fechaIso = datetimeLocalMadridAIso(fechaCitaRaw);
+    if (!fechaIso) return;
+    const fechaCita = new Date(fechaIso);
 
     const estadoActual = lead.estado as EstadoLead;
     const ahora = new Date().toISOString();
@@ -288,5 +295,69 @@ export async function marcarResultadoTratamiento(
     revalidatePath(`/leads/${token}`);
   } catch (e) {
     console.error("Error inesperado guardando el resultado del tratamiento:", e);
+  }
+}
+
+/**
+ * Tras ser elegida, la clínica propone hasta 3 fechas para la
+ * valoración y el paciente confirma una desde su cuenta
+ * ("seleccionado" -> "cita_pendiente"). Si el paciente pidió otras
+ * fechas, la clínica puede volver a proponer mientras siga en
+ * "cita_pendiente".
+ */
+export async function proponerFechasCita(token: string, formData: FormData) {
+  try {
+    const supabase = createAdminClient();
+
+    const { data: lead } = await supabase
+      .from("leads_clinica")
+      .select("id, solicitud_id, clinic_id, estado")
+      .eq("token", token)
+      .maybeSingle();
+    if (!lead) return;
+
+    const estadoActual = lead.estado as EstadoLead;
+    if (estadoActual !== "seleccionado" && estadoActual !== "cita_pendiente") return;
+
+    const opciones: OpcionCita[] = [];
+    for (let i = 1; i <= MAX_OPCIONES_CITA; i++) {
+      const valor = String(formData.get(`fecha_${i}`) ?? "").trim();
+      if (!valor) continue;
+      const fecha = datetimeLocalMadridAIso(valor);
+      if (!fecha) continue;
+      opciones.push({
+        fecha,
+        modalidad: formData.get(`modalidad_${i}`) === "videollamada" ? "videollamada" : "presencial",
+      });
+    }
+    if (opciones.length === 0) return;
+
+    const ahora = new Date().toISOString();
+    if (estadoActual === "seleccionado") {
+      if (!transicionValida(estadoActual, "cita_pendiente")) return;
+      await supabase
+        .from("leads_clinica")
+        .update({
+          estado: "cita_pendiente",
+          cita_pendiente_en: ahora,
+          opciones_cita: opciones,
+          otras_fechas_pedidas_en: null,
+        })
+        .eq("id", lead.id);
+    } else {
+      await supabase
+        .from("leads_clinica")
+        .update({ opciones_cita: opciones, otras_fechas_pedidas_en: null })
+        .eq("id", lead.id);
+    }
+
+    await notificarPacienteFechas(supabase, {
+      solicitudId: lead.solicitud_id,
+      clinicId: lead.clinic_id,
+    });
+
+    revalidatePath(`/leads/${token}`);
+  } catch (e) {
+    console.error("Error inesperado proponiendo fechas:", e);
   }
 }

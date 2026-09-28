@@ -7,6 +7,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { notificarClinicasDeSolicitud } from "@/lib/leads/notificar-clinicas";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
+import { leerOpcionesCita } from "@/lib/leads/opciones-cita";
+import { notificarClinicaCita } from "@/lib/leads/notificar-cita";
 
 export type DatosSolicitud = {
   estudioId: string | null;
@@ -306,4 +308,133 @@ export async function borrarSolicitud(id: string) {
     .eq("user_id", user.id);
 
   redirect("/cuenta");
+}
+
+/**
+ * Comprueba que la solicitud es del paciente logueado y devuelve el
+ * lead pedido (con el cliente admin, porque leads_clinica no tiene
+ * acceso por RLS). null si algo no cuadra.
+ */
+async function leadDelPaciente(solicitudId: string, leadId: string) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) redirect("/cuenta/login");
+
+  const { data: solicitud } = await supabase
+    .from("solicitudes_presupuesto")
+    .select("id")
+    .eq("id", solicitudId)
+    .eq("user_id", user.id)
+    .maybeSingle();
+  if (!solicitud) return null;
+
+  const admin = createAdminClient();
+  const { data: lead } = await admin
+    .from("leads_clinica")
+    .select("id, solicitud_id, clinic_id, estado, propuesta_vista_en, opciones_cita")
+    .eq("id", leadId)
+    .eq("solicitud_id", solicitudId)
+    .maybeSingle();
+  if (!lead) return null;
+
+  return { admin, lead };
+}
+
+/** El paciente abre una propuesta: deja de ser "Propuesta nueva". */
+export async function marcarPropuestaVista(solicitudId: string, leadId: string) {
+  const r = await leadDelPaciente(solicitudId, leadId);
+  if (!r || r.lead.propuesta_vista_en || r.lead.estado !== "propuesta_enviada") return;
+
+  await r.admin
+    .from("leads_clinica")
+    .update({ propuesta_vista_en: new Date().toISOString() })
+    .eq("id", r.lead.id);
+  await registrarEventoLead(r.admin, {
+    event: "proposal_viewed",
+    solicitudId,
+    leadId: r.lead.id,
+    clinicId: r.lead.clinic_id,
+  });
+  revalidatePath(`/cuenta/solicitud/${solicitudId}`);
+  revalidatePath("/cuenta");
+}
+
+/** "No, gracias": descarta esa propuesta sin liberar ningún dato. */
+export async function descartarPropuesta(solicitudId: string, leadId: string) {
+  const r = await leadDelPaciente(solicitudId, leadId);
+  if (!r || r.lead.estado !== "propuesta_enviada") return;
+  if (!transicionValida("propuesta_enviada", "no_seleccionado")) return;
+
+  const ahora = new Date().toISOString();
+  await r.admin
+    .from("leads_clinica")
+    .update({
+      estado: "no_seleccionado",
+      descartado_por_paciente_en: ahora,
+      propuesta_vista_en: r.lead.propuesta_vista_en ?? ahora,
+    })
+    .eq("id", r.lead.id);
+  await registrarEventoLead(r.admin, {
+    event: "lead_lost",
+    solicitudId,
+    leadId: r.lead.id,
+    clinicId: r.lead.clinic_id,
+    metadata: { motivo: "descartada_por_paciente" },
+  });
+  revalidatePath(`/cuenta/solicitud/${solicitudId}`);
+  revalidatePath("/cuenta");
+}
+
+/** El paciente confirma una de las fechas que propuso la clínica. */
+export async function confirmarCita(solicitudId: string, leadId: string, formData: FormData) {
+  const r = await leadDelPaciente(solicitudId, leadId);
+  if (!r || r.lead.estado !== "cita_pendiente") return;
+  if (!transicionValida("cita_pendiente", "cita_programada")) return;
+
+  const opciones = leerOpcionesCita(r.lead.opciones_cita);
+  const fecha = String(formData.get("fecha") ?? "");
+  const opcion = opciones.find((o) => o.fecha === fecha);
+  if (!opcion) return;
+
+  await r.admin
+    .from("leads_clinica")
+    .update({
+      estado: "cita_programada",
+      cita_programada_en: new Date().toISOString(),
+      fecha_cita: opcion.fecha,
+    })
+    .eq("id", r.lead.id);
+  await registrarEventoLead(r.admin, {
+    event: "appointment_created",
+    solicitudId,
+    leadId: r.lead.id,
+    clinicId: r.lead.clinic_id,
+    metadata: { modalidad: opcion.modalidad },
+  });
+  await notificarClinicaCita(r.admin, {
+    leadId: r.lead.id,
+    clinicId: r.lead.clinic_id,
+    tipo: "confirmada",
+    opcion,
+  });
+  revalidatePath(`/cuenta/solicitud/${solicitudId}`);
+}
+
+/** Ninguna fecha le va bien: la clínica tendrá que proponer otras. */
+export async function pedirOtrasFechas(solicitudId: string, leadId: string) {
+  const r = await leadDelPaciente(solicitudId, leadId);
+  if (!r || r.lead.estado !== "cita_pendiente") return;
+
+  await r.admin
+    .from("leads_clinica")
+    .update({ otras_fechas_pedidas_en: new Date().toISOString() })
+    .eq("id", r.lead.id);
+  await notificarClinicaCita(r.admin, {
+    leadId: r.lead.id,
+    clinicId: r.lead.clinic_id,
+    tipo: "otras_fechas",
+  });
+  revalidatePath(`/cuenta/solicitud/${solicitudId}`);
 }

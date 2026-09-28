@@ -27,7 +27,8 @@ export async function CabeceraCuenta({ userId, email }: { userId: string; email:
         "solicitud_id",
         solicitudes.map((s) => s.id),
       )
-      .eq("estado", "propuesta_enviada");
+      .eq("estado", "propuesta_enviada")
+      .is("propuesta_vista_en", null);
     propuestasNuevas = count ?? 0;
   }
 

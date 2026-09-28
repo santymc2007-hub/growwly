@@ -62,13 +62,13 @@ export default async function CuentaPage({
   // recibido el paciente y si ya eligió clínica.
   const infoPropuestasPorSolicitud = new Map<
     string,
-    { propuestasPendientes: number; clinicaElegida: boolean }
+    { propuestasPendientes: number; propuestasRecibidas: number; clinicaElegida: boolean }
   >();
   if (solicitudes && solicitudes.length > 0) {
     const admin = createAdminClient();
     const { data: leads } = await admin
       .from("leads_clinica")
-      .select("solicitud_id, estado")
+      .select("solicitud_id, estado, propuesta_vista_en")
       .in(
         "solicitud_id",
         solicitudes.map((s) => s.id),
@@ -78,9 +78,11 @@ export default async function CuentaPage({
       const estado = lead.estado as EstadoLead;
       const actual = infoPropuestasPorSolicitud.get(lead.solicitud_id) ?? {
         propuestasPendientes: 0,
+        propuestasRecibidas: 0,
         clinicaElegida: false,
       };
-      if (estado === "propuesta_enviada") actual.propuestasPendientes++;
+      if (estado === "propuesta_enviada") actual.propuestasRecibidas++;
+      if (estado === "propuesta_enviada" && !lead.propuesta_vista_en) actual.propuestasPendientes++;
       if (contactoLiberado(estado)) actual.clinicaElegida = true;
       infoPropuestasPorSolicitud.set(lead.solicitud_id, actual);
     }
@@ -441,6 +443,11 @@ export default async function CuentaPage({
                           {info.propuestasPendientes === 1
                             ? "propuesta nueva"
                             : "propuestas nuevas"}
+                        </span>
+                      ) : info && info.propuestasRecibidas > 0 ? (
+                        <span className="self-start rounded-full bg-paper-dim px-3 py-1 text-sm font-semibold text-teal-dark">
+                          {info.propuestasRecibidas}{" "}
+                          {info.propuestasRecibidas === 1 ? "propuesta recibida" : "propuestas recibidas"}
                         </span>
                       ) : (
                         <span className="self-start rounded-full bg-paper-dim px-3 py-1 text-sm font-medium text-ink-soft">

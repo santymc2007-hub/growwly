@@ -6,6 +6,7 @@ import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import { DesbloquearButton } from "@/app/leads/[token]/desbloquear-button";
 import { PropuestaForm } from "@/components/leads/propuesta-form";
 import { CitaSeguimiento } from "@/components/leads/cita-seguimiento";
+import { leerOpcionesCita } from "@/lib/leads/opciones-cita";
 import { FotoAmpliable } from "@/components/leads/foto-ampliable";
 import {
   PROGRESION_LABEL,
@@ -337,6 +338,8 @@ export async function LeadDetalle({ token }: { token: string }) {
         token={token}
         estado={estado}
         fechaCita={lead.fecha_cita}
+        opcionesCita={leerOpcionesCita(lead.opciones_cita)}
+        otrasFechasPedidas={Boolean(lead.otras_fechas_pedidas_en)}
         feedbackPuntuacion={lead.feedback_puntuacion}
         feedbackComentario={lead.feedback_comentario}
       />

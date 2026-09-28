@@ -502,6 +502,10 @@ export interface Database {
           feedback_comentario: string | null;
           feedback_recibido_en: string | null;
           recordatorio_feedback_enviado_en: string | null;
+          propuesta_vista_en: string | null;
+          descartado_por_paciente_en: string | null;
+          opciones_cita: Json;
+          otras_fechas_pedidas_en: string | null;
         };
         Insert: {
           id?: string;
@@ -525,6 +529,10 @@ export interface Database {
           feedback_comentario?: string | null;
           feedback_recibido_en?: string | null;
           recordatorio_feedback_enviado_en?: string | null;
+          propuesta_vista_en?: string | null;
+          descartado_por_paciente_en?: string | null;
+          opciones_cita?: Json;
+          otras_fechas_pedidas_en?: string | null;
         };
         Update: {
           id?: string;
@@ -548,6 +556,10 @@ export interface Database {
           feedback_comentario?: string | null;
           feedback_recibido_en?: string | null;
           recordatorio_feedback_enviado_en?: string | null;
+          propuesta_vista_en?: string | null;
+          descartado_por_paciente_en?: string | null;
+          opciones_cita?: Json;
+          otras_fechas_pedidas_en?: string | null;
         };
         Relationships: [];
       };
