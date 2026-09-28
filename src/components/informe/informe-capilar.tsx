@@ -1,9 +1,9 @@
-import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, ClipboardCheck, Droplet, Lock, Plus, ScanFace, Stethoscope } from "lucide-react";
+import { ArrowRight, ClipboardCheck, Droplet, Lock, Plus, ScanFace, Stethoscope } from "lucide-react";
 import { MapaCabeza, COLOR_INTENSIDAD } from "./mapa-cabeza";
+import { FotosEstudio } from "./fotos-estudio";
 import type { ContenidoFlujo, Tono } from "@/lib/informe/flujos";
-import { ETIQUETA_ANGULO, type Fiabilidad } from "@/lib/informe/fiabilidad";
+import type { Fiabilidad } from "@/lib/informe/fiabilidad";
 import type { AnguloFoto, CalidadFoto, InformeCapilar } from "@/lib/informe/tipos";
 
 export type FotoConUrl = { url: string | null; angulo: AnguloFoto; calidad: CalidadFoto };
@@ -329,56 +329,25 @@ export function InformeCapilarVista({
               </div>
             </dl>
             <p className="text-[15px] leading-relaxed text-ink">{fiabilidad.texto}</p>
-            {fiabilidad.nivel !== "Alta" && (
-              <Link
-                href="/analisis/nuevo"
+            {fiabilidad.faltan.length > 0 && (
+              <a
+                href="#fotos"
                 className="press inline-flex items-center gap-2 self-start rounded-full border-2 border-yellow px-5 py-2.5 text-sm font-semibold text-teal-dark transition hover:bg-yellow/10"
               >
-                <Plus className="h-4 w-4" aria-hidden /> Repetir con más fotos
-              </Link>
+                <Plus className="h-4 w-4" aria-hidden /> Añadir las fotos que faltan
+              </a>
             )}
           </section>
 
           {/* Fotos */}
-          <section className="flex flex-col gap-4 rounded-3xl border border-line p-7">
+          <section id="fotos" className="flex scroll-mt-6 flex-col gap-4 rounded-3xl border border-line p-7">
             <div className="flex flex-col gap-1">
               <h2 className="font-display text-[22px] font-extrabold text-teal-dark">Las fotos que nos has enviado</h2>
               <p className="text-sm leading-relaxed text-ink-soft">
                 Todo este informe sale de lo que se ve en estas imágenes. No es una prueba médica.
               </p>
             </div>
-            <ul className="flex flex-col gap-3.5">
-              {fotos.map((f, i) => (
-                <li key={i} className="flex items-center gap-3.5">
-                  <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl bg-paper-dim">
-                    {f.url && <Image src={f.url} alt="" fill sizes="64px" className="object-cover" />}
-                  </span>
-                  <span className="flex flex-col gap-0.5">
-                    <span className="text-[15px] font-semibold text-teal-dark">{ETIQUETA_ANGULO[f.angulo]}</span>
-                    {f.calidad === "buena" ? (
-                      <span className="flex items-center gap-1 text-[13px] text-sage-ink">
-                        <Check className="h-3.5 w-3.5" aria-hidden /> Se ve bien
-                      </span>
-                    ) : (
-                      <span className="text-[13px] text-[#8a5a00]">
-                        {f.calidad === "mala" ? "No se ve bien · no la hemos usado" : "Calidad mejorable"}
-                      </span>
-                    )}
-                  </span>
-                </li>
-              ))}
-              {fiabilidad.faltan.map((a) => (
-                <li key={a} className="flex items-center gap-3.5">
-                  <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border-2 border-dashed border-[#b9c9c4] text-teal-dark">
-                    <Plus className="h-5 w-5" aria-hidden />
-                  </span>
-                  <span className="flex flex-col gap-0.5">
-                    <span className="text-[15px] font-semibold text-teal-dark">{a}</span>
-                    <span className="text-[13px] text-[#8a5a00]">Falta · sube la fiabilidad</span>
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <FotosEstudio estudioId={estudioId} fotos={fotos} faltan={fiabilidad.faltan} />
           </section>
 
           {/* CTA de la columna derecha. Mensaje genérico a propósito: en
