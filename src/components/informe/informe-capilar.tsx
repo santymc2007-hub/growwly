@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, Check, ClipboardCheck, Droplet, Lock, Plus, ScanFace } from "lucide-react";
+import { ArrowRight, Check, ClipboardCheck, Droplet, Lock, Plus, ScanFace, Stethoscope } from "lucide-react";
 import { MapaCabeza, COLOR_INTENSIDAD } from "./mapa-cabeza";
 import type { ContenidoFlujo, Tono } from "@/lib/informe/flujos";
 import { ETIQUETA_ANGULO, type Fiabilidad } from "@/lib/informe/fiabilidad";
@@ -42,7 +42,6 @@ export function InformeCapilarVista({
   contenido,
   fiabilidad,
   fotos,
-  clinicasDisponibles,
 }: {
   estudioId: string;
   fecha: string;
@@ -51,8 +50,6 @@ export function InformeCapilarVista({
   contenido: ContenidoFlujo;
   fiabilidad: Fiabilidad;
   fotos: FotoConUrl[];
-  /** Clínicas de Growwly que tratan este tipo de caso (no es un match). */
-  clinicasDisponibles: number;
 }) {
   const hrefPresupuesto = `/cuenta/solicitud/nueva?estudio=${estudioId}`;
   const metrica = contenido.rec.metrica(informe);
@@ -384,25 +381,28 @@ export function InformeCapilarVista({
             </ul>
           </section>
 
-          {/* Clínicas que tratan este caso + CTA. No hay Match Score
-              todavía: se calcula con el formulario, que va después. */}
+          {/* CTA de la columna derecha. Mensaje genérico a propósito: en
+              este punto no sabemos la ciudad del paciente, así que no se
+              da ninguna cifra de clínicas ni de encaje. */}
           <section className="flex flex-col gap-4 rounded-3xl bg-paper-dim p-7">
-            {clinicasDisponibles > 0 && (
-              <div className="flex items-center gap-4">
-                <span className="flex h-[76px] w-[76px] shrink-0 items-center justify-center rounded-full bg-white font-display text-3xl font-extrabold text-teal-dark shadow-sm">
-                  {clinicasDisponibles}
-                </span>
-                <p className="text-[15px] leading-relaxed text-sage-ink">
-                  <strong className="font-semibold">{contenido.clinicas.texto(clinicasDisponibles)}</strong>{" "}
-                  Con el formulario elegiremos las {Math.min(5, clinicasDisponibles)} que mejor encajen contigo.
+            <div className="flex items-start gap-4">
+              <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-white text-teal-dark shadow-sm">
+                <Stethoscope className="h-7 w-7" aria-hidden />
+              </span>
+              <div className="flex flex-col gap-1">
+                <p className="font-display text-lg font-bold leading-snug text-teal-dark">
+                  Encuentra las mejores clínicas para tu caso
+                </p>
+                <p className="text-[15px] leading-relaxed text-ink-soft">
+                  Rellena el formulario en 2 minutos y elegiremos las 5 que mejor encajen contigo para pedirles presupuesto.
                 </p>
               </div>
-            )}
+            </div>
             <Link
               href={hrefPresupuesto}
               className="press flex h-[52px] items-center justify-center rounded-full bg-yellow font-display text-[17px] font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
             >
-              {contenido.clinicas.boton}
+              {contenido.rec.botonLateral}
             </Link>
             <p className="flex items-center justify-center gap-1.5 text-center text-[13px] text-ink-soft">
               <Lock className="h-3.5 w-3.5" aria-hidden /> Gratis y sin compromiso. Tus datos solo llegan a esas clínicas.
