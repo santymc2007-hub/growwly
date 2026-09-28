@@ -316,15 +316,15 @@ export function InformeCapilarVista({
             </div>
             <dl className="flex flex-col gap-2.5 border-y border-line py-4 text-[15px]">
               <div className="flex justify-between">
-                <dt className="text-ink-soft">Ángulos que pedimos</dt>
+                <dt className="text-ink-soft">Zonas que pedimos</dt>
                 <dd className={`font-semibold ${fiabilidad.faltan.length ? "text-[#8a5a00]" : "text-sage-ink"}`}>
-                  {fiabilidad.cubiertos} de {fiabilidad.total}
+                  {fiabilidad.cubiertas} de {fiabilidad.totalZonas}
                 </dd>
               </div>
               <div className="flex justify-between">
-                <dt className="text-ink-soft">Calidad de las fotos</dt>
+                <dt className="text-ink-soft">Fotos que se ven bien</dt>
                 <dd className={`font-semibold ${fiabilidad.calidad === "Buena" ? "text-sage-ink" : "text-[#8a5a00]"}`}>
-                  {fiabilidad.calidad}
+                  {fiabilidad.fotosBuenas} de {fiabilidad.totalFotos}
                 </dd>
               </div>
             </dl>
@@ -373,7 +373,7 @@ export function InformeCapilarVista({
                     <Plus className="h-5 w-5" aria-hidden />
                   </span>
                   <span className="flex flex-col gap-0.5">
-                    <span className="text-[15px] font-semibold text-teal-dark">{ETIQUETA_ANGULO[a]}</span>
+                    <span className="text-[15px] font-semibold text-teal-dark">{a}</span>
                     <span className="text-[13px] text-[#8a5a00]">Falta · sube la fiabilidad</span>
                   </span>
                 </li>

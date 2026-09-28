@@ -7,13 +7,16 @@ type RangoUfs = { desde: number; hasta: number };
  * valoración presencial (tricoscopia). Ver analizar-fotos.ts: la IA
  * solo estima el estadio visual, nunca cuenta folículos en la foto.
  */
+// Sept 2026: +500 UF en todos los estadios. Quienes probaron la
+// valoración veían las cifras bajas frente a lo que les dicen las
+// clínicas en consulta.
 const RANGO_POR_ESTADIO: Record<number, RangoUfs> = {
-  2: { desde: 800, hasta: 1200 },
-  3: { desde: 1200, hasta: 1600 },
-  4: { desde: 1800, hasta: 2200 },
-  5: { desde: 2200, hasta: 2800 },
-  6: { desde: 2800, hasta: 3500 },
-  7: { desde: 3500, hasta: 4500 },
+  2: { desde: 1300, hasta: 1700 },
+  3: { desde: 1700, hasta: 2100 },
+  4: { desde: 2300, hasta: 2700 },
+  5: { desde: 2700, hasta: 3300 },
+  6: { desde: 3300, hasta: 4000 },
+  7: { desde: 4000, hasta: 5000 },
 };
 
 const ROMANOS: Record<string, number> = {

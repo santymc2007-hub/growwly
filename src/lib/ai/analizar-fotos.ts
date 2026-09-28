@@ -43,10 +43,22 @@ Reglas:
   cada una con un "tono": "conservada", "leve", "moderada", "marcada" o
   "donante" (para la nuca).
 - "fotos": una entrada por foto, en el mismo orden en que te llegan, con su
-  "indice" (empezando en 1), el "angulo" que muestra ("frontal",
-  "coronilla", "donante", "perfil_derecho", "perfil_izquierdo", "raya" u
-  "otra") y su "calidad" ("buena", "mejorable" o "mala") según luz, enfoque
-  y si se ve bien el cuero cabelludo.
+  "indice" (empezando en 1), el "angulo" que muestra y su "calidad".
+  Ángulos (fíjate en la orientación de la cabeza, no en qué zona tiene
+  pérdida):
+    · "frontal": cabeza de frente, se ven la frente y la línea del pelo
+      de lado a lado, con las dos entradas a la vez (aunque sea de cerca).
+    · "perfil_derecho" / "perfil_izquierdo": cabeza de lado o en
+      diagonal, se ve UNA sola entrada/sien, a menudo con la oreja o la
+      patilla. Una foto de cerca de una sola entrada también es perfil.
+    · "coronilla": vista desde arriba o desde atrás-arriba, se ve el
+      remolino o la parte superior de la cabeza.
+    · "donante": nuca / parte trasera baja de la cabeza.
+    · "raya": vista desde arriba con la raya central abierta.
+    · "otra": solo si no encaja en ninguna de las anteriores.
+  Calidad: "buena" si se ve con claridad el pelo y el cuero cabelludo de
+  esa zona (no hace falta que sea perfecta), "mejorable" si hay poca luz,
+  desenfoque o el pelo tapa la zona, y "mala" solo si no se puede valorar.
 - "detalle": una frase corta (máx. 14 palabras, en minúscula) que describa
   dónde está la pérdida, p. ej. "entradas marcadas y pérdida inicial en coronilla".
 - "resultado_texto": 3 a 4 frases en español, tono orientativo y
