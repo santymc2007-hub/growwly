@@ -62,7 +62,7 @@ export function InformeCapilarVista({
     <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
       {/* Barra superior */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-5 sm:px-10">
-        <Link href="/cuenta" className="text-sm font-medium text-teal hover:text-teal-dark">
+        <Link href="/cuenta#analisis" className="text-sm font-medium text-teal hover:text-teal-dark">
           ← Volver a mi cuenta
         </Link>
         <span className="text-sm text-ink-soft">Informe orientativo · {fecha}</span>

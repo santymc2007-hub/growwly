@@ -170,7 +170,7 @@ export default async function SolicitudDetallePage({
 
         <div className="mt-8 flex items-center justify-between gap-4">
           <Link
-            href="/cuenta"
+            href="/cuenta#presupuestos"
             className="text-sm font-medium text-cyan hover:text-cyan-dark"
           >
             ← Volver a mi cuenta

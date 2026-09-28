@@ -6,7 +6,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { rangoUfsPorNorwood } from "@/lib/ai/rango-ufs";
 import { SiteHeader } from "@/components/site-header";
-import { BorrarEstudioButton } from "./borrar-estudio-button";
 import { CabeceraCuenta } from "@/components/cuenta/cabecera-cuenta";
 import { InformeCapilarVista } from "@/components/informe/informe-capilar";
 import { leerInforme } from "@/lib/informe/sanear";
@@ -75,9 +74,7 @@ export default async function ResultadoAnalisisPage({
           <div className="px-3 sm:px-0">
             <CabeceraCuenta userId={user.id} email={user.email ?? null} />
           </div>
-          <div className="mb-3 mt-6 flex justify-end">
-            <BorrarEstudioButton id={estudio.id} />
-          </div>
+          <div className="mt-6" />
           <InformeCapilarVista
             estudioId={estudio.id}
             fecha={fecha}
@@ -106,7 +103,7 @@ export default async function ResultadoAnalisisPage({
 
       <div className="mx-auto max-w-xl px-6 py-10">
         <Link
-          href="/cuenta"
+          href="/cuenta#analisis"
           className="text-sm font-medium text-cyan hover:text-cyan-dark"
         >
           ← Volver a mi cuenta
@@ -116,7 +113,6 @@ export default async function ResultadoAnalisisPage({
           <h1 className="font-display text-2xl text-teal-dark">
             Tu análisis orientativo
           </h1>
-          <BorrarEstudioButton id={estudio.id} />
         </div>
 
         {estudio.estado === "procesando" && (
