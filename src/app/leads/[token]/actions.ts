@@ -40,6 +40,7 @@ export async function desbloquearLead(token: string) {
   }
 
   revalidatePath(`/leads/${token}`);
+  revalidatePath("/clinica/solicitudes");
 }
 
 /**
@@ -141,6 +142,7 @@ export async function guardarPropuesta(token: string, formData: FormData) {
     }
 
     revalidatePath(`/leads/${token}`);
+    revalidatePath("/clinica/solicitudes");
   } catch (e) {
     console.error("Error inesperado guardando propuesta:", e);
   }
@@ -183,6 +185,7 @@ export async function programarCita(token: string, formData: FormData) {
         .update({ fecha_cita: fechaCita.toISOString() })
         .eq("id", lead.id);
       revalidatePath(`/leads/${token}`);
+    revalidatePath("/clinica/solicitudes");
       return;
     }
 
@@ -212,6 +215,7 @@ export async function programarCita(token: string, formData: FormData) {
     });
 
     revalidatePath(`/leads/${token}`);
+    revalidatePath("/clinica/solicitudes");
   } catch (e) {
     console.error("Error inesperado programando la cita:", e);
   }
@@ -246,6 +250,7 @@ export async function marcarCitaRealizada(token: string) {
     });
 
     revalidatePath(`/leads/${token}`);
+    revalidatePath("/clinica/solicitudes");
   } catch (e) {
     console.error("Error inesperado marcando la cita como realizada:", e);
   }
@@ -293,6 +298,7 @@ export async function marcarResultadoTratamiento(
     });
 
     revalidatePath(`/leads/${token}`);
+    revalidatePath("/clinica/solicitudes");
   } catch (e) {
     console.error("Error inesperado guardando el resultado del tratamiento:", e);
   }
@@ -357,6 +363,7 @@ export async function proponerFechasCita(token: string, formData: FormData) {
     });
 
     revalidatePath(`/leads/${token}`);
+    revalidatePath("/clinica/solicitudes");
   } catch (e) {
     console.error("Error inesperado proponiendo fechas:", e);
   }

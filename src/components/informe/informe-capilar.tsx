@@ -42,6 +42,7 @@ export function InformeCapilarVista({
   contenido,
   fiabilidad,
   fotos,
+  vistaClinica,
 }: {
   estudioId: string;
   fecha: string;
@@ -50,7 +51,10 @@ export function InformeCapilarVista({
   contenido: ContenidoFlujo;
   fiabilidad: Fiabilidad;
   fotos: FotoConUrl[];
+  /** La clínica ve el informe tal cual lo vio el paciente, sin llamadas a la acción ni edición de fotos. */
+  vistaClinica?: { volverHref: string };
 }) {
+  const esClinica = Boolean(vistaClinica);
   const hrefPresupuesto = `/cuenta/solicitud/nueva?estudio=${estudioId}`;
   const metrica = contenido.rec.metrica(informe);
   const tiles = contenido.rec.tiles(informe);
@@ -62,10 +66,15 @@ export function InformeCapilarVista({
     <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
       {/* Barra superior */}
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line px-6 py-5 sm:px-10">
-        <Link href="/cuenta#analisis" className="text-sm font-medium text-teal hover:text-teal-dark">
-          ← Volver a mi cuenta
+        <Link
+          href={vistaClinica?.volverHref ?? "/cuenta#analisis"}
+          className="text-sm font-medium text-teal hover:text-teal-dark"
+        >
+          {esClinica ? "← Volver a la solicitud" : "← Volver a mi cuenta"}
         </Link>
-        <span className="text-sm text-ink-soft">Informe orientativo · {fecha}</span>
+        <span className="text-sm text-ink-soft">
+          {esClinica ? "Valoración que vio el paciente" : "Informe orientativo"} · {fecha}
+        </span>
       </div>
 
       <div className="grid items-start gap-10 px-6 py-8 sm:px-10 sm:py-10 lg:grid-cols-[minmax(0,1fr)_400px]">
@@ -274,6 +283,7 @@ export function InformeCapilarVista({
               ))}
             </div>
 
+            {!esClinica && (
             <div className="flex flex-col items-start gap-4 pt-1 sm:flex-row sm:items-center sm:justify-between">
               <p className="font-display text-xl font-bold text-teal-dark">{contenido.rec.pregunta}</p>
               <Link
@@ -283,6 +293,7 @@ export function InformeCapilarVista({
                 {contenido.rec.boton}
               </Link>
             </div>
+            )}
           </section>
         </div>
 
@@ -329,7 +340,7 @@ export function InformeCapilarVista({
               </div>
             </dl>
             <p className="text-[15px] leading-relaxed text-ink">{fiabilidad.texto}</p>
-            {fiabilidad.faltan.length > 0 && (
+            {!esClinica && fiabilidad.faltan.length > 0 && (
               <a
                 href="#fotos"
                 className="press inline-flex items-center gap-2 self-start rounded-full border-2 border-yellow px-5 py-2.5 text-sm font-semibold text-teal-dark transition hover:bg-yellow/10"
@@ -342,14 +353,37 @@ export function InformeCapilarVista({
           {/* Fotos */}
           <section id="fotos" className="flex scroll-mt-6 flex-col gap-4 rounded-3xl border border-line p-7">
             <div className="flex flex-col gap-1">
-              <h2 className="font-display text-[22px] font-extrabold text-teal-dark">Las fotos que nos has enviado</h2>
+              <h2 className="font-display text-[22px] font-extrabold text-teal-dark">
+                {esClinica ? "Fotos del paciente" : "Las fotos que nos has enviado"}
+              </h2>
               <p className="text-sm leading-relaxed text-ink-soft">
                 Todo este informe sale de lo que se ve en estas imágenes. No es una prueba médica.
               </p>
             </div>
-            <FotosEstudio estudioId={estudioId} fotos={fotos} faltan={fiabilidad.faltan} />
+            {esClinica ? (
+              <div className="grid grid-cols-3 gap-2">
+                {fotos
+                  .filter((f) => f.url)
+                  .map((f) => (
+                    <a
+                      key={f.url}
+                      href={f.url!}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="relative aspect-square overflow-hidden rounded-xl border border-line bg-paper-dim"
+                    >
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img src={f.url!} alt={f.angulo} className="h-full w-full object-cover" />
+                    </a>
+                  ))}
+              </div>
+            ) : (
+              <FotosEstudio estudioId={estudioId} fotos={fotos} faltan={fiabilidad.faltan} />
+            )}
           </section>
 
+          {!esClinica && (
+          <>
           {/* CTA de la columna derecha. Mensaje genérico a propósito: en
               este punto no sabemos la ciudad del paciente, así que no se
               da ninguna cifra de clínicas ni de encaje. */}
@@ -377,6 +411,8 @@ export function InformeCapilarVista({
               <Lock className="h-3.5 w-3.5" aria-hidden /> Gratis y sin compromiso. Tus datos solo llegan a esas clínicas.
             </p>
           </section>
+          </>
+          )}
         </aside>
       </div>
 
@@ -404,6 +440,7 @@ export function InformeCapilarVista({
       </section>
 
       {/* CTA final */}
+      {!esClinica && (
       <div className="px-6 pb-10 sm:px-10">
         <section className="grid items-center gap-10 rounded-3xl bg-paper-dim p-8 sm:p-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="flex flex-col gap-4">
@@ -439,6 +476,7 @@ export function InformeCapilarVista({
           </ol>
         </section>
       </div>
+      )}
 
       <p className="border-t border-line px-6 py-6 text-[13px] leading-relaxed text-ink-soft sm:px-10">
         Esto es una primera impresión visual generada con inteligencia artificial, no un diagnóstico médico. Solo un

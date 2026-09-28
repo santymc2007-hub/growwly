@@ -3,7 +3,7 @@ import {
   Lock,
   Eye,
   Unlock,
-  ChevronRight,
+  ChevronDown,
   FileText,
   Trophy,
   XCircle,
@@ -22,8 +22,9 @@ import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
 import { type EstadoLead } from "@/lib/leads/estados-lead";
 import { construirPasosTimeline } from "@/lib/leads/linea-tiempo";
 import { EvolucionLead } from "@/components/leads/evolucion-lead";
+import { LeadDetalle } from "@/components/leads/lead-detalle";
 
-type SearchParams = { estado?: string };
+type SearchParams = { estado?: string; abierto?: string };
 
 const ESTADO_INFO: Record<
   EstadoLead,
@@ -135,7 +136,7 @@ export default async function SolicitudesClinicaPage({
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { estado: filtro } = await searchParams;
+  const { estado: filtro, abierto } = await searchParams;
   const { clinicId, profileId, clinicas } = await requireClinicaActiva();
 
   const supabase = await createClient();
@@ -236,9 +237,24 @@ export default async function SolicitudesClinicaPage({
               const { pasos, avisoNegativo } = mostrarEvolucion
                 ? construirPasosTimeline(lead)
                 : { pasos: [], avisoNegativo: null };
+              const estaAbierto = abierto === lead.token;
+              const params = new URLSearchParams();
+              if (filtro && filtro !== "todos") params.set("estado", filtro);
+              if (!estaAbierto) params.set("abierto", lead.token);
+              const qs = params.toString();
+              const hrefToggle = `/clinica/solicitudes${qs ? `?${qs}` : ""}${estaAbierto ? "" : `#lead-${lead.token}`}`;
               return (
-                <li key={lead.id} className={`rounded-2xl border p-4 transition ${info.tarjeta}`}>
-                  <Link href={`/leads/${lead.token}`} className="flex items-center gap-4">
+                <li
+                  key={lead.id}
+                  id={`lead-${lead.token}`}
+                  className={`scroll-mt-4 rounded-2xl border p-4 transition ${info.tarjeta}`}
+                >
+                  <Link
+                    href={hrefToggle}
+                    scroll={false}
+                    aria-expanded={estaAbierto}
+                    className="flex items-center gap-4"
+                  >
                     <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white shadow-sm">
                       <Icono className="h-5 w-5 text-teal-dark" aria-hidden />
                     </div>
@@ -257,11 +273,20 @@ export default async function SolicitudesClinicaPage({
                     >
                       {info.label}
                     </span>
-                    <ChevronRight className="h-5 w-5 shrink-0 text-ink-soft" aria-hidden />
+                    <ChevronDown
+                      className={`h-5 w-5 shrink-0 text-ink-soft transition-transform ${estaAbierto ? "rotate-180" : ""}`}
+                      aria-hidden
+                    />
                   </Link>
 
                   {mostrarEvolucion && (
                     <EvolucionLead pasos={pasos} avisoNegativo={avisoNegativo} />
+                  )}
+
+                  {estaAbierto && (
+                    <div className="mt-4 rounded-2xl bg-white p-5 sm:p-6">
+                      <LeadDetalle token={lead.token} embebido />
+                    </div>
                   )}
                 </li>
               );
