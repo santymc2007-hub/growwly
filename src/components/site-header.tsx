@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { MobileMenu } from "./mobile-menu";
 import { MenuTratamientos } from "./menu-tratamientos";
 import { cerrarSesionClinica } from "@/app/clinica/actions";
+import { cerrarSesionPaciente } from "@/app/cuenta/actions";
 
 export async function SiteHeader() {
   const supabase = await createClient();
@@ -13,6 +14,7 @@ export async function SiteHeader() {
   } = await supabase.auth.getUser();
 
   let esClinicaLogueada = false;
+  let esPacienteLogueado = false;
   if (user) {
     const { data: profile } = await supabase
       .from("profiles")
@@ -20,6 +22,7 @@ export async function SiteHeader() {
       .eq("id", user.id)
       .maybeSingle();
     esClinicaLogueada = profile?.role === "clinic";
+    esPacienteLogueado = profile?.role === "patient";
   }
 
   const { data: tratamientos } = await supabase
@@ -66,14 +69,25 @@ export async function SiteHeader() {
           >
             <Search size={18} aria-hidden />
           </Link>
-          <Link
-            href="/clinica/login"
-            className="press rounded-full border-2 border-yellow px-4 py-2 font-semibold text-teal-dark transition hover:bg-yellow/10"
-          >
-            Acceso Clínicas
-          </Link>
-          {esClinicaLogueada ? (
-            <form action={cerrarSesionClinica}>
+          {esPacienteLogueado ? (
+            // Un paciente con sesión no necesita "Acceso Clínicas": ese
+            // hueco pasa a ser su acceso a "Mi cuenta".
+            <Link
+              href="/cuenta"
+              className="press rounded-full border-2 border-yellow px-4 py-2 font-semibold text-teal-dark transition hover:bg-yellow/10"
+            >
+              Mi cuenta
+            </Link>
+          ) : (
+            <Link
+              href="/clinica/login"
+              className="press rounded-full border-2 border-yellow px-4 py-2 font-semibold text-teal-dark transition hover:bg-yellow/10"
+            >
+              Acceso Clínicas
+            </Link>
+          )}
+          {esClinicaLogueada || esPacienteLogueado ? (
+            <form action={esClinicaLogueada ? cerrarSesionClinica : cerrarSesionPaciente}>
               <button
                 type="submit"
                 className="press rounded-full bg-yellow px-4 py-2 font-semibold text-teal-dark transition hover:opacity-90"
@@ -90,7 +104,7 @@ export async function SiteHeader() {
             </Link>
           )}
         </nav>
-        <MobileMenu esClinicaLogueada={esClinicaLogueada} tratamientos={tratamientos ?? []} />
+        <MobileMenu esClinicaLogueada={esClinicaLogueada} esPacienteLogueado={esPacienteLogueado} tratamientos={tratamientos ?? []} />
       </div>
     </header>
   );

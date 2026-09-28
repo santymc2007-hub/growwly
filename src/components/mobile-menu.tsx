@@ -4,15 +4,18 @@ import Link from "next/link";
 import { useState } from "react";
 import { Menu, X, User, Store, LogOut, ChevronDown } from "lucide-react";
 import { cerrarSesionClinica } from "@/app/clinica/actions";
+import { cerrarSesionPaciente } from "@/app/cuenta/actions";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 
 type Tratamiento = { slug: string; nombre: string; categoria: string | null };
 
 export function MobileMenu({
   esClinicaLogueada = false,
+  esPacienteLogueado = false,
   tratamientos = [],
 }: {
   esClinicaLogueada?: boolean;
+  esPacienteLogueado?: boolean;
   tratamientos?: Tratamiento[];
 }) {
   const [abierto, setAbierto] = useState(false);
@@ -121,7 +124,17 @@ export function MobileMenu({
               Mi cuenta
             </Link>
             <div className="my-1 border-t border-line" aria-hidden />
-            {esClinicaLogueada ? (
+            {esPacienteLogueado ? (
+              <form action={cerrarSesionPaciente}>
+                <button
+                  type="submit"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-ink-soft/80 hover:bg-paper-dim hover:text-error"
+                >
+                  <LogOut size={15} aria-hidden />
+                  Cerrar sesión
+                </button>
+              </form>
+            ) : esClinicaLogueada ? (
               <form action={cerrarSesionClinica}>
                 <button
                   type="submit"

@@ -7,7 +7,7 @@ import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { rangoUfsPorNorwood } from "@/lib/ai/rango-ufs";
 import { SiteHeader } from "@/components/site-header";
 import { BorrarEstudioButton } from "./borrar-estudio-button";
-import { FondoTextura } from "@/components/fondo-textura";
+import { CabeceraCuenta } from "@/components/cuenta/cabecera-cuenta";
 import { InformeCapilarVista } from "@/components/informe/informe-capilar";
 import { leerInforme } from "@/lib/informe/sanear";
 import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
@@ -69,11 +69,13 @@ export default async function ResultadoAnalisisPage({
     });
 
     return (
-      <main className="relative flex-1">
-        <FondoTextura />
+      <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
         <SiteHeader />
-        <div className="mx-auto max-w-[1400px] px-3 pb-10 pt-2 sm:px-6">
-          <div className="mb-3 flex justify-end">
+        <div className="mx-auto max-w-[1400px] px-3 pb-10 pt-8 sm:px-6">
+          <div className="px-3 sm:px-0">
+            <CabeceraCuenta userId={user.id} email={user.email ?? null} />
+          </div>
+          <div className="mb-3 mt-6 flex justify-end">
             <BorrarEstudioButton id={estudio.id} />
           </div>
           <InformeCapilarVista
@@ -95,10 +97,14 @@ export default async function ResultadoAnalisisPage({
   const rangoUfs = rangoUfsPorNorwood(estudio.norwood_estimado);
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
 
-      <div className="mx-auto max-w-xl px-6 py-12">
+      <div className="mx-auto max-w-[1400px] px-6 pt-10">
+        <CabeceraCuenta userId={user.id} email={user.email ?? null} />
+      </div>
+
+      <div className="mx-auto max-w-xl px-6 py-10">
         <Link
           href="/cuenta"
           className="text-sm font-medium text-cyan hover:text-cyan-dark"

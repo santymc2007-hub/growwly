@@ -10,8 +10,8 @@ import {
   actualizarPerfil,
   cambiarEmail,
   cambiarPassword,
-  cerrarSesionPaciente,
 } from "./actions";
+import { CabeceraCuenta } from "@/components/cuenta/cabecera-cuenta";
 import { BorrarEstudioButton } from "./analisis/[id]/borrar-estudio-button";
 import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
 import type { Flujo } from "@/lib/informe/tipos";
@@ -92,47 +92,12 @@ export default async function CuentaPage({
   const anioActual = new Date().getFullYear();
   const anios = Array.from({ length: 77 }, (_, i) => anioActual - 14 - i);
 
-  const totalPropuestasPendientes = Array.from(
-    infoPropuestasPorSolicitud.values(),
-  ).reduce((total, info) => total + info.propuestasPendientes, 0);
-
-  const inicial = (profile?.nombre ?? user.email ?? "?").charAt(0).toUpperCase();
-
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 py-10">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-teal font-display text-lg font-bold text-paper">
-              {inicial}
-            </span>
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="font-display text-2xl text-teal-dark">
-                  Mi cuenta
-                </h1>
-                {totalPropuestasPendientes > 0 && (
-                  <span className="flex items-center gap-1 rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-bold text-cyan-dark">
-                    <Mail className="h-3.5 w-3.5" aria-hidden />
-                    {totalPropuestasPendientes}{" "}
-                    {totalPropuestasPendientes === 1 ? "propuesta nueva" : "propuestas nuevas"}
-                  </span>
-                )}
-              </div>
-              <p className="mt-1 text-sm text-ink-soft">{user.email}</p>
-            </div>
-          </div>
-          <form action={cerrarSesionPaciente}>
-            <button
-              type="submit"
-              className="text-sm font-medium text-ink-soft hover:text-error"
-            >
-              Cerrar sesión
-            </button>
-          </form>
-        </div>
+        <CabeceraCuenta userId={user.id} email={user.email ?? null} />
 
         {guardado && (
           <p className="mt-4 rounded-lg bg-sage px-4 py-3 text-sm text-sage-ink">
