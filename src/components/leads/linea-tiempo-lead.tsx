@@ -12,53 +12,61 @@ export function LineaTiempoLead({
   pasos: PasoTimeline[];
   avisoNegativo: string | null;
 }) {
+  const ultimoHecho = pasos.reduce((acc, p, i) => (p.status !== "pendiente" ? i : acc), -1);
+  const n = pasos.length;
+
   return (
-    <div className="rounded-xl border border-line bg-white p-4">
-      <ol className="flex flex-col">
-        {pasos.map((paso, idx) => (
-          <li key={paso.estado} className="relative flex gap-3 pb-4 last:pb-0">
-            {idx < pasos.length - 1 && (
+    <div className="rounded-xl border border-line bg-white p-4 sm:p-5">
+      <div className="overflow-x-auto">
+        <ol
+          className="relative grid min-w-[640px]"
+          style={{ gridTemplateColumns: `repeat(${n}, minmax(0, 1fr))` }}
+        >
+          <span
+            aria-hidden
+            className="absolute top-[7px] h-0.5 bg-line"
+            style={{ left: `${50 / n}%`, right: `${50 / n}%` }}
+          />
+          {ultimoHecho > 0 && (
+            <span
+              aria-hidden
+              className="absolute top-[7px] h-0.5 bg-teal"
+              style={{ left: `${50 / n}%`, width: `${(ultimoHecho * 100) / n}%` }}
+            />
+          )}
+          {pasos.map((paso) => (
+            <li key={paso.estado} className="relative flex flex-col items-center gap-1.5 px-1 text-center">
               <span
-                className={`absolute left-[7px] top-4 h-full w-0.5 ${
-                  paso.status === "completado" ? "bg-teal" : "bg-line"
+                className={`relative z-10 h-4 w-4 shrink-0 rounded-full border-2 ${
+                  paso.status === "completado"
+                    ? "border-teal bg-teal"
+                    : paso.status === "actual"
+                      ? "border-teal bg-white"
+                      : "border-line bg-white"
                 }`}
                 aria-hidden
               />
-            )}
-            <span
-              className={`relative z-10 mt-0.5 h-4 w-4 shrink-0 rounded-full border-2 ${
-                paso.status === "completado"
-                  ? "border-teal bg-teal"
-                  : paso.status === "actual"
-                    ? "border-teal bg-white"
-                    : "border-line bg-white"
-              }`}
-              aria-hidden
-            />
-            <div className="min-w-0 flex-1">
               <p
-                className={`text-sm ${
+                className={`text-[13px] leading-snug ${
                   paso.status === "pendiente" ? "text-ink-soft" : "font-medium text-ink"
                 }`}
               >
                 {paso.label}
               </p>
-              {paso.fecha && (
+              {paso.fecha && paso.status !== "pendiente" && (
                 <p className="text-xs text-ink-soft">
-                  {new Date(paso.fecha).toLocaleDateString("es-ES", {
-                    day: "numeric",
-                    month: "long",
-                    year: "numeric",
-                  })}
+                  {new Date(paso.fecha)
+                    .toLocaleDateString("es-ES", { day: "numeric", month: "short", year: "numeric" })
+                    .replace(".", "")}
                 </p>
               )}
-            </div>
-          </li>
-        ))}
-      </ol>
+            </li>
+          ))}
+        </ol>
+      </div>
 
       {avisoNegativo && (
-        <p className="mt-2 rounded-lg bg-error/10 px-3 py-2 text-xs font-medium text-error-dark">
+        <p className="mt-3 rounded-lg bg-error/10 px-3 py-2 text-xs font-medium text-error-dark">
           {avisoNegativo}
         </p>
       )}
