@@ -264,7 +264,7 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
               Notas de precio{" "}
               <span className="text-xs text-ink-soft">
                 (opcional — para casos que no encajan en un rango simple, ej.
-                "precio por sesión")
+                &quot;precio por sesión&quot;)
               </span>
             </label>
             <input
@@ -400,7 +400,7 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
           Redes sociales
         </h2>
         <p className="mt-1 text-xs text-ink-soft">
-          Solo el usuario/handle, sin la URL completa (ej. "raizcapilarmadrid").
+          Solo el usuario/handle, sin la URL completa (ej. &quot;raizcapilarmadrid&quot;).
         </p>
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div>

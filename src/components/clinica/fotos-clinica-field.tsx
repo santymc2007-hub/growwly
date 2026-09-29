@@ -35,7 +35,9 @@ export function FotosClinicaField({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const arrastrandoIndex = useRef<number | null>(null);
   const entradasRef = useRef(entradas);
-  entradasRef.current = entradas;
+  useEffect(() => {
+    entradasRef.current = entradas;
+  }, [entradas]);
 
   // Mantiene el <input type="file"> real sincronizado con las fotos
   // "nuevas" del estado, en el mismo orden — así el FormData que se
