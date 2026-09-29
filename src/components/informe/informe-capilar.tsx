@@ -416,32 +416,9 @@ export function InformeCapilarVista({
         </aside>
       </div>
 
-      {/* Qué esperar */}
-      <section className="flex flex-col gap-8 border-t border-line px-6 py-10 sm:px-10">
-        <h2 className="font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">{contenido.esperar.titulo}</h2>
-        <ol
-          className="relative grid gap-6 sm:gap-4 sm:[grid-template-columns:var(--cols)]"
-          style={{ ["--cols" as string]: `repeat(${contenido.esperar.pasos.length}, minmax(0, 1fr))` }}
-        >
-          <span
-            aria-hidden
-            className="absolute left-[8%] right-[8%] top-[13px] hidden h-1 rounded-full bg-gradient-to-r from-brand-green to-brand-blue sm:block"
-          />
-          {contenido.esperar.pasos.map((s) => (
-            <li key={s.when} className="relative flex items-start gap-4 sm:flex-col sm:items-center sm:gap-2.5 sm:text-center">
-              <span aria-hidden className="h-[30px] w-[30px] shrink-0 rounded-full border-4 border-teal-dark bg-white" />
-              <span className="flex flex-col gap-1">
-                <span className="font-display text-xl font-bold text-teal-dark">{s.when}</span>
-                <span className="text-[15px] leading-snug text-ink-soft">{s.what}</span>
-              </span>
-            </li>
-          ))}
-        </ol>
-      </section>
-
       {/* CTA final */}
       {!esClinica && (
-      <div className="px-6 pb-10 sm:px-10">
+      <div className="px-6 pb-10 pt-10 sm:px-10">
         <section className="grid items-center gap-10 rounded-3xl bg-paper-dim p-8 sm:p-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
           <div className="flex flex-col gap-4">
             <h2 className="font-display text-3xl font-extrabold leading-tight text-teal-dark sm:text-[40px]">
@@ -477,6 +454,34 @@ export function InformeCapilarVista({
         </section>
       </div>
       )}
+
+      {/* Qué esperar */}
+      <section className="flex flex-col gap-8 border-t border-line px-6 py-10 sm:px-10">
+        <h2 className="font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">{contenido.esperar.titulo}</h2>
+        <ol
+          className="relative grid gap-6 sm:gap-4 sm:[grid-template-columns:var(--cols)]"
+          style={{ ["--cols" as string]: `repeat(${contenido.esperar.pasos.length}, minmax(0, 1fr))` }}
+        >
+          <span
+            aria-hidden
+            className="absolute left-[8%] right-[8%] top-[15px] hidden h-1 rounded-full bg-gradient-to-r from-brand-green to-brand-blue sm:block"
+          />
+          {contenido.esperar.pasos.map((s) => (
+            <li key={s.when} className="relative flex items-start gap-4 sm:flex-col sm:items-center sm:gap-2.5 sm:text-center">
+              <span
+                aria-hidden
+                className="flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full bg-teal-dark text-white"
+              >
+                <ArrowRight className="h-4 w-4" aria-hidden />
+              </span>
+              <span className="flex flex-col gap-1">
+                <span className="font-display text-xl font-bold text-teal-dark">{s.when}</span>
+                <span className="text-[15px] leading-snug text-ink-soft">{s.what}</span>
+              </span>
+            </li>
+          ))}
+        </ol>
+      </section>
 
       <p className="border-t border-line px-6 py-6 text-[13px] leading-relaxed text-ink-soft sm:px-10">
         Esto es una primera impresión visual generada con inteligencia artificial, no un diagnóstico médico. Solo un

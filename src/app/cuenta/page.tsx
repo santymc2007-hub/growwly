@@ -8,10 +8,7 @@ import { MUNICIPIOS_MALLORCA } from "@/lib/clinic-options";
 import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import { actualizarPerfil, cambiarEmail, cambiarPassword } from "./actions";
 import { CabeceraCuenta } from "@/components/cuenta/cabecera-cuenta";
-import {
-  SeccionesCuenta,
-  SeccionPlegable,
-} from "@/components/cuenta/secciones-cuenta";
+import { SeccionPlegable } from "@/components/cuenta/secciones-cuenta";
 import { BorrarEstudioButton } from "./analisis/[id]/borrar-estudio-button";
 import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
 import type { Flujo } from "@/lib/informe/tipos";
@@ -121,21 +118,7 @@ export default async function CuentaPage({
           </p>
         )}
 
-        <SeccionesCuenta
-          inicial={totalPropuestasNuevas > 0 ? "presupuestos" : "analisis"}
-          nav={[
-            { id: "datos", label: "Mis datos personales" },
-            { id: "analisis", label: "Mis análisis" },
-            {
-              id: "presupuestos",
-              label: "Mis presupuestos",
-              aviso:
-                totalPropuestasNuevas > 0
-                  ? `${totalPropuestasNuevas} ${totalPropuestasNuevas === 1 ? "nueva" : "nuevas"}`
-                  : undefined,
-            },
-          ]}
-        >
+        <div className="mt-8 flex flex-col gap-4">
           <SeccionPlegable
             id="datos"
             titulo="Mis datos personales"
@@ -347,44 +330,59 @@ export default async function CuentaPage({
             </div>
           </SeccionPlegable>
 
-          <SeccionPlegable
+        </div>
+
+        <div className="mt-6 grid items-start gap-6 lg:grid-cols-2">
+          <section
             id="analisis"
-            titulo="Mis análisis"
-            icono={<Camera className="h-5 w-5" aria-hidden />}
-            resumen={
-              estudios && estudios.length > 0
-                ? `${estudios.length} análisis`
-                : "Todavía no has hecho ninguno"
-            }
-            acciones={
+            className="scroll-mt-6 rounded-3xl border border-line bg-white p-6 sm:p-8"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper-dim text-teal">
+                  <Camera className="h-5 w-5" aria-hidden />
+                </span>
+                <span className="flex flex-col">
+                  <span className="font-display text-xl font-bold text-teal-dark">
+                    Mis análisis
+                  </span>
+                  <span className="text-sm text-ink-soft">
+                    {estudios && estudios.length > 0
+                      ? `${estudios.length} análisis`
+                      : "Todavía no has hecho ninguno"}
+                  </span>
+                </span>
+              </div>
               <Link
                 href="/analisis/nuevo"
                 className="press rounded-full bg-teal-dark px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
               >
                 + Nuevo análisis
               </Link>
-            }
-          >
+            </div>
+
             {estudios && estudios.length > 0 ? (
-              <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <ul className="mt-5 flex flex-col gap-3">
                 {estudios.map((e) => (
                   <li
                     key={e.id}
-                    className="flex flex-col gap-3 rounded-2xl border border-line p-5"
+                    className="flex flex-col gap-3 rounded-2xl border border-line px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"
                   >
-                    <p className="text-xs font-semibold uppercase tracking-wider text-teal">
-                      {new Date(e.created_at).toLocaleDateString("es-ES", {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })}
-                    </p>
-                    <p className="font-display text-lg font-bold leading-snug text-teal-dark">
-                      {e.flujo && e.flujo in CONTENIDO_FLUJOS
-                        ? CONTENIDO_FLUJOS[e.flujo as Flujo].etiqueta
-                        : (e.norwood_estimado ?? "Análisis capilar")}
-                    </p>
-                    <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+                    <div className="min-w-0">
+                      <p className="truncate font-display text-base font-bold leading-snug text-teal-dark">
+                        {e.flujo && e.flujo in CONTENIDO_FLUJOS
+                          ? CONTENIDO_FLUJOS[e.flujo as Flujo].etiqueta
+                          : (e.norwood_estimado ?? "Análisis capilar")}
+                      </p>
+                      <p className="text-xs text-ink-soft">
+                        {new Date(e.created_at).toLocaleDateString("es-ES", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                    <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
                       {e.estado === "listo" ? (
                         <Link
                           href={`/cuenta/analisis/${e.id}`}
@@ -405,70 +403,89 @@ export default async function CuentaPage({
                 ))}
               </ul>
             ) : (
-              <p className="text-sm text-ink-soft">
+              <p className="mt-5 text-sm text-ink-soft">
                 Todavía no has subido fotos para un análisis orientativo.
               </p>
             )}
-          </SeccionPlegable>
+          </section>
 
-          <SeccionPlegable
+          <section
             id="presupuestos"
-            titulo="Mis presupuestos"
-            icono={<Mail className="h-5 w-5" aria-hidden />}
-            resumen={
-              solicitudes && solicitudes.length > 0
-                ? `${solicitudes.length} ${solicitudes.length === 1 ? "solicitud" : "solicitudes"}`
-                : "Todavía no has pedido presupuesto"
-            }
-            acciones={
+            className="scroll-mt-6 rounded-3xl border border-line bg-white p-6 sm:p-8"
+          >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper-dim text-teal">
+                  <Mail className="h-5 w-5" aria-hidden />
+                </span>
+                <span className="flex flex-col">
+                  <span className="flex items-center gap-2 font-display text-xl font-bold text-teal-dark">
+                    Mis presupuestos
+                    {totalPropuestasNuevas > 0 && (
+                      <span className="rounded-full bg-orange px-2 py-0.5 text-xs font-bold text-[#8a5a00]">
+                        {totalPropuestasNuevas} {totalPropuestasNuevas === 1 ? "nueva" : "nuevas"}
+                      </span>
+                    )}
+                  </span>
+                  <span className="text-sm text-ink-soft">
+                    {solicitudes && solicitudes.length > 0
+                      ? `${solicitudes.length} ${solicitudes.length === 1 ? "solicitud" : "solicitudes"}`
+                      : "Todavía no has pedido presupuesto"}
+                  </span>
+                </span>
+              </div>
               <Link
                 href="/cuenta/solicitud/nueva"
                 className="press rounded-full bg-teal-dark px-4 py-2 text-sm font-semibold text-white hover:opacity-90"
               >
                 + Pedir presupuesto
               </Link>
-            }
-          >
+            </div>
+
             {solicitudes && solicitudes.length > 0 ? (
-              <ul className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              <ul className="mt-5 flex flex-col gap-3">
                 {solicitudes.map((s) => {
                   const info = infoPropuestasPorSolicitud.get(s.id);
                   return (
                     <li
                       key={s.id}
-                      className="flex flex-col gap-3 rounded-2xl border border-line p-5"
+                      className="flex flex-col gap-3 rounded-2xl border border-line px-4 py-3.5 sm:flex-row sm:items-center sm:justify-between"
                     >
-                      <p className="text-xs font-semibold uppercase tracking-wider text-teal">
-                        Solicitud del{" "}
-                        {new Date(s.created_at).toLocaleDateString("es-ES", {
-                          day: "numeric",
-                          month: "long",
-                        })}
-                      </p>
-                      {info?.clinicaElegida ? (
-                        <span className="flex items-center gap-1.5 self-start rounded-full bg-sage px-3 py-1 text-sm font-semibold text-sage-ink">
-                          <CheckCircle2 className="h-4 w-4" aria-hidden />
-                          Clínica elegida
-                        </span>
-                      ) : info && info.propuestasPendientes > 0 ? (
-                        <span className="flex items-center gap-1.5 self-start rounded-full bg-yellow px-3 py-1 text-sm font-bold text-teal-dark">
-                          <Mail className="h-4 w-4" aria-hidden />
-                          {info.propuestasPendientes}{" "}
-                          {info.propuestasPendientes === 1
-                            ? "propuesta nueva"
-                            : "propuestas nuevas"}
-                        </span>
-                      ) : info && info.propuestasRecibidas > 0 ? (
-                        <span className="self-start rounded-full bg-paper-dim px-3 py-1 text-sm font-semibold text-teal-dark">
-                          {info.propuestasRecibidas}{" "}
-                          {info.propuestasRecibidas === 1 ? "propuesta recibida" : "propuestas recibidas"}
-                        </span>
-                      ) : (
-                        <span className="self-start rounded-full bg-paper-dim px-3 py-1 text-sm font-medium text-ink-soft">
-                          Esperando propuestas
-                        </span>
-                      )}
-                      <div className="mt-auto flex items-center justify-between gap-3 pt-2">
+                      <div className="min-w-0">
+                        <p className="font-display text-base font-bold leading-snug text-teal-dark">
+                          Solicitud del{" "}
+                          {new Date(s.created_at).toLocaleDateString("es-ES", {
+                            day: "numeric",
+                            month: "long",
+                          })}
+                        </p>
+                        <div className="mt-1">
+                          {info?.clinicaElegida ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-sage px-3 py-1 text-xs font-semibold text-sage-ink">
+                              <CheckCircle2 className="h-3.5 w-3.5" aria-hidden />
+                              Clínica elegida
+                            </span>
+                          ) : info && info.propuestasPendientes > 0 ? (
+                            <span className="inline-flex items-center gap-1.5 rounded-full bg-orange px-3 py-1 text-xs font-bold text-[#8a5a00]">
+                              <Mail className="h-3.5 w-3.5" aria-hidden />
+                              {info.propuestasPendientes}{" "}
+                              {info.propuestasPendientes === 1
+                                ? "propuesta nueva"
+                                : "propuestas nuevas"}
+                            </span>
+                          ) : info && info.propuestasRecibidas > 0 ? (
+                            <span className="inline-flex rounded-full bg-paper-dim px-3 py-1 text-xs font-semibold text-teal-dark">
+                              {info.propuestasRecibidas}{" "}
+                              {info.propuestasRecibidas === 1 ? "propuesta recibida" : "propuestas recibidas"}
+                            </span>
+                          ) : (
+                            <span className="inline-flex rounded-full bg-paper-dim px-3 py-1 text-xs font-medium text-ink-soft">
+                              Esperando propuestas
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex shrink-0 items-center gap-2 self-start sm:self-auto">
                         <Link
                           href={`/cuenta/solicitud/${s.id}`}
                           className="press rounded-full bg-yellow px-4 py-2 text-sm font-semibold text-teal-dark hover:opacity-90"
@@ -482,12 +499,12 @@ export default async function CuentaPage({
                 })}
               </ul>
             ) : (
-              <p className="text-sm text-ink-soft">
+              <p className="mt-5 text-sm text-ink-soft">
                 Todavía no has pedido presupuesto a ninguna clínica.
               </p>
             )}
-          </SeccionPlegable>
-        </SeccionesCuenta>
+          </section>
+        </div>
       </div>
     </main>
   );
