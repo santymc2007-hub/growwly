@@ -4,6 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { crearSolicitud } from "../actions";
+import { trackEvent } from "@/lib/analytics/events";
 import { TECNICAS_POR_CATEGORIA } from "@/lib/clinic-options";
 import {
   PRESUPUESTO_PACIENTE_OPCIONES,
@@ -167,6 +168,7 @@ export function SolicitudWizard({
   }
 
   function siguiente() {
+    trackEvent("wizard_paso_completado", { wizard: "solicitud_presupuesto", paso });
     setPaso((p) => Math.min(p + 1, TOTAL_PASOS));
   }
   function anterior() {
@@ -213,6 +215,11 @@ export function SolicitudWizard({
       return;
     }
 
+    trackEvent("generate_lead", {
+      tipo_lead: "solicitud_presupuesto",
+      tratamientos_interes: tratamientosInteres.length,
+      ciudad: ciudad || undefined,
+    });
     router.push(`/cuenta/solicitud/${resultado.id}`);
   }
 

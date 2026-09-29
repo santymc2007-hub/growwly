@@ -2,6 +2,7 @@
 
 import { useState, useTransition, type FormEvent } from "react";
 import { solicitarCitaDirecta } from "@/lib/leads/solicitar-cita-directa";
+import { trackEvent } from "@/lib/analytics/events";
 
 /**
  * Barra fija en móvil con el botón "Pedir cita", siempre visible
@@ -42,6 +43,10 @@ export function BotonPedirCita({
       const resultado = await solicitarCitaDirecta(formData);
       if (resultado.ok) {
         setEstado("ok");
+        trackEvent("generate_lead", {
+          tipo_lead: "cita_directa",
+          clinic_id: clinicId,
+        });
       } else {
         setEstado("error");
         setErrorMsg(resultado.error);
@@ -57,7 +62,10 @@ export function BotonPedirCita({
       >
         <button
           type="button"
-          onClick={() => setAbierto(true)}
+          onClick={() => {
+            setAbierto(true);
+            trackEvent("clic_pedir_cita_directa", { clinic_id: clinicId });
+          }}
           className="press block w-full rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
         >
           Pedir cita →
