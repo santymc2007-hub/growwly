@@ -264,6 +264,20 @@ export default async function CuentaPage({
                     </div>
                   </div>
 
+                  <label className="flex items-start gap-2 text-sm">
+                    <input
+                      type="checkbox"
+                      name="acepta_marketing_email"
+                      defaultChecked={profile?.acepta_marketing_email ?? false}
+                      className="mt-0.5"
+                    />
+                    <span>
+                      Quiero recibir novedades de Growwly por email
+                      (consejos, nuevas clínicas, ofertas). Opcional, puedes
+                      cambiarlo cuando quieras.
+                    </span>
+                  </label>
+
                   <button
                     type="submit"
                     className="mt-2 self-start rounded-full bg-teal px-5 py-2.5 text-sm font-medium text-paper transition hover:bg-teal-dark"

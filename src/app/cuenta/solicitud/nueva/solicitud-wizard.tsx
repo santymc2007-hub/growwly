@@ -1,14 +1,16 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { crearSolicitud } from "../actions";
 import { TECNICAS_POR_CATEGORIA } from "@/lib/clinic-options";
 import {
   PRESUPUESTO_PACIENTE_OPCIONES,
   labelPresupuesto,
-  NORWOOD_OPCIONES,
-  LUDWIG_OPCIONES,
+  PRIORIDAD_OPCIONES,
+  SINTOMAS_CUERO_CABELLUDO_OPCIONES,
+  TRATAMIENTOS_USADOS_OPCIONES,
 } from "@/lib/solicitud-labels";
 import type { Profile, EstudioCapilar } from "@/lib/supabase/database.types";
 
@@ -18,7 +20,6 @@ type Props = {
     EstudioCapilar,
     "id" | "created_at" | "norwood_estimado" | "estado"
   >[];
-  ciudadesConClinicas: string[];
   /** Estudio que llega preseleccionado desde el botón del informe. */
   estudioInicialId?: string | null;
 };
@@ -42,7 +43,6 @@ const CONDICIONES_MEDICAS_INFO = [
 export function SolicitudWizard({
   profile,
   estudios,
-  ciudadesConClinicas,
   estudioInicialId,
 }: Props) {
   const router = useRouter();
@@ -51,23 +51,42 @@ export function SolicitudWizard({
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
 
   const estudiosListos = estudios.filter((e) => e.estado === "listo");
-  const [estudioId, setEstudioId] = useState<string | null>(
-    estudiosListos.find((e) => e.id === estudioInicialId)?.id ??
-      estudiosListos[0]?.id ??
-      null,
-  );
+  // Se vincula el análisis que llega preseleccionado desde el botón del
+  // informe (?estudio=...) o, si no hay ninguno, el más reciente — no
+  // tiene sentido dejar elegir uno más antiguo a mano, y así el
+  // paciente no tiene que saber qué es "vincular un análisis".
+  const estudioSeleccionado =
+    estudiosListos.find((e) => e.id === estudioInicialId) ??
+    estudiosListos[0] ??
+    null;
+  const estudioId = estudioSeleccionado?.id ?? null;
 
   // Paso 1: Perfil Personal
   const [sexo, setSexo] = useState(profile?.sexo ?? "");
-  const [tipoPerdidaCabello, setTipoPerdidaCabello] = useState(
-    profile?.tipo_perdida_cabello ?? "",
+  // El tipo de pérdida de cabello ya no lo elige el paciente: se toma
+  // directamente del análisis vinculado (o del valor ya guardado en su
+  // perfil de una solicitud anterior, si no tiene ninguno listo
+  // todavía).
+  const tipoPerdidaCabello =
+    estudioSeleccionado?.norwood_estimado ?? profile?.tipo_perdida_cabello ?? "";
+  // La ciudad tampoco se vuelve a preguntar aquí — ya vive en el
+  // perfil (se pide más adelante, en el paso 4, con más precisión).
+  const ciudad = profile?.ciudad ?? "";
+  const [aceptaMarketingEmail, setAceptaMarketingEmail] = useState(
+    profile?.acepta_marketing_email ?? false,
   );
-  const [ciudad, setCiudad] = useState(profile?.ciudad ?? "");
 
   // Paso 2: Historial capilar
   const [progresionPerdida, setProgresionPerdida] = useState("");
   const [antecedentesFamiliares, setAntecedentesFamiliares] = useState("");
   const [medicacionActual, setMedicacionActual] = useState("");
+  const [sintomasCueroCabelludo, setSintomasCueroCabelludo] = useState<
+    string[]
+  >([]);
+  const [tratamientosUsados, setTratamientosUsados] = useState<string[]>([]);
+  const [tratamientosUsadosDetalle, setTratamientosUsadosDetalle] =
+    useState("");
+  const [cambiosSaludRecientes, setCambiosSaludRecientes] = useState("");
 
   // Paso 3: Tratamientos de interés
   const [tratamientosInteres, setTratamientosInteres] = useState<string[]>(
@@ -76,6 +95,7 @@ export function SolicitudWizard({
   const [dejarDecidirMedico, setDejarDecidirMedico] = useState(false);
 
   // Paso 4: Preferencias
+  const [codigoPostal, setCodigoPostal] = useState("");
   const [cuandoTratamiento, setCuandoTratamiento] = useState("");
   const [dondeTratamiento, setDondeTratamiento] = useState("");
   const [presupuestoRango, setPresupuestoRango] = useState("");
@@ -119,6 +139,18 @@ export function SolicitudWizard({
     );
   }
 
+  function toggleSintoma(valor: string) {
+    setSintomasCueroCabelludo((prev) =>
+      prev.includes(valor) ? prev.filter((s) => s !== valor) : [...prev, valor],
+    );
+  }
+
+  function toggleTratamientoUsado(valor: string) {
+    setTratamientosUsados((prev) =>
+      prev.includes(valor) ? prev.filter((t) => t !== valor) : [...prev, valor],
+    );
+  }
+
   function toggleCondicionMedica(valor: string) {
     if (valor === "ninguna") {
       setCondicionesMedicas((prev) =>
@@ -152,8 +184,13 @@ export function SolicitudWizard({
       progresionPerdida,
       antecedentesFamiliares,
       medicacionActual,
+      sintomasCueroCabelludo,
+      tratamientosUsados,
+      tratamientosUsadosDetalle,
+      cambiosSaludRecientes,
       tratamientosInteres,
       dejarDecidirMedico,
+      codigoPostal,
       cuandoTratamiento,
       dondeTratamiento,
       presupuestoRango,
@@ -162,6 +199,7 @@ export function SolicitudWizard({
       condicionesMedicas,
       cirugiasPrevias,
       fumador,
+      aceptaMarketingEmail,
       consentimientoDatos,
       consentimientoInfoMedica,
       consentimientoFotos,
@@ -211,13 +249,7 @@ export function SolicitudWizard({
                   <button
                     key={opcion}
                     type="button"
-                    onClick={() => {
-                      setSexo(opcion);
-                      // Las escalas de hombre y mujer usan valores
-                      // distintos (norwood_* vs ludwig_*): si cambia el
-                      // sexo, el valor anterior ya no encaja.
-                      setTipoPerdidaCabello("");
-                    }}
+                    onClick={() => setSexo(opcion)}
                     className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize ${
                       sexo === opcion
                         ? "border-teal bg-teal/10 text-teal-dark"
@@ -228,63 +260,6 @@ export function SolicitudWizard({
                   </button>
                 ))}
               </div>
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Tipo de pérdida de cabello
-              </label>
-              {!sexo && (
-                <p className="mt-1 rounded-lg border border-dashed border-line bg-white px-3 py-2 text-sm text-ink-soft">
-                  Selecciona antes si eres hombre o mujer para ver las
-                  opciones.
-                </p>
-              )}
-              {sexo && (
-                <select
-                  value={tipoPerdidaCabello}
-                  onChange={(e) => setTipoPerdidaCabello(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">Selecciona una opción</option>
-                  {(sexo === "mujer" ? LUDWIG_OPCIONES : NORWOOD_OPCIONES).map(
-                    (o) => (
-                      <option key={o.valor} value={o.valor}>
-                        {o.nombre} — {o.descripcion}
-                      </option>
-                    ),
-                  )}
-                </select>
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>Ubicación</label>
-              {ciudadesConClinicas.length > 0 ? (
-                <select
-                  value={ciudad}
-                  onChange={(e) => setCiudad(e.target.value)}
-                  className={inputClass}
-                >
-                  <option value="">Selecciona una ciudad</option>
-                  {ciudadesConClinicas.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              ) : (
-                <input
-                  type="text"
-                  value={ciudad}
-                  onChange={(e) => setCiudad(e.target.value)}
-                  placeholder="¿En qué ciudad estás?"
-                  className={inputClass}
-                />
-              )}
-              <p className="mt-1 text-xs text-ink-soft">
-                Necesitaremos esto para ubicar tu clínica.
-              </p>
             </div>
           </div>
 
@@ -307,52 +282,85 @@ export function SolicitudWizard({
               <p className="text-xs text-ink-soft">Email</p>
               <p className="text-ink">{profile?.email}</p>
             </div>
+            <div>
+              <p className="text-xs text-ink-soft">Ciudad</p>
+              <p className="text-ink">{ciudad || "—"}</p>
+            </div>
+            <div>
+              <p className="text-xs text-ink-soft">Tipo de pérdida de cabello</p>
+              <p className="text-ink">
+                {tipoPerdidaCabello || "Se calcula con tu análisis"}
+              </p>
+            </div>
           </div>
           <p className="mt-2 text-xs text-ink-soft">
             Los usaremos para que las clínicas puedan responderte. Los
             puedes actualizar desde{" "}
-            <a href="/cuenta" className="text-cyan hover:text-cyan-dark">
+            <Link href="/cuenta" className="text-cyan hover:text-cyan-dark">
               Mi cuenta
-            </a>{" "}
+            </Link>{" "}
             si algo no es correcto.
           </p>
 
-          {estudiosListos.length > 0 && (
-            <div className="mt-4">
-              <label className={labelClass}>
-                Vincular a un análisis ya hecho (opcional)
-              </label>
-              <select
-                value={estudioId ?? ""}
-                onChange={(e) => setEstudioId(e.target.value || null)}
-                className={inputClass}
-              >
-                <option value="">No vincular ninguno</option>
-                {estudiosListos.map((e) => (
-                  <option key={e.id} value={e.id}>
-                    Análisis del{" "}
-                    {new Date(e.created_at).toLocaleDateString("es-ES")}
-                    {e.norwood_estimado ? ` · ${e.norwood_estimado}` : ""}
-                  </option>
-                ))}
-              </select>
+          {estudioSeleccionado ? (
+            <div className="mt-4 rounded-lg border border-line bg-white p-4 text-sm">
+              <p className="text-ink-soft">
+                {estudioSeleccionado.id === estudioInicialId
+                  ? "Vinculamos el análisis que elegiste:"
+                  : "Vinculamos automáticamente tu análisis más reciente:"}
+              </p>
+              <p className="mt-1 font-medium text-ink">
+                Análisis del{" "}
+                {new Date(estudioSeleccionado.created_at).toLocaleDateString(
+                  "es-ES",
+                )}
+                {estudioSeleccionado.norwood_estimado
+                  ? ` · ${estudioSeleccionado.norwood_estimado}`
+                  : ""}
+              </p>
             </div>
-          )}
-          {estudiosListos.length === 0 && (
+          ) : (
             <div className="mt-4 rounded-lg border border-dashed border-line bg-white p-4 text-sm">
               <p className="text-ink-soft">
                 Todavía no tienes fotos subidas. Puedes continuar sin
                 ellas, pero ayudan mucho a que las clínicas valoren tu
                 caso.
               </p>
-              <a
+              <Link
                 href="/analisis/nuevo"
                 className="mt-2 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
               >
                 Subir fotos ahora →
-              </a>
+              </Link>
             </div>
           )}
+
+          <label className="mt-4 flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
+            <input
+              type="checkbox"
+              checked={aceptaMarketingEmail}
+              onChange={(e) => setAceptaMarketingEmail(e.target.checked)}
+              className="mt-0.5"
+            />
+            <span>
+              <span className="font-medium">
+                Quiero recibir novedades de Growwly por email
+              </span>{" "}
+              — consejos sobre salud capilar, nuevas clínicas y ofertas.
+              Es opcional y puedes darte de baja cuando quieras desde{" "}
+              <Link href="/cuenta" className="text-cyan hover:text-cyan-dark">
+                Mi cuenta
+              </Link>{" "}
+              o desde el propio email. Más información en nuestra{" "}
+              <Link
+                href="/legal/terminos#comunicaciones-marketing"
+                className="text-cyan hover:text-cyan-dark"
+              >
+                política de comunicaciones
+              </Link>
+              .
+            </span>
+          </label>
         </section>
       )}
 
@@ -402,6 +410,74 @@ export function SolicitudWizard({
                 className={inputClass}
               />
             </div>
+
+            <div>
+              <label className={labelClass}>
+                ¿Notas algo en el cuero cabelludo?
+              </label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {SINTOMAS_CUERO_CABELLUDO_OPCIONES.map((s) => (
+                  <button
+                    key={s.valor}
+                    type="button"
+                    onClick={() => toggleSintoma(s.valor)}
+                    className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
+                      sintomasCueroCabelludo.includes(s.valor)
+                        ? "border-teal bg-teal/10 text-teal-dark"
+                        : "border-line bg-white text-ink hover:border-teal/40"
+                    }`}
+                  >
+                    {s.nombre}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Qué tratamientos has usado antes
+              </label>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {TRATAMIENTOS_USADOS_OPCIONES.map((t) => (
+                  <button
+                    key={t.valor}
+                    type="button"
+                    onClick={() => toggleTratamientoUsado(t.valor)}
+                    className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
+                      tratamientosUsados.includes(t.valor)
+                        ? "border-teal bg-teal/10 text-teal-dark"
+                        : "border-line bg-white text-ink hover:border-teal/40"
+                    }`}
+                  >
+                    {t.nombre}
+                  </button>
+                ))}
+              </div>
+              {tratamientosUsados.length > 0 && (
+                <textarea
+                  value={tratamientosUsadosDetalle}
+                  onChange={(e) =>
+                    setTratamientosUsadosDetalle(e.target.value)
+                  }
+                  rows={2}
+                  placeholder="Dosis, desde cuándo, y si notaste algún efecto secundario"
+                  className={`${inputClass} mt-2`}
+                />
+              )}
+            </div>
+
+            <div>
+              <label className={labelClass}>
+                Cambios de salud recientes
+              </label>
+              <textarea
+                value={cambiosSaludRecientes}
+                onChange={(e) => setCambiosSaludRecientes(e.target.value)}
+                rows={2}
+                placeholder="Enfermedades, periodos de mucho estrés, pérdida de peso, cambios de dieta o de medicación — o ninguno"
+                className={inputClass}
+              />
+            </div>
           </div>
         </section>
       )}
@@ -412,11 +488,12 @@ export function SolicitudWizard({
             Tratamientos que te interesan
           </h2>
 
-          <label className="mt-3 flex items-center gap-2 rounded-lg bg-sage px-3 py-2.5 text-sm font-medium text-sage-ink">
+          <label className="mt-3 flex items-center gap-3 rounded-xl border-2 border-sage bg-sage px-5 py-5 text-base font-semibold text-sage-ink">
             <input
               type="checkbox"
               checked={dejarDecidirMedico}
               onChange={(e) => setDejarDecidirMedico(e.target.checked)}
+              className="h-5 w-5 shrink-0 accent-sage-ink"
             />
             Me dejo asesorar — que el médico decida la mejor opción para
             mi caso
@@ -497,17 +574,31 @@ export function SolicitudWizard({
                 className={inputClass}
               >
                 <option value="">Selecciona una opción</option>
-                <option value="reputacion_cirujano">
-                  La reputación y experiencia del cirujano
-                </option>
-                <option value="resenas_fotos">
-                  Las reseñas y fotos de otros pacientes
-                </option>
-                <option value="tecnologia">
-                  La tecnología que utiliza la clínica
-                </option>
-                <option value="precio">El precio final</option>
+                {PRIORIDAD_OPCIONES.map((o) => (
+                  <option key={o.valor} value={o.valor}>
+                    {o.nombre}
+                  </option>
+                ))}
               </select>
+            </div>
+
+            <div>
+              <label className={labelClass}>Código postal</label>
+              <input
+                type="text"
+                inputMode="numeric"
+                pattern="\d{5}"
+                maxLength={5}
+                value={codigoPostal}
+                onChange={(e) =>
+                  setCodigoPostal(e.target.value.replace(/\D/g, "").slice(0, 5))
+                }
+                placeholder="Ej. 07001"
+                className={inputClass}
+              />
+              <p className="mt-1 text-xs text-ink-soft">
+                Nos ayuda a acercarte a las clínicas más próximas a ti.
+              </p>
             </div>
 
             <div>
@@ -673,9 +764,13 @@ export function SolicitudWizard({
                 required
               />
               <span>
-                <span className="font-medium">
+                <Link
+                  href="/legal/terminos#politica-de-privacidad"
+                  target="_blank"
+                  className="font-medium text-cyan-dark hover:underline"
+                >
                   Política de privacidad
-                </span>{" "}
+                </Link>{" "}
                 — Acepto el tratamiento de mis datos personales según la
                 política de privacidad.
               </span>
@@ -691,8 +786,14 @@ export function SolicitudWizard({
                 required
               />
               <span>
-                <span className="font-medium">Información médica</span> —
-                Confirmo que la información médica proporcionada es
+                <Link
+                  href="/legal/terminos#informacion-medica"
+                  target="_blank"
+                  className="font-medium text-cyan-dark hover:underline"
+                >
+                  Información médica
+                </Link>{" "}
+                — Confirmo que la información médica proporcionada es
                 veraz y completa.
               </span>
             </label>
@@ -705,8 +806,14 @@ export function SolicitudWizard({
                 required
               />
               <span>
-                <span className="font-medium">Uso de fotografías</span> —
-                Autorizo el uso de mis fotografías únicamente para
+                <Link
+                  href="/legal/terminos#uso-de-fotografias"
+                  target="_blank"
+                  className="font-medium text-cyan-dark hover:underline"
+                >
+                  Uso de fotografías
+                </Link>{" "}
+                — Autorizo el uso de mis fotografías únicamente para
                 evaluación médica.
               </span>
             </label>
@@ -721,8 +828,14 @@ export function SolicitudWizard({
                 required
               />
               <span>
-                <span className="font-medium">Comunicaciones</span> —
-                Acepto recibir comunicaciones de clínicas
+                <Link
+                  href="/legal/terminos#comunicaciones-de-clinicas"
+                  target="_blank"
+                  className="font-medium text-cyan-dark hover:underline"
+                >
+                  Comunicaciones
+                </Link>{" "}
+                — Acepto recibir comunicaciones de clínicas
                 especializadas.
               </span>
             </label>
@@ -737,7 +850,13 @@ export function SolicitudWizard({
                 required
               />
               <span>
-                <span className="font-medium">Términos de servicio</span>{" "}
+                <Link
+                  href="/legal/terminos"
+                  target="_blank"
+                  className="font-medium text-cyan-dark hover:underline"
+                >
+                  Términos de servicio
+                </Link>{" "}
                 — He leído y acepto los términos y condiciones del
                 servicio.
               </span>

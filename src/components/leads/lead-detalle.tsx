@@ -16,6 +16,8 @@ import {
   PRIORIDAD_LABEL,
   FUMADOR_LABEL,
   CONDICIONES_MEDICAS_LABEL,
+  SINTOMAS_CUERO_CABELLUDO_LABEL,
+  TRATAMIENTOS_USADOS_LABEL,
   SEXO_LABEL,
   labelTipoPerdida,
   labelPresupuesto,
@@ -163,6 +165,7 @@ export async function LeadDetalle({
       v: labelTipoPerdida(perfilMedico.sexo, perfilMedico.tipo_perdida_cabello)!,
     });
   if (solicitud.ciudad) datosBasicos.push({ k: "Ciudad", v: solicitud.ciudad });
+  if (solicitud.codigo_postal) datosBasicos.push({ k: "Código postal", v: solicitud.codigo_postal });
   if (solicitud.tratamientos_interes.length > 0)
     datosBasicos.push({ k: "Tratamientos de interés", v: solicitud.tratamientos_interes.join(", ") });
   if (solicitud.dejar_decidir_medico)
@@ -176,6 +179,18 @@ export async function LeadDetalle({
     add("Progresión de la pérdida", etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida));
     add("Antecedentes familiares", solicitud.antecedentes_familiares);
     add("Medicación actual", solicitud.medicacion_actual);
+    if (solicitud.sintomas_cuero_cabelludo.length > 0)
+      add(
+        "Síntomas en el cuero cabelludo",
+        solicitud.sintomas_cuero_cabelludo.map((s) => SINTOMAS_CUERO_CABELLUDO_LABEL[s] ?? s).join(", "),
+      );
+    if (solicitud.tratamientos_usados.length > 0)
+      add(
+        "Tratamientos ya probados",
+        solicitud.tratamientos_usados.map((t) => TRATAMIENTOS_USADOS_LABEL[t] ?? t).join(", ") +
+          (solicitud.tratamientos_usados_detalle ? ` — ${solicitud.tratamientos_usados_detalle}` : ""),
+      );
+    add("Cambios de salud recientes", solicitud.cambios_salud_recientes);
     add("Cuándo quiere empezar", etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento));
     add("Dónde", etiqueta(DONDE_LABEL, solicitud.donde_tratamiento));
     add("Lo más importante para el paciente", etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision));

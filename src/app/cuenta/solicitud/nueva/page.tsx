@@ -19,34 +19,20 @@ export default async function NuevaSolicitudPage({
     redirect("/cuenta/login");
   }
 
-  const [{ data: profile }, { data: estudios }, { data: clinicasPublicadas }] =
-    await Promise.all([
-      supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
-      supabase
-        .from("estudios_capilares")
-        .select("id, created_at, norwood_estimado, estado")
-        .eq("user_id", user.id)
-        .order("created_at", { ascending: false }),
-      supabase
-        .from("clinics")
-        .select("ciudad")
-        .eq("publicado", true)
-        .eq("verificado_admin", true)
-        .not("ciudad", "is", null),
-    ]);
-
-  // Solo mostramos ciudades donde ya hay clínicas reales — con una
-  // lista fija de municipios, en cuanto entren Madrid/Barcelona/etc. el
-  // desplegable sería inmanejable. Así escala solo con los datos.
-  const ciudadesConClinicas = Array.from(
-    new Set((clinicasPublicadas ?? []).map((c) => c.ciudad).filter(Boolean)),
-  ).sort((a, b) => a!.localeCompare(b!)) as string[];
+  const [{ data: profile }, { data: estudios }] = await Promise.all([
+    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+    supabase
+      .from("estudios_capilares")
+      .select("id, created_at, norwood_estimado, estado")
+      .eq("user_id", user.id)
+      .order("created_at", { ascending: false }),
+  ]);
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
 
-      <div className="mx-auto max-w-xl px-6 py-12">
+      <div className="mx-auto max-w-2xl px-6 py-12">
         <Link
           href="/cuenta"
           className="text-sm font-medium text-cyan hover:text-cyan-dark"
@@ -66,7 +52,6 @@ export default async function NuevaSolicitudPage({
           <SolicitudWizard
             profile={profile ?? null}
             estudios={estudios ?? []}
-            ciudadesConClinicas={ciudadesConClinicas}
             estudioInicialId={estudioInicialId ?? null}
           />
         </div>

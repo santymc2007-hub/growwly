@@ -122,7 +122,45 @@ export const DONDE_LABEL: Record<string, string> = {
   sin_preferencia: "Sin preferencia (cualquier parte de España)",
 };
 
+/**
+ * Qué es lo más importante para el paciente a la hora de decidir
+ * clínica. Pensadas para que cada opción sea un valor sobre el que la
+ * clínica realmente puede actuar o destacar en su respuesta (no solo
+ * información pasiva) — reputación, resultados, técnica, precio,
+ * rapidez y seguimiento son palancas reales de decisión.
+ *
+ * reputacion_cirujano/resenas_fotos/tecnologia/precio son las opciones
+ * antiguas — se mantiene su etiqueta para solicitudes ya guardadas con
+ * esos valores, pero el formulario ya no las ofrece.
+ */
+export const PRIORIDAD_OPCIONES: { valor: string; nombre: string }[] = [
+  {
+    valor: "reputacion_experiencia",
+    nombre: "La reputación y experiencia del cirujano/equipo médico",
+  },
+  {
+    valor: "resenas_resultados",
+    nombre: "Las reseñas y fotos de resultados de otros pacientes",
+  },
+  {
+    valor: "tecnica_tecnologia",
+    nombre: "La técnica y tecnología que utiliza (FUE, DHI, robótica…)",
+  },
+  {
+    valor: "precio_financiacion",
+    nombre: "El precio final y las facilidades de financiación",
+  },
+  { valor: "rapidez_cita", nombre: "Conseguir cita cuanto antes" },
+  {
+    valor: "seguimiento_postoperatorio",
+    nombre: "El seguimiento y acompañamiento tras la intervención",
+  },
+];
+
 export const PRIORIDAD_LABEL: Record<string, string> = {
+  ...Object.fromEntries(PRIORIDAD_OPCIONES.map((o) => [o.valor, o.nombre])),
+  // Valores antiguos — solo para poder seguir mostrando solicitudes ya
+  // enviadas con estas opciones, ya no se ofrecen en el formulario.
   reputacion_cirujano: "La reputación y experiencia del cirujano",
   resenas_fotos: "Las reseñas y fotos de otros pacientes",
   tecnologia: "La tecnología que utiliza la clínica",
@@ -134,6 +172,33 @@ export const FUMADOR_LABEL: Record<string, string> = {
   ocasional: "Fumador/a ocasional",
   regular: "Fumador/a regular",
 };
+
+export const SINTOMAS_CUERO_CABELLUDO_OPCIONES: { valor: string; nombre: string }[] = [
+  { valor: "picor", nombre: "Picor" },
+  { valor: "descamacion", nombre: "Descamación" },
+  { valor: "rojez", nombre: "Rojez" },
+  { valor: "granitos", nombre: "Granitos" },
+  { valor: "dolor", nombre: "Dolor" },
+  { valor: "grasa", nombre: "Exceso de grasa" },
+];
+
+export const SINTOMAS_CUERO_CABELLUDO_LABEL: Record<string, string> =
+  Object.fromEntries(
+    SINTOMAS_CUERO_CABELLUDO_OPCIONES.map((o) => [o.valor, o.nombre]),
+  );
+
+export const TRATAMIENTOS_USADOS_OPCIONES: { valor: string; nombre: string }[] = [
+  { valor: "minoxidil", nombre: "Minoxidil" },
+  { valor: "finasterida", nombre: "Finasterida / Dutasterida" },
+  { valor: "champus", nombre: "Champús anticaída" },
+  { valor: "suplementos", nombre: "Suplementos / vitaminas" },
+  { valor: "otro", nombre: "Otro" },
+];
+
+export const TRATAMIENTOS_USADOS_LABEL: Record<string, string> =
+  Object.fromEntries(
+    TRATAMIENTOS_USADOS_OPCIONES.map((o) => [o.valor, o.nombre]),
+  );
 
 export const CONDICIONES_MEDICAS_LABEL: Record<string, string> = {
   diabetes: "Diabetes",

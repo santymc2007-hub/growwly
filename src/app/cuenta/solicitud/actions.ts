@@ -18,8 +18,13 @@ export type DatosSolicitud = {
   progresionPerdida: string;
   antecedentesFamiliares: string;
   medicacionActual: string;
+  sintomasCueroCabelludo: string[];
+  tratamientosUsados: string[];
+  tratamientosUsadosDetalle: string;
+  cambiosSaludRecientes: string;
   tratamientosInteres: string[];
   dejarDecidirMedico: boolean;
+  codigoPostal: string;
   cuandoTratamiento: string;
   dondeTratamiento: string;
   presupuestoRango: string;
@@ -28,6 +33,7 @@ export type DatosSolicitud = {
   condicionesMedicas: string[];
   cirugiasPrevias: string;
   fumador: string;
+  aceptaMarketingEmail: boolean;
   consentimientoDatos: boolean;
   consentimientoInfoMedica: boolean;
   consentimientoFotos: boolean;
@@ -60,18 +66,19 @@ export async function crearSolicitud(
   const ahora = new Date().toISOString();
 
   // Sexo y tipo de pérdida de cabello son datos del perfil (no cambian
-  // entre solicitudes), igual que nombre/apellidos/edad.
-  if (datos.sexo || datos.tipoPerdidaCabello) {
-    await supabase
-      .from("profiles")
-      .update({
-        ...(datos.sexo ? { sexo: datos.sexo } : {}),
-        ...(datos.tipoPerdidaCabello
-          ? { tipo_perdida_cabello: datos.tipoPerdidaCabello }
-          : {}),
-      })
-      .eq("id", user.id);
-  }
+  // entre solicitudes), igual que nombre/apellidos/edad. El
+  // consentimiento de marketing se guarda siempre tal cual está en el
+  // formulario (también cuando se desmarca).
+  await supabase
+    .from("profiles")
+    .update({
+      ...(datos.sexo ? { sexo: datos.sexo } : {}),
+      ...(datos.tipoPerdidaCabello
+        ? { tipo_perdida_cabello: datos.tipoPerdidaCabello }
+        : {}),
+      acepta_marketing_email: datos.aceptaMarketingEmail,
+    })
+    .eq("id", user.id);
 
   const { data: solicitud, error } = await supabase
     .from("solicitudes_presupuesto")
@@ -82,8 +89,13 @@ export async function crearSolicitud(
       progresion_perdida: datos.progresionPerdida || null,
       antecedentes_familiares: datos.antecedentesFamiliares || null,
       medicacion_actual: datos.medicacionActual || null,
+      sintomas_cuero_cabelludo: datos.sintomasCueroCabelludo,
+      tratamientos_usados: datos.tratamientosUsados,
+      tratamientos_usados_detalle: datos.tratamientosUsadosDetalle || null,
+      cambios_salud_recientes: datos.cambiosSaludRecientes || null,
       tratamientos_interes: datos.tratamientosInteres,
       dejar_decidir_medico: datos.dejarDecidirMedico,
+      codigo_postal: datos.codigoPostal || null,
       cuando_tratamiento: datos.cuandoTratamiento || null,
       donde_tratamiento: datos.dondeTratamiento || null,
       presupuesto_rango: datos.presupuestoRango || null,

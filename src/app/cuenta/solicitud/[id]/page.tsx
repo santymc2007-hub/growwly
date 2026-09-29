@@ -27,6 +27,14 @@ import {
   DONDE_LABEL,
   labelPresupuesto,
   etiqueta,
+  SEXO_LABEL,
+  labelTipoPerdida,
+  PROGRESION_LABEL,
+  FUMADOR_LABEL,
+  CONDICIONES_MEDICAS_LABEL,
+  SINTOMAS_CUERO_CABELLUDO_LABEL,
+  TRATAMIENTOS_USADOS_LABEL,
+  PRIORIDAD_LABEL,
 } from "@/lib/solicitud-labels";
 import type { Database } from "@/lib/supabase/database.types";
 import { BorrarSolicitudButton } from "./borrar-solicitud-button";
@@ -109,12 +117,15 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
   } = await supabase.auth.getUser();
   if (!user) redirect("/cuenta/login");
 
-  const { data: solicitud } = await supabase
-    .from("solicitudes_presupuesto")
-    .select("*")
-    .eq("id", id)
-    .eq("user_id", user.id)
-    .maybeSingle();
+  const [{ data: solicitud }, { data: profile }] = await Promise.all([
+    supabase
+      .from("solicitudes_presupuesto")
+      .select("*")
+      .eq("id", id)
+      .eq("user_id", user.id)
+      .maybeSingle(),
+    supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
+  ]);
   if (!solicitud) notFound();
 
   // RLS de leads_clinica/propuestas/clinics-internas es solo para el
@@ -545,6 +556,108 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
                 ))}
 
               <section className="flex flex-col gap-4">
+                <h2 className="font-display text-2xl font-extrabold text-teal-dark">Datos de tu solicitud</h2>
+                <dl className="flex flex-col divide-y divide-line rounded-3xl border border-line bg-white px-5 text-sm sm:px-8">
+                  {profile?.sexo && (
+                    <Row label="Sexo" value={etiqueta(SEXO_LABEL, profile.sexo)!} />
+                  )}
+                  {profile?.tipo_perdida_cabello && (
+                    <Row
+                      label="Tipo de pérdida de cabello"
+                      value={labelTipoPerdida(profile.sexo, profile.tipo_perdida_cabello)!}
+                    />
+                  )}
+                  {solicitud.ciudad && <Row label="Ciudad" value={solicitud.ciudad} />}
+                  {solicitud.codigo_postal && (
+                    <Row label="Código postal" value={solicitud.codigo_postal} />
+                  )}
+                  {solicitud.progresion_perdida && (
+                    <Row
+                      label="Progresión de la pérdida"
+                      value={etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida)!}
+                    />
+                  )}
+                  {solicitud.antecedentes_familiares && (
+                    <Row
+                      label="Antecedentes familiares"
+                      value={solicitud.antecedentes_familiares}
+                    />
+                  )}
+                  {solicitud.medicacion_actual && (
+                    <Row
+                      label="Medicación actual"
+                      value={solicitud.medicacion_actual}
+                    />
+                  )}
+                  {solicitud.sintomas_cuero_cabelludo.length > 0 && (
+                    <Row
+                      label="Síntomas en el cuero cabelludo"
+                      value={solicitud.sintomas_cuero_cabelludo
+                        .map((s) => SINTOMAS_CUERO_CABELLUDO_LABEL[s] ?? s)
+                        .join(", ")}
+                    />
+                  )}
+                  {solicitud.tratamientos_usados.length > 0 && (
+                    <Row
+                      label="Tratamientos ya probados"
+                      value={
+                        solicitud.tratamientos_usados
+                          .map((t) => TRATAMIENTOS_USADOS_LABEL[t] ?? t)
+                          .join(", ") +
+                        (solicitud.tratamientos_usados_detalle
+                          ? ` — ${solicitud.tratamientos_usados_detalle}`
+                          : "")
+                      }
+                    />
+                  )}
+                  {solicitud.cambios_salud_recientes && (
+                    <Row
+                      label="Cambios de salud recientes"
+                      value={solicitud.cambios_salud_recientes}
+                    />
+                  )}
+                  {solicitud.tratamientos_interes.length > 0 && (
+                    <Row
+                      label="Tratamientos de interés"
+                      value={solicitud.tratamientos_interes.join(", ")}
+                    />
+                  )}
+                  {solicitud.dejar_decidir_medico && (
+                    <Row
+                      label="Tratamiento"
+                      value="Deja que el médico decida la mejor técnica"
+                    />
+                  )}
+                  {solicitud.prioridad_decision && (
+                    <Row
+                      label="Lo más importante para usted"
+                      value={etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision)!}
+                    />
+                  )}
+                  {solicitud.alergias && (
+                    <Row label="Alergias" value={solicitud.alergias} />
+                  )}
+                  {solicitud.condiciones_medicas.length > 0 && (
+                    <Row
+                      label="Condiciones médicas"
+                      value={solicitud.condiciones_medicas
+                        .map((c) => CONDICIONES_MEDICAS_LABEL[c] ?? c)
+                        .join(", ")}
+                    />
+                  )}
+                  {solicitud.cirugias_previas && (
+                    <Row label="Cirugías previas" value={solicitud.cirugias_previas} />
+                  )}
+                  {solicitud.fumador && (
+                    <Row
+                      label="Fumador"
+                      value={etiqueta(FUMADOR_LABEL, solicitud.fumador)!}
+                    />
+                  )}
+                </dl>
+              </section>
+
+              <section className="flex flex-col gap-4">
                 <h2 className="font-display text-2xl font-extrabold text-teal-dark">Qué pasa ahora</h2>
                 <div className="grid gap-4 md:grid-cols-3">
                   {ahora.map((a, i) => (
@@ -597,5 +710,14 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
         </div>
       </div>
     </main>
+  );
+}
+
+function Row({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="flex justify-between gap-4 px-1 py-3">
+      <dt className="text-ink-soft">{label}</dt>
+      <dd className="text-right font-medium text-ink">{value}</dd>
+    </div>
   );
 }
