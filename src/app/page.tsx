@@ -43,24 +43,34 @@ const PASOS = [
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const { data } = await supabase
-    .from("clinics")
-    .select("*")
-    .eq("publicado", true)
-    .eq("verificado_admin", true)
-    .or("destacado.eq.true,destacado_home.eq.true")
-    .order("destacado_home", { ascending: false })
-    .order("destacado", { ascending: false })
-    .order("orden", { ascending: true })
-    .limit(8);
+  const [{ data }, clinicaDeLaSemana, { data: tratamientosData }, { data: postsDestacadosData }] =
+    await Promise.all([
+      supabase
+        .from("clinics")
+        .select("*")
+        .eq("publicado", true)
+        .eq("verificado_admin", true)
+        .or("destacado.eq.true,destacado_home.eq.true")
+        .order("destacado_home", { ascending: false })
+        .order("destacado", { ascending: false })
+        .order("orden", { ascending: true })
+        .limit(8),
+      obtenerClinicaDeLaSemana("Illes Balears"),
+      supabase
+        .from("tratamientos")
+        .select("slug, nombre, categoria, imagen_portada, resumen, destacado_home")
+        .eq("publicado", true)
+        .order("nombre", { ascending: true }),
+      supabase
+        .from("blog_posts")
+        .select("slug, titulo, resumen, imagen_portada")
+        .eq("publicado", true)
+        .eq("destacado_home", true)
+        .order("publicado_en", { ascending: false })
+        .limit(4),
+    ]);
   const destacadas = data ?? [];
-  const clinicaDeLaSemana = await obtenerClinicaDeLaSemana("Illes Balears");
 
-  const { data: tratamientosData } = await supabase
-    .from("tratamientos")
-    .select("slug, nombre, categoria, imagen_portada, resumen, destacado_home")
-    .eq("publicado", true)
-    .order("nombre", { ascending: true });
   // Si el admin ha marcado tratamientos como destacados a mano, se
   // usan esos (hasta 4). Si no ha marcado ninguno todavía, se cae al
   // criterio anterior: un tratamiento real por categoría, nunca
@@ -75,13 +85,6 @@ export default async function HomePage() {
           (tratamientosData ?? []).find((t) => t.categoria === categoria),
         ).filter((t): t is NonNullable<typeof t> => Boolean(t));
 
-  const { data: postsDestacadosData } = await supabase
-    .from("blog_posts")
-    .select("slug, titulo, resumen, imagen_portada")
-    .eq("publicado", true)
-    .eq("destacado_home", true)
-    .order("publicado_en", { ascending: false })
-    .limit(4);
   const postsDestacados = postsDestacadosData ?? [];
 
   return (
