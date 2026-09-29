@@ -6,7 +6,7 @@ import { MobileMenu } from "./mobile-menu";
 import { MenuTratamientos } from "./menu-tratamientos";
 import { cerrarSesionClinica } from "@/app/clinica/actions";
 import { cerrarSesionPaciente } from "@/app/cuenta/actions";
-import { tratamientosMenu } from "@/lib/tratamientos-menu";
+import { tratamientosMenu } from "@/lib/nav-publica-cache";
 
 export async function SiteHeader() {
   const supabase = await createClient();
