@@ -51,8 +51,8 @@ export async function registrarEventoLead(
 
   if (error) {
     // Un fallo aquí no debe tumbar el flujo principal (crear la
-    // solicitud, ver el lead, desbloquearlo...) — en el peor caso se
-    // pierde ese evento puntual para las métricas futuras, pero el
+    // solicitud, ver el lead, enviar la propuesta...) — en el peor caso
+    // se pierde ese evento puntual para las métricas futuras, pero el
     // paciente o la clínica no lo notan.
     console.error("No se pudo registrar evento de lead:", params.event, error.message);
   }

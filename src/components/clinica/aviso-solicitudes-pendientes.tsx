@@ -21,7 +21,7 @@ export function AvisoSolicitudesPendientes({ cantidad }: { cantidad: number }) {
           Tienes presupuestos pendientes
         </p>
         <p className="mt-3 text-sm text-ink-soft">
-          No te demores en desbloquear — recuerda que ser el primero mejora
+          No te demores en responder — recuerda que ser el primero mejora
           sensiblemente las posibilidades de cerrar una consulta.
         </p>
         <div className="mt-6 flex flex-col gap-2">

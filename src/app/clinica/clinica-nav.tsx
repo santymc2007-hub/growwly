@@ -7,7 +7,7 @@ export function ClinicaNav({
   solicitudesPendientes = 0,
 }: {
   activo: Seccion;
-  /** Solicitudes de presupuesto sin desbloquear — resalta la pestaña. */
+  /** Solicitudes de presupuesto sin abrir — resalta la pestaña. */
   solicitudesPendientes?: number;
 }) {
   const tab = (href: string, label: string, key: Seccion, badge?: number) => (

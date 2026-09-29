@@ -2,8 +2,8 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 /**
  * Solicitudes de presupuesto que le han llegado a esta clínica y que
- * todavía no ha desbloqueado — para el aviso en la pestaña y el modal
- * de bienvenida al panel.
+ * todavía no ha abierto — para el aviso en la pestaña y el modal de
+ * bienvenida al panel.
  */
 export async function contarSolicitudesPendientes(
   clinicId: string,
