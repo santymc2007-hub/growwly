@@ -8,8 +8,11 @@ type Tipo = "exito" | "error";
  * Aviso flotante que confirma si algo se ha guardado bien o ha
  * fallado. Fijo en pantalla (no depende de estar arriba del todo de
  * la página) y se cierra solo — pásale un `key` distinto en cada
- * aparición (p. ej. un timestamp) para que se reinicie el aviso
- * aunque el mensaje sea idéntico al anterior.
+ * aparición para que se reinicie el aviso aunque el mensaje sea
+ * idéntico al anterior. Genera ese valor donde el guardado realmente
+ * ocurre (la Server Action, no el render de la página) — p. ej. un
+ * timestamp añadido al redirect — para no llamar a algo no
+ * determinista durante el render.
  */
 export function Toast({ tipo, mensaje }: { tipo: Tipo; mensaje: string }) {
   const [visible, setVisible] = useState(true);

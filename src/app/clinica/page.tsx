@@ -154,7 +154,7 @@ export default async function ClinicaPanelPage({
 
         {(guardado || error) && (
           <Toast
-            key={Date.now()}
+            key={guardado ?? error}
             tipo={error ? "error" : "exito"}
             mensaje={error ? decodeURIComponent(error) : "Cambios guardados correctamente."}
           />
