@@ -47,10 +47,10 @@ export default async function ResultadoAnalisisPage({
   const rangoUfs = rangoUfsPorNorwood(estudio.norwood_estimado);
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
 
-      <div className="mx-auto max-w-xl px-6 py-12">
+      <div className="mx-auto max-w-2xl px-6 py-12">
         <Link
           href="/cuenta"
           className="text-sm font-medium text-cyan hover:text-cyan-dark"

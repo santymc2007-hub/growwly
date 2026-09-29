@@ -230,6 +230,7 @@ export interface Database {
           ciudad: string | null;
           sexo: string | null;
           tipo_perdida_cabello: string | null;
+          acepta_marketing_email: boolean;
           created_at: string;
           updated_at: string;
         };
@@ -247,6 +248,7 @@ export interface Database {
           ciudad?: string | null;
           sexo?: string | null;
           tipo_perdida_cabello?: string | null;
+          acepta_marketing_email?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -264,6 +266,7 @@ export interface Database {
           ciudad?: string | null;
           sexo?: string | null;
           tipo_perdida_cabello?: string | null;
+          acepta_marketing_email?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -405,6 +408,11 @@ export interface Database {
           condiciones_medicas: string[];
           cirugias_previas: string | null;
           fumador: string | null;
+          sintomas_cuero_cabelludo: string[];
+          tratamientos_usados: string[];
+          tratamientos_usados_detalle: string | null;
+          cambios_salud_recientes: string | null;
+          codigo_postal: string | null;
           consentimiento_datos_en: string | null;
           consentimiento_compartir_en: string | null;
           consentimiento_info_medica_en: string | null;
@@ -433,6 +441,11 @@ export interface Database {
           condiciones_medicas?: string[];
           cirugias_previas?: string | null;
           fumador?: string | null;
+          sintomas_cuero_cabelludo?: string[];
+          tratamientos_usados?: string[];
+          tratamientos_usados_detalle?: string | null;
+          cambios_salud_recientes?: string | null;
+          codigo_postal?: string | null;
           consentimiento_datos_en?: string | null;
           consentimiento_compartir_en?: string | null;
           consentimiento_info_medica_en?: string | null;
@@ -461,6 +474,11 @@ export interface Database {
           condiciones_medicas?: string[];
           cirugias_previas?: string | null;
           fumador?: string | null;
+          sintomas_cuero_cabelludo?: string[];
+          tratamientos_usados?: string[];
+          tratamientos_usados_detalle?: string | null;
+          cambios_salud_recientes?: string | null;
+          codigo_postal?: string | null;
           consentimiento_datos_en?: string | null;
           consentimiento_compartir_en?: string | null;
           consentimiento_info_medica_en?: string | null;

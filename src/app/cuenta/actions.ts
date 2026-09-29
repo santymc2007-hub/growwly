@@ -35,6 +35,7 @@ export async function actualizarPerfil(formData: FormData) {
       telefono: telefono || null,
       ciudad: ciudad || null,
       fecha_nacimiento: fechaNacimiento,
+      acepta_marketing_email: formData.get("acepta_marketing_email") === "on",
     })
     .eq("id", user.id);
 

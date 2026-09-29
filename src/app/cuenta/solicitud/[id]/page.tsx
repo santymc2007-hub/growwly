@@ -17,6 +17,8 @@ import {
   PRIORIDAD_LABEL,
   FUMADOR_LABEL,
   CONDICIONES_MEDICAS_LABEL,
+  SINTOMAS_CUERO_CABELLUDO_LABEL,
+  TRATAMIENTOS_USADOS_LABEL,
   SEXO_LABEL,
   labelTipoPerdida,
   labelPresupuesto,
@@ -123,7 +125,7 @@ export default async function SolicitudDetallePage({
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
 
-      <div className="mx-auto max-w-xl px-6 py-12">
+      <div className="mx-auto max-w-2xl px-6 py-12">
         <Link
           href="/cuenta"
           className="text-sm font-medium text-cyan hover:text-cyan-dark"
@@ -268,10 +270,52 @@ export default async function SolicitudDetallePage({
             />
           )}
           {solicitud.ciudad && <Row label="Ciudad" value={solicitud.ciudad} />}
+          {solicitud.codigo_postal && (
+            <Row label="Código postal" value={solicitud.codigo_postal} />
+          )}
           {solicitud.progresion_perdida && (
             <Row
               label="Progresión de la pérdida"
               value={etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida)!}
+            />
+          )}
+          {solicitud.antecedentes_familiares && (
+            <Row
+              label="Antecedentes familiares"
+              value={solicitud.antecedentes_familiares}
+            />
+          )}
+          {solicitud.medicacion_actual && (
+            <Row
+              label="Medicación actual"
+              value={solicitud.medicacion_actual}
+            />
+          )}
+          {solicitud.sintomas_cuero_cabelludo.length > 0 && (
+            <Row
+              label="Síntomas en el cuero cabelludo"
+              value={solicitud.sintomas_cuero_cabelludo
+                .map((s) => SINTOMAS_CUERO_CABELLUDO_LABEL[s] ?? s)
+                .join(", ")}
+            />
+          )}
+          {solicitud.tratamientos_usados.length > 0 && (
+            <Row
+              label="Tratamientos ya probados"
+              value={
+                solicitud.tratamientos_usados
+                  .map((t) => TRATAMIENTOS_USADOS_LABEL[t] ?? t)
+                  .join(", ") +
+                (solicitud.tratamientos_usados_detalle
+                  ? ` — ${solicitud.tratamientos_usados_detalle}`
+                  : "")
+              }
+            />
+          )}
+          {solicitud.cambios_salud_recientes && (
+            <Row
+              label="Cambios de salud recientes"
+              value={solicitud.cambios_salud_recientes}
             />
           )}
           {solicitud.tratamientos_interes.length > 0 && (

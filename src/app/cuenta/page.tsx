@@ -268,6 +268,20 @@ export default async function CuentaPage({
                   </div>
                 </div>
 
+                <label className="flex items-start gap-2 text-sm">
+                  <input
+                    type="checkbox"
+                    name="acepta_marketing_email"
+                    defaultChecked={profile?.acepta_marketing_email ?? false}
+                    className="mt-0.5"
+                  />
+                  <span>
+                    Quiero recibir novedades de Growwly por email (consejos,
+                    nuevas clínicas, ofertas). Opcional, puedes cambiarlo
+                    cuando quieras.
+                  </span>
+                </label>
+
                 <button
                   type="submit"
                   className="mt-2 self-start rounded-full bg-teal px-5 py-2.5 text-sm font-medium text-paper transition hover:bg-teal-dark"
@@ -351,7 +365,7 @@ export default async function CuentaPage({
             </div>
 
             {estudios && estudios.length > 0 ? (
-              <ul className="mt-4 flex flex-col gap-2">
+              <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {estudios.map((e) => (
                   <li
                     key={e.id}
@@ -359,7 +373,7 @@ export default async function CuentaPage({
                   >
                     <Link
                       href={`/cuenta/analisis/${e.id}`}
-                      className="flex items-center justify-between hover:text-teal"
+                      className="flex flex-col gap-0.5 hover:text-teal"
                     >
                       <span className="text-ink">
                         {new Date(e.created_at).toLocaleDateString("es-ES")}
@@ -404,7 +418,7 @@ export default async function CuentaPage({
             </div>
 
             {solicitudes && solicitudes.length > 0 ? (
-              <ul className="mt-4 flex flex-col gap-2">
+              <ul className="mt-4 grid grid-cols-1 gap-2 sm:grid-cols-2">
                 {solicitudes.map((s) => {
                   const info = infoPropuestasPorSolicitud.get(s.id);
                   return (
@@ -414,7 +428,7 @@ export default async function CuentaPage({
                     >
                       <Link
                         href={`/cuenta/solicitud/${s.id}`}
-                        className="flex items-center justify-between hover:text-teal"
+                        className="flex flex-col items-start gap-1 hover:text-teal"
                       >
                         <span className="text-ink">
                           {new Date(s.created_at).toLocaleDateString("es-ES")}
