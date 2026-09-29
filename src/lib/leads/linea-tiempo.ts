@@ -11,9 +11,9 @@ export type PasoTimeline = {
 };
 
 /** Los hitos que se enseñan en la evolución del lead (en horizontal).
- * Los estados intermedios del pipeline (desbloqueado, cita_pendiente,
- * cita_realizada) no tienen hito propio: cuentan como camino hacia el
- * siguiente. El orden sigue ORDEN_PIPELINE de estados-lead.ts. Los
+ * Los estados intermedios del pipeline (cita_pendiente, cita_realizada)
+ * no tienen hito propio: cuentan como camino hacia el siguiente. El
+ * orden sigue ORDEN_PIPELINE de estados-lead.ts. Los
  * estados negativos (no_seleccionado, no_convertido, cancelado) se
  * enseñan aparte, como aviso de por qué se cortó el proceso. */
 const HITOS: { estado: EstadoLead; label: string }[] = [
@@ -50,7 +50,6 @@ export function construirPasosTimeline(lead: LeadRow): {
   const fechaPorEstado: Partial<Record<EstadoLead, string | null>> = {
     enviado: lead.enviado_en,
     visto: lead.visto_en,
-    desbloqueado: lead.desbloqueado_en,
     propuesta_enviada: lead.propuesta_enviada_en,
     seleccionado: lead.seleccionado_en,
     cita_pendiente: lead.cita_pendiente_en,

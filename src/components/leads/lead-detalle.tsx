@@ -4,7 +4,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
-import { DesbloquearButton } from "@/app/leads/[token]/desbloquear-button";
 import { PropuestaForm } from "@/components/leads/propuesta-form";
 import { CitaSeguimiento } from "@/components/leads/cita-seguimiento";
 import { leerOpcionesCita } from "@/lib/leads/opciones-cita";
@@ -51,11 +50,10 @@ export async function LeadDetalle({
   }
 
   const estado = lead.estado as EstadoLead;
-  // "Desbloquear" da acceso al historial médico, preferencias y fotos
-  // — pero el contacto (nombre/teléfono/email) no se libera hasta que
-  // el paciente elige esta clínica (Fase 5), así que son dos gates
-  // distintos.
-  const yaDesbloqueado = estado !== "enviado" && estado !== "visto";
+  const puedeResponder = estado === "enviado" || estado === "visto" || estado === "propuesta_enviada";
+  // El nombre/teléfono/email no se liberan hasta que el paciente elige
+  // esta clínica (Fase 5) — el resto del perfil se ve completo desde
+  // que llega el lead.
   const contactoOk = contactoLiberado(estado);
 
   const [{ data: solicitud }, { data: clinica }, { data: propuestaExistente }] =
@@ -82,7 +80,6 @@ export async function LeadDetalle({
   }
 
   let resumenIA: string | null = null;
-  let hayFotos = false;
   let hayValoracion = false;
   let fotoUrls: string[] = [];
   if (solicitud.estudio_id) {
@@ -105,23 +102,12 @@ export async function LeadDetalle({
         estudio.foto_perfil_izquierdo,
         ...estudio.fotos_adicionales,
       ].filter((r): r is string => Boolean(r));
-      hayFotos = rutas.length > 0;
 
-      // Las fotos originales, en limpio, solo se generan (y se
-      // mandan al navegador) una vez desbloqueado. Antes de eso solo
-      // se ve la portada desenfocada vía /api/leads/[token]/foto-borrosa,
-      // que hace el desenfoque en el servidor sobre los bytes reales.
-      if (yaDesbloqueado) {
-        const urls = await Promise.all(
-          rutas.map((r) => urlFirmadaFoto(supabase, r)),
-        );
-        fotoUrls = urls.filter((u): u is string => Boolean(u));
-      }
+      const urls = await Promise.all(rutas.map((r) => urlFirmadaFoto(supabase, r)));
+      fotoUrls = urls.filter((u): u is string => Boolean(u));
     }
   }
 
-  // Sexo y tipo de pérdida de cabello no identifican al paciente, así
-  // que se muestran ya en la vista anonimizada (antes de desbloquear).
   const { data: perfilMedico } = await supabase
     .from("profiles")
     .select("sexo, tipo_perdida_cabello")
@@ -157,52 +143,48 @@ export async function LeadDetalle({
     });
   }
 
-  const datosBasicos: { k: string; v: string }[] = [];
-  if (perfilMedico?.sexo) datosBasicos.push({ k: "Sexo", v: etiqueta(SEXO_LABEL, perfilMedico.sexo)! });
-  if (perfilMedico?.tipo_perdida_cabello)
-    datosBasicos.push({
-      k: "Tipo de pérdida de cabello",
-      v: labelTipoPerdida(perfilMedico.sexo, perfilMedico.tipo_perdida_cabello)!,
-    });
-  if (solicitud.ciudad) datosBasicos.push({ k: "Ciudad", v: solicitud.ciudad });
-  if (solicitud.codigo_postal) datosBasicos.push({ k: "Código postal", v: solicitud.codigo_postal });
+  const datos: { k: string; v: string }[] = [];
+  const add = (k: string, v: string | null | undefined) => v && datos.push({ k, v });
+  add("Sexo", perfilMedico?.sexo ? etiqueta(SEXO_LABEL, perfilMedico.sexo) : null);
+  add(
+    "Tipo de pérdida de cabello",
+    perfilMedico?.sexo && perfilMedico.tipo_perdida_cabello
+      ? labelTipoPerdida(perfilMedico.sexo, perfilMedico.tipo_perdida_cabello)
+      : null,
+  );
+  add("Ciudad", solicitud.ciudad);
+  add("Código postal", solicitud.codigo_postal);
+  add("Progresión de la pérdida", etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida));
+  add("Antecedentes familiares", solicitud.antecedentes_familiares);
+  add("Medicación actual", solicitud.medicacion_actual);
+  if (solicitud.sintomas_cuero_cabelludo.length > 0)
+    add(
+      "Síntomas en el cuero cabelludo",
+      solicitud.sintomas_cuero_cabelludo.map((s) => SINTOMAS_CUERO_CABELLUDO_LABEL[s] ?? s).join(", "),
+    );
+  if (solicitud.tratamientos_usados.length > 0)
+    add(
+      "Tratamientos ya probados",
+      solicitud.tratamientos_usados.map((t) => TRATAMIENTOS_USADOS_LABEL[t] ?? t).join(", ") +
+        (solicitud.tratamientos_usados_detalle ? ` — ${solicitud.tratamientos_usados_detalle}` : ""),
+    );
+  add("Cambios de salud recientes", solicitud.cambios_salud_recientes);
   if (solicitud.tratamientos_interes.length > 0)
-    datosBasicos.push({ k: "Tratamientos de interés", v: solicitud.tratamientos_interes.join(", ") });
-  if (solicitud.dejar_decidir_medico)
-    datosBasicos.push({ k: "Tratamiento", v: "Deja que el médico decida la técnica" });
+    add("Tratamientos de interés", solicitud.tratamientos_interes.join(", "));
+  if (solicitud.dejar_decidir_medico) add("Tratamiento", "Deja que el médico decida la técnica");
+  add("Cuándo quiere empezar", etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento));
+  add("Dónde", etiqueta(DONDE_LABEL, solicitud.donde_tratamiento));
   if (solicitud.presupuesto_rango)
-    datosBasicos.push({ k: "Presupuesto aproximado", v: labelPresupuesto(solicitud.presupuesto_rango) });
-
-  const datosCompletos: { k: string; v: string }[] = [];
-  if (yaDesbloqueado) {
-    const add = (k: string, v: string | null | undefined) => v && datosCompletos.push({ k, v });
-    add("Progresión de la pérdida", etiqueta(PROGRESION_LABEL, solicitud.progresion_perdida));
-    add("Antecedentes familiares", solicitud.antecedentes_familiares);
-    add("Medicación actual", solicitud.medicacion_actual);
-    if (solicitud.sintomas_cuero_cabelludo.length > 0)
-      add(
-        "Síntomas en el cuero cabelludo",
-        solicitud.sintomas_cuero_cabelludo.map((s) => SINTOMAS_CUERO_CABELLUDO_LABEL[s] ?? s).join(", "),
-      );
-    if (solicitud.tratamientos_usados.length > 0)
-      add(
-        "Tratamientos ya probados",
-        solicitud.tratamientos_usados.map((t) => TRATAMIENTOS_USADOS_LABEL[t] ?? t).join(", ") +
-          (solicitud.tratamientos_usados_detalle ? ` — ${solicitud.tratamientos_usados_detalle}` : ""),
-      );
-    add("Cambios de salud recientes", solicitud.cambios_salud_recientes);
-    add("Cuándo quiere empezar", etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento));
-    add("Dónde", etiqueta(DONDE_LABEL, solicitud.donde_tratamiento));
-    add("Lo más importante para el paciente", etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision));
-    add("Alergias", solicitud.alergias);
-    if (solicitud.condiciones_medicas.length > 0)
-      add(
-        "Condiciones médicas",
-        solicitud.condiciones_medicas.map((c) => CONDICIONES_MEDICAS_LABEL[c] ?? c).join(", "),
-      );
-    add("Cirugías previas", solicitud.cirugias_previas);
-    add("Fumador", etiqueta(FUMADOR_LABEL, solicitud.fumador));
-  }
+    add("Presupuesto aproximado", labelPresupuesto(solicitud.presupuesto_rango));
+  add("Lo más importante para el paciente", etiqueta(PRIORIDAD_LABEL, solicitud.prioridad_decision));
+  add("Alergias", solicitud.alergias);
+  if (solicitud.condiciones_medicas.length > 0)
+    add(
+      "Condiciones médicas",
+      solicitud.condiciones_medicas.map((c) => CONDICIONES_MEDICAS_LABEL[c] ?? c).join(", "),
+    );
+  add("Cirugías previas", solicitud.cirugias_previas);
+  add("Fumador", etiqueta(FUMADOR_LABEL, solicitud.fumador));
 
   return (
     <>
@@ -230,36 +212,16 @@ export async function LeadDetalle({
             </div>
           )}
 
-          {hayValoracion &&
-            (yaDesbloqueado ? (
-              <Link
-                href={`/leads/${token}/valoracion`}
-                className="press self-start rounded-full bg-yellow px-5 py-2.5 font-display text-sm font-bold text-teal-dark shadow-md shadow-yellow/30 hover:opacity-90"
-              >
-                Ver la valoración que vio el paciente →
-              </Link>
-            ) : (
-              <p className="text-xs text-ink-soft">
-                Al desbloquear podrás ver la valoración completa que se le presentó al paciente.
-              </p>
-            ))}
-
-          {!yaDesbloqueado && hayFotos && (
-            <div>
-              <div className="relative inline-block aspect-square w-40 overflow-hidden rounded-lg border border-line bg-white">
-                <FotoAmpliable
-                  src={`/api/leads/${token}/foto-borrosa`}
-                  alt="Foto del paciente (desenfocada)"
-                  className="h-full w-full object-cover"
-                />
-              </div>
-              <p className="mt-1 text-xs text-ink-soft">
-                Foto de muestra: se ve nítida, junto al resto, al desbloquear el perfil.
-              </p>
-            </div>
+          {hayValoracion && (
+            <Link
+              href={`/leads/${token}/valoracion`}
+              className="press self-start rounded-full bg-yellow px-5 py-2.5 font-display text-sm font-bold text-teal-dark shadow-md shadow-yellow/30 hover:opacity-90"
+            >
+              Ver la valoración que vio el paciente →
+            </Link>
           )}
 
-          {yaDesbloqueado && fotoUrls.length > 0 && (
+          {fotoUrls.length > 0 && (
             <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
               {fotoUrls.map((url) => (
                 <div
@@ -277,34 +239,16 @@ export async function LeadDetalle({
               Lo que ha rellenado en el formulario
             </p>
             <dl className="divide-y divide-line text-sm">
-              {[...datosBasicos, ...datosCompletos].map((d) => (
+              {datos.map((d) => (
                 <Row key={d.k} label={d.k} value={d.v} />
               ))}
             </dl>
-            {!yaDesbloqueado && (
-              <p className="border-t border-line px-4 py-3 text-xs text-ink-soft">
-                Historial médico, medicación, antecedentes y preferencias: visibles al desbloquear.
-              </p>
-            )}
           </div>
         </div>
 
         {/* ===== DERECHA · RESPONDER ===== */}
         <div className="flex min-w-0 flex-col gap-4 [&>*]:mt-0">
           <h3 className="font-display text-lg font-bold text-teal-dark">Responder al paciente</h3>
-
-          {!yaDesbloqueado && (
-            <div className="rounded-xl bg-yellow p-6 text-center">
-              <p className="font-display text-lg font-extrabold text-teal-dark">
-                Desbloquea el perfil, estás a nada de generar un nuevo cliente
-              </p>
-              <p className="mt-1 text-sm text-teal-dark/80">
-                Verás su historial médico, sus preferencias, sus fotos y la valoración completa para
-                preparar tu propuesta. El nombre, teléfono y email se liberan si el paciente te elige.
-              </p>
-              <DesbloquearButton token={token} />
-            </div>
-          )}
 
           {contactoOk && paciente && (
             <div className="rounded-xl bg-sage p-5">
@@ -319,14 +263,14 @@ export async function LeadDetalle({
             </div>
           )}
 
-          {yaDesbloqueado && !contactoOk && (
+          {!contactoOk && (
             <div className="rounded-xl bg-sage/60 p-4 text-sm text-sage-ink">
               El paciente todavía no ha elegido clínica. Si te elige tras ver tu propuesta, verás aquí su
               nombre, teléfono y email.
             </div>
           )}
 
-          {(estado === "desbloqueado" || estado === "propuesta_enviada") && (
+          {puedeResponder && (
             <PropuestaForm
               token={token}
               tratamientoSugerido={

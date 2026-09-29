@@ -1,8 +1,7 @@
 import Link from "next/link";
 import {
-  Lock,
+  Sparkles,
   Eye,
-  Unlock,
   ChevronDown,
   FileText,
   Trophy,
@@ -30,7 +29,7 @@ const ESTADO_INFO: Record<
   EstadoLead,
   {
     label: string;
-    icono: typeof Lock;
+    icono: typeof Sparkles;
     tarjeta: string;
     badge: string;
     mensaje: string;
@@ -38,26 +37,17 @@ const ESTADO_INFO: Record<
 > = {
   enviado: {
     label: "Nuevo",
-    icono: Lock,
+    icono: Sparkles,
     tarjeta: "border-yellow/50 bg-yellow/15 hover:border-yellow",
     badge: "bg-yellow text-teal-dark",
-    mensaje:
-      "Esta petición la han recibido varias clínicas — sé el primero en desbloquearla y contactar con el cliente.",
+    mensaje: "Esta petición la han recibido varias clínicas — sé el primero en contactar con el cliente.",
   },
   visto: {
     label: "Visto, sin gestionar",
     icono: Eye,
-    tarjeta: "border-error/30 bg-error/10 hover:border-error/50",
-    badge: "bg-error/20 text-error-dark",
-    mensaje:
-      "La has visto pero todavía no la has desbloqueado — no dejes que otra clínica se adelante.",
-  },
-  desbloqueado: {
-    label: "Desbloqueado",
-    icono: Unlock,
-    tarjeta: "border-sage-ink/20 bg-sage hover:border-sage-ink/40",
-    badge: "bg-sage-ink/15 text-sage-ink",
-    mensaje: "Ya tienes acceso completo al perfil de este paciente.",
+    tarjeta: "border-orange/40 bg-orange/10 hover:border-orange/60",
+    badge: "bg-orange text-[#8a5a00]",
+    mensaje: "La has visto pero todavía no le has respondido — no dejes que otra clínica se adelante.",
   },
   propuesta_enviada: {
     label: "Propuesta enviada",
@@ -67,10 +57,10 @@ const ESTADO_INFO: Record<
     mensaje: "Le has enviado tu propuesta — está pendiente de que el paciente elija.",
   },
   seleccionado: {
-    label: "¡Elegido!",
+    label: "Propuesta elegida",
     icono: Trophy,
-    tarjeta: "border-teal-dark/30 bg-teal-dark/10 hover:border-teal-dark/50",
-    badge: "bg-teal-dark text-paper",
+    tarjeta: "border-sage-ink/20 bg-sage hover:border-sage-ink/40",
+    badge: "bg-sage-ink/15 text-sage-ink",
     mensaje: "El paciente te ha elegido a ti. Contacta para programar la cita.",
   },
   cita_pendiente: {
@@ -102,10 +92,10 @@ const ESTADO_INFO: Record<
     mensaje: "¡Enhorabuena! El paciente completó el tratamiento con vosotros.",
   },
   no_seleccionado: {
-    label: "No elegido",
+    label: "No elegida",
     icono: XCircle,
-    tarjeta: "border-line bg-paper-dim/40 hover:border-line",
-    badge: "bg-paper-dim text-ink-soft",
+    tarjeta: "border-orange/40 bg-orange/10 hover:border-orange/60",
+    badge: "bg-orange text-[#8a5a00]",
     mensaje: "El paciente ha elegido otra clínica.",
   },
   no_convertido: {
@@ -128,7 +118,7 @@ const FILTROS: { valor: EstadoLead | "todos"; label: string }[] = [
   { valor: "todos", label: "Todas" },
   { valor: "enviado", label: "Nuevas" },
   { valor: "visto", label: "Vistas sin gestionar" },
-  { valor: "desbloqueado", label: "Desbloqueadas" },
+  { valor: "propuesta_enviada", label: "Con propuesta enviada" },
 ];
 
 export default async function SolicitudesClinicaPage({
@@ -230,8 +220,8 @@ export default async function SolicitudesClinicaPage({
               const estado = lead.estado as EstadoLead;
               const info = ESTADO_INFO[estado] ?? ESTADO_INFO.enviado;
               const Icono = info.icono;
-              // La evolución solo tiene sentido una vez desbloqueado el
-              // lead — antes de eso el único "paso" visible sería
+              // La evolución solo tiene sentido a partir de que se envía
+              // una propuesta — antes de eso el único "paso" visible sería
               // enviado/visto, que ya se ve en la propia tarjeta.
               const mostrarEvolucion = estado !== "enviado" && estado !== "visto";
               const { pasos, avisoNegativo } = mostrarEvolucion

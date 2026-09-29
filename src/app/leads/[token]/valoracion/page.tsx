@@ -11,8 +11,8 @@ type Params = { token: string };
 
 /**
  * La valoración capilar tal y como la vio el paciente, para la clínica
- * que ha desbloqueado su solicitud. Sin nombre del paciente (eso solo
- * llega si la elige) y sin botones del paciente.
+ * a la que le ha llegado su solicitud. Sin nombre del paciente (eso
+ * solo llega si la elige) y sin botones del paciente.
  */
 export default async function ValoracionLeadPage({ params }: { params: Promise<Params> }) {
   const { token } = await params;
@@ -20,10 +20,10 @@ export default async function ValoracionLeadPage({ params }: { params: Promise<P
 
   const { data: lead } = await admin
     .from("leads_clinica")
-    .select("estado, solicitud_id")
+    .select("solicitud_id")
     .eq("token", token)
     .maybeSingle();
-  if (!lead || lead.estado === "enviado" || lead.estado === "visto") notFound();
+  if (!lead) notFound();
 
   const { data: solicitud } = await admin
     .from("solicitudes_presupuesto")

@@ -15,11 +15,17 @@ export function ClinicaHeaderPerfil({
     <div className="flex flex-wrap items-center justify-between gap-4">
       <div className="flex items-center gap-4">
         {fotoPrincipal ? (
-          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full border-2 border-white shadow">
-            <Image src={fotoPrincipal} alt="" fill sizes="56px" className="object-cover" />
+          <div className="relative h-14 w-28 shrink-0 overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+            <Image
+              src={fotoPrincipal}
+              alt=""
+              fill
+              sizes="112px"
+              className="object-contain p-1.5"
+            />
           </div>
         ) : (
-          <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-sage text-lg font-bold text-sage-ink">
+          <div className="flex h-14 w-28 shrink-0 items-center justify-center rounded-lg bg-sage text-lg font-bold text-sage-ink">
             {nombreClinica.charAt(0)}
           </div>
         )}

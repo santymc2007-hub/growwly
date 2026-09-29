@@ -13,43 +13,12 @@ import {
 import { notificarPacienteFechas } from "@/lib/leads/notificar-cita";
 
 /**
- * Desbloquea un lead para que la clínica vea el perfil completo del
- * paciente. De momento es un desbloqueo directo (sin pasarela de pago
- * integrada) — Santy factura estos desbloqueos a mano por ahora. El
- * mismo campo "estado" que usaría un pago real ya queda preparado para
- * cuando se conecte Stripe más adelante: solo cambiará qué dispara
- * este mismo cambio de estado, no la estructura de datos.
- */
-export async function desbloquearLead(token: string) {
-  const supabase = createAdminClient();
-
-  const { data: lead } = await supabase
-    .from("leads_clinica")
-    .update({ estado: "desbloqueado", desbloqueado_en: new Date().toISOString() })
-    .eq("token", token)
-    .select("id, solicitud_id, clinic_id")
-    .maybeSingle();
-
-  if (lead) {
-    await registrarEventoLead(supabase, {
-      event: "lead_unlocked",
-      solicitudId: lead.solicitud_id,
-      leadId: lead.id,
-      clinicId: lead.clinic_id,
-    });
-  }
-
-  revalidatePath(`/leads/${token}`);
-  revalidatePath("/clinica/solicitudes");
-}
-
-/**
  * Guarda (o actualiza) la propuesta estructurada de la clínica para
  * este lead — el "Responder con propuesta" de la Fase 4. Solo se
- * puede enviar/editar mientras el lead esté en "desbloqueado" (primer
- * envío) o "propuesta_enviada" (edición); una vez el paciente avanza
- * más allá, ya no se admite tocarla — se protege aquí por si alguien
- * reabre un enlace de email viejo.
+ * puede enviar/editar mientras el lead esté en "enviado"/"visto"
+ * (primer envío) o "propuesta_enviada" (edición); una vez el paciente
+ * avanza más allá, ya no se admite tocarla — se protege aquí por si
+ * alguien reabre un enlace de email viejo.
  */
 export async function guardarPropuesta(token: string, formData: FormData) {
   try {
@@ -64,7 +33,7 @@ export async function guardarPropuesta(token: string, formData: FormData) {
     if (!lead) return;
 
     const estadoActual = lead.estado as EstadoLead;
-    const esPrimeraVez = estadoActual === "desbloqueado";
+    const esPrimeraVez = estadoActual === "enviado" || estadoActual === "visto";
     if (!esPrimeraVez && estadoActual !== "propuesta_enviada") {
       return;
     }

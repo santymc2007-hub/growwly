@@ -11,11 +11,15 @@
  * Fase 4 activó "propuesta_enviada" y Fase 5 "seleccionado" /
  * "no_seleccionado" (con liberación de contacto al paciente incluida)
  * — "cita_pendiente" en adelante sigue sin disparador todavía.
+ *
+ * Ya no existe un estado "desbloqueado": la clínica ve el perfil
+ * completo del paciente (salvo nombre/teléfono/email, que solo se
+ * liberan si la elige) desde el momento en que recibe el lead, sin
+ * ningún paso de desbloqueo manual de por medio.
  */
 export const ESTADOS_LEAD = [
   "enviado",
   "visto",
-  "desbloqueado",
   "propuesta_enviada",
   "seleccionado",
   "no_seleccionado",
@@ -45,8 +49,7 @@ export const ESTADOS_FINALES: EstadoLead[] = [
  */
 const TRANSICIONES: Record<EstadoLead, EstadoLead[]> = {
   enviado: ["visto"],
-  visto: ["desbloqueado"],
-  desbloqueado: ["propuesta_enviada"],
+  visto: ["propuesta_enviada"],
   propuesta_enviada: ["seleccionado", "no_seleccionado"],
   seleccionado: ["cita_pendiente"],
   no_seleccionado: [],
@@ -88,7 +91,6 @@ export function transicionValida(desde: EstadoLead, hasta: EstadoLead): boolean 
 export const ORDEN_PIPELINE: EstadoLead[] = [
   "enviado",
   "visto",
-  "desbloqueado",
   "propuesta_enviada",
   "seleccionado",
   "cita_pendiente",

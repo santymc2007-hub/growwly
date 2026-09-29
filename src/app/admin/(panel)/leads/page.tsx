@@ -3,7 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const ESTADO_LABEL: Record<string, string> = {
   enviado: "Enviado",
   visto: "Visto",
-  desbloqueado: "Desbloqueado",
+  propuesta_enviada: "Propuesta enviada",
+  seleccionado: "Propuesta elegida",
+  no_seleccionado: "No elegida",
 };
 
 export const dynamic = "force-dynamic";
@@ -23,13 +25,17 @@ export default async function AdminLeadsPage() {
       : { data: [] };
   const nombrePorClinicId = new Map((clinicas ?? []).map((c) => [c.id, c.nombre]));
 
-  const desbloqueados = (leads ?? []).filter((l) => l.estado === "desbloqueado");
+  // Ya no hay un paso de "desbloqueo" que facturar: la clínica ve el
+  // perfil completo desde que recibe el lead, así que lo que se sigue
+  // aquí para la facturación manual es a cuántos leads ha llegado a
+  // responder con una propuesta.
+  const conPropuesta = (leads ?? []).filter((l) => l.propuesta_enviada_en);
 
   return (
     <div>
       <h1 className="font-display text-2xl text-teal-dark">Leads</h1>
       <p className="mt-1 text-sm text-ink-soft">
-        {desbloqueados.length} desbloqueados de {(leads ?? []).length} enviados
+        {conPropuesta.length} con propuesta enviada de {(leads ?? []).length} enviados
         en total — factura estos a mano por ahora, según lo acordado con cada
         clínica.
       </p>
@@ -41,7 +47,7 @@ export default async function AdminLeadsPage() {
               <th className="px-4 py-3 font-medium">Clínica</th>
               <th className="px-4 py-3 font-medium">Enviado</th>
               <th className="px-4 py-3 font-medium">Estado</th>
-              <th className="px-4 py-3 font-medium">Desbloqueado</th>
+              <th className="px-4 py-3 font-medium">Propuesta enviada</th>
             </tr>
           </thead>
           <tbody>
@@ -56,7 +62,7 @@ export default async function AdminLeadsPage() {
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2.5 py-1 text-xs font-medium ${
-                      lead.estado === "desbloqueado"
+                      lead.propuesta_enviada_en
                         ? "bg-sage text-sage-ink"
                         : "bg-paper-dim text-ink-soft"
                     }`}
@@ -65,8 +71,8 @@ export default async function AdminLeadsPage() {
                   </span>
                 </td>
                 <td className="px-4 py-3 text-ink-soft">
-                  {lead.desbloqueado_en
-                    ? new Date(lead.desbloqueado_en).toLocaleDateString("es-ES")
+                  {lead.propuesta_enviada_en
+                    ? new Date(lead.propuesta_enviada_en).toLocaleDateString("es-ES")
                     : "—"}
                 </td>
               </tr>
