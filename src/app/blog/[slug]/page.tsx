@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
@@ -12,7 +13,9 @@ import { ContenidoEnriquecido } from "@/components/contenido-enriquecido";
 
 type Params = { slug: string };
 
-async function findPost(slug: string) {
+// cache(): ver el mismo comentario en tratamientos/[slug]/page.tsx —
+// generateMetadata y la página piden el mismo post por separado.
+const findPost = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("blog_posts")
@@ -21,7 +24,7 @@ async function findPost(slug: string) {
     .eq("publicado", true)
     .maybeSingle();
   return data;
-}
+});
 
 export async function generateMetadata({
   params,

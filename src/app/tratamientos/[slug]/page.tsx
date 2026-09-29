@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
@@ -13,7 +14,12 @@ import type { Clinic } from "@/lib/supabase/database.types";
 
 type Params = { slug: string };
 
-async function findTratamiento(slug: string) {
+// cache(): generateMetadata y la página en sí piden el mismo
+// tratamiento por separado — sin esto, la consulta se repite dos
+// veces por cada carga. cache() la memoriza para la duración de la
+// petición, así la segunda llamada con el mismo slug no vuelve a la
+// base de datos.
+const findTratamiento = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("tratamientos")
@@ -22,7 +28,7 @@ async function findTratamiento(slug: string) {
     .eq("publicado", true)
     .maybeSingle();
   return data;
-}
+});
 
 export async function generateMetadata({
   params,
@@ -59,38 +65,36 @@ export default async function TratamientoPage({
   const supabase = await createClient();
 
   // Clínicas y precios reales que ofrecen esta técnica — nunca cifras
-  // inventadas sobre el tratamiento.
-  let clinicasConTecnica: Clinic[] = [];
-  let precioMin: number | null = null;
-  let precioMax: number | null = null;
-
-  if (tratamiento.tecnica_relacionada) {
-    const { data } = await supabase
-      .from("clinics")
-      .select("*")
+  // inventadas sobre el tratamiento. Independiente del nav de la
+  // derecha, así que las dos consultas van en paralelo.
+  const [{ data: clinicasData }, { data: todosTratamientos }] = await Promise.all([
+    tratamiento.tecnica_relacionada
+      ? supabase
+          .from("clinics")
+          .select("*")
+          .eq("publicado", true)
+          .contains("tecnicas", [tratamiento.tecnica_relacionada])
+          .order("destacado", { ascending: false })
+          .order("orden", { ascending: true })
+          .limit(6)
+      : Promise.resolve({ data: [] as Clinic[] }),
+    // Para el nav de "todos los tratamientos" del sidebar.
+    supabase
+      .from("tratamientos")
+      .select("slug, nombre, categoria")
       .eq("publicado", true)
-      .contains("tecnicas", [tratamiento.tecnica_relacionada])
-      .order("destacado", { ascending: false })
-      .order("orden", { ascending: true })
-      .limit(6);
-    clinicasConTecnica = data ?? [];
+      .order("nombre", { ascending: true }),
+  ]);
 
-    const desde = clinicasConTecnica
-      .map((c) => c.precio_desde)
-      .filter((p): p is number => p !== null);
-    const hasta = clinicasConTecnica
-      .map((c) => c.precio_hasta)
-      .filter((p): p is number => p !== null);
-    precioMin = desde.length > 0 ? Math.min(...desde) : null;
-    precioMax = hasta.length > 0 ? Math.max(...hasta) : null;
-  }
-
-  // Para el nav de "todos los tratamientos" del sidebar.
-  const { data: todosTratamientos } = await supabase
-    .from("tratamientos")
-    .select("slug, nombre, categoria")
-    .eq("publicado", true)
-    .order("nombre", { ascending: true });
+  const clinicasConTecnica = clinicasData ?? [];
+  const desde = clinicasConTecnica
+    .map((c) => c.precio_desde)
+    .filter((p): p is number => p !== null);
+  const hasta = clinicasConTecnica
+    .map((c) => c.precio_hasta)
+    .filter((p): p is number => p !== null);
+  const precioMin = desde.length > 0 ? Math.min(...desde) : null;
+  const precioMax = hasta.length > 0 ? Math.max(...hasta) : null;
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";

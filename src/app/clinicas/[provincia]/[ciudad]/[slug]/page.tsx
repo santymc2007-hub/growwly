@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { cache } from "react";
 import { notFound, redirect, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import {
@@ -37,7 +38,9 @@ import { SiteFooter } from "@/components/site-footer";
 
 type Params = { provincia: string; ciudad: string; slug: string };
 
-async function findClinic(slug: string) {
+// cache(): ver el mismo comentario en tratamientos/[slug]/page.tsx —
+// generateMetadata y la página piden la misma clínica por separado.
+const findClinic = cache(async (slug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("clinics")
@@ -47,7 +50,7 @@ async function findClinic(slug: string) {
     .eq("verificado_admin", true)
     .maybeSingle();
   return data;
-}
+});
 
 /**
  * Cuando una clínica cambia de nombre, su slug cambia con ella — pero
