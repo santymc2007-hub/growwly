@@ -20,6 +20,8 @@ type Props = {
     EstudioCapilar,
     "id" | "created_at" | "norwood_estimado" | "estado"
   >[];
+  /** Estudio que llega preseleccionado desde el botón del informe. */
+  estudioInicialId?: string | null;
 };
 
 const TOTAL_PASOS = 6;
@@ -38,26 +40,35 @@ const CONDICIONES_MEDICAS_INFO = [
   { valor: "depresion_ansiedad", nombre: "Depresión/Ansiedad" },
 ] as const;
 
-export function SolicitudWizard({ profile, estudios }: Props) {
+export function SolicitudWizard({
+  profile,
+  estudios,
+  estudioInicialId,
+}: Props) {
   const router = useRouter();
   const [paso, setPaso] = useState(1);
   const [enviando, setEnviando] = useState(false);
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
 
   const estudiosListos = estudios.filter((e) => e.estado === "listo");
-  // Siempre se vincula el análisis más reciente — no tiene sentido
-  // dejar elegir uno más antiguo, y así el paciente no tiene que saber
-  // qué es "vincular un análisis".
-  const estudioId = estudiosListos[0]?.id ?? null;
+  // Se vincula el análisis que llega preseleccionado desde el botón del
+  // informe (?estudio=...) o, si no hay ninguno, el más reciente — no
+  // tiene sentido dejar elegir uno más antiguo a mano, y así el
+  // paciente no tiene que saber qué es "vincular un análisis".
+  const estudioSeleccionado =
+    estudiosListos.find((e) => e.id === estudioInicialId) ??
+    estudiosListos[0] ??
+    null;
+  const estudioId = estudioSeleccionado?.id ?? null;
 
   // Paso 1: Perfil Personal
   const [sexo, setSexo] = useState(profile?.sexo ?? "");
   // El tipo de pérdida de cabello ya no lo elige el paciente: se toma
-  // directamente de su análisis con IA más reciente (o del valor ya
-  // guardado en su perfil de una solicitud anterior, si no tiene
-  // ninguno listo todavía).
+  // directamente del análisis vinculado (o del valor ya guardado en su
+  // perfil de una solicitud anterior, si no tiene ninguno listo
+  // todavía).
   const tipoPerdidaCabello =
-    estudiosListos[0]?.norwood_estimado ?? profile?.tipo_perdida_cabello ?? "";
+    estudioSeleccionado?.norwood_estimado ?? profile?.tipo_perdida_cabello ?? "";
   // La ciudad tampoco se vuelve a preguntar aquí — ya vive en el
   // perfil (se pide más adelante, en el paso 4, con más precisión).
   const ciudad = profile?.ciudad ?? "";
@@ -291,18 +302,20 @@ export function SolicitudWizard({ profile, estudios }: Props) {
             si algo no es correcto.
           </p>
 
-          {estudiosListos.length > 0 ? (
+          {estudioSeleccionado ? (
             <div className="mt-4 rounded-lg border border-line bg-white p-4 text-sm">
               <p className="text-ink-soft">
-                Vinculamos automáticamente tu análisis más reciente:
+                {estudioSeleccionado.id === estudioInicialId
+                  ? "Vinculamos el análisis que elegiste:"
+                  : "Vinculamos automáticamente tu análisis más reciente:"}
               </p>
               <p className="mt-1 font-medium text-ink">
                 Análisis del{" "}
-                {new Date(estudiosListos[0].created_at).toLocaleDateString(
+                {new Date(estudioSeleccionado.created_at).toLocaleDateString(
                   "es-ES",
                 )}
-                {estudiosListos[0].norwood_estimado
-                  ? ` · ${estudiosListos[0].norwood_estimado}`
+                {estudioSeleccionado.norwood_estimado
+                  ? ` · ${estudioSeleccionado.norwood_estimado}`
                   : ""}
               </p>
             </div>

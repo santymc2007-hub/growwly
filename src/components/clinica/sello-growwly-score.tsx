@@ -1,3 +1,4 @@
+import { SelloScore } from "@/components/ui/sello-score";
 import type { GrowwlyScore } from "@/lib/leads/growwly-score";
 
 const FACTORES: { clave: keyof GrowwlyScore["desglose"]; label: string }[] = [
@@ -18,18 +19,11 @@ const FACTORES: { clave: keyof GrowwlyScore["desglose"]; label: string }[] = [
  */
 export function SelloGrowwlyScore({ score }: { score: GrowwlyScore }) {
   return (
-    <div className="flex flex-col justify-center gap-3 rounded-2xl border border-yellow/40 bg-gradient-to-br from-yellow/15 via-white to-orange/10 p-4 md:w-[30%]">
-      <div className="flex items-center justify-between gap-3">
-        <p className="font-hand text-3xl leading-none text-orange">
-          Growwly Score
-        </p>
-        <span className="shrink-0 font-display text-xl font-extrabold text-teal-dark">
-          {score.total}%
-        </span>
-      </div>
-      <p className="text-xs text-ink-soft">
-        Afecta a tu puntuación:{" "}
-        {FACTORES.map((f) => f.label).join(", ")}.
+    <div className="flex items-center gap-4 rounded-2xl border border-yellow/40 bg-gradient-to-br from-yellow/15 via-white to-orange/10 p-4 md:w-[30%]">
+      <SelloScore tipo="growwly" valor={score.total} size={96} />
+      <p className="text-xs leading-relaxed text-ink-soft">
+        <span className="block font-display text-sm font-bold text-teal-dark">Tu Growwly Score</span>
+        Afecta a tu puntuación: {FACTORES.map((f) => f.label).join(", ")}.
       </p>
     </div>
   );

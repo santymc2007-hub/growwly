@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { subirFotoEstudio } from "@/lib/supabase/estudios-storage";
 import { analizarFotosCapilares } from "@/lib/ai/analizar-fotos";
+import type { InformeCapilar } from "@/lib/informe/tipos";
+import type { Json } from "@/lib/supabase/database.types";
 
 const ANGULOS = [
   { key: "frontal", etiqueta: "Vista frontal" },
@@ -117,12 +119,26 @@ export async function crearEstudio(formData: FormData) {
 
     const resultado = await analizarFotosCapilares(fotosParaAnalizar);
 
+    // Mismo orden en que se mandaron las fotos a la IA: primero las de
+    // ángulo, luego las adicionales. Así cada foto del informe sabe cuál
+    // es su ruta en el bucket.
+    const rutasEnOrden = [
+      ...archivosAngulo.map(({ key }) => rutasAngulo[key]),
+      ...rutasAdicionales,
+    ];
+    const informe: InformeCapilar = {
+      ...resultado.informe,
+      fotos: resultado.informe.fotos.map((f, i) => ({ ...f, ruta: rutasEnOrden[i] })),
+    };
+
     const { error: updateError } = await admin
       .from("estudios_capilares")
       .update({
         resultado_texto: resultado.resultado_texto,
         norwood_estimado: resultado.norwood_estimado,
         es_alopecia_tratable: resultado.es_alopecia_tratable,
+        flujo: informe.flujo,
+        informe: informe as unknown as Json,
         estado: "listo",
       })
       .eq("id", estudio.id);

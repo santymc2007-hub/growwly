@@ -6,7 +6,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { rangoUfsPorNorwood } from "@/lib/ai/rango-ufs";
 import { SiteHeader } from "@/components/site-header";
-import { BorrarEstudioButton } from "./borrar-estudio-button";
+import { CabeceraCuenta } from "@/components/cuenta/cabecera-cuenta";
+import { InformeCapilarVista } from "@/components/informe/informe-capilar";
+import { leerInforme } from "@/lib/informe/sanear";
+import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
+import { calcularFiabilidad } from "@/lib/informe/fiabilidad";
 
 type Params = { id: string };
 
@@ -42,6 +46,49 @@ export default async function ResultadoAnalisisPage({
   // de que este estudio es suyo ya se hizo arriba). El nuevo formulario
   // de subida ya no distingue ángulos, así que la mayoría de estudios
   // solo tienen fotos en fotos_adicionales.
+  // Estudios nuevos: informe estructurado por flujo (7 plantillas).
+  // Los antiguos (sin `informe`) siguen con la vista sencilla de abajo.
+  const informe = estudio.estado === "listo" ? leerInforme(estudio.informe) : null;
+  if (informe) {
+    const admin = createAdminClient();
+    const [{ data: profile }, fotos] = await Promise.all([
+      supabase.from("profiles").select("nombre").eq("id", user.id).maybeSingle(),
+      Promise.all(
+        informe.fotos.map(async (f) => ({
+          url: await urlFirmadaFoto(admin, f.ruta),
+          angulo: f.angulo,
+          calidad: f.calidad,
+        })),
+      ),
+    ]);
+    const fecha = new Date(estudio.created_at).toLocaleDateString("es-ES", {
+      day: "numeric",
+      month: "long",
+      year: "numeric",
+    });
+
+    return (
+      <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
+        <SiteHeader />
+        <div className="mx-auto max-w-[1400px] px-3 pb-10 pt-8 sm:px-6">
+          <div className="px-3 sm:px-0">
+            <CabeceraCuenta userId={user.id} email={user.email ?? null} />
+          </div>
+          <div className="mt-6" />
+          <InformeCapilarVista
+            estudioId={estudio.id}
+            fecha={fecha}
+            nombre={profile?.nombre ?? null}
+            informe={informe}
+            contenido={CONTENIDO_FLUJOS[informe.flujo]}
+            fiabilidad={calcularFiabilidad(informe)}
+            fotos={fotos}
+          />
+        </div>
+      </main>
+    );
+  }
+
   const primeraFoto = estudio.foto_frontal ?? estudio.fotos_adicionales[0] ?? null;
   const fotoFrontalUrl = await urlFirmadaFoto(createAdminClient(), primeraFoto);
   const rangoUfs = rangoUfsPorNorwood(estudio.norwood_estimado);
@@ -50,9 +97,13 @@ export default async function ResultadoAnalisisPage({
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
       <SiteHeader />
 
-      <div className="mx-auto max-w-2xl px-6 py-12">
+      <div className="mx-auto max-w-[1400px] px-6 pt-10">
+        <CabeceraCuenta userId={user.id} email={user.email ?? null} />
+      </div>
+
+      <div className="mx-auto max-w-xl px-6 py-10">
         <Link
-          href="/cuenta"
+          href="/cuenta#analisis"
           className="text-sm font-medium text-cyan hover:text-cyan-dark"
         >
           ← Volver a mi cuenta
@@ -62,7 +113,6 @@ export default async function ResultadoAnalisisPage({
           <h1 className="font-display text-2xl text-teal-dark">
             Tu análisis orientativo
           </h1>
-          <BorrarEstudioButton id={estudio.id} />
         </div>
 
         {estudio.estado === "procesando" && (

@@ -10,39 +10,20 @@ export type PasoTimeline = {
   status: "completado" | "actual" | "pendiente";
 };
 
-/** Las etiquetas de los pasos que sí se enseñan en la línea de tiempo
- * — el orden es el mismo ORDEN_PIPELINE de estados-lead.ts (fuente
- * única de verdad), para que no se puedan desincronizar. Los estados
- * negativos (no_seleccionado, no_convertido, cancelado) no tienen su
- * propio paso: se enseñan aparte, como un aviso de por qué se cortó
- * el proceso. */
-const LABEL_PASO: Record<
-  | "enviado"
-  | "visto"
-  | "desbloqueado"
-  | "propuesta_enviada"
-  | "seleccionado"
-  | "cita_pendiente"
-  | "cita_programada"
-  | "cita_realizada"
-  | "convertido",
-  string
-> = {
-  enviado: "Enviado a la clínica",
-  visto: "Visto por la clínica",
-  desbloqueado: "Perfil desbloqueado",
-  propuesta_enviada: "Propuesta enviada",
-  seleccionado: "Elegido por el paciente",
-  cita_pendiente: "Cita pendiente de fecha",
-  cita_programada: "Cita programada",
-  cita_realizada: "Cita realizada",
-  convertido: "Tratamiento realizado",
-};
-
-const PASOS_CAMINO_FELIZ = ORDEN_PIPELINE.map((estado) => ({
-  estado,
-  label: LABEL_PASO[estado as keyof typeof LABEL_PASO],
-}));
+/** Los hitos que se enseñan en la evolución del lead (en horizontal).
+ * Los estados intermedios del pipeline (desbloqueado, cita_pendiente,
+ * cita_realizada) no tienen hito propio: cuentan como camino hacia el
+ * siguiente. El orden sigue ORDEN_PIPELINE de estados-lead.ts. Los
+ * estados negativos (no_seleccionado, no_convertido, cancelado) se
+ * enseñan aparte, como aviso de por qué se cortó el proceso. */
+const HITOS: { estado: EstadoLead; label: string }[] = [
+  { estado: "enviado", label: "Enviado a la clínica" },
+  { estado: "visto", label: "Visto por la clínica" },
+  { estado: "propuesta_enviada", label: "Propuesta enviada" },
+  { estado: "seleccionado", label: "Elegido por el paciente" },
+  { estado: "cita_programada", label: "Cita programada" },
+  { estado: "convertido", label: "Tratamiento realizado" },
+];
 
 /** Por qué se cortó el proceso, para los estados que no siguen el
  * camino feliz — no tienen una posición fija en la línea de tiempo
@@ -80,12 +61,13 @@ export function construirPasosTimeline(lead: LeadRow): {
 
   const idxActual = ORDEN_PIPELINE.indexOf(estadoActual);
 
-  const pasos: PasoTimeline[] = PASOS_CAMINO_FELIZ.map(({ estado, label }, idx) => {
+  const pasos: PasoTimeline[] = HITOS.map(({ estado, label }) => {
     const fecha = fechaPorEstado[estado] ?? null;
+    const idxHito = ORDEN_PIPELINE.indexOf(estado);
     let status: PasoTimeline["status"];
     if (estado === estadoActual) {
       status = "actual";
-    } else if (fecha || (idxActual !== -1 && idx < idxActual)) {
+    } else if (fecha || (idxActual !== -1 && idxHito < idxActual)) {
       status = "completado";
     } else {
       status = "pendiente";

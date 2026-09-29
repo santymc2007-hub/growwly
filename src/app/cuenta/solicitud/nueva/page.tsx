@@ -4,7 +4,12 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { SolicitudWizard } from "./solicitud-wizard";
 
-export default async function NuevaSolicitudPage() {
+export default async function NuevaSolicitudPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ estudio?: string }>;
+}) {
+  const { estudio: estudioInicialId } = await searchParams;
   const supabase = await createClient();
   const {
     data: { user },
@@ -47,6 +52,7 @@ export default async function NuevaSolicitudPage() {
           <SolicitudWizard
             profile={profile ?? null}
             estudios={estudios ?? []}
+            estudioInicialId={estudioInicialId ?? null}
           />
         </div>
       </div>

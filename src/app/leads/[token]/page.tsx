@@ -14,7 +14,7 @@ export default async function LeadPage({
   return (
     <main className="flex-1">
       <header className="border-b border-line bg-white">
-        <div className="mx-auto flex max-w-2xl items-center justify-between px-6 py-3">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-3">
           <Image
             src="/brand/growwly-logo-gradient.png"
             alt="Growwly"
@@ -31,7 +31,7 @@ export default async function LeadPage({
         </div>
       </header>
 
-      <div className="mx-auto max-w-2xl px-6 py-12">
+      <div className="mx-auto max-w-6xl px-6 py-12">
         <LeadDetalle token={token} />
       </div>
     </main>

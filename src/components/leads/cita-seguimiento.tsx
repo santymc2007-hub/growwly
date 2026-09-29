@@ -1,27 +1,75 @@
 import { ConfirmButton } from "@/components/confirm-button";
 import {
+  proponerFechasCita,
   programarCita,
   marcarCitaRealizada,
   marcarResultadoTratamiento,
 } from "@/app/leads/[token]/actions";
 import type { EstadoLead } from "@/lib/leads/estados-lead";
+import {
+  MAX_OPCIONES_CITA,
+  fechaCitaLarga,
+  isoADatetimeLocalMadrid,
+  type OpcionCita,
+} from "@/lib/leads/opciones-cita";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 
-function formatearFecha(fecha: string) {
-  return new Date(fecha).toLocaleString("es-ES", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
+function inputDatetimeLocal(fecha: string | null) {
+  // El input datetime-local solo acepta "AAAA-MM-DDTHH:mm" (hora de Madrid).
+  return fecha ? isoADatetimeLocalMadrid(fecha) : undefined;
 }
 
-function inputDatetimeLocal(fecha: string | null) {
-  // El input datetime-local solo acepta "AAAA-MM-DDTHH:mm", sin segundos ni zona.
-  return fecha ? fecha.slice(0, 16) : undefined;
+/** Formulario de hasta 3 fechas para que el paciente elija una. */
+function FormularioFechas({
+  token,
+  opciones,
+  boton,
+}: {
+  token: string;
+  opciones: OpcionCita[];
+  boton: string;
+}) {
+  const proponer = proponerFechasCita.bind(null, token);
+  return (
+    <form action={proponer} className="mt-4 flex flex-col gap-3">
+      {Array.from({ length: MAX_OPCIONES_CITA }, (_, i) => {
+        const o = opciones[i];
+        return (
+          <div key={i} className="flex flex-wrap items-end gap-3">
+            <div>
+              <label className="text-sm font-medium text-ink">
+                Opción {i + 1}
+                {i === 0 ? "" : " (opcional)"}
+              </label>
+              <input
+                type="datetime-local"
+                name={`fecha_${i + 1}`}
+                required={i === 0}
+                defaultValue={o ? isoADatetimeLocalMadrid(o.fecha) : undefined}
+                className={inputClass}
+              />
+            </div>
+            <select
+              name={`modalidad_${i + 1}`}
+              defaultValue={o?.modalidad ?? "presencial"}
+              className={inputClass + " w-auto"}
+            >
+              <option value="presencial">En clínica</option>
+              <option value="videollamada">Videollamada</option>
+            </select>
+          </div>
+        );
+      })}
+      <button
+        type="submit"
+        className="self-start rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-paper transition hover:bg-teal-dark"
+      >
+        {boton}
+      </button>
+    </form>
+  );
 }
 
 /**
@@ -34,12 +82,16 @@ export function CitaSeguimiento({
   token,
   estado,
   fechaCita,
+  opcionesCita,
+  otrasFechasPedidas,
   feedbackPuntuacion,
   feedbackComentario,
 }: {
   token: string;
   estado: EstadoLead;
   fechaCita: string | null;
+  opcionesCita: OpcionCita[];
+  otrasFechasPedidas: boolean;
   feedbackPuntuacion: number | null;
   feedbackComentario: string | null;
 }) {
@@ -48,31 +100,46 @@ export function CitaSeguimiento({
   if (estado === "seleccionado") {
     return (
       <div className="mt-8 rounded-xl border border-line bg-white p-6">
-        <p className="font-display text-lg text-teal-dark">Programa la cita</p>
+        <p className="font-display text-lg text-teal-dark">Propón fechas para la valoración</p>
         <p className="mt-1 text-sm text-ink-soft">
-          El paciente ya sabe que le has elegido — guarda aquí la fecha en la
-          que habéis quedado.
+          El paciente te ha elegido. Proponle hasta 3 fechas y él confirmará la que
+          mejor le venga desde su cuenta — te avisaremos por email.
         </p>
-        <form action={programarEstaCita} className="mt-4 flex flex-wrap items-end gap-3">
-          <div>
-            <label className="text-sm font-medium text-ink">Fecha y hora</label>
-            <input type="datetime-local" name="fecha_cita" required className={inputClass} />
-          </div>
-          <button
-            type="submit"
-            className="rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-paper transition hover:bg-teal-dark"
-          >
-            Guardar
-          </button>
-        </form>
+        <FormularioFechas token={token} opciones={[]} boton="Enviar fechas al paciente" />
       </div>
     );
   }
 
   if (estado === "cita_pendiente") {
     return (
-      <div className="mt-8 rounded-xl bg-sage/60 p-4 text-sm text-sage-ink">
-        Concretando la fecha de la cita con el paciente.
+      <div className="mt-8 rounded-xl border border-line bg-white p-6">
+        {otrasFechasPedidas ? (
+          <p className="rounded-lg bg-yellow/40 p-3 text-sm font-medium text-teal-dark">
+            Ninguna de las fechas le va bien al paciente. Proponle otras.
+          </p>
+        ) : (
+          <>
+            <p className="font-display text-lg text-teal-dark">Esperando a que el paciente confirme</p>
+            <ul className="mt-2 flex flex-col gap-1 text-sm text-ink">
+              {opcionesCita.map((o) => (
+                <li key={o.fecha}>
+                  {fechaCitaLarga(o.fecha)} ·{" "}
+                  {o.modalidad === "videollamada" ? "Videollamada" : "En clínica"}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        {otrasFechasPedidas ? (
+          <FormularioFechas token={token} opciones={[]} boton="Enviar nuevas fechas" />
+        ) : (
+          <details className="mt-4 text-sm">
+            <summary className="cursor-pointer font-medium text-ink-soft hover:text-teal-dark">
+              Cambiar las fechas
+            </summary>
+            <FormularioFechas token={token} opciones={opcionesCita} boton="Guardar fechas" />
+          </details>
+        )}
       </div>
     );
   }
@@ -81,7 +148,7 @@ export function CitaSeguimiento({
     return (
       <div className="mt-8 rounded-xl border border-line bg-white p-6">
         <p className="font-display text-lg text-teal-dark">Cita programada</p>
-        {fechaCita && <p className="mt-1 text-sm text-ink">{formatearFecha(fechaCita)}</p>}
+        {fechaCita && <p className="mt-1 text-sm text-ink">{fechaCitaLarga(fechaCita)}</p>}
 
         <div className="mt-4">
           <ConfirmButton
