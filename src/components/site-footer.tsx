@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { slugifyCiudad } from "@/lib/clinic-options";
 import { tratamientosMenu, ciudadesConClinicas } from "@/lib/nav-publica-cache";
+import { BotonPreferenciasCookies } from "@/components/analytics/boton-preferencias-cookies";
 
 export async function SiteFooter() {
   const [tratamientos, ciudades] = await Promise.all([
@@ -79,6 +80,9 @@ export async function SiteFooter() {
                 <Link href="/legal/terminos" className="hover:text-teal">
                   Términos y Condiciones
                 </Link>
+              </li>
+              <li>
+                <BotonPreferenciasCookies />
               </li>
             </ul>
           </div>

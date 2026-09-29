@@ -10,15 +10,6 @@ export default function CookiesPage() {
   return (
     <LegalLayout activo="/legal/cookies">
       <h1>Política de Cookies</h1>
-      <p>
-        <em>
-          Esta política refleja únicamente las cookies que la web usa
-          realmente en este momento. Si en el futuro se añaden herramientas
-          de analítica, publicidad o marketing, esta página deberá
-          actualizarse (y probablemente hará falta un panel de
-          consentimiento de cookies).
-        </em>
-      </p>
 
       <h2>¿Qué son las cookies?</h2>
       <p>
@@ -26,11 +17,10 @@ export default function CookiesPage() {
         al visitar un sitio web.
       </p>
 
-      <h2>Cookies que usamos</h2>
+      <h2>Cookies técnicas o necesarias</h2>
       <p>
-        Actualmente, Growwly solo utiliza <strong>cookies técnicas o
-        necesarias</strong>, imprescindibles para el funcionamiento del
-        sitio:
+        Growwly utiliza <strong>cookies técnicas o necesarias</strong>,
+        imprescindibles para el funcionamiento del sitio:
       </p>
       <ul>
         <li>
@@ -46,17 +36,32 @@ export default function CookiesPage() {
         servicio que has solicitado.
       </p>
 
-      <h2>Cookies que no usamos (todavía)</h2>
+      <h2>Cookies analíticas</h2>
       <p>
-        Growwly no utiliza, a día de hoy, cookies de analítica de terceros,
-        publicidad ni redes sociales.
+        Utilizamos <strong>Google Analytics</strong> para entender cómo se
+        usa Growwly (páginas visitadas, procedencia del tráfico) y así poder
+        mejorar el sitio. Estas cookies solo se instalan si nos das tu
+        consentimiento expreso en el aviso que aparece al entrar en la web,
+        y anonimizamos la dirección IP antes de enviarla a Google.
+      </p>
+      <p>
+        Puedes aceptar o rechazar estas cookies en cualquier momento desde
+        el enlace <strong>&quot;Preferencias de cookies&quot;</strong> al pie
+        de cualquier página.
+      </p>
+
+      <h2>Cookies que no usamos</h2>
+      <p>
+        Growwly no utiliza, a día de hoy, cookies de publicidad ni de redes
+        sociales.
       </p>
 
       <h2>Cómo gestionar las cookies</h2>
       <p>
-        Puedes eliminar o bloquear las cookies desde la configuración de tu
-        navegador. Ten en cuenta que bloquear las cookies técnicas puede
-        impedir que puedas iniciar sesión correctamente.
+        Además de nuestro panel de preferencias, puedes eliminar o bloquear
+        las cookies desde la configuración de tu navegador. Ten en cuenta
+        que bloquear las cookies técnicas puede impedir que puedas iniciar
+        sesión correctamente.
       </p>
     </LegalLayout>
   );
