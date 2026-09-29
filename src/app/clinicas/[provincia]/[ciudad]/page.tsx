@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
@@ -13,7 +14,10 @@ import {
 
 type Params = { provincia: string; ciudad: string };
 
-async function getClinicasDeCiudad(provinciaReal: string, ciudadSlug: string) {
+// cache(): generateMetadata y la página piden las clínicas de la
+// misma provincia por separado — sin esto, esta consulta (que trae
+// TODAS las clínicas de la provincia) se repetía dos veces por carga.
+const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
     .from("clinics")
@@ -37,7 +41,7 @@ async function getClinicasDeCiudad(provinciaReal: string, ciudadSlug: string) {
   if (!ciudadReal) return { ciudadReal: null, clinicas: [] };
 
   return { ciudadReal, clinicas: todas.filter((c) => c.ciudad === ciudadReal) };
-}
+});
 
 export async function generateMetadata({
   params,
