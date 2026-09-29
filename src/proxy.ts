@@ -6,7 +6,11 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
-  ],
+  // Antes corría en todo el sitio — incluidas páginas 100% públicas
+  // (home, blog, tratamientos, fichas de clínica) que no necesitan
+  // saber quién eres, pagando en cada una la llamada de red a
+  // Supabase Auth que hace updateSession(). Ahora solo entra donde de
+  // verdad hace falta: refrescar sesión de paciente/clínica y proteger
+  // /admin.
+  matcher: ["/admin/:path*", "/cuenta/:path*", "/clinica/:path*"],
 };

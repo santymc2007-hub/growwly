@@ -6,12 +6,19 @@ import { MobileMenu } from "./mobile-menu";
 import { MenuTratamientos } from "./menu-tratamientos";
 import { cerrarSesionClinica } from "@/app/clinica/actions";
 import { cerrarSesionPaciente } from "@/app/cuenta/actions";
+import { tratamientosMenu } from "@/lib/tratamientos-menu";
 
 export async function SiteHeader() {
   const supabase = await createClient();
+  // getSession() lee el token de la cookie sin llamar a Supabase Auth
+  // por red — aquí solo decide qué botón pintar (Mi cuenta / Acceso
+  // Clínicas / Cerrar sesión), no protege nada: eso ya lo hace el
+  // middleware (con getUser(), que sí verifica contra el servidor) en
+  // /admin, y cada Server Action de datos sensibles por su cuenta.
   const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
+  const user = session?.user ?? null;
 
   let esClinicaLogueada = false;
   let esPacienteLogueado = false;
@@ -25,11 +32,7 @@ export async function SiteHeader() {
     esPacienteLogueado = profile?.role === "patient";
   }
 
-  const { data: tratamientos } = await supabase
-    .from("tratamientos")
-    .select("slug, nombre, categoria")
-    .eq("publicado", true)
-    .order("nombre", { ascending: true });
+  const tratamientos = await tratamientosMenu();
 
   return (
     <header className="relative z-20">
@@ -58,7 +61,7 @@ export async function SiteHeader() {
           <Link href="/clinicas" className="hover:text-teal">
             Clínicas
           </Link>
-          <MenuTratamientos tratamientos={tratamientos ?? []} />
+          <MenuTratamientos tratamientos={tratamientos} />
           <Link href="/blog" className="hover:text-teal">
             Blog
           </Link>
@@ -104,7 +107,7 @@ export async function SiteHeader() {
             </Link>
           )}
         </nav>
-        <MobileMenu esClinicaLogueada={esClinicaLogueada} esPacienteLogueado={esPacienteLogueado} tratamientos={tratamientos ?? []} />
+        <MobileMenu esClinicaLogueada={esClinicaLogueada} esPacienteLogueado={esPacienteLogueado} tratamientos={tratamientos} />
       </div>
     </header>
   );

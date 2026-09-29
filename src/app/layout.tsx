@@ -13,6 +13,12 @@ import "./globals.css";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
 
+// Supabase vive en Frankfurt (eu-central-1). Sin esto, Vercel puede
+// ejecutar las funciones que renderizan las páginas en EEUU por
+// defecto — cada consulta a la base de datos cruzaría el Atlántico ida
+// y vuelta. "fra1" pone las funciones a un salto de red de Supabase.
+export const preferredRegion = "fra1";
+
 // ⚠️ NOINDEX TEMPORAL — la web todavía no está lista para lanzar.
 // Cuando Santy confirme que ya se puede indexar de verdad, borrar este
 // bloque "robots" (o ponerlo a index:true, follow:true) y avisarme para
