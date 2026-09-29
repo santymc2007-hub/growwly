@@ -256,6 +256,23 @@ export default async function ClinicaPage({
           reviewCount: clinic.resenas_google,
         },
       }),
+    // Reseñas reales traídas de Google Maps (ver cron
+    // sync-google-places) — como mucho 5, es lo que da la API.
+    ...(Array.isArray(clinic.google_reviews) &&
+      clinic.google_reviews.length > 0 && {
+        review: (
+          clinic.google_reviews as {
+            autor: string;
+            texto: string;
+            puntuacion: number;
+          }[]
+        ).map((r) => ({
+          "@type": "Review",
+          author: { "@type": "Person", name: r.autor },
+          reviewRating: { "@type": "Rating", ratingValue: r.puntuacion },
+          reviewBody: r.texto,
+        })),
+      }),
   };
 
   const breadcrumbJsonLd = {
