@@ -1,5 +1,11 @@
 import ReactMarkdown from "react-markdown";
 import sanitizeHtml from "sanitize-html";
+// Lora solo se usa aquí, para el bloque "Comentado" del contenido — al
+// cargarla desde este componente (en vez del layout raíz) solo entra
+// en las páginas que de verdad renderizan blog/tratamiento detalle.
+import "@fontsource/lora/400.css";
+import "@fontsource/lora/400-italic.css";
+import "@fontsource/lora/600.css";
 
 const PROSE_CLASS =
   "prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan prose-blockquote:font-serif prose-blockquote:text-lg prose-blockquote:not-italic prose-blockquote:text-ink";

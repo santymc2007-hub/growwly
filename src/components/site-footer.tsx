@@ -1,25 +1,12 @@
 import Link from "next/link";
-import { createClient } from "@/lib/supabase/server";
 import { slugifyCiudad } from "@/lib/clinic-options";
+import { tratamientosMenu, ciudadesConClinicas } from "@/lib/nav-publica-cache";
 
 export async function SiteFooter() {
-  const supabase = await createClient();
-  const [{ data: clinicas }, { data: tratamientos }] = await Promise.all([
-    supabase
-      .from("clinics")
-      .select("ciudad")
-      .eq("publicado", true)
-      .eq("verificado_admin", true),
-    supabase
-      .from("tratamientos")
-      .select("slug, nombre")
-      .eq("publicado", true)
-      .order("nombre", { ascending: true }),
+  const [tratamientos, ciudades] = await Promise.all([
+    tratamientosMenu(),
+    ciudadesConClinicas(),
   ]);
-
-  const ciudades = Array.from(
-    new Set((clinicas ?? []).map((c) => c.ciudad).filter((c): c is string => Boolean(c))),
-  ).sort((a, b) => a.localeCompare(b, "es"));
 
   return (
     <footer className="border-t border-line bg-paper-dim">
@@ -51,13 +38,13 @@ export async function SiteFooter() {
             </div>
           )}
 
-          {(tratamientos ?? []).length > 0 && (
+          {tratamientos.length > 0 && (
             <div>
               <p className="text-xs font-medium uppercase tracking-wide text-ink">
                 Tratamientos
               </p>
               <ul className="mt-3 flex flex-col gap-1.5 text-xs">
-                {(tratamientos ?? []).map((t) => (
+                {tratamientos.map((t) => (
                   <li key={t.slug}>
                     <Link href={`/tratamientos/${t.slug}`} className="hover:text-teal">
                       {t.nombre}
