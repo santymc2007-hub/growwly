@@ -1,25 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { Gift, Wallet } from "lucide-react";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { ClinicBadges } from "./clinic-badges";
 import { RatingCompacto } from "./rating-stars";
 
-const DESCRIPCION_MAX = 100;
-
-function truncar(texto: string, max: number) {
-  if (texto.length <= max) return texto;
-  const cortado = texto.slice(0, max);
-  const ultimoEspacio = cortado.lastIndexOf(" ");
-  return (ultimoEspacio > 0 ? cortado.slice(0, ultimoEspacio) : cortado).trimEnd() + "…";
-}
-
 export function ClinicCard({ clinic }: { clinic: Clinic }) {
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
   const foto = clinic.fotos[0];
-  const descripcionCorta = clinic.descripcion
-    ? truncar(clinic.descripcion, DESCRIPCION_MAX)
-    : null;
   const provinciaSlug = slugifyProvincia(clinic.provincia);
   const href = clinic.ciudad
     ? `/clinicas/${provinciaSlug}/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
@@ -82,12 +71,6 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
           )}
         </div>
 
-        {descripcionCorta && (
-          <p className="hidden line-clamp-2 text-sm text-ink-soft sm:block">
-            {descripcionCorta}
-          </p>
-        )}
-
         {clinic.tecnicas.length > 0 && (
           <div className="hidden flex-wrap gap-1.5 sm:flex">
             {clinic.tecnicas.slice(0, 3).map((tecnica) => (
@@ -102,15 +85,23 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
         )}
 
         <div className="mt-auto flex items-center justify-between gap-3 pt-2">
-          <div className="flex flex-wrap items-center gap-1.5">
+          <div className="flex items-center gap-1.5">
             {clinic.primera_consulta_gratis && (
-              <span className="rounded-full bg-cyan/10 px-2.5 py-1 text-xs font-semibold text-cyan-dark">
-                1ª consulta gratis
+              <span
+                title="1ª consulta gratis"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan/10 text-cyan-dark"
+              >
+                <Gift className="h-3.5 w-3.5" aria-hidden />
+                <span className="sr-only">1ª consulta gratis</span>
               </span>
             )}
             {clinic.financiacion && (
-              <span className="rounded-full bg-cyan/10 px-2.5 py-1 text-xs font-semibold text-cyan-dark">
-                Financiación disponible
+              <span
+                title="Financiación disponible"
+                className="flex h-7 w-7 items-center justify-center rounded-full bg-cyan/10 text-cyan-dark"
+              >
+                <Wallet className="h-3.5 w-3.5" aria-hidden />
+                <span className="sr-only">Financiación disponible</span>
               </span>
             )}
           </div>

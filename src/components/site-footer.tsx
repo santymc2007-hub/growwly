@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { slugifyCiudad } from "@/lib/clinic-options";
 import { tratamientosMenu, ciudadesConClinicas } from "@/lib/nav-publica-cache";
@@ -10,88 +11,94 @@ export async function SiteFooter() {
   ]);
 
   return (
-    <footer className="border-t border-line bg-paper-dim">
-      <div className="mx-auto max-w-[1400px] px-6 py-10 text-sm text-ink-soft">
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-ink">
-              Growwly
-            </p>
-            <p className="mt-3 text-xs">
-              Directorio de clínicas capilares en España.
-            </p>
-          </div>
-
-          {ciudades.length > 0 && (
+    <div className="mx-auto max-w-[1400px] px-3 pb-8 sm:px-6 sm:pb-10">
+      <footer className="overflow-hidden rounded-3xl bg-teal-dark text-white/70 shadow-sm">
+        <div className="px-6 py-10 text-sm sm:px-10">
+          <div className="grid grid-cols-2 gap-8 sm:grid-cols-4">
             <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-ink">
-                Clínicas por ciudad
+              <Image
+                src="/brand/growwly-logo-white.png"
+                alt="Growwly"
+                width={110}
+                height={38}
+                className="h-8 w-auto"
+              />
+              <p className="mt-3 text-xs">
+                Directorio de clínicas capilares en España.
+              </p>
+            </div>
+
+            {ciudades.length > 0 && (
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-white">
+                  Clínicas por ciudad
+                </p>
+                <ul className="mt-3 flex flex-col gap-1.5 text-xs">
+                  {ciudades.map((c) => (
+                    <li key={c}>
+                      <Link href={`/clinicas/${slugifyCiudad(c)}`} className="hover:text-white">
+                        Clínicas en {c}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {tratamientos.length > 0 && (
+              <div>
+                <p className="text-xs font-medium uppercase tracking-wide text-white">
+                  Tratamientos
+                </p>
+                <ul className="mt-3 flex flex-col gap-1.5 text-xs">
+                  {tratamientos.map((t) => (
+                    <li key={t.slug}>
+                      <Link href={`/tratamientos/${t.slug}`} className="hover:text-white">
+                        {t.nombre}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-white">
+                Legal
               </p>
               <ul className="mt-3 flex flex-col gap-1.5 text-xs">
-                {ciudades.map((c) => (
-                  <li key={c}>
-                    <Link href={`/clinicas/${slugifyCiudad(c)}`} className="hover:text-teal">
-                      Clínicas en {c}
-                    </Link>
-                  </li>
-                ))}
+                <li>
+                  <Link href="/legal/aviso-legal" className="hover:text-white">
+                    Aviso Legal
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/privacidad" className="hover:text-white">
+                    Privacidad
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/cookies" className="hover:text-white">
+                    Cookies
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/legal/terminos" className="hover:text-white">
+                    Términos y Condiciones
+                  </Link>
+                </li>
+                <li>
+                  <BotonPreferenciasCookies />
+                </li>
               </ul>
             </div>
-          )}
-
-          {tratamientos.length > 0 && (
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-ink">
-                Tratamientos
-              </p>
-              <ul className="mt-3 flex flex-col gap-1.5 text-xs">
-                {tratamientos.map((t) => (
-                  <li key={t.slug}>
-                    <Link href={`/tratamientos/${t.slug}`} className="hover:text-teal">
-                      {t.nombre}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          <div>
-            <p className="text-xs font-medium uppercase tracking-wide text-ink">
-              Legal
-            </p>
-            <ul className="mt-3 flex flex-col gap-1.5 text-xs">
-              <li>
-                <Link href="/legal/aviso-legal" className="hover:text-teal">
-                  Aviso Legal
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/privacidad" className="hover:text-teal">
-                  Privacidad
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/cookies" className="hover:text-teal">
-                  Cookies
-                </Link>
-              </li>
-              <li>
-                <Link href="/legal/terminos" className="hover:text-teal">
-                  Términos y Condiciones
-                </Link>
-              </li>
-              <li>
-                <BotonPreferenciasCookies />
-              </li>
-            </ul>
           </div>
+
+          <p className="mt-8 border-t border-white/15 pt-6 text-xs">
+            © {new Date().getFullYear()} Growwly
+          </p>
         </div>
-
-        <p className="mt-8 border-t border-line pt-6 text-xs">
-          © {new Date().getFullYear()} Growwly
-        </p>
-      </div>
-    </footer>
+      </footer>
+    </div>
   );
 }

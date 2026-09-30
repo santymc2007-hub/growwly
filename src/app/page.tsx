@@ -12,8 +12,6 @@ import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
-import { ClinicaDeLaSemana } from "@/components/clinics/clinica-de-la-semana";
-import { obtenerClinicaDeLaSemana } from "@/lib/clinica/clinica-de-la-semana";
 import { Hero } from "@/components/home/hero";
 import { AnnouncementBar } from "@/components/home/announcement-bar";
 import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
@@ -49,7 +47,7 @@ const PASOS = [
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const [{ data }, clinicaDeLaSemana, { data: tratamientosData }, { data: postsDestacadosData }] =
+  const [{ data }, { data: tratamientosData }, { data: postsDestacadosData }] =
     await Promise.all([
       supabase
         .from("clinics")
@@ -61,7 +59,6 @@ export default async function HomePage() {
         .order("destacado", { ascending: false })
         .order("orden", { ascending: true })
         .limit(8),
-      obtenerClinicaDeLaSemana("Illes Balears"),
       supabase
         .from("tratamientos")
         .select("slug, nombre, categoria, imagen_portada, resumen, destacado_home")
@@ -78,17 +75,11 @@ export default async function HomePage() {
   const destacadas = data ?? [];
 
   after(async () => {
-    const admin = createAdminClient();
-    await Promise.all([
-      registrarImpresionesListado(
-        admin,
-        destacadas.map((c) => c.id),
-        "home_destacadas",
-      ),
-      clinicaDeLaSemana
-        ? registrarImpresionesListado(admin, [clinicaDeLaSemana.id], "home_semana")
-        : Promise.resolve(),
-    ]);
+    await registrarImpresionesListado(
+      createAdminClient(),
+      destacadas.map((c) => c.id),
+      "home_destacadas",
+    );
   });
 
   // Si el admin ha marcado tratamientos como destacados a mano, se
@@ -120,15 +111,15 @@ export default async function HomePage() {
       <div className="mx-auto max-w-[1400px] px-3 pb-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Qué es Growwly */}
-          <div className="px-6 py-8 sm:px-10 sm:py-10">
-            <div className="rounded-3xl bg-paper-dim px-6 py-10 text-center sm:px-10 sm:py-14">
+          <div className="px-6 py-5 sm:px-10 sm:py-6">
+            <div className="rounded-3xl bg-paper-dim px-6 py-6 text-center sm:px-10 sm:py-8">
               <h2 className="font-display text-2xl font-extrabold text-teal-dark sm:text-3xl lg:text-4xl">
                 El directorio nº1 de clínicas capilares verificadas en España
               </h2>
               <p className="mt-3 text-base text-ink-soft sm:text-lg">
                 Tratamientos, opiniones reales y precios sin fricción
               </p>
-              <div className="mt-6 flex justify-center">
+              <div className="mt-4 flex justify-center">
                 <span className="relative inline-block px-3 py-1.5">
                   <svg
                     aria-hidden
@@ -207,7 +198,10 @@ export default async function HomePage() {
                 </div>
               </div>
 
-              <div className="relative mx-auto mt-12 hidden aspect-[1136/1385] w-full max-w-[368px] lg:mt-0 lg:block">
+              <Link
+                href="/analisis/nuevo"
+                className="relative mx-auto mt-12 hidden aspect-[1136/1385] w-full max-w-[368px] transition hover:opacity-90 lg:mt-0 lg:block"
+              >
                 <Image
                   src="/brand/asi-de-facil-phone.png"
                   alt="Análisis capilar con IA en el móvil"
@@ -215,7 +209,7 @@ export default async function HomePage() {
                   sizes="368px"
                   className="object-contain"
                 />
-              </div>
+              </Link>
             </div>
           </div>
 
@@ -273,8 +267,6 @@ export default async function HomePage() {
           </div>
         </div>
       </div>
-
-      {clinicaDeLaSemana && <ClinicaDeLaSemana clinic={clinicaDeLaSemana} />}
 
       <SiteFooter />
     </main>
