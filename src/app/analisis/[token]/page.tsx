@@ -5,6 +5,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import { FondoTextura } from "@/components/fondo-textura";
+import { TrackOnceParam } from "@/components/analytics/track-once-param";
 
 type Params = { token: string };
 
@@ -35,6 +36,7 @@ export default async function AnalisisPendientePage({
   return (
     <main className="relative flex-1">
       <FondoTextura />
+      <TrackOnceParam param="enviado" evento="analisis_completado" />
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-3 pb-10 pt-8 sm:px-6 sm:pt-12">

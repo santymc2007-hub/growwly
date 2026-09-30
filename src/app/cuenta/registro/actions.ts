@@ -60,7 +60,7 @@ export async function registrarPaciente(formData: FormData) {
   // Si el proyecto tiene la confirmación por email activada (por defecto en
   // Supabase), todavía no hay sesión iniciada tras el signUp.
   if (!data.session) {
-    redirect("/cuenta/registro/revisa-tu-email");
+    redirect("/cuenta/registro/revisa-tu-email?tipo_cuenta=paciente");
   }
 
   if (claim && data.user) {

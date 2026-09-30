@@ -157,7 +157,7 @@ export async function crearEstudio(formData: FormData) {
   // Ya logueado: directo al resultado. Anónimo: pantalla de "date de
   // alta para verlo" — el resultado no se entrega sin cuenta.
   if (user) {
-    redirect(`/cuenta/analisis/${estudio.id}`);
+    redirect(`/cuenta/analisis/${estudio.id}?enviado=1`);
   }
-  redirect(`/analisis/${claimToken}`);
+  redirect(`/analisis/${claimToken}?enviado=1`);
 }
