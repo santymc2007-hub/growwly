@@ -77,6 +77,35 @@ export type Database = {
         }
         Relationships: []
       }
+      clinic_contact_clicks: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          id: string
+          metodo: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          id?: string
+          metodo: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          id?: string
+          metodo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_contact_clicks_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_members: {
         Row: {
           clinic_id: string
@@ -109,6 +138,32 @@ export type Database = {
             columns: ["profile_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinic_page_views: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_page_views_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
             referencedColumns: ["id"]
           },
         ]
