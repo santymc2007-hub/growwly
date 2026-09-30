@@ -58,27 +58,55 @@ export async function calcularEstadisticasAdmin(
   admin: SupabaseClient<Database>,
   desde: Date,
   hasta: Date,
+  filtro?: { provincia?: string },
 ): Promise<EstadisticasAdmin> {
   const desdeIso = desde.toISOString();
   const hastaIso = hasta.toISOString();
 
-  const [{ data: solicitudes }, { data: leads }, { data: vistas }] = await Promise.all([
-    admin
-      .from("solicitudes_presupuesto")
-      .select("id, ciudad, user_id, created_at")
-      .gte("created_at", desdeIso)
-      .lte("created_at", hastaIso),
-    admin
-      .from("leads_clinica")
-      .select("clinic_id, propuesta_enviada_en, seleccionado_en, cita_realizada_en, convertido_en")
-      .gte("enviado_en", desdeIso)
-      .lte("enviado_en", hastaIso),
-    admin
-      .from("clinic_page_views")
-      .select("clinic_id, created_at")
-      .gte("created_at", desdeIso)
-      .lte("created_at", hastaIso),
-  ]);
+  // Si hay filtro de provincia, todo se restringe a las clínicas de esa
+  // provincia — leads y vistas por clinic_id directamente, solicitudes
+  // por las que llegaron a alguna de esas clínicas (no tienen provincia
+  // propia, solo ciudad del paciente).
+  let clinicIdsFiltro: string[] | null = null;
+  if (filtro?.provincia) {
+    const { data: clinicasProvincia } = await admin
+      .from("clinics")
+      .select("id")
+      .eq("provincia", filtro.provincia);
+    clinicIdsFiltro = (clinicasProvincia ?? []).map((c) => c.id);
+  }
+
+  let leadsQuery = admin
+    .from("leads_clinica")
+    .select(
+      "clinic_id, solicitud_id, propuesta_enviada_en, seleccionado_en, cita_realizada_en, convertido_en",
+    )
+    .gte("enviado_en", desdeIso)
+    .lte("enviado_en", hastaIso);
+  if (clinicIdsFiltro) leadsQuery = leadsQuery.in("clinic_id", clinicIdsFiltro);
+
+  let vistasQuery = admin
+    .from("clinic_page_views")
+    .select("clinic_id, created_at")
+    .gte("created_at", desdeIso)
+    .lte("created_at", hastaIso);
+  if (clinicIdsFiltro) vistasQuery = vistasQuery.in("clinic_id", clinicIdsFiltro);
+
+  const [{ data: leads }, { data: vistas }] = await Promise.all([leadsQuery, vistasQuery]);
+
+  let solicitudesQuery = admin
+    .from("solicitudes_presupuesto")
+    .select("id, ciudad, user_id, created_at")
+    .gte("created_at", desdeIso)
+    .lte("created_at", hastaIso);
+  if (clinicIdsFiltro) {
+    const solicitudIds = Array.from(new Set((leads ?? []).map((l) => l.solicitud_id)));
+    solicitudesQuery =
+      solicitudIds.length > 0
+        ? solicitudesQuery.in("id", solicitudIds)
+        : solicitudesQuery.eq("id", "00000000-0000-0000-0000-000000000000");
+  }
+  const { data: solicitudes } = await solicitudesQuery;
 
   // --- Funnel de negocio ---
   const leadsList = leads ?? [];
