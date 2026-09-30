@@ -5,6 +5,8 @@ import { calcularEstadisticasClinica } from "@/lib/clinica/estadisticas-clinica"
 import { GraficoLineas } from "@/components/estadisticas/grafico-lineas";
 import { BarraCategoria } from "@/components/estadisticas/barra-categoria";
 import { FiltrosEstadisticasAdmin } from "@/components/estadisticas/filtros-estadisticas-admin";
+import { ESTADO_COLOR } from "@/lib/leads/estado-color";
+import type { EstadoLead } from "@/lib/leads/estados-lead";
 
 export const dynamic = "force-dynamic";
 
@@ -177,7 +179,7 @@ export default async function EstadisticasAdminPage({
                     etiqueta={ESTADO_LABEL[l.estado] ?? l.estado}
                     valor={l.total}
                     total={stats.leadsTotal}
-                    color="#00768f"
+                    color={ESTADO_COLOR[l.estado as EstadoLead] ?? "#00768f"}
                   />
                 ))}
               </div>
