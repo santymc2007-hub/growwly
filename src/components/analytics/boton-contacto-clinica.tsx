@@ -16,7 +16,7 @@ export function BotonContactoClinica({
   ...props
 }: AnchorHTMLAttributes<HTMLAnchorElement> & {
   clinicId: string;
-  metodo: "llamar" | "whatsapp" | "web" | "reserva_online";
+  metodo: "llamar" | "whatsapp" | "web" | "reserva_online" | "ver_mapa";
 }) {
   return (
     <a
