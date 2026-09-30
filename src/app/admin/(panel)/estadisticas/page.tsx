@@ -28,6 +28,14 @@ const METODO_LABEL: Record<string, string> = {
   pedir_cita: "Pedir cita (formulario)",
 };
 
+const SUPERFICIE_LABEL: Record<string, string> = {
+  listado: "Listado general",
+  ciudad: "Listado de su ciudad",
+  home_destacadas: "Home (destacadas)",
+  home_semana: "Home (clínica de la semana)",
+  tratamiento: "Ficha de tratamiento",
+};
+
 const ESTADO_LABEL: Record<string, string> = {
   enviado: "Nuevo",
   visto: "Visto, sin gestionar",
@@ -124,7 +132,8 @@ export default async function EstadisticasAdminPage({
           </Link>
         </p>
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4 md:grid-cols-5">
+          {tarjeta("Impresiones", stats.impresionesTotal.toLocaleString("es-ES"))}
           {tarjeta("Vistas de ficha", stats.vistasTotal.toLocaleString("es-ES"))}
           {tarjeta("Contactos", stats.contactosTotal.toLocaleString("es-ES"))}
           {tarjeta("Leads recibidos", stats.leadsTotal.toLocaleString("es-ES"))}
@@ -136,20 +145,38 @@ export default async function EstadisticasAdminPage({
 
         <div className="mt-6 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-line bg-white p-5">
+            <h2 className="font-display text-lg text-teal-dark">Impresiones por superficie</h2>
+            {stats.impresionesPorSuperficie.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-soft">Sin impresiones en este rango.</p>
+            ) : (
+              <div className="mt-4 flex flex-col gap-3">
+                {stats.impresionesPorSuperficie.map((i) => (
+                  <BarraCategoria
+                    key={i.superficie}
+                    etiqueta={SUPERFICIE_LABEL[i.superficie] ?? i.superficie}
+                    valor={i.total}
+                    total={stats.impresionesTotal}
+                    color="#00c2d6"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          <div className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-display text-lg text-teal-dark">Vistas de ficha</h2>
             <div className="mt-2">
               <GraficoLineas datos={stats.vistasPorDia} color="#00c2d6" etiqueta="Vistas" />
             </div>
           </div>
+        </div>
+
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
           <div className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-display text-lg text-teal-dark">Leads recibidos</h2>
             <div className="mt-2">
               <GraficoLineas datos={stats.leadsPorDia} color="#1f5568" etiqueta="Leads" />
             </div>
           </div>
-        </div>
-
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-display text-lg text-teal-dark">Contactos por método</h2>
             {stats.contactosPorMetodo.length === 0 ? (

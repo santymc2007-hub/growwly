@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
@@ -67,6 +70,17 @@ export default async function ClinicasPage({
     if (verificado === "1" && !c.verificado) return false;
     if (financiacion === "1" && !c.financiacion) return false;
     return true;
+  });
+
+  // Registro propio de impresiones (para las estadísticas de la
+  // clínica) — fuera del camino de renderizado para no retrasar la
+  // respuesta.
+  after(async () => {
+    await registrarImpresionesListado(
+      createAdminClient(),
+      filtradas.map((c) => c.id),
+      "listado",
+    );
   });
 
   const provincias = uniqueSorted(clinicas.map((c) => c.provincia));

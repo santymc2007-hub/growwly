@@ -5,6 +5,8 @@ import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 export type PuntoSerie = { fecha: string; valor: number };
 
 export type EstadisticasClinica = {
+  impresionesTotal: number;
+  impresionesPorSuperficie: { superficie: string; total: number }[];
   vistasTotal: number;
   vistasPorDia: PuntoSerie[];
   contactosTotal: number;
@@ -46,26 +48,41 @@ export async function calcularEstadisticasClinica(
   const desdeIso = desde.toISOString();
   const hastaIso = hasta.toISOString();
 
-  const [{ data: vistas }, { data: contactos }, { data: leads }] = await Promise.all([
-    admin
-      .from("clinic_page_views")
-      .select("created_at")
-      .eq("clinic_id", clinicId)
-      .gte("created_at", desdeIso)
-      .lte("created_at", hastaIso),
-    admin
-      .from("clinic_contact_clicks")
-      .select("metodo, created_at")
-      .eq("clinic_id", clinicId)
-      .gte("created_at", desdeIso)
-      .lte("created_at", hastaIso),
-    admin
-      .from("leads_clinica")
-      .select("estado, enviado_en")
-      .eq("clinic_id", clinicId)
-      .gte("enviado_en", desdeIso)
-      .lte("enviado_en", hastaIso),
-  ]);
+  const [{ data: impresiones }, { data: vistas }, { data: contactos }, { data: leads }] =
+    await Promise.all([
+      admin
+        .from("clinic_impresiones_listado")
+        .select("superficie, created_at")
+        .eq("clinic_id", clinicId)
+        .gte("created_at", desdeIso)
+        .lte("created_at", hastaIso),
+      admin
+        .from("clinic_page_views")
+        .select("created_at")
+        .eq("clinic_id", clinicId)
+        .gte("created_at", desdeIso)
+        .lte("created_at", hastaIso),
+      admin
+        .from("clinic_contact_clicks")
+        .select("metodo, created_at")
+        .eq("clinic_id", clinicId)
+        .gte("created_at", desdeIso)
+        .lte("created_at", hastaIso),
+      admin
+        .from("leads_clinica")
+        .select("estado, enviado_en")
+        .eq("clinic_id", clinicId)
+        .gte("enviado_en", desdeIso)
+        .lte("enviado_en", hastaIso),
+    ]);
+
+  const impresionesPorSuperficieMap = new Map<string, number>();
+  for (const i of impresiones ?? []) {
+    impresionesPorSuperficieMap.set(
+      i.superficie,
+      (impresionesPorSuperficieMap.get(i.superficie) ?? 0) + 1,
+    );
+  }
 
   const contactosPorMetodoMap = new Map<string, number>();
   for (const c of contactos ?? []) {
@@ -82,6 +99,10 @@ export async function calcularEstadisticasClinica(
   const totalLeads = leads?.length ?? 0;
 
   return {
+    impresionesTotal: impresiones?.length ?? 0,
+    impresionesPorSuperficie: Array.from(impresionesPorSuperficieMap.entries())
+      .map(([superficie, total]) => ({ superficie, total }))
+      .sort((a, b) => b.total - a.total),
     vistasTotal: vistas?.length ?? 0,
     vistasPorDia: agruparPorDia((vistas ?? []).map((v) => v.created_at), desde, hasta),
     contactosTotal: contactos?.length ?? 0,

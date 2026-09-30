@@ -1,8 +1,11 @@
 import Link from "next/link";
 import { cache } from "react";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
@@ -79,6 +82,14 @@ export default async function CiudadPage({
   if (!ciudadReal) {
     notFound();
   }
+
+  after(async () => {
+    await registrarImpresionesListado(
+      createAdminClient(),
+      clinicas.map((c) => c.id),
+      "ciudad",
+    );
+  });
 
   // Estadísticas reales calculadas a partir de los datos — nunca texto
   // inventado sobre la zona.
