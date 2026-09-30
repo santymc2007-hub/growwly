@@ -62,6 +62,9 @@ export default async function PanelLayout({
               PANEL
             </span>
             <nav className="hidden gap-4 text-sm md:flex">
+              <Link href="/admin/estadisticas" className="hover:text-cyan">
+                Estadísticas
+              </Link>
               <Link href="/admin/clinicas" className="hover:text-cyan">
                 Clínicas
               </Link>

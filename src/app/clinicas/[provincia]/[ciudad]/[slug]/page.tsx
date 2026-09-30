@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { cache } from "react";
 import { notFound, redirect, permanentRedirect } from "next/navigation";
+import { after } from "next/server";
 import type { Metadata } from "next";
 import {
   Phone,
@@ -36,8 +37,8 @@ import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { TrackFichaClinica } from "@/components/analytics/track-ficha-clinica";
-import { TrackedLink } from "@/components/analytics/tracked-link";
 import { TrackedNextLink } from "@/components/analytics/tracked-next-link";
+import { BotonContactoClinica } from "@/components/analytics/boton-contacto-clinica";
 
 type Params = { provincia: string; ciudad: string; slug: string };
 
@@ -187,6 +188,13 @@ export default async function ClinicaPage({
   }
 
   const esPremium = clinic.plan === "premium";
+
+  // Registro propio de vistas de ficha (para las estadísticas de la
+  // clínica), a mayores del evento de Google Analytics — fuera del
+  // camino de renderizado (after()) para no retrasar la respuesta.
+  after(async () => {
+    await createAdminClient().from("clinic_page_views").insert({ clinic_id: clinic.id });
+  });
 
   const supabase = await createClient();
   const { data: tratamientosPublicados } = await supabase
@@ -708,42 +716,42 @@ export default async function ClinicaPage({
                   {clinic.web && (
                     <li className="flex items-center gap-2.5">
                       <Globe className="h-4 w-4 shrink-0 text-cyan-dark" aria-hidden />
-                      <TrackedLink
+                      <BotonContactoClinica
                         href={clinic.web}
                         target="_blank"
                         rel="noreferrer"
                         className="text-ink hover:text-cyan"
-                        evento="clic_contacto_clinica"
-                        parametros={{ clinic_id: clinic.id, metodo: "web" }}
+                        clinicId={clinic.id}
+                        metodo="web"
                       >
                         Sitio web ↗
-                      </TrackedLink>
+                      </BotonContactoClinica>
                     </li>
                   )}
                 </ul>
 
                 {clinic.telefono && (
                   <div className="mt-4 flex flex-wrap gap-2">
-                    <TrackedLink
+                    <BotonContactoClinica
                       href={`tel:${clinic.telefono}`}
                       className="press inline-flex items-center gap-1.5 rounded-full bg-teal-dark px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-                      evento="clic_contacto_clinica"
-                      parametros={{ clinic_id: clinic.id, metodo: "llamar" }}
+                      clinicId={clinic.id}
+                      metodo="llamar"
                     >
                       <Phone className="h-4 w-4" aria-hidden />
                       Llamar
-                    </TrackedLink>
-                    <TrackedLink
+                    </BotonContactoClinica>
+                    <BotonContactoClinica
                       href={`https://wa.me/${soloDigitos(clinic.telefono)}`}
                       target="_blank"
                       rel="noreferrer"
                       className="press inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-                      evento="clic_contacto_clinica"
-                      parametros={{ clinic_id: clinic.id, metodo: "whatsapp" }}
+                      clinicId={clinic.id}
+                      metodo="whatsapp"
                     >
                       <WhatsAppIcon className="h-4 w-4" />
                       WhatsApp
-                    </TrackedLink>
+                    </BotonContactoClinica>
                   </div>
                 )}
 
@@ -882,16 +890,16 @@ export default async function ClinicaPage({
                 </TrackedNextLink>
 
                 {esPremium && clinic.reserva_online_url && (
-                  <TrackedLink
+                  <BotonContactoClinica
                     href={clinic.reserva_online_url}
                     target="_blank"
                     rel="noreferrer"
                     className="press mt-2 inline-block rounded-full border border-teal px-5 py-2.5 text-sm font-bold text-teal-dark transition hover:bg-teal/5"
-                    evento="clic_contacto_clinica"
-                    parametros={{ clinic_id: clinic.id, metodo: "reserva_online" }}
+                    clinicId={clinic.id}
+                    metodo="reserva_online"
                   >
                     Reserva tu cita online ↗
-                  </TrackedLink>
+                  </BotonContactoClinica>
                 )}
 
                 {esPremium && socialLinks.length > 0 && (

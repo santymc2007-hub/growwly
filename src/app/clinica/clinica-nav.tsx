@@ -1,6 +1,6 @@
 import Link from "next/link";
 
-type Seccion = "ficha" | "solicitudes" | "visibilidad" | "facturacion";
+type Seccion = "ficha" | "solicitudes" | "estadisticas" | "visibilidad" | "facturacion";
 
 export function ClinicaNav({
   activo,
@@ -37,6 +37,7 @@ export function ClinicaNav({
         "solicitudes",
         solicitudesPendientes,
       )}
+      {tab("/clinica/estadisticas", "Estadísticas", "estadisticas")}
       {tab("/clinica/visibilidad", "Visibilidad", "visibilidad")}
       {tab("/clinica/facturacion", "Datos de facturación", "facturacion")}
     </nav>
