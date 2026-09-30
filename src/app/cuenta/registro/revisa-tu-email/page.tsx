@@ -1,8 +1,10 @@
 import Link from "next/link";
+import { TrackOnceParam } from "@/components/analytics/track-once-param";
 
 export default function RevisaTuEmailPage() {
   return (
     <main className="mx-auto flex min-h-screen max-w-sm flex-col items-center justify-center px-6 text-center">
+      <TrackOnceParam param="tipo_cuenta" evento="sign_up" />
       <h1 className="font-display text-2xl text-teal-dark">
         Revisa tu email
       </h1>

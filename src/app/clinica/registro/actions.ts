@@ -85,7 +85,7 @@ export async function registrarClinica(formData: FormData) {
   }
 
   if (!data.session) {
-    redirect("/cuenta/registro/revisa-tu-email");
+    redirect("/cuenta/registro/revisa-tu-email?tipo_cuenta=clinica");
   }
 
   if (data.user) {
