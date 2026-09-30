@@ -12,6 +12,8 @@ const FACTORES: { clave: keyof GrowwlyScore["desglose"]; label: string }[] = [
   { clave: "googleRating", label: "Valoraciones Google" },
 ];
 
+const TOOLTIP_TEXTO = `Esta puntuación es la media de cómo destacas en: ${FACTORES.map((f) => f.label.toLowerCase()).join(", ")}. Cuanto más alto sea tu Growwly Score, más probabilidades tienes de recibir leads extra.`;
+
 /**
  * Sello gráfico del Growwly Score en el panel de la clínica — mide
  * cómo trabaja la clínica dentro de Growwly (no es lo mismo que el
@@ -24,32 +26,39 @@ export function SelloGrowwlyScore({ score }: { score: GrowwlyScore }) {
   const [infoAbierta, setInfoAbierta] = useState(false);
 
   return (
-    <div className="flex items-center gap-5 rounded-2xl border border-yellow/40 bg-gradient-to-br from-yellow/15 via-white to-orange/10 p-5 md:w-[34%]">
-      <SelloScore tipo="growwly" valor={score.total} size={132} />
-      <div className="text-xs leading-relaxed text-ink-soft">
-        <span className="flex items-center gap-1.5">
-          <span className="font-display text-base font-bold text-teal-dark">Tu Growwly Score</span>
-          <span className="relative">
+    <div className="flex items-center gap-5 rounded-2xl bg-teal-dark p-5 md:w-[34%]">
+      <SelloScore tipo="growwly" valor={score.total} size={110} />
+      <div className="min-w-0">
+        <div className="flex items-start justify-between gap-2">
+          <p className="font-display text-xl font-extrabold uppercase leading-tight text-orange">
+            Growwly
+            <br />
+            Score
+          </p>
+          <span className="group relative shrink-0">
             <button
               type="button"
               onClick={() => setInfoAbierta((v) => !v)}
               onBlur={() => setInfoAbierta(false)}
               aria-label="Qué es el Growwly Score"
-              className="flex h-4 w-4 items-center justify-center rounded-full bg-teal-dark/15 text-[10px] font-bold text-teal-dark hover:bg-teal-dark/25"
+              className="flex h-6 w-6 items-center justify-center rounded-full bg-white/15 text-xs font-bold text-white transition hover:bg-white/25"
             >
               i
             </button>
-            {infoAbierta && (
-              <span className="popover-anim absolute left-1/2 top-full z-20 mt-2 w-56 -translate-x-1/2 rounded-xl border border-line bg-white p-3 text-left text-xs normal-case text-ink shadow-lg">
-                Puntuación de 0 a 100 sobre lo buena que eres como clínica
-                partner de Growwly. Mejora tu posición en el reparto de leads
-                cuanta más completa esté tu ficha, más rápido respondas y
-                mejor gestiones cada solicitud.
-              </span>
-            )}
+            <span
+              className={`popover-anim absolute right-0 top-full z-20 mt-2 w-60 rounded-xl border border-line bg-white p-3 text-left text-xs normal-case leading-relaxed text-ink shadow-lg transition ${
+                infoAbierta
+                  ? "block"
+                  : "hidden group-hover:block"
+              }`}
+            >
+              {TOOLTIP_TEXTO}
+            </span>
           </span>
-        </span>
-        Afecta a tu puntuación: {FACTORES.map((f) => f.label).join(", ")}.
+        </div>
+        <p className="mt-1.5 text-sm leading-relaxed text-white/85">
+          Esta puntuación afecta directamente a la recepción extra de leads.
+        </p>
       </div>
     </div>
   );

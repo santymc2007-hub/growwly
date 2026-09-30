@@ -13,6 +13,8 @@ import { calcularEstadisticasClinica } from "@/lib/clinica/estadisticas-clinica"
 import { GraficoLineas } from "@/components/estadisticas/grafico-lineas";
 import { BarraCategoria } from "@/components/estadisticas/barra-categoria";
 import { BloqueoPremium } from "@/components/estadisticas/bloqueo-premium";
+import { ESTADO_COLOR } from "@/lib/leads/estado-color";
+import type { EstadoLead } from "@/lib/leads/estados-lead";
 
 type SearchParams = { rango?: string };
 
@@ -115,9 +117,14 @@ export default async function EstadisticasClinicaPage({
         </div>
 
         <div className="mb-6 flex items-center justify-between">
-          <p className="text-sm text-ink-soft">
-            Cómo le está yendo a tu ficha en Growwly.
-          </p>
+          <div className="flex items-center gap-2.5">
+            <span className="rounded-full bg-paper-dim px-3 py-1 text-xs font-bold uppercase tracking-wide text-ink-soft">
+              Info básica
+            </span>
+            <p className="text-sm text-ink-soft">
+              Cómo le está yendo a tu ficha en Growwly.
+            </p>
+          </div>
           <div className="inline-flex rounded-full border border-line bg-white p-1">
             {RANGOS.map((r) => (
               <Link
@@ -208,7 +215,7 @@ export default async function EstadisticasClinicaPage({
                       etiqueta={ESTADO_LABEL[l.estado] ?? l.estado}
                       valor={l.total}
                       total={stats.leadsTotal}
-                      color="#00768f"
+                      color={ESTADO_COLOR[l.estado as EstadoLead] ?? "#00768f"}
                     />
                   ))}
                 </div>
