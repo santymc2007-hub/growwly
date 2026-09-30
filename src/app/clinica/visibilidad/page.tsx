@@ -92,7 +92,7 @@ export default async function VisibilidadPage({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TarjetaVisibilidad
                 tipo="destacado"
-                Icono={Star}
+                icono={<Star className="h-5 w-5" strokeWidth={2.2} />}
                 titulo="Destacada en el listado"
                 descripcion="Tu ficha resalta con color y sube de posición en /clinicas."
                 beneficio="Más pacientes te ven primero al comparar clínicas de tu zona."
@@ -102,7 +102,7 @@ export default async function VisibilidadPage({
               />
               <TarjetaVisibilidad
                 tipo="destacado_home"
-                Icono={Home}
+                icono={<Home className="h-5 w-5" strokeWidth={2.2} />}
                 titulo="Destacada en la Home"
                 descripcion='Apareces en la sección "Clínicas destacadas" de la página principal.'
                 beneficio="Visibilidad máxima: es lo primero que ve cualquier visitante de Growwly."
@@ -112,7 +112,7 @@ export default async function VisibilidadPage({
               />
               <TarjetaVisibilidad
                 tipo="destacado_ciudad"
-                Icono={MapPin}
+                icono={<MapPin className="h-5 w-5" strokeWidth={2.2} />}
                 titulo="Destacada en tu ciudad"
                 descripcion={`Resaltas al principio dentro de ${rutaCiudad}.`}
                 beneficio="Ganas a la competencia local cuando buscan clínicas cerca."
@@ -122,7 +122,7 @@ export default async function VisibilidadPage({
               />
               <TarjetaVisibilidad
                 tipo="premium"
-                Icono={Gem}
+                icono={<Gem className="h-5 w-5" strokeWidth={2.2} />}
                 titulo="Perfil detallado"
                 descripcion="Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha."
                 beneficio="Ficha completa = más confianza del paciente = más leads convertidos."

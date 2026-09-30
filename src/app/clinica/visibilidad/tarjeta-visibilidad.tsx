@@ -1,7 +1,6 @@
 "use client";
 
-import { useState, useTransition } from "react";
-import type { LucideIcon } from "lucide-react";
+import { useState, useTransition, type ReactNode } from "react";
 import { solicitarVisibilidad, type TipoVisibilidad } from "./actions";
 
 const DURACIONES: { meses: number | null; etiqueta: string }[] = [
@@ -22,7 +21,7 @@ function formatearFecha(iso: string): string {
 
 type Props = {
   tipo: TipoVisibilidad;
-  Icono: LucideIcon;
+  icono: ReactNode;
   titulo: string;
   descripcion: string;
   beneficio: string;
@@ -33,7 +32,7 @@ type Props = {
 
 export function TarjetaVisibilidad({
   tipo,
-  Icono,
+  icono,
   titulo,
   descripcion,
   beneficio,
@@ -63,7 +62,7 @@ export function TarjetaVisibilidad({
             activo ? "bg-teal text-paper" : "bg-sage/60 text-teal-dark"
           }`}
         >
-          <Icono className="h-5 w-5" strokeWidth={2.2} />
+          {icono}
         </span>
         <div>
           <p className="font-display text-base text-teal-dark">{titulo}</p>
