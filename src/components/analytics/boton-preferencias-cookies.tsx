@@ -7,7 +7,7 @@ export function BotonPreferenciasCookies() {
     <button
       type="button"
       onClick={() => window.dispatchEvent(new Event(EVENTO_ABRIR_PREFERENCIAS))}
-      className="text-left hover:text-teal"
+      className="text-left hover:text-white"
     >
       Preferencias de cookies
     </button>
