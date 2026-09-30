@@ -2,8 +2,11 @@ import Link from "next/link";
 import Image from "next/image";
 import { cache } from "react";
 import { notFound } from "next/navigation";
+import { after } from "next/server";
 import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
@@ -87,6 +90,14 @@ export default async function TratamientoPage({
   ]);
 
   const clinicasConTecnica = clinicasData ?? [];
+
+  after(async () => {
+    await registrarImpresionesListado(
+      createAdminClient(),
+      clinicasConTecnica.map((c) => c.id),
+      "tratamiento",
+    );
+  });
   const desde = clinicasConTecnica
     .map((c) => c.precio_desde)
     .filter((p): p is number => p !== null);

@@ -106,6 +106,35 @@ export type Database = {
           },
         ]
       }
+      clinic_impresiones_listado: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          id: string
+          superficie: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          id?: string
+          superficie: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          id?: string
+          superficie?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_impresiones_listado_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_members: {
         Row: {
           clinic_id: string

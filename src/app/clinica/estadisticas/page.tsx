@@ -34,6 +34,14 @@ const METODO_LABEL: Record<string, string> = {
   pedir_cita: "Pedir cita (formulario)",
 };
 
+const SUPERFICIE_LABEL: Record<string, string> = {
+  listado: "Listado general",
+  ciudad: "Listado de tu ciudad",
+  home_destacadas: "Home (destacadas)",
+  home_semana: "Home (clínica de la semana)",
+  tratamiento: "Ficha de tratamiento",
+};
+
 const ESTADO_LABEL: Record<string, string> = {
   enviado: "Nuevo",
   visto: "Visto, sin gestionar",
@@ -143,12 +151,37 @@ export default async function EstadisticasClinicaPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-3 gap-4">
+          {tarjeta(
+            "Impresiones en listados",
+            stats.impresionesTotal.toLocaleString("es-ES"),
+            "veces que tu tarjeta apareció",
+          )}
           {tarjeta("Vistas de ficha", stats.vistasTotal.toLocaleString("es-ES"))}
           {tarjeta("Contactos", stats.contactosTotal.toLocaleString("es-ES"))}
         </div>
 
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <div className="mt-4 grid gap-4 lg:grid-cols-3">
+          <div className="rounded-2xl border border-line bg-white p-5">
+            <h2 className="font-display text-lg text-teal-dark">Impresiones por superficie</h2>
+            {stats.impresionesPorSuperficie.length === 0 ? (
+              <p className="mt-3 text-sm text-ink-soft">
+                Todavía no hay impresiones en este rango.
+              </p>
+            ) : (
+              <div className="mt-4 flex flex-col gap-3">
+                {stats.impresionesPorSuperficie.map((i) => (
+                  <BarraCategoria
+                    key={i.superficie}
+                    etiqueta={SUPERFICIE_LABEL[i.superficie] ?? i.superficie}
+                    valor={i.total}
+                    total={stats.impresionesTotal}
+                    color="#00c2d6"
+                  />
+                ))}
+              </div>
+            )}
+          </div>
           <div className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-display text-lg text-teal-dark">Vistas de ficha</h2>
             <div className="mt-2">

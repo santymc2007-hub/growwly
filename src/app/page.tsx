@@ -1,10 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Metadata } from "next";
+import { after } from "next/server";
 // Caveat solo se usa en esta página (acento manuscrito puntual) —
 // cargarla desde el layout raíz la mandaría a todo el sitio.
 import "@fontsource/caveat/700.css";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
@@ -73,6 +76,20 @@ export default async function HomePage() {
         .limit(4),
     ]);
   const destacadas = data ?? [];
+
+  after(async () => {
+    const admin = createAdminClient();
+    await Promise.all([
+      registrarImpresionesListado(
+        admin,
+        destacadas.map((c) => c.id),
+        "home_destacadas",
+      ),
+      clinicaDeLaSemana
+        ? registrarImpresionesListado(admin, [clinicaDeLaSemana.id], "home_semana")
+        : Promise.resolve(),
+    ]);
+  });
 
   // Si el admin ha marcado tratamientos como destacados a mano, se
   // usan esos (hasta 4). Si no ha marcado ninguno todavía, se cae al
