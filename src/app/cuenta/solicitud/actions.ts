@@ -125,12 +125,13 @@ export async function crearSolicitud(
   });
 
   try {
-    const { candidatas, notificadas, ultimoError } =
+    const { candidatas, notificadas, ultimoError, matchScorePaciente } =
       await notificarClinicasDeSolicitud(supabaseAdmin, solicitud.id);
     await supabaseAdmin
       .from("solicitudes_presupuesto")
       .update({
         clinicas_notificadas: notificadas,
+        match_score_paciente: matchScorePaciente,
         notificacion_error:
           notificadas === 0 && candidatas > 0
             ? (ultimoError ?? "Había clínicas candidatas pero ninguna se pudo avisar.")

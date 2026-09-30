@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Star, Home, MapPin, Gem } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
@@ -91,36 +92,40 @@ export default async function VisibilidadPage({
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TarjetaVisibilidad
                 tipo="destacado"
-                icono="★"
+                Icono={Star}
                 titulo="Destacada en el listado"
                 descripcion="Tu ficha resalta con color y sube de posición en /clinicas."
+                beneficio="Más pacientes te ven primero al comparar clínicas de tu zona."
                 activo={clinic.destacado}
                 pendiente={clinic.destacado_solicitado}
                 expiraEn={fechas.destacado?.expira_en}
               />
               <TarjetaVisibilidad
                 tipo="destacado_home"
-                icono="🏠"
+                Icono={Home}
                 titulo="Destacada en la Home"
                 descripcion='Apareces en la sección "Clínicas destacadas" de la página principal.'
+                beneficio="Visibilidad máxima: es lo primero que ve cualquier visitante de Growwly."
                 activo={clinic.destacado_home}
                 pendiente={clinic.destacado_home_solicitado}
                 expiraEn={fechas.destacado_home?.expira_en}
               />
               <TarjetaVisibilidad
                 tipo="destacado_ciudad"
-                icono="📍"
+                Icono={MapPin}
                 titulo="Destacada en tu ciudad"
                 descripcion={`Resaltas al principio dentro de ${rutaCiudad}.`}
+                beneficio="Ganas a la competencia local cuando buscan clínicas cerca."
                 activo={clinic.destacado_ciudad}
                 pendiente={clinic.destacado_ciudad_solicitado}
                 expiraEn={fechas.destacado_ciudad?.expira_en}
               />
               <TarjetaVisibilidad
                 tipo="premium"
-                icono="✦"
+                Icono={Gem}
                 titulo="Perfil detallado"
                 descripcion="Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha."
+                beneficio="Ficha completa = más confianza del paciente = más leads convertidos."
                 activo={clinic.plan === "premium"}
                 pendiente={clinic.plan_solicitado === "premium"}
                 expiraEn={fechas.premium?.expira_en}

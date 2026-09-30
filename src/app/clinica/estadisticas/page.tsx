@@ -12,6 +12,7 @@ import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
 import { calcularEstadisticasClinica } from "@/lib/clinica/estadisticas-clinica";
 import { GraficoLineas } from "@/components/estadisticas/grafico-lineas";
 import { BarraCategoria } from "@/components/estadisticas/barra-categoria";
+import { BloqueoPremium } from "@/components/estadisticas/bloqueo-premium";
 
 type SearchParams = { rango?: string };
 
@@ -71,7 +72,7 @@ export default async function EstadisticasClinicaPage({
   const admin = createAdminClient();
   const { data: clinic } = await admin
     .from("clinics")
-    .select("nombre, logo_url, fotos")
+    .select("nombre, logo_url, fotos, plan")
     .eq("id", clinicId)
     .maybeSingle();
 
@@ -90,6 +91,7 @@ export default async function EstadisticasClinicaPage({
   ]);
 
   const fotoPrincipal = clinic.logo_url ?? clinic.fotos?.[0] ?? null;
+  const esPremium = clinic.plan === "premium";
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
@@ -131,33 +133,18 @@ export default async function EstadisticasClinicaPage({
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+        <div className="grid grid-cols-2 gap-4">
           {tarjeta("Vistas de ficha", stats.vistasTotal.toLocaleString("es-ES"))}
           {tarjeta("Contactos", stats.contactosTotal.toLocaleString("es-ES"))}
-          {tarjeta("Leads recibidos", stats.leadsTotal.toLocaleString("es-ES"))}
-          {tarjeta(
-            "Elegida por el paciente",
-            stats.tasaEleccion != null ? `${Math.round(stats.tasaEleccion * 100)}%` : "—",
-            "de los leads recibidos",
-          )}
         </div>
 
-        <div className="mt-6 grid gap-4 lg:grid-cols-2">
+        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-display text-lg text-teal-dark">Vistas de ficha</h2>
             <div className="mt-2">
               <GraficoLineas datos={stats.vistasPorDia} color="#00c2d6" etiqueta="Vistas" />
             </div>
           </div>
-          <div className="rounded-2xl border border-line bg-white p-5">
-            <h2 className="font-display text-lg text-teal-dark">Leads recibidos</h2>
-            <div className="mt-2">
-              <GraficoLineas datos={stats.leadsPorDia} color="#1f5568" etiqueta="Leads" />
-            </div>
-          </div>
-        </div>
-
-        <div className="mt-4 grid gap-4 lg:grid-cols-2">
           <div className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-display text-lg text-teal-dark">Contactos por método</h2>
             {stats.contactosPorMetodo.length === 0 ? (
@@ -176,26 +163,63 @@ export default async function EstadisticasClinicaPage({
               </div>
             )}
           </div>
-          <div className="rounded-2xl border border-line bg-white p-5">
-            <h2 className="font-display text-lg text-teal-dark">Leads por estado</h2>
-            {stats.leadsPorEstado.length === 0 ? (
-              <p className="mt-3 text-sm text-ink-soft">Todavía no hay leads en este rango.</p>
-            ) : (
-              <div className="mt-4 flex flex-col gap-3">
-                {stats.leadsPorEstado.map((l) => (
-                  <BarraCategoria
-                    key={l.estado}
-                    etiqueta={ESTADO_LABEL[l.estado] ?? l.estado}
-                    valor={l.total}
-                    total={stats.leadsTotal}
-                    color="#00768f"
-                  />
-                ))}
-              </div>
+        </div>
+
+        <div className="mt-10 mb-4 flex items-center gap-3">
+          <span className="rounded-full bg-yellow px-3 py-1 text-xs font-bold uppercase tracking-wide text-teal-dark">
+            Info PREMIUM
+          </span>
+          <div className="h-px flex-1 bg-line" />
+          {!esPremium && (
+            <p className="text-xs text-ink-soft">
+              Estas métricas se activan con el perfil PREMIUM.
+            </p>
+          )}
+        </div>
+
+        <BloquePremium activo={esPremium}>
+          <div className="grid grid-cols-2 gap-4">
+            {tarjeta("Leads recibidos", stats.leadsTotal.toLocaleString("es-ES"))}
+            {tarjeta(
+              "Elegida por el paciente",
+              stats.tasaEleccion != null ? `${Math.round(stats.tasaEleccion * 100)}%` : "—",
+              "de los leads recibidos",
             )}
           </div>
-        </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-2">
+            <div className="rounded-2xl border border-line bg-white p-5">
+              <h2 className="font-display text-lg text-teal-dark">Leads recibidos</h2>
+              <div className="mt-2">
+                <GraficoLineas datos={stats.leadsPorDia} color="#1f5568" etiqueta="Leads" />
+              </div>
+            </div>
+            <div className="rounded-2xl border border-line bg-white p-5">
+              <h2 className="font-display text-lg text-teal-dark">Leads por estado</h2>
+              {stats.leadsPorEstado.length === 0 ? (
+                <p className="mt-3 text-sm text-ink-soft">Todavía no hay leads en este rango.</p>
+              ) : (
+                <div className="mt-4 flex flex-col gap-3">
+                  {stats.leadsPorEstado.map((l) => (
+                    <BarraCategoria
+                      key={l.estado}
+                      etiqueta={ESTADO_LABEL[l.estado] ?? l.estado}
+                      valor={l.total}
+                      total={stats.leadsTotal}
+                      color="#00768f"
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </BloquePremium>
       </div>
     </main>
   );
+}
+
+function BloquePremium({ activo, children }: { activo: boolean; children: React.ReactNode }) {
+  if (activo) return <>{children}</>;
+  return <BloqueoPremium>{children}</BloqueoPremium>;
 }

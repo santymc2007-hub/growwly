@@ -6,8 +6,8 @@ import Image from "next/image";
  * el real. Las posiciones son el centro de la píldora en cada imagen.
  */
 const SELLOS = {
-  match: { src: "/brand/sello-match-score.png", alt: "Match Score", x: 50.7, y: 82.9 },
-  growwly: { src: "/brand/sello-growwly-score.png", alt: "Growwly Score", x: 48.7, y: 81.8 },
+  match: { src: "/brand/sello-match-score.png", alt: "Match Score", x: 50.2, y: 78.3 },
+  growwly: { src: "/brand/sello-growwly-score.png", alt: "Growwly Score", x: 51, y: 78.5 },
 } as const;
 
 export function SelloScore({

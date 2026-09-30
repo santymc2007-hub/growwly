@@ -37,8 +37,8 @@ export function ClinicaNav({
         "solicitudes",
         solicitudesPendientes,
       )}
-      {tab("/clinica/estadisticas", "Estadísticas", "estadisticas")}
       {tab("/clinica/visibilidad", "Visibilidad", "visibilidad")}
+      {tab("/clinica/estadisticas", "Estadísticas", "estadisticas")}
       {tab("/clinica/facturacion", "Datos de facturación", "facturacion")}
     </nav>
   );

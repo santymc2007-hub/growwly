@@ -140,8 +140,6 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
     .order("enviado_en", { ascending: true });
 
   const leads = (leadsData ?? []).filter((l) => l.estado !== "cancelado");
-  const matchScores = leads.map((l) => l.match_score).filter((m): m is number => m != null);
-  const mejorMatch = matchScores.length > 0 ? Math.max(...matchScores) : null;
 
   const leadElegido = leads.find((l) => contactoLiberado(l.estado as EstadoLead)) ?? null;
   const conPropuesta = leads.filter((l) => l.propuesta_enviada_en);
@@ -382,12 +380,13 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
               </h1>
               <p className="max-w-3xl text-base leading-relaxed text-ink-soft sm:text-lg">{texto}</p>
             </div>
-            {mejorMatch != null && (
+            {solicitud.match_score_paciente != null && (
               <div className="flex items-center gap-4 rounded-3xl bg-paper-dim p-5 sm:p-6">
-                <SelloScore tipo="match" valor={mejorMatch} size={104} />
+                <SelloScore tipo="match" valor={solicitud.match_score_paciente} size={104} />
                 <p className="text-[15px] leading-normal text-sage-ink">
-                  <strong>Tu Match Score es del {mejorMatch}%.</strong> Es lo bien que encajan las
-                  clínicas con lo que pediste.
+                  <strong>Tu Match Score es del {solicitud.match_score_paciente}%.</strong> Son las
+                  clínicas especializadas que han recibido tu solicitud, sobre el máximo de 5 que
+                  compartimos por paciente.
                 </p>
               </div>
             )}

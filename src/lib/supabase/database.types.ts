@@ -836,6 +836,7 @@ export type Database = {
           estudio_id: string | null
           fumador: string | null
           id: string
+          match_score_paciente: number | null
           medicacion_actual: string | null
           notificacion_error: string | null
           presupuesto_rango: string | null
@@ -869,6 +870,7 @@ export type Database = {
           estudio_id?: string | null
           fumador?: string | null
           id?: string
+          match_score_paciente?: number | null
           medicacion_actual?: string | null
           notificacion_error?: string | null
           presupuesto_rango?: string | null
@@ -902,6 +904,7 @@ export type Database = {
           estudio_id?: string | null
           fumador?: string | null
           id?: string
+          match_score_paciente?: number | null
           medicacion_actual?: string | null
           notificacion_error?: string | null
           presupuesto_rango?: string | null
