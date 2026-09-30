@@ -15,6 +15,7 @@ import { BarraCategoria } from "@/components/estadisticas/barra-categoria";
 import { BloqueoPremium } from "@/components/estadisticas/bloqueo-premium";
 import { ESTADO_COLOR } from "@/lib/leads/estado-color";
 import type { EstadoLead } from "@/lib/leads/estados-lead";
+import { METODO_COLOR } from "@/lib/clinica/metodo-color";
 
 type SearchParams = { rango?: string };
 
@@ -166,7 +167,7 @@ export default async function EstadisticasClinicaPage({
                     etiqueta={METODO_LABEL[c.metodo] ?? c.metodo}
                     valor={c.total}
                     total={stats.contactosTotal}
-                    color="#25D366"
+                    color={METODO_COLOR[c.metodo] ?? "#25D366"}
                   />
                 ))}
               </div>

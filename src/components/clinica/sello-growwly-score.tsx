@@ -26,8 +26,8 @@ export function SelloGrowwlyScore({ score }: { score: GrowwlyScore }) {
   const [infoAbierta, setInfoAbierta] = useState(false);
 
   return (
-    <div className="flex items-center gap-5 rounded-2xl bg-teal-dark p-5 md:w-[34%]">
-      <SelloScore tipo="growwly" valor={score.total} size={110} />
+    <div className="flex items-center gap-5 rounded-2xl bg-teal-dark p-3 md:w-[34%]">
+      <SelloScore tipo="growwly" valor={score.total} size={132} />
       <div className="min-w-0">
         <div className="flex items-start justify-between gap-2">
           <p className="font-display text-xl font-extrabold uppercase leading-tight text-orange">

@@ -7,6 +7,7 @@ import { BarraCategoria } from "@/components/estadisticas/barra-categoria";
 import { FiltrosEstadisticasAdmin } from "@/components/estadisticas/filtros-estadisticas-admin";
 import { ESTADO_COLOR } from "@/lib/leads/estado-color";
 import type { EstadoLead } from "@/lib/leads/estados-lead";
+import { METODO_COLOR } from "@/lib/clinica/metodo-color";
 
 export const dynamic = "force-dynamic";
 
@@ -161,7 +162,7 @@ export default async function EstadisticasAdminPage({
                     etiqueta={METODO_LABEL[c.metodo] ?? c.metodo}
                     valor={c.total}
                     total={stats.contactosTotal}
-                    color="#25D366"
+                    color={METODO_COLOR[c.metodo] ?? "#25D366"}
                   />
                 ))}
               </div>
