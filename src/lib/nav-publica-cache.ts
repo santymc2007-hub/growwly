@@ -28,12 +28,19 @@ export const ciudadesConClinicas = unstable_cache(
     const admin = createAdminClient();
     const { data } = await admin
       .from("clinics")
-      .select("ciudad")
+      .select("ciudad, provincia")
       .eq("publicado", true)
       .eq("verificado_admin", true);
-    return Array.from(
-      new Set((data ?? []).map((c) => c.ciudad).filter((c): c is string => Boolean(c))),
-    ).sort((a, b) => a.localeCompare(b, "es"));
+
+    const porCiudad = new Map<string, string>();
+    for (const c of data ?? []) {
+      if (c.ciudad && c.provincia && !porCiudad.has(c.ciudad)) {
+        porCiudad.set(c.ciudad, c.provincia);
+      }
+    }
+    return Array.from(porCiudad, ([ciudad, provincia]) => ({ ciudad, provincia })).sort((a, b) =>
+      a.ciudad.localeCompare(b.ciudad, "es"),
+    );
   },
   ["ciudades-con-clinicas"],
   { revalidate: 300 },
