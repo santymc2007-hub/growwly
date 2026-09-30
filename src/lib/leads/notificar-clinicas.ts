@@ -19,13 +19,14 @@ import {
 const MAX_CLINICAS_POR_SOLICITUD = 5;
 
 /**
- * Cómo se combinan Growwly Score (cómo trabaja la clínica en general)
- * y Match Score (cuánto encaja con ESTE lead en concreto) para decidir
- * a quién se manda. Empieza en 50/50 — se podrá ajustar con datos
- * reales, igual que el resto de constantes de este módulo.
+ * Mínimo de leads que se garantiza a cada clínica premium cada mes
+ * natural — es parte de lo que paga con la cuota. Por debajo de este
+ * número, una clínica entra en el grupo "atrasadas" y se prioriza por
+ * encima de cualquier otra en el reparto de cada solicitud que encaje
+ * con ella. Una vez cubierto, compite por leads "extra" solo por
+ * Growwly Score.
  */
-const PESO_GROWWLY_SCORE_EN_ROUTING = 0.5;
-const PESO_MATCH_SCORE_EN_ROUTING = 0.5;
+const LEADS_MINIMOS_GARANTIZADOS_AL_MES = 2;
 
 /**
  * Busca las clínicas que encajan con una solicitud (ciudad + técnicas de
@@ -40,7 +41,12 @@ const PESO_MATCH_SCORE_EN_ROUTING = 0.5;
 export async function notificarClinicasDeSolicitud(
   supabaseAdmin: SupabaseClient<Database>,
   solicitudId: string,
-): Promise<{ candidatas: number; notificadas: number; ultimoError: string | null }> {
+): Promise<{
+  candidatas: number;
+  notificadas: number;
+  ultimoError: string | null;
+  matchScorePaciente: number | null;
+}> {
   const { data: solicitud } = await supabaseAdmin
     .from("solicitudes_presupuesto")
     .select("*")
@@ -48,7 +54,12 @@ export async function notificarClinicasDeSolicitud(
     .maybeSingle();
 
   if (!solicitud) {
-    return { candidatas: 0, notificadas: 0, ultimoError: "Solicitud no encontrada" };
+    return {
+      candidatas: 0,
+      notificadas: 0,
+      ultimoError: "Solicitud no encontrada",
+      matchScorePaciente: null,
+    };
   }
 
   let resumenIA: string | null = null;
@@ -95,25 +106,55 @@ export async function notificarClinicasDeSolicitud(
 
   const candidatas = (clinicas ?? []).filter((c) => c.email).length;
 
+  // Cobertura que verá el paciente: cuántas de las candidatas (tope 5)
+  // encajaban con su solicitud. No es una media de calidad — si hay 5
+  // o más, se enseña 100% aunque hubiera más de 5 encajando.
+  const matchScorePaciente =
+    candidatas > 0 ? Math.min(candidatas, MAX_CLINICAS_POR_SOLICITUD) * 20 : null;
+
+  // Cuántos leads ha recibido ya este mes cada candidata — decide quién
+  // está "atrasada" respecto al mínimo garantizado.
+  const inicioMes = new Date();
+  inicioMes.setDate(1);
+  inicioMes.setHours(0, 0, 0, 0);
+  const clinicIds = (clinicas ?? []).map((c) => c.id);
+  const { data: leadsDelMes } =
+    clinicIds.length > 0
+      ? await supabaseAdmin
+          .from("leads_clinica")
+          .select("clinic_id")
+          .in("clinic_id", clinicIds)
+          .gte("enviado_en", inicioMes.toISOString())
+      : { data: [] };
+  const leadsEsteMesPorClinica = new Map<string, number>();
+  for (const l of leadsDelMes ?? []) {
+    leadsEsteMesPorClinica.set(l.clinic_id, (leadsEsteMesPorClinica.get(l.clinic_id) ?? 0) + 1);
+  }
+
   // Growwly Score (cómo trabaja la clínica) + Match Score (cuánto
-  // encaja con ESTA solicitud) -> Routing Score. Se manda el lead a
-  // las MAX_CLINICAS_POR_SOLICITUD mejores, no a todas las que
-  // encajen por criterios obligatorios.
+  // encaja con ESTA solicitud) + leads recibidos este mes, por
+  // candidata.
   const conPuntuacion = await Promise.all(
     (clinicas ?? []).map(async (clinica) => {
       const metricas = await calcularMetricasLeadsClinica(supabaseAdmin, clinica.id);
       const growwlyScore = calcularGrowwlyScore(clinica, metricas);
       const matchScore = calcularMatchScore(solicitud, clinica);
-      const routingScore =
-        growwlyScore.total * PESO_GROWWLY_SCORE_EN_ROUTING +
-        matchScore * PESO_MATCH_SCORE_EN_ROUTING;
-      return { clinica, matchScore, routingScore };
+      const leadsEsteMes = leadsEsteMesPorClinica.get(clinica.id) ?? 0;
+      return { clinica, matchScore, growwlyScore: growwlyScore.total, leadsEsteMes };
     }),
   );
 
-  const seleccionadas = conPuntuacion
-    .sort((a, b) => b.routingScore - a.routingScore)
-    .slice(0, MAX_CLINICAS_POR_SOLICITUD);
+  // Primero se cubre el mínimo garantizado (las más atrasadas, luego
+  // por Match Score), y solo con los huecos que sobren compiten las
+  // que ya están al día — esas, por Growwly Score puro.
+  const atrasadas = conPuntuacion
+    .filter((c) => c.leadsEsteMes < LEADS_MINIMOS_GARANTIZADOS_AL_MES)
+    .sort((a, b) => a.leadsEsteMes - b.leadsEsteMes || b.matchScore - a.matchScore);
+  const alDia = conPuntuacion
+    .filter((c) => c.leadsEsteMes >= LEADS_MINIMOS_GARANTIZADOS_AL_MES)
+    .sort((a, b) => b.growwlyScore - a.growwlyScore);
+
+  const seleccionadas = [...atrasadas, ...alDia].slice(0, MAX_CLINICAS_POR_SOLICITUD);
 
   let notificadas = 0;
   let ultimoError: string | null = null;
@@ -173,7 +214,7 @@ export async function notificarClinicasDeSolicitud(
     }
   }
 
-  return { candidatas, notificadas, ultimoError };
+  return { candidatas, notificadas, ultimoError, matchScorePaciente };
 }
 
 function construirHtmlEmail(datos: {
