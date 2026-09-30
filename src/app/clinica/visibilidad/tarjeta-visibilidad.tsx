@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useTransition } from "react";
+import type { LucideIcon } from "lucide-react";
 import { solicitarVisibilidad, type TipoVisibilidad } from "./actions";
 
 const DURACIONES: { meses: number | null; etiqueta: string }[] = [
@@ -21,9 +22,10 @@ function formatearFecha(iso: string): string {
 
 type Props = {
   tipo: TipoVisibilidad;
-  icono: string;
+  Icono: LucideIcon;
   titulo: string;
   descripcion: string;
+  beneficio: string;
   activo: boolean;
   pendiente: boolean;
   expiraEn?: string | null;
@@ -31,9 +33,10 @@ type Props = {
 
 export function TarjetaVisibilidad({
   tipo,
-  icono,
+  Icono,
   titulo,
   descripcion,
+  beneficio,
   activo,
   pendiente,
   expiraEn,
@@ -49,11 +52,28 @@ export function TarjetaVisibilidad({
   }
 
   return (
-    <div className="relative rounded-2xl border border-line bg-white p-5">
-      <p className="font-display text-base text-teal-dark">
-        {icono} {titulo}
+    <div
+      className={`relative flex flex-col rounded-2xl border p-5 transition ${
+        activo ? "border-teal/40 bg-teal/[0.04]" : "border-line bg-white"
+      }`}
+    >
+      <div className="flex items-start gap-3">
+        <span
+          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
+            activo ? "bg-teal text-paper" : "bg-sage/60 text-teal-dark"
+          }`}
+        >
+          <Icono className="h-5 w-5" strokeWidth={2.2} />
+        </span>
+        <div>
+          <p className="font-display text-base text-teal-dark">{titulo}</p>
+          <p className="mt-1 text-sm text-ink-soft">{descripcion}</p>
+        </div>
+      </div>
+
+      <p className="mt-3 rounded-lg bg-sage/40 px-3 py-2 text-xs font-medium text-teal-dark">
+        {beneficio}
       </p>
-      <p className="mt-1 text-sm text-ink-soft">{descripcion}</p>
 
       {activo ? (
         <div className="mt-3">
@@ -73,7 +93,7 @@ export function TarjetaVisibilidad({
           type="button"
           disabled={pending}
           onClick={() => setEligiendoDuracion(true)}
-          className="press mt-3 rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:opacity-60"
+          className="press mt-3 self-start rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:opacity-60"
         >
           Solicitar
         </button>
