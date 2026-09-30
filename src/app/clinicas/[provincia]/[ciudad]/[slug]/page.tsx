@@ -762,15 +762,17 @@ export default async function ClinicaPage({
                     </h2>
                     <p className="mt-2 break-words text-sm text-ink-soft">{clinic.direccion}</p>
                     {clinic.lat != null && clinic.lng != null && (
-                      <a
+                      <BotonContactoClinica
                         href={`https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`}
                         target="_blank"
                         rel="noreferrer"
                         className="mt-2 inline-flex items-center gap-1.5 text-sm text-cyan hover:text-cyan-dark"
+                        clinicId={clinic.id}
+                        metodo="ver_mapa"
                       >
                         <MapPin className="h-4 w-4" aria-hidden />
                         Ver en el mapa ↗
-                      </a>
+                      </BotonContactoClinica>
                     )}
                   </>
                 )}

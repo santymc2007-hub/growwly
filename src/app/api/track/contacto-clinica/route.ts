@@ -1,7 +1,14 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-const METODOS_VALIDOS = ["llamar", "whatsapp", "web", "reserva_online"] as const;
+const METODOS_VALIDOS = [
+  "llamar",
+  "whatsapp",
+  "web",
+  "reserva_online",
+  "ver_mapa",
+  "pedir_cita",
+] as const;
 
 /**
  * Registro propio (no depende de que se acepten las cookies

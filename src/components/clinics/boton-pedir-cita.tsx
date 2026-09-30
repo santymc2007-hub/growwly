@@ -47,6 +47,15 @@ export function BotonPedirCita({
           tipo_lead: "cita_directa",
           clinic_id: clinicId,
         });
+        // Igual que BotonContactoClinica: registro propio para las
+        // estadísticas de la clínica, sin depender de si se aceptaron
+        // las cookies analíticas.
+        fetch("/api/track/contacto-clinica", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ clinicId, metodo: "pedir_cita" }),
+          keepalive: true,
+        }).catch(() => {});
       } else {
         setEstado("error");
         setErrorMsg(resultado.error);

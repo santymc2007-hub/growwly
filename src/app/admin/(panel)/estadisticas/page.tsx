@@ -21,6 +21,8 @@ const METODO_LABEL: Record<string, string> = {
   whatsapp: "WhatsApp",
   web: "Sitio web",
   reserva_online: "Reserva online",
+  ver_mapa: "Ver en el mapa",
+  pedir_cita: "Pedir cita (formulario)",
 };
 
 const ESTADO_LABEL: Record<string, string> = {
