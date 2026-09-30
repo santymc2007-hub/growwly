@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { slugifyCiudad } from "@/lib/clinic-options";
+import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { tratamientosMenu, ciudadesConClinicas } from "@/lib/nav-publica-cache";
 import { BotonPreferenciasCookies } from "@/components/analytics/boton-preferencias-cookies";
 
@@ -34,10 +34,13 @@ export async function SiteFooter() {
                   Clínicas por ciudad
                 </p>
                 <ul className="mt-3 flex flex-col gap-1.5 text-xs">
-                  {ciudades.map((c) => (
-                    <li key={c}>
-                      <Link href={`/clinicas/${slugifyCiudad(c)}`} className="hover:text-white">
-                        Clínicas en {c}
+                  {ciudades.map(({ ciudad, provincia }) => (
+                    <li key={ciudad}>
+                      <Link
+                        href={`/clinicas/${slugifyProvincia(provincia)}/${slugifyCiudad(ciudad)}`}
+                        className="hover:text-white"
+                      >
+                        Clínicas en {ciudad}
                       </Link>
                     </li>
                   ))}
