@@ -8,6 +8,8 @@ import "@fontsource/bricolage-grotesque/600.css";
 import "@fontsource/bricolage-grotesque/700.css";
 import "@fontsource/bricolage-grotesque/800.css";
 import "./globals.css";
+import { RevealObserver } from "@/components/reveal-observer";
+import { ANIMACIONES_ACTIVAS, SCRIPT_ANIMACIONES } from "@/lib/animaciones";
 
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
 
@@ -49,9 +51,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className="h-full antialiased">
+    // suppressHydrationWarning: el script del <head> añade la clase
+    // "anim" antes de que React hidrate — es esperado, no un error.
+    <html lang="es" className="h-full antialiased" suppressHydrationWarning>
+      {ANIMACIONES_ACTIVAS && (
+        <head>
+          <script dangerouslySetInnerHTML={{ __html: SCRIPT_ANIMACIONES }} />
+        </head>
+      )}
       <body className="min-h-full flex flex-col bg-paper font-sans text-ink">
         {children}
+        {ANIMACIONES_ACTIVAS && <RevealObserver />}
         <CookieConsent />
         <SpeedInsights />
       </body>

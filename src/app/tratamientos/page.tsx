@@ -54,7 +54,7 @@ export default async function TratamientosPage() {
               return (
                 <section key={categoria} className="mt-12 first:mt-0">
                   <h2 className="font-display text-xl text-teal-dark">{categoria}</h2>
-                  <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  <div data-reveal-grupo className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                     {deEstaCategoria.map((t) => (
                       <TarjetaTratamiento key={t.id} t={t} />
                     ))}
@@ -66,7 +66,7 @@ export default async function TratamientosPage() {
             {sinCategoria.length > 0 && (
               <section className="mt-12 first:mt-0">
                 <h2 className="font-display text-xl text-teal-dark">Otros</h2>
-                <div className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                <div data-reveal-grupo className="mt-5 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {sinCategoria.map((t) => (
                     <TarjetaTratamiento key={t.id} t={t} />
                   ))}

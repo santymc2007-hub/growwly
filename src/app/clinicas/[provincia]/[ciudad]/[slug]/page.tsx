@@ -413,7 +413,7 @@ export default async function ClinicaPage({
       </div>
 
       <div className="mx-auto max-w-[1400px] px-3 pb-8 pt-6 sm:px-6 sm:pb-10">
-        <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
+        <div className="entra overflow-hidden rounded-3xl bg-white shadow-sm">
           <FichaTabsMobile
             informacion={
             <div className="min-w-0 lg:flex lg:flex-col">

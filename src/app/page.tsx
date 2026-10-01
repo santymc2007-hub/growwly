@@ -112,7 +112,7 @@ export default async function HomePage() {
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Qué es Growwly */}
           <div className="px-6 py-5 sm:px-10 sm:py-6">
-            <div className="rounded-3xl bg-paper-dim px-6 py-6 text-center sm:px-10 sm:py-8">
+            <div data-reveal className="rounded-3xl bg-paper-dim px-6 py-6 text-center sm:px-10 sm:py-8">
               <h2 className="font-display text-2xl font-extrabold text-teal-dark sm:text-3xl lg:text-4xl">
                 El directorio nº1 de clínicas capilares verificadas en España
               </h2>
@@ -143,10 +143,10 @@ export default async function HomePage() {
           {/* Clínicas destacadas */}
           {destacadas.length > 0 && (
             <div className="border-t border-line px-6 py-10 sm:px-10">
-              <h2 className="font-display text-4xl font-extrabold text-teal-dark">
+              <h2 data-reveal className="font-display text-4xl font-extrabold text-teal-dark">
                 Clínicas destacadas
               </h2>
-              <div className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
+              <div data-reveal-grupo className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
                 {destacadas.map((clinic) => (
                   <ClinicCard key={clinic.id} clinic={clinic} />
                 ))}
@@ -164,14 +164,14 @@ export default async function HomePage() {
           <div id="como-funciona" className="border-t border-line bg-paper-dim px-6 py-5 sm:px-10">
             <div className="lg:grid lg:grid-cols-[1fr_368px] lg:items-center lg:gap-8">
               <div>
-                <h2 className="font-display text-4xl font-extrabold text-teal-dark">
+                <h2 data-reveal className="font-display text-4xl font-extrabold text-teal-dark">
                   Así de fácil
                 </h2>
                 <p className="mt-3 max-w-md text-lg text-ink-soft">
                   Tu valoración capilar en 4 sencillos pasos.
                 </p>
 
-                <div className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
+                <div data-reveal-grupo className="mt-10 grid grid-cols-2 gap-x-4 gap-y-10 sm:grid-cols-4">
                   {PASOS.map((paso, i) => (
                     <div key={paso.titulo} className="relative">
                       <Image
@@ -200,6 +200,7 @@ export default async function HomePage() {
 
               <Link
                 href="/analisis/nuevo"
+                data-reveal
                 className="relative mx-auto mt-12 hidden aspect-[1136/1385] w-full max-w-[368px] transition hover:opacity-90 lg:mt-0 lg:block"
               >
                 <Image
@@ -229,7 +230,7 @@ export default async function HomePage() {
 
           {/* CTA clínicas */}
           <div className="border-t border-line px-6 py-10 sm:px-10">
-            <div className="flex flex-col overflow-hidden rounded-3xl lg:flex-row lg:items-stretch">
+            <div data-reveal className="flex flex-col overflow-hidden rounded-3xl lg:flex-row lg:items-stretch">
               <div className="flex flex-col justify-center gap-3 bg-gradient-to-br from-teal-dark to-cyan-dark px-8 py-10 text-white sm:px-10 lg:w-[38%] lg:shrink-0">
                 <p className="font-display text-2xl font-extrabold sm:text-3xl">
                   ¿Tienes una clínica capilar?

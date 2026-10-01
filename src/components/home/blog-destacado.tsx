@@ -15,7 +15,7 @@ export function BlogDestacado({ posts }: { posts: PostDestacado[] }) {
     <div>
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h2 className="font-display text-4xl font-extrabold text-teal-dark">
+          <h2 data-reveal className="font-display text-4xl font-extrabold text-teal-dark">
             Del blog
           </h2>
           <p className="mt-3 max-w-2xl text-lg text-ink-soft">
@@ -30,7 +30,7 @@ export function BlogDestacado({ posts }: { posts: PostDestacado[] }) {
         </Link>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+      <div data-reveal-grupo className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
         {posts.map((post) => (
           <Link
             key={post.slug}

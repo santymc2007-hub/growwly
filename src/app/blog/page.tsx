@@ -101,7 +101,7 @@ export default async function BlogPage({
                       : "No hay artículos que encajen con esta búsqueda."}
                   </p>
                 ) : (
-                  <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  <div data-reveal-grupo className="grid grid-cols-1 gap-5 sm:grid-cols-2 xl:grid-cols-3">
                     {filtrados.map((post) => (
                       <Link
                         key={post.id}

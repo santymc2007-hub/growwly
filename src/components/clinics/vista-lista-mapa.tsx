@@ -58,7 +58,7 @@ export function VistaListaMapa({ clinicas }: { clinicas: Clinic[] }) {
       </div>
 
       {vista === "lista" ? (
-        <div className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
+        <div data-reveal-grupo className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
           {clinicas.map((clinic) => (
             <ClinicCard key={clinic.id} clinic={clinic} />
           ))}

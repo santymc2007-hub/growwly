@@ -177,6 +177,59 @@ summary {
   animation: carousel-fade 350ms var(--ease-out);
 }
 
+/* ─── Animaciones de entrada (carga + scroll) ─────────────────────────
+   Todo cuelga de html.anim (lo pone el script del <head> si el usuario
+   no pide "reducir movimiento"). Sin esa clase, nada de esto aplica.
+   Interruptor: src/lib/animaciones.ts.
+
+   Se usa animation con fill "backwards" (no "both"): al terminar, el
+   elemento vuelve a su estilo normal, así no pisa el transform de
+   .press ni los hover de las tarjetas. */
+@keyframes aparece {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Al cargar (hero, cabecera de ficha): puro CSS, no espera a JS.
+   Orden con las clases d1…d6 → n × 70 ms de retraso. */
+html.anim .entra {
+  animation: aparece 520ms var(--ease-out) backwards;
+  animation-delay: calc(var(--d, 0) * 70ms);
+}
+.d1 { --d: 1; }
+.d2 { --d: 2; }
+.d3 { --d: 3; }
+.d4 { --d: 4; }
+.d5 { --d: 5; }
+.d6 { --d: 6; }
+
+/* Al hacer scroll: oculto hasta que RevealObserver añade .rv-on. */
+html.anim [data-reveal]:not(.rv-on),
+html.anim [data-reveal-grupo] > :not(.rv-on) {
+  opacity: 0;
+}
+html.anim .rv-on {
+  animation: aparece 600ms var(--ease-out) backwards;
+  animation-delay: calc(var(--i, 0) * 70ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html.anim .entra,
+  html.anim .rv-on {
+    animation: none;
+  }
+  html.anim [data-reveal]:not(.rv-on),
+  html.anim [data-reveal-grupo] > :not(.rv-on) {
+    opacity: 1;
+  }
+}
+
 /* Resaltado de titulares (hero, WYSIWYG del panel): mismo amarillo de
    marca en todos lados, nunca un color libre elegido en el editor. */
 .hl {
