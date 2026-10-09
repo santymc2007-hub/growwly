@@ -21,8 +21,49 @@ const TIPO_LABEL: Record<TipoVisibilidad, string> = {
   destacado: "Destacada en el listado",
   destacado_home: "Destacada en la Home",
   destacado_ciudad: "Destacada en tu ciudad",
-  premium: "Perfil detallado",
+  premium: "Perfil ampliado",
 };
+
+// Mismo beneficio que ve la clínica en la tarjeta de /clinica/visibilidad.
+const BENEFICIO_LABEL: Record<TipoVisibilidad, string> = {
+  destacado: "Más pacientes te ven primero al comparar clínicas de tu zona.",
+  destacado_home: "Visibilidad máxima: es lo primero que ve cualquier visitante de Growwly.",
+  destacado_ciudad: "Ganas a la competencia local cuando buscan clínicas cerca.",
+  premium: "Ficha completa = más confianza del paciente = más leads convertidos.",
+};
+
+type EstadisticasClinica = {
+  impresiones: number;
+  visitasFicha: number;
+  leadsRecibidos: number;
+};
+
+async function leerEstadisticasClinica(
+  supabase: ReturnType<typeof createAdminClient>,
+  clinicId: string,
+): Promise<EstadisticasClinica> {
+  const [{ count: impresiones }, { count: visitasFicha }, { count: leadsRecibidos }] =
+    await Promise.all([
+      supabase
+        .from("clinic_impresiones_listado")
+        .select("id", { count: "exact", head: true })
+        .eq("clinic_id", clinicId),
+      supabase
+        .from("clinic_page_views")
+        .select("id", { count: "exact", head: true })
+        .eq("clinic_id", clinicId),
+      supabase
+        .from("leads_clinica")
+        .select("id", { count: "exact", head: true })
+        .eq("clinic_id", clinicId),
+    ]);
+
+  return {
+    impresiones: impresiones ?? 0,
+    visitasFicha: visitasFicha ?? 0,
+    leadsRecibidos: leadsRecibidos ?? 0,
+  };
+}
 
 async function registrarLogVisibilidad(
   supabase: ReturnType<typeof createAdminClient>,
@@ -45,17 +86,49 @@ async function registrarLogVisibilidad(
   });
 }
 
-function construirHtmlEmailActivacion(nombreClinica: string, tituloTipo: string): string {
+function construirHtmlEmailActivacion(datos: {
+  nombreClinica: string;
+  tituloTipo: string;
+  beneficio: string;
+  estadisticas: EstadisticasClinica;
+}): string {
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   return `
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">¡Ya está activo!</h1>
-      <p>Buenos días ${nombreClinica},</p>
-      <p>Tu clínica ya tiene el modo <strong>"${tituloTipo}"</strong> activado en Growwly.</p>
+      <h1 style="font-size: 20px; color: #00566b;">¡Gracias por confiar en Growwly!</h1>
+      <p>Buenos días ${datos.nombreClinica},</p>
+      <p>
+        Queríamos darte las gracias personalmente por seguir invirtiendo en que más
+        pacientes os encuentren. Tu clínica ya tiene el modo
+        <strong>"${datos.tituloTipo}"</strong> activado.
+      </p>
+      <p>${datos.beneficio}</p>
+      <div style="margin: 24px 0; border-radius: 12px; background: #eef6f1; padding: 16px 20px;">
+        <p style="margin: 0 0 8px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.04em; color: #1f5568;">
+          Así de visible eres ahora mismo en Growwly
+        </p>
+        <p style="margin: 0; font-size: 14px;">
+          👀 <strong>${datos.estadisticas.impresiones}</strong> veces se ha visto tu tarjeta en listados
+        </p>
+        <p style="margin: 4px 0 0; font-size: 14px;">
+          📄 <strong>${datos.estadisticas.visitasFicha}</strong> visitas a tu ficha completa
+        </p>
+        <p style="margin: 4px 0 0; font-size: 14px;">
+          📬 <strong>${datos.estadisticas.leadsRecibidos}</strong> solicitudes de pacientes recibidas
+        </p>
+      </div>
+      <p>
+        Lo que acabas de activar está pensado justo para mover estos números hacia
+        arriba. Puedes seguir la evolución en cualquier momento desde tu panel.
+      </p>
       <p style="margin-top: 24px;">
-        <a href="${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/clinica/visibilidad" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Ver mi visibilidad →
+        <a href="${siteUrl}/clinica/estadisticas" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
+          Ver mis estadísticas →
         </a>
+      </p>
+      <p style="margin-top: 16px; font-size: 13px;">
+        Un abrazo,<br />el equipo de Growwly
       </p>
     </div>
   `;
@@ -153,10 +226,16 @@ export async function activarVisibilidad(
     .maybeSingle();
   if (clinic?.email) {
     try {
+      const estadisticas = await leerEstadisticasClinica(supabase, clinicId);
       await enviarEmail({
         to: clinic.email,
         subject: `Ya tienes "${TIPO_LABEL[tipo]}" activado en Growwly`,
-        html: construirHtmlEmailActivacion(clinic.nombre, TIPO_LABEL[tipo]),
+        html: construirHtmlEmailActivacion({
+          nombreClinica: clinic.nombre,
+          tituloTipo: TIPO_LABEL[tipo],
+          beneficio: BENEFICIO_LABEL[tipo],
+          estadisticas,
+        }),
       });
     } catch {
       // Un fallo de envío no debe impedir que la activación quede

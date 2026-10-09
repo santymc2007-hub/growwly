@@ -83,9 +83,11 @@ export async function notificarClinicasDeSolicitud(
     .eq("publicado", true)
     .eq("verificado_admin", true)
     // El reparto de leads es un beneficio del plan premium ("Perfil
-    // detallado") — una clínica en plan básico no entra en este flujo,
-    // aunque esté publicada y verificada.
-    .eq("plan", "premium");
+    // ampliado") — una clínica en plan básico no entra en este flujo,
+    // aunque esté publicada y verificada. leads_enabled es la única
+    // excepción: el admin puede marcarlo a mano en una básica como
+    // cortesía/prueba (en premium no cambia nada, ya entra por plan).
+    .or("plan.eq.premium,leads_enabled.eq.true");
 
   // "ciudad" filtra estrictamente por su municipio. "provincia" /
   // "comunidad" / "sin_preferencia" de momento no filtran por ubicación:

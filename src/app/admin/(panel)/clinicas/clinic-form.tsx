@@ -599,11 +599,11 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
           <input
             type="checkbox"
             name="leads_enabled"
-            defaultChecked={clinic?.leads_enabled ?? true}
+            defaultChecked={clinic?.leads_enabled ?? false}
           />
-          Acceso a leads habilitado{" "}
+          Acceso a leads de cortesía (aunque sea plan básico){" "}
           <span className="text-xs text-ink-soft">
-            (de momento no bloquea nada en ningún sitio — solo el interruptor)
+            (prueba gratuita — en premium no hace falta, ya recibe leads)
           </span>
         </label>
 
@@ -618,7 +618,7 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
             className={inputClass}
           >
             <option value="basico">Básico</option>
-            <option value="premium">Perfil detallado</option>
+            <option value="premium">Perfil ampliado</option>
           </select>
           {clinic?.plan_solicitado && (
             <p className="mt-1 text-xs text-cyan-dark">

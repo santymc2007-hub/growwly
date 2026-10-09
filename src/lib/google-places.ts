@@ -42,18 +42,24 @@ export type DetallesPlaceGoogle = {
  * Consulta Place Details (Places API New) para un place_id ya
  * confirmado. Las reseñas que devuelve Google son como mucho 5 (las
  * "más relevantes"), no el listado completo — es una limitación de la
- * API, no nuestra.
+ * API, no nuestra. languageCode=es le pide a Google que, cuando pueda,
+ * devuelva el texto de la reseña ya traducido al español — la web es
+ * solo en español, así que no tiene sentido enseñar una reseña en otro
+ * idioma solo porque el autor la escribió así en Google Maps.
  */
 export async function obtenerDetallesPlace(placeId: string): Promise<DetallesPlaceGoogle> {
   const apiKey = process.env.GOOGLE_PLACES_API_KEY;
   if (!apiKey) throw new Error("Falta GOOGLE_PLACES_API_KEY");
 
-  const res = await fetch(`https://places.googleapis.com/v1/places/${placeId}`, {
-    headers: {
-      "X-Goog-Api-Key": apiKey,
-      "X-Goog-FieldMask": CAMPOS_DETALLE,
+  const res = await fetch(
+    `https://places.googleapis.com/v1/places/${placeId}?languageCode=es`,
+    {
+      headers: {
+        "X-Goog-Api-Key": apiKey,
+        "X-Goog-FieldMask": CAMPOS_DETALLE,
+      },
     },
-  });
+  );
 
   if (!res.ok) {
     throw new Error(`Places API respondió ${res.status}: ${await res.text()}`);
