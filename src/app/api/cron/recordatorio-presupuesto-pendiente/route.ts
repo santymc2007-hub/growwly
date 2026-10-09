@@ -3,7 +3,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 
 /**
- * Vercel Cron llama a esta ruta cada 12 horas (ver vercel.json).
+ * Vercel Cron llama a esta ruta una vez al día (ver vercel.json —
+ * el plan Hobby de Vercel no admite más de un cron diario por ruta;
+ * con Pro bastaría con cambiar el schedule a "0 8,20 * * *").
  * Recordatorio (único, de momento) al paciente que terminó su
  * valoración con IA hace más de 24h pero nunca llegó a pedir
  * presupuesto — un empujón funcional simple. La versión con mensajes

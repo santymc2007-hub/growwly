@@ -4,7 +4,10 @@ import { enviarEmail } from "@/lib/email/resend";
 import { ESTADOS_FINALES } from "@/lib/leads/estados-lead";
 
 /**
- * Vercel Cron llama a esta ruta cada 12 horas (ver vercel.json).
+ * Vercel Cron llama a esta ruta una vez al día (ver vercel.json). La
+ * idea original era cada 12h, pero el plan Hobby de Vercel solo
+ * permite un cron diario por ruta — con Pro se podría pasar a
+ * "0 8,20 * * *" sin tocar el código, solo el schedule.
  * Recordatorio recurrente a cada clínica con leads todavía sin
  * propuesta — se repite en cada ejecución mientras sigan sin
  * responder, a propósito (no es un envío único).
