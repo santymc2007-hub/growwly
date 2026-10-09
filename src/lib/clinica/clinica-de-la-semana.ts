@@ -4,6 +4,17 @@ import type { Clinic } from "@/lib/supabase/database.types";
 
 const UMBRAL_COMPLETITUD = 60;
 
+// IDEA aparcada para el futuro (Santy, oct-2026): este concepto está
+// oculto de la home y no se vende — hay que darle una vuelta a cómo
+// monetizarlo. Opciones sobre la mesa, sin decidir todavía:
+//   1. Slot de pago semanal (como destacado_home pero rotativo) para
+//      quien lo solicite y pague, en vez de elegirse solo.
+//   2. Badge gratuito "Recomendada del mes" para quien tenga mejor
+//      Growwly Score, como incentivo — y vender "congelar" esa
+//      posición aparte.
+//   3. Quitarlo del todo y centrar ese hueco de la home en potenciar
+//      destacado_home/destacado_ciudad, que ya existen y ya se pagan.
+
 function numeroDeSemanaISO(fecha: Date): number {
   const d = new Date(Date.UTC(fecha.getFullYear(), fecha.getMonth(), fecha.getDate()));
   const diaSemana = d.getUTCDay() || 7;

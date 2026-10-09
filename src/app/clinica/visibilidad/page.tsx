@@ -123,7 +123,7 @@ export default async function VisibilidadPage({
               <TarjetaVisibilidad
                 tipo="premium"
                 icono={<Gem className="h-5 w-5" strokeWidth={2.2} />}
-                titulo="Perfil detallado"
+                titulo="Perfil ampliado"
                 descripcion="Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha."
                 beneficio="Ficha completa = más confianza del paciente = más leads convertidos."
                 activo={clinic.plan === "premium"}

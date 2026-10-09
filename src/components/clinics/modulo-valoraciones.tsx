@@ -6,7 +6,7 @@ function Estrellas({ valor }: { valor: number }) {
   );
 }
 
-function GoogleG() {
+export function GoogleG() {
   return (
     <svg viewBox="0 0 48 48" className="h-7 w-7 shrink-0" aria-hidden>
       <path

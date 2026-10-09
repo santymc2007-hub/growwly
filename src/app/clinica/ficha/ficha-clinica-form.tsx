@@ -439,10 +439,10 @@ export function FichaClinicaForm({
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-teal-dark">
                 <Sparkles className="h-3.5 w-3.5" aria-hidden />
-                Perfil detallado
+                Perfil ampliado
               </div>
               <p className="mt-2 font-display text-xl font-extrabold text-teal-dark sm:text-2xl">
-                Las fichas con Perfil detallado reciben un 80% más de
+                Las fichas con Perfil ampliado reciben un 80% más de
                 clics a teléfono y web
               </p>
               <ul className="mt-3 flex flex-col gap-1.5 text-sm font-medium text-teal-dark/90">
@@ -465,7 +465,7 @@ export function FichaClinicaForm({
               href="/clinica/visibilidad"
               className="press whitespace-nowrap rounded-full bg-white px-6 py-3 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
             >
-              Activar Perfil detallado →
+              Activar Perfil ampliado →
             </Link>
           </div>
         </div>
@@ -480,7 +480,7 @@ export function FichaClinicaForm({
       >
         <div className="flex flex-wrap items-center justify-between gap-2 border-b border-line pb-2">
           <h2 className="font-display text-lg text-teal-dark">
-            Contenido de Perfil detallado
+            Contenido de Perfil ampliado
           </h2>
           {clinic.plan !== "premium" && (
             <span className="flex items-center gap-1.5 rounded-full bg-ink-soft/10 px-3 py-1 text-xs font-bold text-ink-soft">
@@ -498,7 +498,7 @@ export function FichaClinicaForm({
             Puedes rellenarlo aunque no esté público, a la espera de que lo
             actives.{" "}
             <Link href="/clinica/visibilidad" className="font-bold text-cyan-dark hover:underline">
-              Activar Perfil detallado →
+              Activar Perfil ampliado →
             </Link>
           </p>
         )}
@@ -757,7 +757,7 @@ export function FichaClinicaForm({
                 href="/clinica/visibilidad"
                 className="press whitespace-nowrap rounded-full bg-white px-5 py-2.5 text-sm font-bold text-teal-dark shadow-md transition hover:opacity-90"
               >
-                Activar Perfil detallado →
+                Activar Perfil ampliado →
               </Link>
             </div>
           )}

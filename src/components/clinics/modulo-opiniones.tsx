@@ -1,9 +1,53 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import { Star } from "lucide-react";
+import { GoogleG } from "./modulo-valoraciones";
 
 type Opinion = { autor: string; texto: string; puntuacion?: number };
+
+// A partir de aquí el texto es tan largo que merece un "leer más" en
+// vez de dejar crecer la tarjeta (y con ella, por "align-items: stretch"
+// del flex, todas las demás de la misma fila).
+const UMBRAL_LEER_MAS = 170;
+
+function TarjetaOpinion({ opinion }: { opinion: Opinion }) {
+  const [expandida, setExpandida] = useState(false);
+  const esLarga = opinion.texto.length > UMBRAL_LEER_MAS;
+
+  return (
+    <blockquote className="w-[85%] shrink-0 snap-start rounded-xl border border-line bg-white/60 p-4 text-sm sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)]">
+      {opinion.puntuacion && (
+        <div className="mb-1.5 flex gap-0.5" aria-hidden>
+          {Array.from({ length: 5 }, (_, s) => (
+            <Star
+              key={s}
+              size={14}
+              className={
+                s < opinion.puntuacion!
+                  ? "fill-yellow text-yellow"
+                  : "fill-transparent text-line"
+              }
+            />
+          ))}
+        </div>
+      )}
+      <p className={`break-words text-ink-soft ${!expandida && esLarga ? "line-clamp-4" : ""}`}>
+        &ldquo;{opinion.texto}&rdquo;
+      </p>
+      {esLarga && (
+        <button
+          type="button"
+          onClick={() => setExpandida((v) => !v)}
+          className="mt-1 text-xs font-medium text-cyan-dark hover:underline"
+        >
+          {expandida ? "Leer menos" : "Leer más"}
+        </button>
+      )}
+      <footer className="mt-2 font-medium text-ink">— {opinion.autor}</footer>
+    </blockquote>
+  );
+}
 
 /**
  * Opiniones en tarjetas horizontales (4 visibles en escritorio, como
@@ -23,42 +67,17 @@ export function ModuloOpiniones({ opiniones }: { opiniones: Opinion[] }) {
 
   return (
     <section className="mt-8">
-      {/* En escritorio va agrupada bajo la cabecera "Nuestros
-          clientes" (ver page.tsx) — en móvil conserva su propio
-          título, porque ahí no se fusiona con antes/después. */}
-      <h2 className="font-display text-lg text-teal-dark lg:hidden">
-        Opiniones de pacientes
+      <h2 className="flex items-center gap-2 font-display text-lg text-teal-dark">
+        <GoogleG />
+        Qué opinan nuestros clientes
       </h2>
-      <div className="relative mt-3 lg:mt-0">
+      <div className="relative mt-3">
         <div
           ref={scrollRef}
           className="flex snap-x snap-mandatory gap-4 overflow-x-auto scroll-smooth pb-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
         >
           {opiniones.map((opinion, i) => (
-            <blockquote
-              key={i}
-              className="w-[85%] shrink-0 snap-start rounded-xl border border-line bg-white/60 p-4 text-sm sm:w-[calc(50%-8px)] lg:w-[calc(25%-12px)]"
-            >
-              {opinion.puntuacion && (
-                <div className="mb-1.5 flex gap-0.5" aria-hidden>
-                  {Array.from({ length: 5 }, (_, s) => (
-                    <Star
-                      key={s}
-                      size={14}
-                      className={
-                        s < opinion.puntuacion!
-                          ? "fill-yellow text-yellow"
-                          : "fill-transparent text-line"
-                      }
-                    />
-                  ))}
-                </div>
-              )}
-              <p className="break-words text-ink-soft">&ldquo;{opinion.texto}&rdquo;</p>
-              <footer className="mt-2 font-medium text-ink">
-                — {opinion.autor}
-              </footer>
-            </blockquote>
+            <TarjetaOpinion key={i} opinion={opinion} />
           ))}
         </div>
 

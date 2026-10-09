@@ -144,7 +144,7 @@ export default async function ClinicaPanelPage({
                 href="/clinica/visibilidad"
                 className="mt-2 inline-block text-xs font-medium text-cyan-dark hover:underline"
               >
-                Completa tu Perfil detallado para llegar al 100% →
+                Completa tu Perfil ampliado para llegar al 100% →
               </Link>
             )}
           </div>

@@ -36,7 +36,7 @@ const COLUMNAS: {
   },
   {
     tipo: "premium",
-    titulo: "Perfil detallado",
+    titulo: "Perfil ampliado",
     activo: (c) => c.plan === "premium",
     solicitado: (c) => Boolean(c.plan_solicitado),
   },

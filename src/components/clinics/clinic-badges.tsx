@@ -23,7 +23,7 @@ export function ClinicBadges({ clinic }: ClinicBadgesProps) {
         <span className="inline-flex items-center gap-1.5 rounded-full bg-white/95 px-3 py-1 text-xs font-medium text-cyan-dark shadow-sm">
           {/* TODO: Santy quiere sustituir este icono más adelante */}
           <Sparkles className="h-3.5 w-3.5" aria-hidden />
-          Perfil detallado
+          Perfil ampliado
         </span>
       )}
 
