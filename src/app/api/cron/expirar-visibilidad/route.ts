@@ -45,6 +45,7 @@ export async function GET(request: Request) {
 
     const update: ClinicUpdate = {};
     let cambios = false;
+    const tiposExpirados: Tipo[] = [];
 
     for (const tipo of Object.keys(fechas) as Tipo[]) {
       const info = fechas[tipo];
@@ -60,6 +61,7 @@ export async function GET(request: Request) {
           update.destacado_ciudad = false;
         }
         cambios = true;
+        tiposExpirados.push(tipo);
         desactivadas++;
       }
     }
@@ -67,6 +69,14 @@ export async function GET(request: Request) {
     if (cambios) {
       update.visibilidad_fechas = fechas;
       await supabase.from("clinics").update(update).eq("id", clinic.id);
+      await supabase.from("clinic_visibilidad_log").insert(
+        tiposExpirados.map((tipo) => ({
+          clinic_id: clinic.id,
+          tipo,
+          accion: "baja" as const,
+          motivo: "expirado" as const,
+        })),
+      );
     }
   }
 

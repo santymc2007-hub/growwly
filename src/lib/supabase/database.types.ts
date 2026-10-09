@@ -197,6 +197,47 @@ export type Database = {
           },
         ]
       }
+      clinic_visibilidad_log: {
+        Row: {
+          accion: string
+          clinic_id: string
+          creado_en: string
+          expira_en: string | null
+          id: string
+          meses_duracion: number | null
+          motivo: string
+          tipo: string
+        }
+        Insert: {
+          accion: string
+          clinic_id: string
+          creado_en?: string
+          expira_en?: string | null
+          id?: string
+          meses_duracion?: number | null
+          motivo: string
+          tipo: string
+        }
+        Update: {
+          accion?: string
+          clinic_id?: string
+          creado_en?: string
+          expira_en?: string | null
+          id?: string
+          meses_duracion?: number | null
+          motivo?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_visibilidad_log_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinics: {
         Row: {
           accesibilidad: string | null
@@ -418,6 +459,7 @@ export type Database = {
           id: string
           informe: Json | null
           norwood_estimado: string | null
+          recordatorio_presupuesto_enviado_en: string | null
           resultado_texto: string | null
           user_id: string | null
         }
@@ -437,6 +479,7 @@ export type Database = {
           id?: string
           informe?: Json | null
           norwood_estimado?: string | null
+          recordatorio_presupuesto_enviado_en?: string | null
           resultado_texto?: string | null
           user_id?: string | null
         }
@@ -456,6 +499,7 @@ export type Database = {
           id?: string
           informe?: Json | null
           norwood_estimado?: string | null
+          recordatorio_presupuesto_enviado_en?: string | null
           resultado_texto?: string | null
           user_id?: string | null
         }
