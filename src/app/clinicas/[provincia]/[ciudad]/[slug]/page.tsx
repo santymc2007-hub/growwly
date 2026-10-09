@@ -329,6 +329,17 @@ export default async function ClinicaPage({
   const opiniones = Array.isArray(clinic.opiniones)
     ? (clinic.opiniones as { autor: string; texto: string; puntuacion?: number }[])
     : [];
+  // Para el módulo visual (no afecta al schema.org Review de abajo, que
+  // sigue siendo solo de las opiniones escritas a mano): reseñas reales
+  // de Google primero, luego las manuales. google_reviews ya llega en
+  // esta misma forma {autor, texto, puntuacion, fecha} — solo se
+  // descarta "fecha", que ModuloOpiniones no usa.
+  const resenasGoogle = Array.isArray(clinic.google_reviews)
+    ? (clinic.google_reviews as { autor: string; texto: string; puntuacion: number }[])
+    : [];
+  const opinionesVisibles = [...resenasGoogle, ...opiniones].map(
+    ({ autor, texto, puntuacion }) => ({ autor, texto, puntuacion }),
+  );
   const reviewsJsonLd = esPremium
     ? opiniones
         .filter((o) => o.puntuacion)
@@ -637,7 +648,7 @@ export default async function ClinicaPage({
               {esPremium &&
                 ((Array.isArray(clinic.fotos_antes_despues) &&
                   clinic.fotos_antes_despues.length > 0) ||
-                  opiniones.length > 0) && (
+                  opinionesVisibles.length > 0) && (
                   <div className="mt-8 lg:order-110">
                     {/* Cabecera común solo en escritorio — en móvil cada
                         bloque conserva su propio título de siempre. */}
@@ -669,7 +680,7 @@ export default async function ClinicaPage({
                         </section>
                       )}
 
-                    <ModuloOpiniones opiniones={opiniones} />
+                    <ModuloOpiniones opiniones={opinionesVisibles} />
                   </div>
                 )}
 

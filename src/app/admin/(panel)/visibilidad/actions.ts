@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { enviarEmail } from "@/lib/email/resend";
 
 export type TipoVisibilidad =
   | "destacado"
@@ -13,6 +14,52 @@ type FechasVisibilidad = Record<
   string,
   { activado_en: string; expira_en: string | null }
 >;
+
+// Mismos textos que ve la clínica en /clinica/visibilidad — si cambian
+// ahí, cambiarlos también aquí para que el email no se desincronice.
+const TIPO_LABEL: Record<TipoVisibilidad, string> = {
+  destacado: "Destacada en el listado",
+  destacado_home: "Destacada en la Home",
+  destacado_ciudad: "Destacada en tu ciudad",
+  premium: "Perfil detallado",
+};
+
+async function registrarLogVisibilidad(
+  supabase: ReturnType<typeof createAdminClient>,
+  datos: {
+    clinicId: string;
+    tipo: TipoVisibilidad;
+    accion: "alta" | "baja";
+    mesesDuracion: number | null;
+    expiraEn: string | null;
+    motivo: "aprobado_admin" | "desactivado_admin" | "expirado";
+  },
+) {
+  await supabase.from("clinic_visibilidad_log").insert({
+    clinic_id: datos.clinicId,
+    tipo: datos.tipo,
+    accion: datos.accion,
+    meses_duracion: datos.mesesDuracion,
+    expira_en: datos.expiraEn,
+    motivo: datos.motivo,
+  });
+}
+
+function construirHtmlEmailActivacion(nombreClinica: string, tituloTipo: string): string {
+  return `
+    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
+      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
+      <h1 style="font-size: 20px; color: #00566b;">¡Ya está activo!</h1>
+      <p>Buenos días ${nombreClinica},</p>
+      <p>Tu clínica ya tiene el modo <strong>"${tituloTipo}"</strong> activado en Growwly.</p>
+      <p style="margin-top: 24px;">
+        <a href="${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/clinica/visibilidad" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
+          Ver mi visibilidad →
+        </a>
+      </p>
+    </div>
+  `;
+}
 
 function revalidarTodo() {
   revalidatePath("/admin/visibilidad");
@@ -54,11 +101,12 @@ export async function activarVisibilidad(
   const expira = mesesDuracion
     ? new Date(ahora.getFullYear(), ahora.getMonth() + mesesDuracion, ahora.getDate())
     : null;
+  const expiraIso = expira ? expira.toISOString() : null;
 
   const fechas = await leerFechas(supabase, clinicId);
   fechas[tipo] = {
     activado_en: ahora.toISOString(),
-    expira_en: expira ? expira.toISOString() : null,
+    expira_en: expiraIso,
   };
 
   const camposBase = { visibilidad_fechas: fechas };
@@ -87,6 +135,34 @@ export async function activarVisibilidad(
         destacado_ciudad_solicitado: false,
       })
       .eq("id", clinicId);
+  }
+
+  await registrarLogVisibilidad(supabase, {
+    clinicId,
+    tipo,
+    accion: "alta",
+    mesesDuracion,
+    expiraEn: expiraIso,
+    motivo: "aprobado_admin",
+  });
+
+  const { data: clinic } = await supabase
+    .from("clinics")
+    .select("nombre, email")
+    .eq("id", clinicId)
+    .maybeSingle();
+  if (clinic?.email) {
+    try {
+      await enviarEmail({
+        to: clinic.email,
+        subject: `Ya tienes "${TIPO_LABEL[tipo]}" activado en Growwly`,
+        html: construirHtmlEmailActivacion(clinic.nombre, TIPO_LABEL[tipo]),
+      });
+    } catch {
+      // Un fallo de envío no debe impedir que la activación quede
+      // guardada — el admin ya ve el estado activo en el panel aunque
+      // el aviso por email no llegara.
+    }
   }
 
   revalidarTodo();
@@ -128,6 +204,15 @@ export async function desactivarVisibilidad(
       })
       .eq("id", clinicId);
   }
+
+  await registrarLogVisibilidad(supabase, {
+    clinicId,
+    tipo,
+    accion: "baja",
+    mesesDuracion: null,
+    expiraEn: null,
+    motivo: "desactivado_admin",
+  });
 
   revalidarTodo();
 }

@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { CheckCircle2, Mail } from "lucide-react";
 
-// TODO: sustituir por los perfiles reales de Growwly en cuanto los tengas
-// (Santy: "sí pon esas [redes] y ya veremos en adelante" — de momento
-// apuntan a las home de cada red, no a una cuenta concreta).
+// Ocultos hasta que haya perfiles reales de Growwly (Santy: "no tenemos
+// RRSS x el momento, quita los iconos... cuando las tenga creadas, los
+// activamos de nuevo") — basta con poner esto a true cuando los haya.
+const RRSS_ACTIVAS = false;
+
 const REDES = [
   {
     nombre: "Instagram",
@@ -38,22 +40,24 @@ export function AnnouncementBar() {
             <Mail className="h-3.5 w-3.5" aria-hidden />
             hola@growwly.es
           </a>
-          <div className="flex items-center gap-2.5">
-            {REDES.map(({ nombre, href, path }) => (
-              <Link
-                key={nombre}
-                href={href}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={nombre}
-                className="hover:opacity-70"
-              >
-                <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden>
-                  <path d={path} />
-                </svg>
-              </Link>
-            ))}
-          </div>
+          {RRSS_ACTIVAS && (
+            <div className="flex items-center gap-2.5">
+              {REDES.map(({ nombre, href, path }) => (
+                <Link
+                  key={nombre}
+                  href={href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={nombre}
+                  className="hover:opacity-70"
+                >
+                  <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="currentColor" aria-hidden>
+                    <path d={path} />
+                  </svg>
+                </Link>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </div>

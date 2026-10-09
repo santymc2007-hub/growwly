@@ -12,6 +12,14 @@
     {
       "path": "/api/cron/sync-google-places",
       "schedule": "0 5 * * 1"
+    },
+    {
+      "path": "/api/cron/recordatorio-leads-clinica",
+      "schedule": "0 8 * * *"
+    },
+    {
+      "path": "/api/cron/recordatorio-presupuesto-pendiente",
+      "schedule": "0 8 * * *"
     }
   ]
 }
