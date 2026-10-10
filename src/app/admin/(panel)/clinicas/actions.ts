@@ -252,3 +252,39 @@ export async function moveClinic(id: string, direction: "up" | "down") {
   revalidatePath("/admin/clinicas");
   revalidatePath("/clinicas");
 }
+
+/** Activa ("Publicada") o desactiva varias clínicas de golpe, desde los checkboxes del listado. */
+export async function setPublicadoBatch(ids: string[], publicado: boolean) {
+  if (ids.length === 0) return;
+  const supabase = createAdminClient();
+  await supabase.from("clinics").update({ publicado }).in("id", ids);
+
+  revalidatePath("/admin/clinicas");
+  revalidatePath("/clinicas");
+}
+
+/** Igual que deleteClinic pero para varias a la vez, desde los checkboxes del listado. */
+export async function deleteClinicsBatch(ids: string[]) {
+  if (ids.length === 0) return;
+  const supabase = createAdminClient();
+
+  const { data: aBorrar } = await supabase
+    .from("clinics")
+    .select("fotos")
+    .in("id", ids);
+
+  await supabase.from("clinics").delete().in("id", ids);
+
+  const fotos = (aBorrar ?? []).flatMap((c) => c.fotos ?? []);
+  if (fotos.length > 0) {
+    try {
+      await deleteClinicPhotos(supabase, fotos);
+    } catch {
+      // Las clínicas ya se borraron; archivos huérfanos en el Storage
+      // no son críticos, se pueden limpiar luego a mano.
+    }
+  }
+
+  revalidatePath("/admin/clinicas");
+  revalidatePath("/clinicas");
+}

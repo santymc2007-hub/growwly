@@ -1,9 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { DeleteClinicButton } from "./delete-button";
-import { OrderControls } from "./order-controls";
-import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { AdminClinicFilters } from "./admin-clinic-filters";
+import { ClinicsTable, type ClinicRow } from "./clinics-table";
 
 type SearchParams = {
   error?: string;
@@ -82,130 +80,14 @@ export default async function AdminClinicasPage({
 
       <AdminClinicFilters ciudades={ciudades} />
 
-      <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-white">
-        <table className="w-full text-left text-sm">
-          <thead className="bg-paper-dim text-ink-soft">
-            <tr>
-              <th className="px-4 py-3 font-medium">Orden</th>
-              <th className="px-4 py-3 font-medium">Nombre</th>
-              <th className="px-4 py-3 font-medium">Ciudad</th>
-              <th className="px-4 py-3 font-medium">Estado</th>
-              <th className="px-4 py-3 font-medium">Actualizado</th>
-              <th className="px-4 py-3 font-medium text-right">Acciones</th>
-            </tr>
-          </thead>
-          <tbody>
-            {clinicasFiltradas.map((clinic) => {
-              const { isFirst, isLast } = groupPosition(
-                clinic.id,
-                clinic.destacado,
-              );
-              return (
-                <tr
-                  key={clinic.id}
-                  className={`border-t border-line ${
-                    !clinic.verificado_admin
-                      ? "bg-orange/5"
-                      : !clinic.publicado
-                        ? "bg-error/5"
-                        : ""
-                  }`}
-                >
-                  <td className="px-4 py-3">
-                    <OrderControls
-                      id={clinic.id}
-                      destacado={clinic.destacado}
-                      isFirst={isFirst}
-                      isLast={isLast}
-                    />
-                  </td>
-                  <td className="px-4 py-3 font-medium text-ink">
-                    {clinic.nombre}
-                  </td>
-                  <td className="px-4 py-3 text-ink-soft">
-                    {clinic.ciudad ?? "—"}
-                  </td>
-                  <td className="px-4 py-3">
-                    <div className="flex flex-wrap gap-1.5">
-                      {!clinic.verificado_admin && (
-                        <Link
-                          href={`/admin/clinicas/${clinic.id}/editar`}
-                          className="rounded-full bg-orange/20 px-2.5 py-1 text-xs font-medium text-orange hover:bg-orange/30"
-                        >
-                          ⚠ Sin verificar — no visible
-                        </Link>
-                      )}
-                      {clinic.verificado ? (
-                        <VerifiedBadge />
-                      ) : (
-                        <span className="rounded-full bg-paper-dim px-2.5 py-1 text-xs font-medium text-ink-soft">
-                          Pendiente
-                        </span>
-                      )}
-                      {!clinic.publicado && (
-                        <span className="rounded-full bg-error/15 px-2.5 py-1 text-xs font-medium text-error-dark">
-                          De baja
-                        </span>
-                      )}
-                      {clinic.destacado_solicitado && (
-                        <Link
-                          href={`/admin/clinicas/${clinic.id}/editar`}
-                          className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
-                        >
-                          ★ Solicita destacado
-                        </Link>
-                      )}
-                      {clinic.destacado_home_solicitado && (
-                        <Link
-                          href={`/admin/clinicas/${clinic.id}/editar`}
-                          className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
-                        >
-                          🏠 Solicita Home
-                        </Link>
-                      )}
-                      {clinic.destacado_ciudad_solicitado && (
-                        <Link
-                          href={`/admin/clinicas/${clinic.id}/editar`}
-                          className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
-                        >
-                          📍 Solicita ciudad
-                        </Link>
-                      )}
-                      {clinic.plan_solicitado && (
-                        <Link
-                          href={`/admin/clinicas/${clinic.id}/editar`}
-                          className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
-                        >
-                          ✦ Solicita {clinic.plan_solicitado}
-                        </Link>
-                      )}
-                    </div>
-                  </td>
-                  <td className="px-4 py-3 text-ink-soft">
-                    {new Date(clinic.updated_at).toLocaleDateString("es-ES")}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    <div className="flex justify-end gap-3">
-                      <Link
-                        href={`/admin/clinicas/${clinic.id}/editar`}
-                        className="font-medium text-cyan hover:text-cyan-dark"
-                      >
-                        Editar
-                      </Link>
-                      <DeleteClinicButton id={clinic.id} nombre={clinic.nombre} />
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-        {clinicasFiltradas.length === 0 && (
-          <p className="px-4 py-8 text-center text-sm text-ink-soft">
-            Ninguna clínica coincide con estos filtros.
-          </p>
+      <ClinicsTable
+        rows={clinicasFiltradas.map(
+          (clinic): ClinicRow => ({
+            ...clinic,
+            ...groupPosition(clinic.id, clinic.destacado),
+          }),
         )}
-      </div>
+      />
     </div>
   );
 }

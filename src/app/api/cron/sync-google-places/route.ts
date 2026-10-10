@@ -39,6 +39,7 @@ export async function GET(request: Request) {
           lat: detalles.lat,
           lng: detalles.lng,
           google_reviews: detalles.resenas,
+          google_maps_url: detalles.mapsUri,
           google_synced_at: new Date().toISOString(),
         })
         .eq("id", clinica.id);
