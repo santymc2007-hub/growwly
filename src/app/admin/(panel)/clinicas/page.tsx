@@ -71,6 +71,14 @@ export default async function AdminClinicasPage({
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          {/* <a> y no <Link>: es una descarga, no una navegación */}
+          <a
+            href="/admin/exportar-clinicas"
+            download
+            className="rounded-lg border border-line bg-white px-4 py-2 text-sm font-medium text-ink hover:bg-paper-dim"
+          >
+            Exportar a Excel
+          </a>
           <Link
             href="/admin/clinicas/importar"
             className="rounded-lg border border-teal px-4 py-2 text-sm font-medium text-teal hover:bg-sage/40"
