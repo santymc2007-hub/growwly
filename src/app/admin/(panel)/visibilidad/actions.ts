@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { TIPO_LABEL, BENEFICIO_LABEL, type TipoVisibilidad } from "./tipos-visibilidad";
@@ -54,7 +55,7 @@ async function registrarLogVisibilidad(
     motivo: "aprobado_admin" | "desactivado_admin" | "expirado";
   },
 ) {
-  await supabase.from("clinic_visibilidad_log").insert({
+  const { error } = await supabase.from("clinic_visibilidad_log").insert({
     clinic_id: datos.clinicId,
     tipo: datos.tipo,
     accion: datos.accion,
@@ -62,6 +63,12 @@ async function registrarLogVisibilidad(
     expira_en: datos.expiraEn,
     motivo: datos.motivo,
   });
+  if (error) {
+    // El cambio real (en "clinics") ya se guardó antes de llamar aquí —
+    // perder una entrada del historial es un problema menor que no debe
+    // hacer fallar la activación/desactivación en sí.
+    console.error("Error al registrar log de visibilidad:", error);
+  }
 }
 
 function construirHtmlEmailActivacion(datos: {
@@ -162,30 +169,39 @@ export async function activarVisibilidad(
 
   const camposBase = { visibilidad_fechas: fechas };
 
+  let errorUpdate: { message: string } | null = null;
   if (tipo === "premium") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ ...camposBase, plan: "premium", plan_solicitado: null })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else if (tipo === "destacado") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ ...camposBase, destacado: true, destacado_solicitado: false })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else if (tipo === "destacado_home") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ ...camposBase, destacado_home: true, destacado_home_solicitado: false })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({
         ...camposBase,
         destacado_ciudad: true,
         destacado_ciudad_solicitado: false,
       })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
+  }
+  // Antes no se comprobaba el error de este update: si fallaba (p. ej.
+  // una conexión cortada a media petición) la activación se daba por
+  // buena en el cliente sin haber cambiado nada en la BBDD, y al
+  // intentar activar otra vez parecía que "no dejaba" — sin ningún
+  // aviso de qué había pasado.
+  if (errorUpdate) {
+    throw new Error(`No se ha podido activar "${TIPO_LABEL[tipo]}": ${errorUpdate.message}`);
   }
 
   await registrarLogVisibilidad(supabase, {
@@ -197,13 +213,21 @@ export async function activarVisibilidad(
     motivo: "aprobado_admin",
   });
 
-  const { data: clinic } = await supabase
-    .from("clinics")
-    .select("nombre, email")
-    .eq("id", clinicId)
-    .maybeSingle();
-  if (clinic?.email) {
+  revalidarTodo();
+
+  // El email de aviso se manda en segundo plano, después de responder:
+  // la llamada a Resend podía tardar varios segundos y antes se
+  // esperaba aquí dentro, haciendo que activar/desactivar se sintiera
+  // lentísimo aunque el cambio real en la BBDD ya estuviera hecho.
+  after(async () => {
     try {
+      const { data: clinic } = await supabase
+        .from("clinics")
+        .select("nombre, email")
+        .eq("id", clinicId)
+        .maybeSingle();
+      if (!clinic?.email) return;
+
       const estadisticas = await leerEstadisticasClinica(supabase, clinicId);
       await enviarEmail({
         to: clinic.email,
@@ -215,14 +239,13 @@ export async function activarVisibilidad(
           estadisticas,
         }),
       });
-    } catch {
+    } catch (e) {
       // Un fallo de envío no debe impedir que la activación quede
       // guardada — el admin ya ve el estado activo en el panel aunque
       // el aviso por email no llegara.
+      console.error("Error al enviar email de activación de visibilidad:", e);
     }
-  }
-
-  revalidarTodo();
+  });
 }
 
 /** Desactiva directamente y limpia sus fechas. */
@@ -236,30 +259,34 @@ export async function desactivarVisibilidad(
   delete fechas[tipo];
   const camposBase = { visibilidad_fechas: fechas };
 
+  let errorUpdate: { message: string } | null = null;
   if (tipo === "premium") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ ...camposBase, plan: "basico", plan_solicitado: null })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else if (tipo === "destacado") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ ...camposBase, destacado: false, destacado_solicitado: false })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else if (tipo === "destacado_home") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ ...camposBase, destacado_home: false, destacado_home_solicitado: false })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({
         ...camposBase,
         destacado_ciudad: false,
         destacado_ciudad_solicitado: false,
       })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
+  }
+  if (errorUpdate) {
+    throw new Error(`No se ha podido desactivar "${TIPO_LABEL[tipo]}": ${errorUpdate.message}`);
   }
 
   await registrarLogVisibilidad(supabase, {
@@ -281,23 +308,30 @@ export async function rechazarVisibilidad(
 ) {
   const supabase = createAdminClient();
 
+  let errorUpdate: { message: string } | null = null;
   if (tipo === "premium") {
-    await supabase.from("clinics").update({ plan_solicitado: null }).eq("id", clinicId);
+    ({ error: errorUpdate } = await supabase
+      .from("clinics")
+      .update({ plan_solicitado: null })
+      .eq("id", clinicId));
   } else if (tipo === "destacado") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ destacado_solicitado: false })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else if (tipo === "destacado_home") {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ destacado_home_solicitado: false })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
   } else {
-    await supabase
+    ({ error: errorUpdate } = await supabase
       .from("clinics")
       .update({ destacado_ciudad_solicitado: false })
-      .eq("id", clinicId);
+      .eq("id", clinicId));
+  }
+  if (errorUpdate) {
+    throw new Error(`No se ha podido rechazar "${TIPO_LABEL[tipo]}": ${errorUpdate.message}`);
   }
 
   revalidarTodo();

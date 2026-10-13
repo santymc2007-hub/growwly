@@ -41,14 +41,28 @@ export function InterruptorVisibilidad({
   const [pending, startTransition] = useTransition();
   const [eligiendoDuracion, setEligiendoDuracion] = useState(false);
   const [posicionPopover, setPosicionPopover] = useState({ top: 0, left: 0 });
+  const [error, setError] = useState<string | null>(null);
   const botonRef = useRef<HTMLButtonElement>(null);
 
   const activado = estado === "activo";
 
+  // Antes estas llamadas no se esperaban dentro de startTransition (una
+  // función normal que invocaba la Server Action sin "await" ni
+  // devolver su promesa): React daba por terminada la transición al
+  // instante, el botón se quedaba "pending: false" aunque el guardado
+  // siguiera en marcha de fondo, y si algo fallaba no había ningún
+  // aviso ni se volvía a intentar — solo se veía como que "no hacía
+  // nada". Al pasar una función async, React sí espera a que la
+  // promesa termine antes de quitar el estado de pending.
   function alClicarInterruptor() {
+    setError(null);
     if (activado) {
-      startTransition(() => {
-        desactivarVisibilidad(clinicId, tipo);
+      startTransition(async () => {
+        try {
+          await desactivarVisibilidad(clinicId, tipo);
+        } catch (e) {
+          setError(e instanceof Error ? e.message : "No se ha podido desactivar.");
+        }
       });
     } else {
       // El popover se saca de la tabla con un portal (ver abajo) porque
@@ -66,15 +80,25 @@ export function InterruptorVisibilidad({
 
   function elegirDuracion(meses: number | null) {
     setEligiendoDuracion(false);
-    startTransition(() => {
-      activarVisibilidad(clinicId, tipo, meses);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await activarVisibilidad(clinicId, tipo, meses);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "No se ha podido activar.");
+      }
     });
   }
 
   function rechazar(e: React.MouseEvent) {
     e.stopPropagation();
-    startTransition(() => {
-      rechazarVisibilidad(clinicId, tipo);
+    setError(null);
+    startTransition(async () => {
+      try {
+        await rechazarVisibilidad(clinicId, tipo);
+      } catch (e) {
+        setError(e instanceof Error ? e.message : "No se ha podido rechazar.");
+      }
     });
   }
 
@@ -130,6 +154,8 @@ export function InterruptorVisibilidad({
           {expiraEn ? `Hasta ${formatearFecha(expiraEn)}` : "Indefinido"}
         </p>
       )}
+
+      {error && <p className="mt-1 max-w-[9rem] text-[11px] text-error">{error}</p>}
 
       {eligiendoDuracion &&
         typeof document !== "undefined" &&
