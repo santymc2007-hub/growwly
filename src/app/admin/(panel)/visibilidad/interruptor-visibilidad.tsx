@@ -70,9 +70,15 @@ export function InterruptorVisibilidad({
       // también recorta el desbordamiento vertical — sin esto, el
       // desplegable quedaba invisible y parecía que no pasaba nada al
       // pulsar "Activar".
+      //
+      // El popover usa "position: fixed", que ya se posiciona respecto
+      // al viewport — getBoundingClientRect() también es relativo al
+      // viewport, así que sumarle window.scrollY/scrollX lo desplazaba
+      // de más cuanto más scroll llevara la página (muy visible en el
+      // último interruptor de la fila/ficha, como "Perfil ampliado").
       const rect = botonRef.current?.getBoundingClientRect();
       if (rect) {
-        setPosicionPopover({ top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX });
+        setPosicionPopover({ top: rect.bottom + 4, left: rect.left });
       }
       setEligiendoDuracion(true);
     }
