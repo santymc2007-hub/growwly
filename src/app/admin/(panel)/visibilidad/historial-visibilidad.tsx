@@ -26,6 +26,16 @@ function formatearFecha(iso: string): string {
   });
 }
 
+function formatearFechaHora(iso: string): string {
+  return new Date(iso).toLocaleString("es-ES", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
 /**
  * Cronograma de altas/bajas de visibilidad de una clínica — lee
  * clinic_visibilidad_log, que ya registran activarVisibilidad y
@@ -47,6 +57,13 @@ export function HistorialVisibilidad({
     return <span className="text-xs text-ink-soft">Sin historial</span>;
   }
 
+  // Ya llegan ordenadas por creado_en desde la consulta, pero se
+  // reordenan aquí también por si el componente se reutiliza en algún
+  // sitio que no garantice ese orden — lo más reciente siempre arriba.
+  const entradasOrdenadas = [...entradas].sort(
+    (a, b) => new Date(b.creado_en).getTime() - new Date(a.creado_en).getTime(),
+  );
+
   return (
     <div className="relative">
       <button
@@ -60,7 +77,7 @@ export function HistorialVisibilidad({
         <div className="popover-anim absolute right-0 top-full z-20 mt-1 max-h-80 w-72 overflow-y-auto rounded-xl border border-line bg-white p-3 shadow-lg">
           <p className="mb-2 text-xs font-semibold text-ink">{nombreClinica}</p>
           <ul className="flex flex-col gap-2.5">
-            {entradas.map((e, i) => (
+            {entradasOrdenadas.map((e, i) => (
               <li key={i} className="border-t border-line pt-2 text-xs text-ink-soft first:border-0 first:pt-0">
                 <span
                   className={
@@ -71,7 +88,7 @@ export function HistorialVisibilidad({
                 >
                   {e.accion === "alta" ? "↑ Alta" : "↓ Baja"}
                 </span>{" "}
-                {tipoLabel[e.tipo] ?? e.tipo} — {formatearFecha(e.creado_en)}
+                {tipoLabel[e.tipo] ?? e.tipo} — {formatearFechaHora(e.creado_en)}
                 <br />
                 {MOTIVO_LABEL[e.motivo] ?? e.motivo}
                 {e.accion === "alta" && (
