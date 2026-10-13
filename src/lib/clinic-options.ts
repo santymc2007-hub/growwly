@@ -74,6 +74,78 @@ export const TIPOS_NEGOCIO = [
   "Otro",
 ] as const;
 
+// Tipo de schema.org más preciso para cada tipo de negocio — importa
+// para el structured data de la ficha pública: usar "MedicalBusiness"
+// para un centro sin licencia médica (una peluquería, por ejemplo)
+// es justo el tipo de imprecisión que penalizan las guías de datos
+// estructurados de Google. En España, "clínica" implica un director
+// médico colegiado, así que todo lo que lleve esa palabra (o sea un
+// centro de injertos, que es cirugía) va como negocio médico.
+export const SCHEMA_TYPE_POR_TIPO_NEGOCIO: Record<
+  (typeof TIPOS_NEGOCIO)[number],
+  string
+> = {
+  "Clínica capilar": "MedicalBusiness",
+  "Clínica de tricología": "MedicalBusiness",
+  "Clínica estética": "MedicalBusiness",
+  "Clínica médica / hospital": "MedicalBusiness",
+  "Centro de injertos capilares": "MedicalBusiness",
+  "Peluquería / centro de belleza con servicios capilares": "HairSalon",
+  Otro: "LocalBusiness",
+};
+
+export function schemaTypeDeClinica(tipoNegocio: string | null): string {
+  if (tipoNegocio && tipoNegocio in SCHEMA_TYPE_POR_TIPO_NEGOCIO) {
+    return SCHEMA_TYPE_POR_TIPO_NEGOCIO[
+      tipoNegocio as (typeof TIPOS_NEGOCIO)[number]
+    ];
+  }
+  // Sin tipo asignado todavía (fichas antiguas, antes de este campo) —
+  // fallback seguro y genérico, nunca "MedicalBusiness" sin saberlo.
+  return "LocalBusiness";
+}
+
+// Nombres de día en español (como se guardan en horarios_estructurados)
+// al valor que espera schema.org en DayOfWeek.
+const DIA_SCHEMA: Record<string, string> = {
+  Lunes: "Monday",
+  Martes: "Tuesday",
+  Miércoles: "Wednesday",
+  Jueves: "Thursday",
+  Viernes: "Friday",
+  Sábado: "Saturday",
+  Domingo: "Sunday",
+};
+
+/**
+ * Convierte horarios_estructurados ({dia, abierto, desde, hasta}[], en
+ * español) al array de OpeningHoursSpecification que espera
+ * schema.org — agrupa los días abiertos que comparten el mismo horario
+ * en una sola entrada, en vez de una por día.
+ */
+export function openingHoursSchema(
+  horarios: unknown,
+): { "@type": "OpeningHoursSpecification"; dayOfWeek: string[]; opens: string; closes: string }[] {
+  if (!Array.isArray(horarios)) return [];
+
+  const dias = horarios as { dia?: string; abierto?: boolean; desde?: string; hasta?: string }[];
+  const grupos = new Map<string, string[]>();
+
+  for (const d of dias) {
+    const diaSchema = d.dia ? DIA_SCHEMA[d.dia] : undefined;
+    if (!d.abierto || !diaSchema || !d.desde || !d.hasta) continue;
+    const clave = `${d.desde}|${d.hasta}`;
+    const lista = grupos.get(clave) ?? [];
+    lista.push(diaSchema);
+    grupos.set(clave, lista);
+  }
+
+  return Array.from(grupos.entries()).map(([clave, dayOfWeek]) => {
+    const [opens, closes] = clave.split("|");
+    return { "@type": "OpeningHoursSpecification" as const, dayOfWeek, opens, closes };
+  });
+}
+
 export const CATEGORIAS_TRATAMIENTO = [
   "Diagnóstico y consulta",
   "Tratamientos médicos",

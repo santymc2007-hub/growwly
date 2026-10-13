@@ -25,6 +25,8 @@ import {
   slugifyCiudad,
   slugifyProvincia,
   ACCESIBILIDAD_OPCIONES,
+  schemaTypeDeClinica,
+  openingHoursSchema,
 } from "@/lib/clinic-options";
 import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { Carousel } from "@/components/clinics/carousel";
@@ -236,9 +238,14 @@ export default async function ClinicaPage({
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
 
+  const horariosSchema = openingHoursSchema(clinic.horarios_estructurados);
+
   const jsonLd = {
     "@context": "https://schema.org",
-    "@type": "MedicalBusiness",
+    // Antes siempre "MedicalBusiness", aunque fuera una peluquería sin
+    // licencia médica — usar el tipo que no toca es justo lo que
+    // penalizan las guías de datos estructurados de Google.
+    "@type": schemaTypeDeClinica(clinic.tipo_negocio),
     name: clinic.nombre,
     description: clinic.descripcion ?? undefined,
     url: `${siteUrl}/centros/${provincia}/${ciudad}/${clinic.slug}`,
@@ -251,6 +258,9 @@ export default async function ClinicaPage({
       addressRegion: clinic.comunidad_autonoma ?? undefined,
       addressCountry: "ES",
     },
+    ...(horariosSchema.length > 0 && {
+      openingHoursSpecification: horariosSchema,
+    }),
     ...(clinic.lat != null &&
       clinic.lng != null && {
         geo: {
@@ -346,7 +356,10 @@ export default async function ClinicaPage({
         .map((o) => ({
           "@context": "https://schema.org",
           "@type": "Review",
-          itemReviewed: { "@type": "MedicalBusiness", name: clinic.nombre },
+          itemReviewed: {
+            "@type": schemaTypeDeClinica(clinic.tipo_negocio),
+            name: clinic.nombre,
+          },
           author: { "@type": "Person", name: o.autor },
           reviewBody: o.texto,
           reviewRating: {
