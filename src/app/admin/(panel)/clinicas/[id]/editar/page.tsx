@@ -44,9 +44,15 @@ export default async function EditarClinicaPage({
       >
         ← Volver al listado
       </Link>
-      <h1 className="mt-4 font-display text-2xl text-teal-dark">
-        Editar {clinic.nombre}
-      </h1>
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-display text-2xl text-teal-dark">Editar {clinic.nombre}</h1>
+        <Link
+          href={`/admin/clinicas/importar?clinica=${clinic.id}`}
+          className="rounded-lg border border-teal px-4 py-2 text-sm font-medium text-teal hover:bg-sage/40"
+        >
+          Completar desde su web
+        </Link>
+      </div>
 
       <div className="mt-6">
         <ClinicForm
