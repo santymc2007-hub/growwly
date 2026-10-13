@@ -10,7 +10,7 @@ import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
 export const maxDuration = 60;
 
 type Params = { id: string };
-type SearchParams = { error?: string };
+type SearchParams = { error?: string; guardado?: string };
 
 export default async function EditarClinicaPage({
   params,
@@ -20,7 +20,7 @@ export default async function EditarClinicaPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { id } = await params;
-  const { error } = await searchParams;
+  const { error, guardado } = await searchParams;
 
   const supabase = await createClient();
   const { data: clinic } = await supabase
@@ -53,6 +53,7 @@ export default async function EditarClinicaPage({
           action={updateThisClinic}
           clinic={clinic}
           error={error}
+          guardado={guardado === "1"}
           municipios={municipios}
           zonas={zonas}
         />

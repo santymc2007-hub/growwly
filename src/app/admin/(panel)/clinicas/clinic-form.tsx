@@ -59,6 +59,7 @@ type ClinicFormProps = {
   action: (formData: FormData) => void | Promise<void>;
   clinic?: Clinic;
   error?: string;
+  guardado?: boolean;
   municipios: { provincia: string; nombre: string }[];
   zonas: { municipio: string; nombre: string }[];
 };
@@ -67,7 +68,7 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 const labelClass = "text-sm font-medium text-ink";
 
-export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicFormProps) {
+export function ClinicForm({ action, clinic, error, guardado, municipios, zonas }: ClinicFormProps) {
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
 
@@ -134,6 +135,11 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
               : "Guardando los cambios…"
           }
         />
+      )}
+      {guardado && !errorEnvio && (
+        <p className="mb-6 rounded-lg bg-teal/10 px-4 py-3 text-sm text-teal-dark">
+          Cambios guardados correctamente.
+        </p>
       )}
       {errorEnvio && (
         <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
