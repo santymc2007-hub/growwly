@@ -69,6 +69,7 @@ const labelClass = "text-sm font-medium text-ink";
 
 export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicFormProps) {
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
+  const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
 
   // Sin esto, una foto o un logo subidos directos desde el móvil (a
   // veces 5-10MB sin comprimir) pueden hacer que la Server Action tarde
@@ -79,11 +80,41 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setEstado("comprimiendo");
+    setErrorEnvio(null);
     try {
       const original = new FormData(e.currentTarget);
       const comprimido = await comprimirFormData(original);
       setEstado("enviando");
-      await action(comprimido);
+
+      // Si la action termina bien, hace redirect() y el navegador navega
+      // fuera de esta página — este componente se desmonta antes de que
+      // el código siga. Si tarda demasiado (conexión lenta, función
+      // colgada en el servidor) avisamos en vez de dejar el overlay
+      // puesto para siempre sin ninguna pista.
+      let avisoLento = false;
+      const avisoTimeout = setTimeout(() => {
+        avisoLento = true;
+        // Quitamos el overlay para que este aviso se vea — si no, se
+        // queda tapado detrás de "Guardando los cambios…" para siempre.
+        setEstado("idle");
+        setErrorEnvio(
+          "Esto está tardando más de lo normal. Puede que siga en marcha de fondo — espera un poco y recarga la página para comprobar si el cambio se guardó, o inténtalo de nuevo.",
+        );
+      }, 20000);
+
+      try {
+        await action(comprimido);
+      } catch (err) {
+        if (!avisoLento) {
+          setErrorEnvio(
+            err instanceof Error
+              ? err.message
+              : "No se ha podido guardar. Inténtalo de nuevo.",
+          );
+        }
+      } finally {
+        clearTimeout(avisoTimeout);
+      }
     } finally {
       setEstado("idle");
     }
@@ -99,6 +130,11 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
               : "Guardando los cambios…"
           }
         />
+      )}
+      {errorEnvio && (
+        <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
+          {errorEnvio}
+        </p>
       )}
       {error && (
         <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
