@@ -26,7 +26,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   const paginasEstaticas: MetadataRoute.Sitemap = [
     { url: siteUrl, changeFrequency: "weekly", priority: 1 },
-    { url: `${siteUrl}/clinicas`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${siteUrl}/centros`, changeFrequency: "daily", priority: 0.9 },
     { url: `${siteUrl}/blog`, changeFrequency: "daily", priority: 0.7 },
     { url: `${siteUrl}/tratamientos`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${siteUrl}/analisis/nuevo`, changeFrequency: "monthly", priority: 0.6 },
@@ -42,7 +42,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paginasCiudad: MetadataRoute.Sitemap = ciudadesConClinica.map((clave) => {
     const [provincia, ciudad] = clave.split("|||");
     return {
-      url: `${siteUrl}/clinicas/${slugifyProvincia(provincia)}/${slugifyCiudad(ciudad)}`,
+      url: `${siteUrl}/centros/${slugifyProvincia(provincia)}/${slugifyCiudad(ciudad)}`,
       changeFrequency: "weekly",
       priority: 0.7,
     };
@@ -51,7 +51,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const paginasClinicas: MetadataRoute.Sitemap = (clinicas ?? [])
     .filter((c) => c.ciudad)
     .map((c) => ({
-      url: `${siteUrl}/clinicas/${slugifyProvincia(c.provincia)}/${slugifyCiudad(c.ciudad!)}/${c.slug}`,
+      url: `${siteUrl}/centros/${slugifyProvincia(c.provincia)}/${slugifyCiudad(c.ciudad!)}/${c.slug}`,
       lastModified: c.updated_at,
       changeFrequency: "weekly",
       priority: 0.8,

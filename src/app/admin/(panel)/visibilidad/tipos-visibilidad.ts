@@ -19,8 +19,8 @@ export const TIPO_LABEL: Record<TipoVisibilidad, string> = {
 
 // Mismo beneficio que ve la clínica en la tarjeta de /clinica/visibilidad.
 export const BENEFICIO_LABEL: Record<TipoVisibilidad, string> = {
-  destacado: "Más pacientes te ven primero al comparar clínicas de tu zona.",
+  destacado: "Más pacientes te ven primero al comparar centros de tu zona.",
   destacado_home: "Visibilidad máxima: es lo primero que ve cualquier visitante de Growwly.",
-  destacado_ciudad: "Ganas a la competencia local cuando buscan clínicas cerca.",
+  destacado_ciudad: "Ganas a la competencia local cuando buscan centros cerca.",
   premium: "Ficha completa = más confianza del paciente = más leads convertidos.",
 };

@@ -203,17 +203,17 @@ export default async function ResultadoAnalisisPage({
             ) : (
               <div className="rounded-xl border border-line bg-white p-5">
                 <p className="font-display text-lg text-teal-dark">
-                  Clínicas que pueden orientarte
+                  Centros que pueden orientarte
                 </p>
                 <p className="mt-1 text-sm text-ink-soft">
                   Aunque no se aprecie un patrón claro de pérdida de cabello,
-                  estas clínicas también atienden otras consultas capilares.
+                  estos centros también atienden otras consultas capilares.
                 </p>
                 <Link
-                  href="/clinicas"
+                  href="/centros"
                   className="mt-4 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
                 >
-                  Ver clínicas →
+                  Ver centros →
                 </Link>
               </div>
             )}

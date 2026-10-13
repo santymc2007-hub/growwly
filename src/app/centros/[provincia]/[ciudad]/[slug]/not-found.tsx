@@ -4,14 +4,14 @@ export default function ClinicaNotFound() {
   return (
     <main className="mx-auto max-w-2xl px-6 py-24 text-center">
       <h1 className="font-display text-2xl text-teal-dark">
-        No encontramos esta clínica
+        No encontramos este centro
       </h1>
       <p className="mt-3 text-ink-soft">
-        Puede que el enlace esté roto o que la clínica ya no esté en el
+        Puede que el enlace esté roto o que el centro ya no esté en el
         directorio.
       </p>
       <Link
-        href="/clinicas"
+        href="/centros"
         className="mt-6 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
       >
         ← Volver al listado

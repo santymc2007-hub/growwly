@@ -278,7 +278,7 @@ export async function actualizarMiFicha(formData: FormData) {
   revalidatePath("/clinica/solicitudes");
   revalidatePath("/clinica/visibilidad");
   revalidatePath("/clinica/facturacion");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
   // El valor de "guardado" solo se usa como key del Toast (ver
   // clinica/page.tsx) para que se reinicie el aviso aunque el mensaje
   // sea idéntico al de un guardado anterior — Date.now() se calcula
@@ -296,6 +296,6 @@ export async function cambiarPublicacion(publicar: boolean) {
     .eq("id", clinicId);
 
   revalidatePath("/clinica/facturacion");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
   redirect("/clinica/facturacion");
 }

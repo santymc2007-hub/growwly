@@ -13,16 +13,17 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
-  title: "Clínicas capilares en España",
+  title: "Centros capilares en España",
   description:
-    "Directorio de clínicas capilares en España: compara técnicas, precios, valoraciones e idiomas por ciudad.",
-  alternates: { canonical: "/clinicas" },
+    "Directorio de centros capilares en España: compara clínicas, centros de injertos y centros estéticos por técnica, precios, valoraciones e idiomas por ciudad.",
+  alternates: { canonical: "/centros" },
 };
 
 type SearchParams = {
   provincia?: string;
   ciudad?: string;
   tecnica?: string;
+  tipo?: string;
   idioma?: string;
   ubicacion?: string;
   rating?: string;
@@ -30,7 +31,7 @@ type SearchParams = {
   financiacion?: string;
 };
 
-export default async function ClinicasPage({
+export default async function CentrosPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
@@ -39,6 +40,7 @@ export default async function ClinicasPage({
     provincia,
     ciudad,
     tecnica,
+    tipo,
     idioma,
     ubicacion,
     rating,
@@ -55,14 +57,15 @@ export default async function ClinicasPage({
     .order("destacado", { ascending: false })
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
-  const clinicas = data ?? [];
+  const centros = data ?? [];
 
   const ratingMinimo = rating ? Number(rating) : null;
 
-  const filtradas = clinicas.filter((c) => {
+  const filtrados = centros.filter((c) => {
     if (provincia && c.provincia !== provincia) return false;
     if (ciudad && c.ciudad !== ciudad) return false;
     if (tecnica && !c.tecnicas.includes(tecnica)) return false;
+    if (tipo && c.tipo_negocio !== tipo) return false;
     if (idioma && !c.idiomas.includes(idioma)) return false;
     if (ubicacion === "palma" && c.ciudad !== "Palma") return false;
     if (ubicacion === "pueblo" && c.ciudad === "Palma") return false;
@@ -72,24 +75,24 @@ export default async function ClinicasPage({
     return true;
   });
 
-  // Registro propio de impresiones (para las estadísticas de la
-  // clínica) — fuera del camino de renderizado para no retrasar la
-  // respuesta.
+  // Registro propio de impresiones (para las estadísticas del centro)
+  // — fuera del camino de renderizado para no retrasar la respuesta.
   after(async () => {
     await registrarImpresionesListado(
       createAdminClient(),
-      filtradas.map((c) => c.id),
+      filtrados.map((c) => c.id),
       "listado",
     );
   });
 
-  const provincias = uniqueSorted(clinicas.map((c) => c.provincia));
+  const provincias = uniqueSorted(centros.map((c) => c.provincia));
   const ciudades = uniqueSorted(
-    clinicas
+    centros
       .filter((c) => !provincia || c.provincia === provincia)
       .map((c) => c.ciudad),
   );
-  const tecnicas = uniqueSorted(clinicas.flatMap((c) => c.tecnicas));
+  const tecnicas = uniqueSorted(centros.flatMap((c) => c.tecnicas));
+  const tipos = uniqueSorted(centros.map((c) => c.tipo_negocio));
 
   return (
     <main className="relative flex-1">
@@ -97,14 +100,15 @@ export default async function ClinicasPage({
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 pb-20 pt-8 sm:pb-24">
-        <Breadcrumbs items={[{ label: "Clínicas", href: "/clinicas" }]} />
+        <Breadcrumbs items={[{ label: "Centros", href: "/centros" }]} />
 
         <h1 className="mt-3 font-display text-4xl text-ink sm:text-5xl">
-          Clínicas <span className="text-teal-dark">capilares</span> en
+          Centros <span className="text-teal-dark">capilares</span> en
           España
         </h1>
         <p className="mt-3 max-w-xl text-ink-soft">
-          Compara clínicas por ciudad, técnica e idioma antes de pedir cita.
+          Compara centros por ciudad, tipo, técnica e idioma antes de pedir
+          cita.
         </p>
       </div>
 
@@ -113,12 +117,17 @@ export default async function ClinicasPage({
       <div className="relative z-10 mx-auto -mt-12 max-w-[1400px] px-3 sm:-mt-14 sm:px-6">
         <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <p className="text-sm text-ink-soft">
-            {filtradas.length}{" "}
-            {filtradas.length === 1
-              ? "clínica encontrada"
-              : "clínicas encontradas"}
+            {filtrados.length}{" "}
+            {filtrados.length === 1
+              ? "centro encontrado"
+              : "centros encontrados"}
           </p>
-          <ClinicFilters provincias={provincias} ciudades={ciudades} tecnicas={tecnicas} />
+          <ClinicFilters
+            provincias={provincias}
+            ciudades={ciudades}
+            tecnicas={tecnicas}
+            tipos={tipos}
+          />
         </div>
       </div>
 
@@ -129,14 +138,14 @@ export default async function ClinicasPage({
               <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
                 <span>Explora por ciudad:</span>
                 {ciudades.map((c) => {
-                  const clinicaDeEstaCiudad = clinicas.find((cl) => cl.ciudad === c);
-                  const provinciaSlug = clinicaDeEstaCiudad
-                    ? slugifyProvincia(clinicaDeEstaCiudad.provincia)
+                  const centroDeEstaCiudad = centros.find((cl) => cl.ciudad === c);
+                  const provinciaSlug = centroDeEstaCiudad
+                    ? slugifyProvincia(centroDeEstaCiudad.provincia)
                     : slugifyProvincia("Illes Balears");
                   return (
                     <Link
                       key={c}
-                      href={`/clinicas/${provinciaSlug}/${slugifyCiudad(c)}`}
+                      href={`/centros/${provinciaSlug}/${slugifyCiudad(c)}`}
                       className="text-cyan hover:text-cyan-dark"
                     >
                       {c}
@@ -147,15 +156,15 @@ export default async function ClinicasPage({
             )}
 
             <div className={ciudades.length > 1 ? "mt-8" : undefined}>
-              {filtradas.length > 0 ? (
-                <VistaListaMapa clinicas={filtradas} />
+              {filtrados.length > 0 ? (
+                <VistaListaMapa clinicas={filtrados} />
               ) : (
                 <div className="rounded-3xl border border-dashed border-line bg-paper-dim/50 py-16 text-center">
                   <p className="font-display text-xl text-teal-dark">
                     Sin resultados
                   </p>
                   <p className="mt-2 text-sm text-ink-soft">
-                    No hay clínicas que encajen con estos filtros. Prueba a
+                    No hay centros que encajen con estos filtros. Prueba a
                     quitar alguno.
                   </p>
                 </div>

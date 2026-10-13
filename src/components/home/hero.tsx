@@ -5,7 +5,7 @@ import { Zap, Wallet, ShieldCheck } from "lucide-react";
 const BADGES = [
   { icono: Zap, texto: "Rápido y fácil" },
   { icono: Wallet, texto: "100% Gratuito" },
-  { icono: ShieldCheck, texto: "Clínicas verificadas" },
+  { icono: ShieldCheck, texto: "Centros verificados" },
 ];
 
 export function Hero() {

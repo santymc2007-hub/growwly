@@ -58,22 +58,22 @@ export async function SiteHeader() {
           <Link href="/#como-funciona" className="hover:text-teal">
             Como Funciona
           </Link>
-          <Link href="/clinicas" className="hover:text-teal">
-            Clínicas
+          <Link href="/centros" className="hover:text-teal">
+            Centros
           </Link>
           <MenuTratamientos tratamientos={tratamientos} />
           <Link href="/blog" className="hover:text-teal">
             Blog
           </Link>
           <Link
-            href="/clinicas"
-            aria-label="Buscar clínicas"
+            href="/centros"
+            aria-label="Buscar centros"
             className="press text-ink-soft hover:text-teal"
           >
             <Search size={18} aria-hidden />
           </Link>
           {esPacienteLogueado ? (
-            // Un paciente con sesión no necesita "Acceso Clínicas": ese
+            // Un paciente con sesión no necesita "Acceso Centros": ese
             // hueco pasa a ser su acceso a "Mi cuenta".
             <Link
               href="/cuenta"
@@ -86,7 +86,7 @@ export async function SiteHeader() {
               href="/clinica/login"
               className="press rounded-full border-2 border-yellow px-4 py-2 font-semibold text-teal-dark transition hover:bg-yellow/10"
             >
-              Acceso Clínicas
+              Acceso Centros
             </Link>
           )}
           {esClinicaLogueada || esPacienteLogueado ? (
