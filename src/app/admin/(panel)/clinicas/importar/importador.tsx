@@ -106,6 +106,22 @@ export function Importador({
                 </select>
               </div>
             </div>
+            <div>
+              <label className={labelClass} htmlFor="maps_url">
+                Ficha de Google Maps <span className="font-normal text-ink-soft">(opcional)</span>
+              </label>
+              <input
+                id="maps_url"
+                name="maps_url"
+                defaultValue={clinica?.google_maps_url ?? undefined}
+                placeholder="https://maps.app.goo.gl/…"
+                className={inputClass}
+              />
+              <p className="mt-1 text-xs text-ink-soft">
+                En Google Maps abre la ficha de la clínica → Compartir → Copiar enlace. Si lo pegas,
+                se usa esa ficha exacta y no hace falta buscarla.
+              </p>
+            </div>
             <p className="text-xs text-ink-soft">
               Con la web se sacan logo, fotos y tratamientos. Con el nombre (y mejor con municipio)
               se encuentra su ficha de Google Maps: dirección, coordenadas, horario y valoraciones.

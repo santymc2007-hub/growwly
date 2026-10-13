@@ -8,7 +8,7 @@ import { uploadClinicPhotos } from "@/lib/supabase/storage";
 import { slugify } from "@/lib/slugify";
 import { TECNICAS_DISPONIBLES, IDIOMAS_DISPONIBLES } from "@/lib/clinic-options";
 import { extraerDatosWeb, normalizarUrlWeb } from "@/lib/importador/firecrawl";
-import { buscarEnGoogle } from "@/lib/importador/places";
+import { buscarEnGoogle, fichaDesdeEnlaceMaps } from "@/lib/importador/places";
 import { descargarImagen } from "@/lib/importador/descargar";
 import { sinAcentos } from "@/lib/importador/normalizar";
 import type {
@@ -93,9 +93,10 @@ export async function analizarClinica(
     const nombre = str(formData, "nombre") ?? "";
     const municipio = str(formData, "municipio");
     const clinicaId = str(formData, "clinica_id");
+    const enlaceMaps = str(formData, "maps_url");
 
-    if (!webEntrada && !nombre) {
-      return { ok: false, error: "Pon al menos la web o el nombre de la clínica." };
+    if (!webEntrada && !nombre && !enlaceMaps) {
+      return { ok: false, error: "Pon al menos la web, el nombre o el enlace de Google Maps." };
     }
     if (webEntrada && !normalizarUrlWeb(webEntrada)) {
       return { ok: false, error: "La web no tiene un formato válido (ej. clinicaejemplo.com)." };
@@ -122,6 +123,18 @@ export async function analizarClinica(
       }
     };
     const buscarGoogle = async (nombreBase: string) => {
+      // Con enlace pegado se usa esa ficha exacta, sin búsqueda. Si el
+      // enlace no se puede resolver se avisa y se busca por nombre.
+      if (enlaceMaps) {
+        try {
+          google = [await fichaDesdeEnlaceMaps(enlaceMaps, municipios)];
+          return;
+        } catch (e) {
+          errorGoogle = `Enlace de Maps: ${e instanceof Error ? e.message : "no válido."}${
+            nombreBase ? " Se ha buscado por nombre." : ""
+          }`;
+        }
+      }
       if (!nombreBase) return;
       try {
         google = await buscarEnGoogle(consultaGoogle(nombreBase), municipios);
@@ -130,8 +143,8 @@ export async function analizarClinica(
       }
     };
 
-    if (nombre) {
-      // Con nombre se puede buscar en Google a la vez que se lee la web.
+    if (nombre || enlaceMaps) {
+      // Con nombre o enlace se puede ir a Google a la vez que se lee la web.
       await Promise.all([leerWeb(), buscarGoogle(nombre)]);
     } else {
       // Solo con web: el nombre para Google sale de la propia web.
@@ -140,7 +153,8 @@ export async function analizarClinica(
     }
 
     const webFinal = web as DatosWeb | null;
-    const nombreBuscado = nombre || webFinal?.titulo || "";
+    const googleFinal = google as CandidatoGoogle[];
+    const nombreBuscado = nombre || googleFinal[0]?.nombre || webFinal?.titulo || "";
 
     return {
       ok: true,
