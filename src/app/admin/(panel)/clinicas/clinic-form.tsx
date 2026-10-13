@@ -106,11 +106,22 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
       try {
         await action(comprimido);
       } catch (err) {
+        // redirect() en la Server Action (p. ej. al guardar con éxito,
+        // que ahora nos deja en la misma ficha) se implementa lanzando un
+        // error especial con digest "NEXT_REDIRECT" — si nos quedamos en
+        // la misma página no se desmonta el componente como antes, así
+        // que este catch lo veía pasar y lo mostraba como si fuera un
+        // fallo real. Hay que dejarlo seguir para que Next.js complete
+        // la navegación, igual que hace ficha-clinica-form.tsx al no
+        // capturarlo en absoluto.
+        const digest =
+          err && typeof err === "object" && "digest" in err
+            ? String((err as { digest?: unknown }).digest)
+            : null;
+        if (digest?.startsWith("NEXT_REDIRECT")) {
+          throw err;
+        }
         if (!avisoLento) {
-          const digest =
-            err && typeof err === "object" && "digest" in err
-              ? String((err as { digest?: unknown }).digest)
-              : null;
           const base =
             err instanceof Error
               ? err.message
