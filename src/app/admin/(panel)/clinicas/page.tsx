@@ -70,12 +70,20 @@ export default async function AdminClinicasPage({
             {clinicas.length === 1 ? "clínica registrada" : "clínicas registradas"}
           </p>
         </div>
-        <Link
-          href="/admin/clinicas/nueva"
-          className="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper hover:bg-teal-dark"
-        >
-          + Añadir clínica
-        </Link>
+        <div className="flex flex-wrap gap-2">
+          <Link
+            href="/admin/clinicas/importar"
+            className="rounded-lg border border-teal px-4 py-2 text-sm font-medium text-teal hover:bg-sage/40"
+          >
+            Importar desde web
+          </Link>
+          <Link
+            href="/admin/clinicas/nueva"
+            className="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper hover:bg-teal-dark"
+          >
+            + Añadir clínica
+          </Link>
+        </div>
       </div>
 
       <AdminClinicFilters ciudades={ciudades} />
