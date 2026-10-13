@@ -87,8 +87,15 @@ function mapearPlace(p: PlaceGoogle, municipios: string[]): CandidatoGoogle {
 }
 
 function apiKey(): string {
-  const key = process.env.GOOGLE_PLACES_API_KEY;
+  const key = process.env.GOOGLE_PLACES_API_KEY?.trim();
   if (!key) throw new Error("Falta GOOGLE_PLACES_API_KEY en las variables de entorno.");
+  // Nunca dejar que la clave acabe en un mensaje de error visible: si
+  // tiene espacios (pegada dos veces, salto de línea...) se avisa sin mostrarla.
+  if (/\s/.test(key)) {
+    throw new Error(
+      "GOOGLE_PLACES_API_KEY en Vercel tiene espacios o saltos de línea (¿pegada dos veces?). Corrígela y vuelve a desplegar.",
+    );
+  }
   return key;
 }
 
