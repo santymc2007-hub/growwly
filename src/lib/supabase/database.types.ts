@@ -262,6 +262,7 @@ export type Database = {
           financiacion: boolean
           fotos: string[]
           fotos_antes_despues: Json
+          google_maps_url: string | null
           google_place_id: string | null
           google_reviews: Json
           google_synced_at: string | null
@@ -329,6 +330,7 @@ export type Database = {
           financiacion?: boolean
           fotos?: string[]
           fotos_antes_despues?: Json
+          google_maps_url?: string | null
           google_place_id?: string | null
           google_reviews?: Json
           google_synced_at?: string | null
@@ -396,6 +398,7 @@ export type Database = {
           financiacion?: boolean
           fotos?: string[]
           fotos_antes_despues?: Json
+          google_maps_url?: string | null
           google_place_id?: string | null
           google_reviews?: Json
           google_synced_at?: string | null

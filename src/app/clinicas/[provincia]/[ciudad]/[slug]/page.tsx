@@ -772,9 +772,17 @@ export default async function ClinicaPage({
                       Dirección
                     </h2>
                     <p className="mt-2 break-words text-sm text-ink-soft">{clinic.direccion}</p>
-                    {clinic.lat != null && clinic.lng != null && (
+                    {(clinic.google_maps_url || (clinic.lat != null && clinic.lng != null)) && (
                       <BotonContactoClinica
-                        href={`https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`}
+                        href={
+                          // Preferimos el enlace real a la ficha de Google
+                          // Maps (SEO local alineado con el perfil
+                          // verificado) — el de lat/lng es solo un pin
+                          // genérico de respaldo cuando aún no se ha
+                          // vinculado google_place_id.
+                          clinic.google_maps_url ??
+                          `https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`
+                        }
                         target="_blank"
                         rel="noreferrer"
                         className="mt-2 inline-flex items-center gap-1.5 text-sm text-cyan hover:text-cyan-dark"
