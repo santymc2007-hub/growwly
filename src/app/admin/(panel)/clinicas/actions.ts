@@ -47,6 +47,23 @@ function esErrorDeRedirect(e: unknown): boolean {
 }
 
 /**
+ * En producción Next.js oculta el mensaje real de cualquier error
+ * inesperado al enviarlo al navegador — por eso lo dejamos también en
+ * los logs del servidor (Vercel → Logs) con console.error, y añadimos
+ * el "digest" al mensaje que sí llega al admin para poder localizar esa
+ * entrada del log exacta.
+ */
+function mensajeConDigest(e: unknown, mensajePorDefecto: string): string {
+  console.error(e);
+  const digest =
+    typeof e === "object" && e !== null && "digest" in e
+      ? String((e as { digest?: unknown }).digest)
+      : null;
+  const base = e instanceof Error ? e.message : mensajePorDefecto;
+  return digest ? `${base} (código: ${digest})` : base;
+}
+
+/**
  * Normaliza el slug pedido desde el formulario y, si colisiona con el
  * de otra clínica (excluyendo la que se esté editando), le añade un
  * sufijo corto para que siga siendo único — la tabla tiene un unique
@@ -192,7 +209,7 @@ export async function createClinic(formData: FormData) {
     }
   } catch (e) {
     if (esErrorDeRedirect(e)) throw e;
-    const message = e instanceof Error ? e.message : "Error inesperado al crear la clínica.";
+    const message = mensajeConDigest(e, "Error inesperado al crear la clínica.");
     redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(message)}`);
   }
 
@@ -326,8 +343,7 @@ export async function updateClinic(id: string, formData: FormData) {
     }
   } catch (e) {
     if (esErrorDeRedirect(e)) throw e;
-    const message =
-      e instanceof Error ? e.message : "Error inesperado al guardar los cambios.";
+    const message = mensajeConDigest(e, "Error inesperado al guardar los cambios.");
     redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(message)}`);
   }
 

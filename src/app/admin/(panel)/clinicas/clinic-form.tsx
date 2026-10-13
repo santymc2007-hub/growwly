@@ -106,11 +106,15 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
         await action(comprimido);
       } catch (err) {
         if (!avisoLento) {
-          setErrorEnvio(
+          const digest =
+            err && typeof err === "object" && "digest" in err
+              ? String((err as { digest?: unknown }).digest)
+              : null;
+          const base =
             err instanceof Error
               ? err.message
-              : "No se ha podido guardar. Inténtalo de nuevo.",
-          );
+              : "No se ha podido guardar. Inténtalo de nuevo.";
+          setErrorEnvio(digest ? `${base} (código: ${digest})` : base);
         }
       } finally {
         clearTimeout(avisoTimeout);
