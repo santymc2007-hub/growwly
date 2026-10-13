@@ -99,7 +99,7 @@ export function CampoSlug({ slugInicial }: { slugInicial?: string }) {
         </button>
       </div>
       <p className="mt-1 text-xs text-ink-soft">
-        growwly.es/clinicas/.../.../{slug || "…"}
+        growwly.es/centros/.../.../{slug || "…"}
       </p>
       {sugerencias.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">

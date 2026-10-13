@@ -24,23 +24,23 @@ export async function SiteFooter() {
                 className="h-8 w-auto"
               />
               <p className="mt-3 text-xs">
-                Directorio de clínicas capilares en España.
+                Directorio de centros capilares en España.
               </p>
             </div>
 
             {ciudades.length > 0 && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-white">
-                  Clínicas por ciudad
+                  Centros por ciudad
                 </p>
                 <ul className="mt-3 flex flex-col gap-1.5 text-xs">
                   {ciudades.map(({ ciudad, provincia }) => (
                     <li key={ciudad}>
                       <Link
-                        href={`/clinicas/${slugifyProvincia(provincia)}/${slugifyCiudad(ciudad)}`}
+                        href={`/centros/${slugifyProvincia(provincia)}/${slugifyCiudad(ciudad)}`}
                         className="hover:text-white"
                       >
-                        Clínicas en {ciudad}
+                        Centros en {ciudad}
                       </Link>
                     </li>
                   ))}

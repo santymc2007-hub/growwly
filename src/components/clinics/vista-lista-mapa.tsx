@@ -9,7 +9,7 @@ import type { Clinic } from "@/lib/supabase/database.types";
 
 // Leaflet solo funciona en el navegador (usa "window"/"document" al
 // cargarse) y su JS no es pequeño — cargarlo solo cuando se abre la
-// vista de mapa evita que ese peso entre en el bundle de "/clinicas"
+// vista de mapa evita que ese peso entre en el bundle de "/centros"
 // para quien nunca cambia de la vista de lista.
 const ClinicsMap = dynamic(
   () => import("./clinics-map").then((m) => m.ClinicsMap),

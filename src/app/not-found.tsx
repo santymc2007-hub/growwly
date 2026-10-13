@@ -34,7 +34,7 @@ export default function NotFound() {
             </h1>
             <p className="mt-4 max-w-md text-base text-ink-soft sm:text-lg">
               La página que buscas no existe o se ha movido. Prueba a volver
-              al inicio o echa un vistazo a nuestro directorio de clínicas.
+              al inicio o echa un vistazo a nuestro directorio de centros.
             </p>
 
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -45,10 +45,10 @@ export default function NotFound() {
                 Volver al inicio
               </Link>
               <Link
-                href="/clinicas"
+                href="/centros"
                 className="press inline-block rounded-full border border-line bg-white px-6 py-3 font-display text-base font-bold text-teal-dark transition hover:border-teal/40"
               >
-                Ver clínicas
+                Ver centros
               </Link>
             </div>
           </div>

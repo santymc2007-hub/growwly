@@ -23,6 +23,19 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
+  async redirects() {
+    // El directorio público pasó de /clinicas a /centros. El sitio aún
+    // no está indexado (noindex), pero por si alguien guardó un enlace
+    // de una preview anterior, redirigimos en vez de dar un 404.
+    return [
+      { source: "/clinicas", destination: "/centros", permanent: true },
+      {
+        source: "/clinicas/:path*",
+        destination: "/centros/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default nextConfig;

@@ -260,10 +260,10 @@ export default async function TratamientoPage({
               <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:mt-0 lg:w-[360px] lg:shrink-0">
                 {tratamiento.tecnica_relacionada && (
                   <Link
-                    href={`/clinicas?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
+                    href={`/centros?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
                     className="press block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-3 text-center text-sm font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
                   >
-                    Ver clínicas con esta técnica
+                    Ver centros con esta técnica
                   </Link>
                 )}
                 <NavTratamientos
@@ -276,7 +276,7 @@ export default async function TratamientoPage({
             {clinicasConTecnica.length > 0 && (
               <section className="mt-14">
                 <h2 className="font-display text-xl text-teal-dark">
-                  Clínicas que ofrecen {tratamiento.nombre.toLowerCase()}
+                  Centros que ofrecen {tratamiento.nombre.toLowerCase()}
                 </h2>
                 <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {clinicasConTecnica.map((c) => (
@@ -285,10 +285,10 @@ export default async function TratamientoPage({
                 </div>
                 {tratamiento.tecnica_relacionada && (
                   <Link
-                    href={`/clinicas?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
+                    href={`/centros?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
                     className="mt-4 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
                   >
-                    Ver todas las clínicas con esta técnica →
+                    Ver todos los centros con esta técnica →
                   </Link>
                 )}
               </section>

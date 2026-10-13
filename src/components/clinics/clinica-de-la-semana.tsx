@@ -8,18 +8,18 @@ import { RatingCompacto } from "./rating-stars";
 export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
   const foto = clinic.fotos[0];
   const href = clinic.ciudad
-    ? `/clinicas/${slugifyProvincia(clinic.provincia)}/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
-    : `/clinicas/${slugifyProvincia(clinic.provincia)}/sin-ciudad/${clinic.slug}`;
+    ? `/centros/${slugifyProvincia(clinic.provincia)}/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
+    : `/centros/${slugifyProvincia(clinic.provincia)}/sin-ciudad/${clinic.slug}`;
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
 
   return (
     <section className="border-t border-line bg-paper-dim">
       <div className="mx-auto max-w-[1400px] px-6 py-14">
         <h2 className="font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
-          Clínica de la semana
+          Centro de la semana
         </h2>
         <p className="mt-2 text-ink-soft">
-          Cada semana, te presentaremos una clínica y sus servicios.
+          Cada semana, te presentaremos un centro y sus servicios.
         </p>
 
         <Link

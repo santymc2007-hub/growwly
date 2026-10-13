@@ -11,7 +11,7 @@ import { OverlayCargando } from "@/components/ui/overlay-cargando";
 // cuadrado y deformarlo.
 const CARACTERISTICAS = [
   { icono: "/analisis/ic-rapido.svg", texto: "Rápido y fácil", w: 34, h: 63 },
-  { icono: "/analisis/ic-verificado.svg", texto: "Clínicas verificadas", w: 56, h: 53 },
+  { icono: "/analisis/ic-verificado.svg", texto: "Centros verificados", w: 56, h: 53 },
   { icono: "/analisis/ic-gratuito.svg", texto: "100% Gratuito", w: 44, h: 63 },
   { icono: "/analisis/ic-seguro.svg", texto: "Seguro y confidencial", w: 63, h: 60 },
 ] as const;

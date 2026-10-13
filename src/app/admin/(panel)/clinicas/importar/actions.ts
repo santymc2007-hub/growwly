@@ -411,6 +411,6 @@ export async function guardarImportacion(
   }
 
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
   redirect(destino);
 }

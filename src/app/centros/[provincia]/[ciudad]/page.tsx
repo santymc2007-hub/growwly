@@ -17,9 +17,9 @@ import {
 
 type Params = { provincia: string; ciudad: string };
 
-// cache(): generateMetadata y la página piden las clínicas de la
+// cache(): generateMetadata y la página piden los centros de la
 // misma provincia por separado — sin esto, esta consulta (que trae
-// TODAS las clínicas de la provincia) se repetía dos veces por carga.
+// TODOS los centros de la provincia) se repetía dos veces por carga.
 const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: string) => {
   const supabase = await createClient();
   const { data } = await supabase
@@ -59,9 +59,9 @@ export async function generateMetadata({
   if (!ciudadReal) return {};
 
   return {
-    title: `Clínicas capilares en ${ciudadReal}`,
-    description: `Directorio de clínicas capilares en ${ciudadReal}: técnicas, precios, valoraciones e idiomas.`,
-    alternates: { canonical: `/clinicas/${provincia}/${ciudad}` },
+    title: `Centros capilares en ${ciudadReal}`,
+    description: `Directorio de centros capilares en ${ciudadReal}: técnicas, precios, valoraciones e idiomas.`,
+    alternates: { canonical: `/centros/${provincia}/${ciudad}` },
   };
 }
 
@@ -117,20 +117,20 @@ export default async function CiudadPage({
       {
         "@type": "ListItem",
         position: 2,
-        name: "Clínicas",
-        item: `${siteUrl}/clinicas`,
+        name: "Centros",
+        item: `${siteUrl}/centros`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: provinciaReal,
-        item: `${siteUrl}/clinicas/${provincia}`,
+        item: `${siteUrl}/centros/${provincia}`,
       },
       {
         "@type": "ListItem",
         position: 4,
         name: ciudadReal,
-        item: `${siteUrl}/clinicas/${provincia}/${ciudad}`,
+        item: `${siteUrl}/centros/${provincia}/${ciudad}`,
       },
     ],
   };
@@ -146,11 +146,11 @@ export default async function CiudadPage({
 
       <div className="mx-auto max-w-[1400px] px-6 pt-8">
         <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
-          <Link href="/clinicas" className="hover:text-cyan">
-            Clínicas
+          <Link href="/centros" className="hover:text-cyan">
+            Centros
           </Link>
           <span aria-hidden>/</span>
-          <Link href={`/clinicas?provincia=${encodeURIComponent(provinciaReal)}`} className="hover:text-cyan">
+          <Link href={`/centros?provincia=${encodeURIComponent(provinciaReal)}`} className="hover:text-cyan">
             {provinciaReal}
           </Link>
           <span aria-hidden>/</span>
@@ -158,13 +158,13 @@ export default async function CiudadPage({
         </nav>
 
         <h1 className="mt-3 font-display text-3xl text-teal-dark">
-          Clínicas capilares en {ciudadReal}
+          Centros capilares en {ciudadReal}
         </h1>
 
         <p className="mt-3 max-w-2xl text-ink-soft">
           {clinicas.length === 0
-            ? `Todavía no tenemos clínicas registradas en ${ciudadReal}. Echa un vistazo al resto del directorio mientras tanto.`
-            : `Encontrado ${clinicas.length} ${clinicas.length === 1 ? "clínica" : "clínicas"} en ${ciudadReal}` +
+            ? `Todavía no tenemos centros registrados en ${ciudadReal}. Echa un vistazo al resto del directorio mientras tanto.`
+            : `${clinicas.length === 1 ? "Encontrado" : "Encontrados"} ${clinicas.length} ${clinicas.length === 1 ? "centro" : "centros"} en ${ciudadReal}` +
               (precioMin !== null || precioMax !== null
                 ? `, con precios ${
                     precioMin !== null && precioMax !== null
@@ -183,10 +183,10 @@ export default async function CiudadPage({
           <VistaListaMapa clinicas={clinicas} />
         ) : (
           <Link
-            href="/clinicas"
+            href="/centros"
             className="inline-block rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper hover:bg-teal-dark"
           >
-            Ver todas las clínicas →
+            Ver todos los centros →
           </Link>
         )}
       </div>

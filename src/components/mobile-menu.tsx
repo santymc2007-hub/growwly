@@ -59,11 +59,11 @@ export function MobileMenu({
               Como Funciona
             </Link>
             <Link
-              href="/clinicas"
+              href="/centros"
               className="rounded-lg px-3 py-2.5 hover:bg-paper-dim hover:text-teal"
               onClick={() => setAbierto(false)}
             >
-              Clínicas
+              Centros
             </Link>
             <Link
               href="/blog"
@@ -141,7 +141,7 @@ export function MobileMenu({
                   className="flex w-full items-center gap-2 rounded-lg px-3 py-2.5 text-left text-ink-soft/80 hover:bg-paper-dim hover:text-error"
                 >
                   <LogOut size={15} aria-hidden />
-                  Cerrar sesión (clínica)
+                  Cerrar sesión (centro)
                 </button>
               </form>
             ) : (
@@ -151,7 +151,7 @@ export function MobileMenu({
                 onClick={() => setAbierto(false)}
               >
                 <Store size={15} aria-hidden />
-                Acceso clínicas
+                Acceso centros
               </Link>
             )}
           </nav>

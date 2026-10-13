@@ -69,7 +69,7 @@ export default async function VisibilidadPage({
         )}
 
         <p className="mb-6 max-w-lg text-sm text-ink-soft">
-          Formas de que tu clínica se vea más — cada una se solicita por
+          Formas de que tu centro se vea más — cada una se solicita por
           separado y queda pendiente de aprobación antes de activarse.
         </p>
 
@@ -85,7 +85,7 @@ export default async function VisibilidadPage({
               : {};
 
           const rutaCiudad = clinic.ciudad
-            ? `/clinicas/${slugifyProvincia(clinic.provincia)}/${slugifyCiudad(clinic.ciudad)}`
+            ? `/centros/${slugifyProvincia(clinic.provincia)}/${slugifyCiudad(clinic.ciudad)}`
             : "tu ciudad";
 
           return (
@@ -94,8 +94,8 @@ export default async function VisibilidadPage({
                 tipo="destacado"
                 icono={<Star className="h-5 w-5" strokeWidth={2.2} />}
                 titulo="Destacada en el listado"
-                descripcion="Tu ficha resalta con color y sube de posición en /clinicas."
-                beneficio="Más pacientes te ven primero al comparar clínicas de tu zona."
+                descripcion="Tu ficha resalta con color y sube de posición en /centros."
+                beneficio="Más pacientes te ven primero al comparar centros de tu zona."
                 activo={clinic.destacado}
                 pendiente={clinic.destacado_solicitado}
                 expiraEn={fechas.destacado?.expira_en}
@@ -104,7 +104,7 @@ export default async function VisibilidadPage({
                 tipo="destacado_home"
                 icono={<Home className="h-5 w-5" strokeWidth={2.2} />}
                 titulo="Destacada en la Home"
-                descripcion='Apareces en la sección "Clínicas destacadas" de la página principal.'
+                descripcion='Apareces en la sección "Centros destacados" de la página principal.'
                 beneficio="Visibilidad máxima: es lo primero que ve cualquier visitante de Growwly."
                 activo={clinic.destacado_home}
                 pendiente={clinic.destacado_home_solicitado}
@@ -115,7 +115,7 @@ export default async function VisibilidadPage({
                 icono={<MapPin className="h-5 w-5" strokeWidth={2.2} />}
                 titulo="Destacada en tu ciudad"
                 descripcion={`Resaltas al principio dentro de ${rutaCiudad}.`}
-                beneficio="Ganas a la competencia local cuando buscan clínicas cerca."
+                beneficio="Ganas a la competencia local cuando buscan centros cerca."
                 activo={clinic.destacado_ciudad}
                 pendiente={clinic.destacado_ciudad_solicitado}
                 expiraEn={fechas.destacado_ciudad?.expira_en}

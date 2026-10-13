@@ -7,11 +7,13 @@ type ClinicFiltersProps = {
   provincias: string[];
   ciudades: string[];
   tecnicas: string[];
+  tipos: string[];
 };
 
 const FIELDS = [
   { key: "provincia", label: "Toda España" },
   { key: "ciudad", label: "Todas las ciudades" },
+  { key: "tipo", label: "Todos los tipos de centro" },
   { key: "tecnica", label: "Todos los tratamientos" },
 ] as const;
 
@@ -54,7 +56,7 @@ function Switch({
   );
 }
 
-export function ClinicFilters({ provincias, ciudades, tecnicas }: ClinicFiltersProps) {
+export function ClinicFilters({ provincias, ciudades, tecnicas, tipos }: ClinicFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -63,6 +65,7 @@ export function ClinicFilters({ provincias, ciudades, tecnicas }: ClinicFiltersP
   const options: Record<(typeof FIELDS)[number]["key"], string[]> = {
     provincia: provincias,
     ciudad: ciudades,
+    tipo: tipos,
     tecnica: tecnicas,
   };
 

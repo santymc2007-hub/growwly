@@ -41,7 +41,7 @@ const PASOS = [
   {
     icono: "/brand/icono-paso-envelope.png",
     titulo: "4. Solicita presupuestos",
-    texto: "Recibe ofertas de clínicas especializadas que se ajustan a tu caso.",
+    texto: "Recibe ofertas de centros especializados que se ajustan a tu caso.",
   },
 ];
 
@@ -114,7 +114,7 @@ export default async function HomePage() {
           <div className="px-6 py-5 sm:px-10 sm:py-6">
             <div data-reveal className="rounded-3xl bg-paper-dim px-6 py-6 text-center sm:px-10 sm:py-8">
               <h2 className="font-display text-2xl font-extrabold text-teal-dark sm:text-3xl lg:text-4xl">
-                El directorio nº1 de clínicas capilares verificadas en España
+                El directorio nº1 de centros capilares verificados en España
               </h2>
               <p className="mt-3 text-base text-ink-soft sm:text-lg">
                 Tratamientos, opiniones reales y precios sin fricción
@@ -140,11 +140,11 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Clínicas destacadas */}
+          {/* Centros destacados */}
           {destacadas.length > 0 && (
             <div className="border-t border-line px-6 py-10 sm:px-10">
               <h2 data-reveal className="font-display text-4xl font-extrabold text-teal-dark">
-                Clínicas destacadas
+                Centros destacados
               </h2>
               <div data-reveal-grupo className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
                 {destacadas.map((clinic) => (
@@ -152,10 +152,10 @@ export default async function HomePage() {
                 ))}
               </div>
               <Link
-                href="/clinicas"
+                href="/centros"
                 className="press mt-8 inline-block rounded-full bg-yellow px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
               >
-                Ver todas las clínicas
+                Ver todos los centros
               </Link>
             </div>
           )}
@@ -228,12 +228,12 @@ export default async function HomePage() {
             </div>
           )}
 
-          {/* CTA clínicas */}
+          {/* CTA centros */}
           <div className="border-t border-line px-6 py-10 sm:px-10">
             <div data-reveal className="flex flex-col overflow-hidden rounded-3xl lg:flex-row lg:items-stretch">
               <div className="flex flex-col justify-center gap-3 bg-gradient-to-br from-teal-dark to-cyan-dark px-8 py-10 text-white sm:px-10 lg:w-[38%] lg:shrink-0">
                 <p className="font-display text-2xl font-extrabold sm:text-3xl">
-                  ¿Tienes una clínica capilar?
+                  ¿Tienes un centro capilar?
                 </p>
                 <p className="max-w-sm text-white/85">
                   Únete a Growwly y llega a miles de personas que buscan el

@@ -85,7 +85,7 @@ function construirHtmlEmailActivacion(datos: {
       <p>Buenos días ${datos.nombreClinica},</p>
       <p>
         Queríamos darte las gracias personalmente por seguir invirtiendo en que más
-        pacientes os encuentren. Tu clínica ya tiene el modo
+        pacientes os encuentren. Tu centro ya tiene el modo
         <strong>"${datos.tituloTipo}"</strong> activado.
       </p>
       <p>${datos.beneficio}</p>
@@ -122,7 +122,7 @@ function construirHtmlEmailActivacion(datos: {
 function revalidarTodo() {
   revalidatePath("/admin/visibilidad");
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
   revalidatePath("/");
 }
 

@@ -95,7 +95,7 @@ export async function generateMetadata({
   return {
     title: `${clinic.nombre}${clinic.ciudad ? ` en ${clinic.ciudad}` : ""}`,
     description: descripcion,
-    alternates: { canonical: `/clinicas/${provinciaSlug}/${ciudadSlug}/${clinic.slug}` },
+    alternates: { canonical: `/centros/${provinciaSlug}/${ciudadSlug}/${clinic.slug}` },
     openGraph: {
       title: clinic.nombre,
       description: descripcion,
@@ -169,7 +169,7 @@ export default async function ClinicaPage({
         : "clinica";
       const provinciaSlugViejo = slugifyProvincia(viaSlugAntiguo.provincia);
       permanentRedirect(
-        `/clinicas/${provinciaSlugViejo}/${ciudadSlugViejo}/${viaSlugAntiguo.slug}`,
+        `/centros/${provinciaSlugViejo}/${ciudadSlugViejo}/${viaSlugAntiguo.slug}`,
       );
     }
     notFound();
@@ -184,7 +184,7 @@ export default async function ClinicaPage({
     (ciudadSlugReal && ciudad !== ciudadSlugReal) ||
     provincia !== provinciaSlugReal
   ) {
-    redirect(`/clinicas/${provinciaSlugReal}/${ciudadSlugReal ?? "clinica"}/${clinic.slug}`);
+    redirect(`/centros/${provinciaSlugReal}/${ciudadSlugReal ?? "clinica"}/${clinic.slug}`);
   }
 
   const esPremium = clinic.plan === "premium";
@@ -241,7 +241,7 @@ export default async function ClinicaPage({
     "@type": "MedicalBusiness",
     name: clinic.nombre,
     description: clinic.descripcion ?? undefined,
-    url: `${siteUrl}/clinicas/${provincia}/${ciudad}/${clinic.slug}`,
+    url: `${siteUrl}/centros/${provincia}/${ciudad}/${clinic.slug}`,
     image: clinic.fotos.length > 0 ? clinic.fotos : undefined,
     telephone: clinic.telefono ?? undefined,
     address: {
@@ -294,14 +294,14 @@ export default async function ClinicaPage({
       {
         "@type": "ListItem",
         position: 2,
-        name: "Clínicas",
-        item: `${siteUrl}/clinicas`,
+        name: "Centros",
+        item: `${siteUrl}/centros`,
       },
       {
         "@type": "ListItem",
         position: 3,
         name: clinic.provincia,
-        item: `${siteUrl}/clinicas?provincia=${encodeURIComponent(clinic.provincia)}`,
+        item: `${siteUrl}/centros?provincia=${encodeURIComponent(clinic.provincia)}`,
       },
       ...(clinic.ciudad
         ? [
@@ -309,7 +309,7 @@ export default async function ClinicaPage({
               "@type": "ListItem",
               position: 4,
               name: clinic.ciudad,
-              item: `${siteUrl}/clinicas/${provincia}/${ciudad}`,
+              item: `${siteUrl}/centros/${provincia}/${ciudad}`,
             },
           ]
         : []),
@@ -317,7 +317,7 @@ export default async function ClinicaPage({
         "@type": "ListItem",
         position: clinic.ciudad ? 5 : 4,
         name: clinic.nombre,
-        item: `${siteUrl}/clinicas/${provincia}/${ciudad}/${clinic.slug}`,
+        item: `${siteUrl}/centros/${provincia}/${ciudad}/${clinic.slug}`,
       },
     ],
   };
@@ -400,12 +400,12 @@ export default async function ClinicaPage({
 
       <div className="mx-auto max-w-[1400px] px-6 pt-8">
         <nav aria-label="Migas de pan" className="flex flex-wrap items-center gap-1.5 text-sm text-ink-soft">
-          <Link href="/clinicas" className="hover:text-cyan">
-            Clínicas
+          <Link href="/centros" className="hover:text-cyan">
+            Centros
           </Link>
           <span aria-hidden>/</span>
           <Link
-            href={`/clinicas?provincia=${encodeURIComponent(clinic.provincia)}`}
+            href={`/centros?provincia=${encodeURIComponent(clinic.provincia)}`}
             className="hover:text-cyan"
           >
             {clinic.provincia}
@@ -413,7 +413,7 @@ export default async function ClinicaPage({
           {clinic.ciudad && (
             <>
               <span aria-hidden>/</span>
-              <Link href={`/clinicas/${provincia}/${ciudad}`} className="hover:text-cyan">
+              <Link href={`/centros/${provincia}/${ciudad}`} className="hover:text-cyan">
                 {clinic.ciudad}
               </Link>
             </>
@@ -473,7 +473,7 @@ export default async function ClinicaPage({
                       href={`/clinica/registro?clinic=${clinic.id}`}
                       className="text-xs font-medium text-cyan hover:text-cyan-dark"
                     >
-                      ¿Eres el propietario? Reclama esta clínica →
+                      ¿Eres el propietario? Reclama este centro →
                     </Link>
                   )}
                 </div>
@@ -895,7 +895,7 @@ export default async function ClinicaPage({
                       Precios (injerto capilar)
                     </h2>
                     <p className="mt-2 text-sm text-ink-soft">
-                      Esta clínica no publica precio orientativo — pide presupuesto
+                      Este centro no publica precio orientativo — pide presupuesto
                       y te responderá con uno personalizado.
                     </p>
                   </>

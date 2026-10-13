@@ -61,7 +61,7 @@ export function ClinicsMap({
         className="flex items-center justify-center rounded-2xl border border-line bg-paper-dim text-sm text-ink-soft"
         style={{ height: alto ?? "420px" }}
       >
-        Ninguna de las clínicas de este listado tiene ubicación cargada
+        Ninguno de los centros de este listado tiene ubicación cargada
         todavía.
       </div>
     );
@@ -87,8 +87,8 @@ export function ClinicsMap({
         <AjustarVista clinicas={conCoords} />
         {conCoords.map((c) => {
           const href = c.ciudad
-            ? `/clinicas/${slugifyProvincia(c.provincia)}/${slugifyCiudad(c.ciudad)}/${c.slug}`
-            : `/clinicas/${slugifyProvincia(c.provincia)}/sin-ciudad/${c.slug}`;
+            ? `/centros/${slugifyProvincia(c.provincia)}/${slugifyCiudad(c.ciudad)}/${c.slug}`
+            : `/centros/${slugifyProvincia(c.provincia)}/sin-ciudad/${c.slug}`;
           return (
             <Marker key={c.id} position={[c.lat, c.lng]} icon={pinIcon}>
               <Popup>

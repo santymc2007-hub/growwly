@@ -19,7 +19,7 @@ export function HeroSearch({ ciudades, tecnicas }: HeroSearchProps) {
     if (tecnica) params.set("tecnica", tecnica);
     if (ciudad) params.set("ciudad", ciudad);
     const query = params.toString();
-    router.push(query ? `/clinicas?${query}` : "/clinicas");
+    router.push(query ? `/centros?${query}` : "/centros");
   }
 
   return (
@@ -77,7 +77,7 @@ export function HeroSearch({ ciudades, tecnicas }: HeroSearchProps) {
         type="submit"
         className="rounded-xl bg-cyan px-6 py-3 text-sm font-medium text-white transition hover:bg-cyan-dark"
       >
-        Buscar clínicas
+        Buscar centros
       </button>
     </form>
   );

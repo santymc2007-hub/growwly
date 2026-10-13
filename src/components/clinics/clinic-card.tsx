@@ -11,8 +11,8 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
   const foto = clinic.fotos[0];
   const provinciaSlug = slugifyProvincia(clinic.provincia);
   const href = clinic.ciudad
-    ? `/clinicas/${provinciaSlug}/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
-    : `/clinicas/${provinciaSlug}/sin-ciudad/${clinic.slug}`;
+    ? `/centros/${provinciaSlug}/${slugifyCiudad(clinic.ciudad)}/${clinic.slug}`
+    : `/centros/${provinciaSlug}/sin-ciudad/${clinic.slug}`;
 
   return (
     <Link

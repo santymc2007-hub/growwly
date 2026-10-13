@@ -214,7 +214,7 @@ export async function createClinic(formData: FormData) {
   }
 
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
   redirect("/admin/clinicas");
 }
 
@@ -243,7 +243,7 @@ export async function deleteClinic(id: string) {
   }
 
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
 }
 
 export async function updateClinic(id: string, formData: FormData) {
@@ -348,7 +348,7 @@ export async function updateClinic(id: string, formData: FormData) {
   }
 
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
   revalidatePath(`/admin/clinicas/${id}/editar`);
   // Nos quedamos en la misma ficha en vez de volver al listado — el
   // admin suele seguir editando otras cosas de la misma clínica justo
@@ -385,7 +385,7 @@ export async function moveClinic(id: string, direction: "up" | "down") {
   );
 
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
 }
 
 /** Activa ("Publicada") o desactiva varias clínicas de golpe, desde los checkboxes del listado. */
@@ -395,7 +395,7 @@ export async function setPublicadoBatch(ids: string[], publicado: boolean) {
   await supabase.from("clinics").update({ publicado }).in("id", ids);
 
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
 }
 
 /** Igual que deleteClinic pero para varias a la vez, desde los checkboxes del listado. */
@@ -421,5 +421,5 @@ export async function deleteClinicsBatch(ids: string[]) {
   }
 
   revalidatePath("/admin/clinicas");
-  revalidatePath("/clinicas");
+  revalidatePath("/centros");
 }
