@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useRef, useState, useTransition } from "react";
+import { createPortal } from "react-dom";
 import {
   activarVisibilidad,
   desactivarVisibilidad,
@@ -43,6 +44,8 @@ export function InterruptorVisibilidad({
 }) {
   const [pending, startTransition] = useTransition();
   const [eligiendoDuracion, setEligiendoDuracion] = useState(false);
+  const [posicionPopover, setPosicionPopover] = useState({ top: 0, left: 0 });
+  const botonRef = useRef<HTMLButtonElement>(null);
 
   const activado = estado === "activo";
 
@@ -52,6 +55,15 @@ export function InterruptorVisibilidad({
         desactivarVisibilidad(clinicId, tipo);
       });
     } else {
+      // El popover se saca de la tabla con un portal (ver abajo) porque
+      // el contenedor con scroll horizontal de la tabla (overflow-x-auto)
+      // también recorta el desbordamiento vertical — sin esto, el
+      // desplegable quedaba invisible y parecía que no pasaba nada al
+      // pulsar "Activar".
+      const rect = botonRef.current?.getBoundingClientRect();
+      if (rect) {
+        setPosicionPopover({ top: rect.bottom + window.scrollY + 4, left: rect.left + window.scrollX });
+      }
       setEligiendoDuracion(true);
     }
   }
@@ -74,6 +86,7 @@ export function InterruptorVisibilidad({
     <div className="relative">
       <div className="flex items-center gap-2">
         <button
+          ref={botonRef}
           type="button"
           onClick={alClicarInterruptor}
           disabled={pending}
@@ -122,42 +135,54 @@ export function InterruptorVisibilidad({
         </p>
       )}
 
-      {eligiendoDuracion && (
-        <div className="popover-anim absolute left-0 top-full z-20 mt-1 w-44 rounded-xl border border-line bg-white p-2 shadow-lg">
-          <p className="mb-1.5 px-1 text-[11px] font-medium text-ink-soft">
-            ¿Durante cuánto?
-          </p>
-          {mesesSolicitados !== undefined && (
-            <p className="mb-1.5 px-1 text-[11px] text-orange">
-              La clínica pidió:{" "}
-              {mesesSolicitados === null
-                ? "Indefinido"
-                : `${mesesSolicitados} ${mesesSolicitados === 1 ? "mes" : "meses"}`}
-            </p>
-          )}
-          {DURACIONES.map((d) => (
-            <button
-              key={d.etiqueta}
-              type="button"
-              onClick={() => elegirDuracion(d.meses)}
-              className={`block w-full rounded-lg px-2 py-1.5 text-left text-sm hover:bg-sage/40 ${
-                mesesSolicitados !== undefined && mesesSolicitados === d.meses
-                  ? "bg-orange/10 font-medium text-orange"
-                  : "text-ink"
-              }`}
+      {eligiendoDuracion &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <>
+            <div
+              className="fixed inset-0 z-30"
+              onClick={() => setEligiendoDuracion(false)}
+            />
+            <div
+              className="popover-anim fixed z-40 w-44 rounded-xl border border-line bg-white p-2 shadow-lg"
+              style={{ top: posicionPopover.top, left: posicionPopover.left }}
             >
-              {d.etiqueta}
-            </button>
-          ))}
-          <button
-            type="button"
-            onClick={() => setEligiendoDuracion(false)}
-            className="mt-1 block w-full rounded-lg px-2 py-1.5 text-left text-xs text-ink-soft hover:bg-paper-dim"
-          >
-            Cancelar
-          </button>
-        </div>
-      )}
+              <p className="mb-1.5 px-1 text-[11px] font-medium text-ink-soft">
+                ¿Durante cuánto?
+              </p>
+              {mesesSolicitados !== undefined && (
+                <p className="mb-1.5 px-1 text-[11px] text-orange">
+                  La clínica pidió:{" "}
+                  {mesesSolicitados === null
+                    ? "Indefinido"
+                    : `${mesesSolicitados} ${mesesSolicitados === 1 ? "mes" : "meses"}`}
+                </p>
+              )}
+              {DURACIONES.map((d) => (
+                <button
+                  key={d.etiqueta}
+                  type="button"
+                  onClick={() => elegirDuracion(d.meses)}
+                  className={`block w-full rounded-lg px-2 py-1.5 text-left text-sm hover:bg-sage/40 ${
+                    mesesSolicitados !== undefined && mesesSolicitados === d.meses
+                      ? "bg-orange/10 font-medium text-orange"
+                      : "text-ink"
+                  }`}
+                >
+                  {d.etiqueta}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => setEligiendoDuracion(false)}
+                className="mt-1 block w-full rounded-lg px-2 py-1.5 text-left text-xs text-ink-soft hover:bg-paper-dim"
+              >
+                Cancelar
+              </button>
+            </div>
+          </>,
+          document.body,
+        )}
     </div>
   );
 }
