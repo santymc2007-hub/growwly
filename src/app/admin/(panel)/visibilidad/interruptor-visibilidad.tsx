@@ -2,12 +2,8 @@
 
 import { useRef, useState, useTransition } from "react";
 import { createPortal } from "react-dom";
-import {
-  activarVisibilidad,
-  desactivarVisibilidad,
-  rechazarVisibilidad,
-  type TipoVisibilidad,
-} from "./actions";
+import { activarVisibilidad, desactivarVisibilidad, rechazarVisibilidad } from "./actions";
+import type { TipoVisibilidad } from "./tipos-visibilidad";
 
 type Estado = "activo" | "inactivo" | "solicitado";
 
