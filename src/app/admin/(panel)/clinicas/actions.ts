@@ -7,13 +7,65 @@ import { slugify } from "@/lib/slugify";
 import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
 import type { Database } from "@/lib/supabase/database.types";
 
+// plan/destacado/destacado_home/destacado_ciudad se excluyen a propósito:
+// ahora se gestionan en exclusiva desde las acciones de Visibilidad
+// (activarVisibilidad/desactivarVisibilidad en ../visibilidad/actions),
+// nunca desde este formulario — si se incluyeran aquí, cada guardado de
+// cualquier otro campo los resetearía a su valor por defecto.
+// rating_google/resenas_google tampoco: los sobrescribe solo el cron
+// semanal de Google Places, nunca a mano.
 type ClinicWrite = Omit<
   Database["public"]["Tables"]["clinics"]["Insert"],
-  "id" | "slug" | "created_at" | "updated_at" | "fotos"
+  | "id"
+  | "slug"
+  | "created_at"
+  | "updated_at"
+  | "fotos"
+  | "logo_url"
+  | "plan"
+  | "destacado"
+  | "destacado_home"
+  | "destacado_ciudad"
+  | "rating_google"
+  | "resenas_google"
 >;
 
 function isRealFile(value: FormDataEntryValue): value is File {
   return value instanceof File && value.size > 0;
+}
+
+/**
+ * Normaliza el slug pedido desde el formulario y, si colisiona con el
+ * de otra clínica (excluyendo la que se esté editando), le añade un
+ * sufijo corto para que siga siendo único — la tabla tiene un unique
+ * constraint en esta columna.
+ */
+async function resolverSlug(
+  supabase: ReturnType<typeof createAdminClient>,
+  candidato: string,
+  excluirId?: string,
+): Promise<string> {
+  let query = supabase.from("clinics").select("id").eq("slug", candidato);
+  if (excluirId) query = query.neq("id", excluirId);
+  const { data: colision } = await query.maybeSingle();
+  return colision ? `${candidato}-${crypto.randomUUID().slice(0, 6)}` : candidato;
+}
+
+async function subirLogoSiLlega(
+  supabase: ReturnType<typeof createAdminClient>,
+  formData: FormData,
+  urlErrorRedirect: string,
+): Promise<string | undefined> {
+  const logoFile = formData.get("logo");
+  if (!logoFile || !isRealFile(logoFile)) return undefined;
+  try {
+    const [logoUrl] = await uploadClinicPhotos(supabase, [logoFile]);
+    return logoUrl;
+  } catch (uploadError) {
+    const message =
+      uploadError instanceof Error ? uploadError.message : "No se pudo subir el logo.";
+    redirect(`${urlErrorRedirect}?error=${encodeURIComponent(message)}`);
+  }
 }
 
 function readClinicFields(formData: FormData): ClinicWrite {
@@ -54,11 +106,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     verificado: formData.get("verificado") === "on",
     publicado: formData.get("publicado") === "on",
     verificado_admin: formData.get("verificado_admin") === "on",
-    destacado: formData.get("destacado") === "on",
-    plan: str("plan") ?? "basico",
     leads_enabled: formData.get("leads_enabled") === "on",
-    destacado_home: formData.get("destacado_home") === "on",
-    destacado_ciudad: formData.get("destacado_ciudad") === "on",
     direccion: str("direccion"),
     rango_precios: str("rango_precios"),
     precio_desde: num("precio_desde"),
@@ -71,8 +119,6 @@ function readClinicFields(formData: FormData): ClinicWrite {
         return [];
       }
     })(),
-    rating_google: num("rating_google"),
-    resenas_google: num("resenas_google"),
     rating_doctoralia: num("rating_doctoralia"),
     resenas_doctoralia: num("resenas_doctoralia"),
     tipo_negocio: str("tipo_negocio"),
@@ -106,10 +152,16 @@ export async function createClinic(formData: FormData) {
     redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(message)}`);
   }
 
+  const logoUrl = await subirLogoSiLlega(supabase, formData, "/admin/clinicas/nueva");
+
+  const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
+  const slug = await resolverSlug(supabase, slugPedido);
+
   const { error } = await supabase.from("clinics").insert({
     ...fields,
-    slug: slugify(fields.nombre),
+    slug,
     fotos,
+    ...(logoUrl ? { logo_url: logoUrl } : {}),
   });
 
   if (error) {
@@ -180,20 +232,42 @@ export async function updateClinic(id: string, formData: FormData) {
     await deleteClinicPhotos(supabase, aEliminar);
   }
 
-  // El slug no se toca aquí: se generó al crear la clínica y no queremos
-  // romper enlaces existentes a /clinicas/[slug] al editar otros campos.
-  // Guardar desde aquí resuelve cualquier solicitud pendiente de la
-  // clínica (tanto si la aprobaste marcando la casilla, como si la
-  // rechazaste dejándola desmarcada).
+  const logoUrl = await subirLogoSiLlega(supabase, formData, `/admin/clinicas/${id}/editar`);
+
+  // El slug solo cambia si el admin lo ha editado a mano en el
+  // formulario (ver CampoSlug) — si cambia, el anterior se guarda en
+  // slugs_antiguos para que cualquier enlace ya compartido o indexado
+  // siga redirigiendo a la ficha en vez de dar 404.
+  const { data: clinicaActual } = await supabase
+    .from("clinics")
+    .select("slug, slugs_antiguos")
+    .eq("id", id)
+    .maybeSingle();
+
+  let slugUpdate: { slug: string; slugs_antiguos: string[] } | undefined;
+  const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
+  if (clinicaActual && slugPedido && slugPedido !== clinicaActual.slug) {
+    const nuevoSlug = await resolverSlug(supabase, slugPedido, id);
+    slugUpdate = {
+      slug: nuevoSlug,
+      slugs_antiguos: Array.from(
+        new Set([...(clinicaActual.slugs_antiguos ?? []), clinicaActual.slug]),
+      ),
+    };
+  }
+
+  // Las solicitudes pendientes (destacado/premium) ya no se resuelven
+  // aquí: las gestionan en exclusiva activarVisibilidad/rechazarVisibilidad
+  // desde la sección Visibilidad — así guardar un cambio cualquiera (por
+  // ejemplo el teléfono) nunca rechaza en silencio una solicitud que el
+  // admin aún no ha revisado.
   const { error } = await supabase
     .from("clinics")
     .update({
       ...fields,
       fotos: [...conservadas, ...nuevas],
-      destacado_solicitado: false,
-      destacado_home_solicitado: false,
-      destacado_ciudad_solicitado: false,
-      plan_solicitado: null,
+      ...(logoUrl ? { logo_url: logoUrl } : {}),
+      ...(slugUpdate ?? {}),
     })
     .eq("id", id);
 
@@ -206,19 +280,6 @@ export async function updateClinic(id: string, formData: FormData) {
   revalidatePath("/admin/clinicas");
   revalidatePath("/clinicas");
   redirect("/admin/clinicas");
-}
-
-export async function toggleDestacado(id: string, next: boolean) {
-  const supabase = createAdminClient();
-  const { error } = await supabase
-    .from("clinics")
-    .update({ destacado: next })
-    .eq("id", id);
-
-  if (!error) {
-    revalidatePath("/admin/clinicas");
-    revalidatePath("/clinicas");
-  }
 }
 
 export async function moveClinic(id: string, direction: "up" | "down") {

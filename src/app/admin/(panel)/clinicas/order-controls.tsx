@@ -1,6 +1,7 @@
 "use client";
 
-import { toggleDestacado, moveClinic } from "./actions";
+import { moveClinic } from "./actions";
+import { activarVisibilidad, desactivarVisibilidad } from "../visibilidad/actions";
 
 export function OrderControls({
   id,
@@ -37,7 +38,11 @@ export function OrderControls({
       </button>
       <button
         type="button"
-        onClick={() => toggleDestacado(id, !destacado)}
+        onClick={() =>
+          destacado
+            ? desactivarVisibilidad(id, "destacado")
+            : activarVisibilidad(id, "destacado", null)
+        }
         aria-label={destacado ? "Quitar de destacadas" : "Marcar como destacada"}
         title={destacado ? "Destacada" : "Marcar como destacada"}
         className={`rounded px-1.5 py-0.5 text-base leading-none ${
