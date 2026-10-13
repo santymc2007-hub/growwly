@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
@@ -10,6 +11,44 @@ import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
+import { CampoSlug } from "./campo-slug";
+import { InterruptorVisibilidad } from "../visibilidad/interruptor-visibilidad";
+import { TIPO_LABEL, type TipoVisibilidad } from "../visibilidad/tipos-visibilidad";
+
+// Las mismas 4 palancas que ve el admin en /admin/visibilidad — se
+// reutilizan aquí para que activar/desactivar desde la ficha de la
+// clínica sea literalmente la misma acción (mismo registro en el log,
+// mismo email a la clínica), nunca un campo aparte que pueda
+// desincronizarse.
+const COLUMNAS_VISIBILIDAD: {
+  tipo: TipoVisibilidad;
+  activo: (c: Clinic) => boolean;
+  solicitado: (c: Clinic) => boolean;
+}[] = [
+  { tipo: "destacado", activo: (c) => c.destacado, solicitado: (c) => c.destacado_solicitado },
+  {
+    tipo: "destacado_home",
+    activo: (c) => c.destacado_home,
+    solicitado: (c) => c.destacado_home_solicitado,
+  },
+  {
+    tipo: "destacado_ciudad",
+    activo: (c) => c.destacado_ciudad,
+    solicitado: (c) => c.destacado_ciudad_solicitado,
+  },
+  {
+    tipo: "premium",
+    activo: (c) => c.plan === "premium",
+    solicitado: (c) => Boolean(c.plan_solicitado),
+  },
+];
+
+function fechasVisibilidad(clinic: Clinic) {
+  const fechas = clinic.visibilidad_fechas;
+  return fechas && typeof fechas === "object" && !Array.isArray(fechas)
+    ? (fechas as Record<string, { expira_en: string | null; meses_solicitados?: number | null }>)
+    : {};
+}
 
 type ClinicFormProps = {
   action: (formData: FormData) => void | Promise<void>;
@@ -35,23 +74,39 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
       <section>
         <h2 className="font-display text-lg text-teal-dark">Datos básicos</h2>
         <div className="mt-4 grid gap-4">
-          <div>
-            <label className={labelClass} htmlFor="nombre">
-              Nombre *
-            </label>
-            <input
-              id="nombre"
-              name="nombre"
-              required
-              defaultValue={clinic?.nombre}
-              className={inputClass}
-            />
-            {!clinic && (
-              <p className="mt-1 text-xs text-ink-soft">
-                La URL pública se genera sola a partir del nombre (ej. /clinicas/mi-clinica).
-              </p>
-            )}
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-[138px_1fr] sm:items-start">
+            <div>
+              <label className={labelClass} htmlFor="logo">
+                Logo
+              </label>
+              <p className="mt-0.5 text-xs text-ink-soft">138×58px, apaisado</p>
+              {clinic?.logo_url && (
+                <div className="relative mt-2 h-[58px] w-[138px] overflow-hidden rounded-lg border border-line bg-white p-1.5">
+                  <Image src={clinic.logo_url} alt="" fill sizes="138px" className="object-contain" />
+                </div>
+              )}
+              <input
+                id="logo"
+                name="logo"
+                type="file"
+                accept="image/*"
+                className="mt-2 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+              />
+            </div>
+            <div>
+              <label className={labelClass} htmlFor="nombre">
+                Nombre *
+              </label>
+              <input
+                id="nombre"
+                name="nombre"
+                required
+                defaultValue={clinic?.nombre}
+                className={inputClass}
+              />
+            </div>
           </div>
+          <CampoSlug slugInicial={clinic?.slug} />
           <div>
             <label className={labelClass} htmlFor="descripcion">
               Descripción
@@ -323,8 +378,15 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
           </div>
           <div>
             <label className={labelClass} htmlFor="detalle_oferta">
-              Oferta activa (déjalo vacío si no tiene)
+              Oferta activa (déjalo vacío si no tiene){" "}
+              <span className="ml-1 rounded-full bg-cyan/15 px-2 py-0.5 text-[11px] font-semibold text-cyan-dark">
+                Solo Perfil ampliado
+              </span>
             </label>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Se guarda aunque la clínica sea plan básico, pero solo se muestra
+              en la ficha pública si tiene Perfil ampliado.
+            </p>
             <input
               id="detalle_oferta"
               name="detalle_oferta"
@@ -336,34 +398,19 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
-          <div>
-            <label className={labelClass} htmlFor="rating_google">
-              Nota Google
-            </label>
-            <input
-              id="rating_google"
-              name="rating_google"
-              type="number"
-              step="0.1"
-              min="0"
-              max="5"
-              defaultValue={clinic?.rating_google ?? undefined}
-              className={inputClass}
-            />
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="resenas_google">
-              Reseñas Google
-            </label>
-            <input
-              id="resenas_google"
-              name="resenas_google"
-              type="number"
-              min="0"
-              defaultValue={clinic?.resenas_google ?? undefined}
-              className={inputClass}
-            />
-          </div>
+          {clinic && (clinic.rating_google != null || clinic.resenas_google != null) && (
+            <div className="col-span-2">
+              <p className={labelClass}>Nota y reseñas Google</p>
+              <p className="mt-1 text-sm text-ink-soft">
+                {clinic.rating_google != null ? `★ ${clinic.rating_google}` : "Sin nota"}
+                {clinic.resenas_google != null ? ` · ${clinic.resenas_google} reseñas` : ""}
+                <span className="ml-1 text-xs">
+                  (se sincroniza solo cada semana desde Google Maps, no editable
+                  aquí)
+                </span>
+              </p>
+            </div>
+          )}
           <div>
             <label className={labelClass} htmlFor="rating_doctoralia">
               Nota Doctoralia
@@ -558,74 +605,74 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
             confirmes que es quien dice ser)
           </span>
         </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="destacado"
-            defaultChecked={clinic?.destacado}
-          />
-          Destacada{" "}
-          <span className="text-xs text-ink-soft">
-            (aparece primero en el listado; también puedes marcarla desde la
-            tabla)
-          </span>
-        </label>
+        <div className="mt-6 rounded-xl border border-line bg-paper-dim/60 p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h3 className="font-display text-base text-teal-dark">
+              Visibilidad
+            </h3>
+            <Link
+              href="/admin/visibilidad"
+              className="text-xs font-medium text-cyan hover:text-cyan-dark"
+            >
+              Ver histórico completo →
+            </Link>
+          </div>
+          <p className="mt-1 text-xs text-ink-soft">
+            Estos interruptores son los mismos que en Visibilidad: activar o
+            desactivar aquí queda registrado con fecha y, si la clínica tiene
+            email, le avisa — así nunca se desincroniza con lo que ves en esa
+            sección.
+          </p>
 
-        <label className="mt-2 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="destacado_home"
-            defaultChecked={clinic?.destacado_home}
-          />
-          Destacada en la Home{" "}
-          {clinic?.destacado_home_solicitado && (
-            <span className="text-xs text-cyan-dark">(lo ha solicitado)</span>
-          )}
-        </label>
-
-        <label className="mt-2 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="destacado_ciudad"
-            defaultChecked={clinic?.destacado_ciudad}
-          />
-          Destacada en su ciudad{" "}
-          {clinic?.destacado_ciudad_solicitado && (
-            <span className="text-xs text-cyan-dark">(lo ha solicitado)</span>
-          )}
-        </label>
-
-        <label className="mt-2 flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="leads_enabled"
-            defaultChecked={clinic?.leads_enabled ?? false}
-          />
-          Acceso a leads de cortesía (aunque sea plan básico){" "}
-          <span className="text-xs text-ink-soft">
-            (prueba gratuita — en premium no hace falta, ya recibe leads)
-          </span>
-        </label>
-
-        <div className="mt-4">
-          <label className={labelClass} htmlFor="plan">
-            Plan
-          </label>
-          <select
-            id="plan"
-            name="plan"
-            defaultValue={clinic?.plan ?? "basico"}
-            className={inputClass}
-          >
-            <option value="basico">Básico</option>
-            <option value="premium">Perfil ampliado</option>
-          </select>
-          {clinic?.plan_solicitado && (
-            <p className="mt-1 text-xs text-cyan-dark">
-              Ha solicitado pasar a {clinic.plan_solicitado} — pendiente de
-              aprobación.
+          {clinic ? (
+            <div className="mt-4 grid grid-cols-2 gap-4 sm:grid-cols-4">
+              {COLUMNAS_VISIBILIDAD.map((col) => {
+                const estado = col.solicitado(clinic)
+                  ? "solicitado"
+                  : col.activo(clinic)
+                    ? "activo"
+                    : "inactivo";
+                const fechas = fechasVisibilidad(clinic);
+                return (
+                  <div key={col.tipo}>
+                    <p className="text-xs font-medium text-ink-soft">
+                      {TIPO_LABEL[col.tipo]}
+                    </p>
+                    <div className="mt-1.5">
+                      <InterruptorVisibilidad
+                        clinicId={clinic.id}
+                        tipo={col.tipo}
+                        estado={estado}
+                        expiraEn={fechas[col.tipo]?.expira_en ?? null}
+                        mesesSolicitados={
+                          estado === "solicitado"
+                            ? fechas[col.tipo]?.meses_solicitados
+                            : undefined
+                        }
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="mt-4 text-sm text-ink-soft">
+              Disponible en cuanto crees la clínica — entra a Editar para
+              activar destacados o Perfil ampliado.
             </p>
           )}
+
+          <label className="mt-5 flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="leads_enabled"
+              defaultChecked={clinic?.leads_enabled ?? false}
+            />
+            Acceso a leads de cortesía (aunque sea plan básico){" "}
+            <span className="text-xs text-ink-soft">
+              (prueba gratuita — en premium no hace falta, ya recibe leads)
+            </span>
+          </label>
         </div>
       </section>
 

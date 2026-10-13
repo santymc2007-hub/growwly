@@ -2,7 +2,8 @@ import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { InterruptorVisibilidad } from "./interruptor-visibilidad";
 import { FiltroCiudad } from "./filtro-ciudad";
-import type { TipoVisibilidad } from "./actions";
+import { HistorialVisibilidad, type EntradaLogVisibilidad } from "./historial-visibilidad";
+import { TIPO_LABEL, type TipoVisibilidad } from "./tipos-visibilidad";
 import type { Clinic } from "@/lib/supabase/database.types";
 
 export const dynamic = "force-dynamic";
@@ -76,6 +77,26 @@ export default async function VisibilidadPage({
     return true;
   });
 
+  const { data: logs } = await supabase
+    .from("clinic_visibilidad_log")
+    .select("clinic_id, tipo, accion, motivo, meses_duracion, expira_en, creado_en")
+    .in("clinic_id", clinicas.map((c) => c.id))
+    .order("creado_en", { ascending: false });
+
+  const historialPorClinica = new Map<string, EntradaLogVisibilidad[]>();
+  for (const log of logs ?? []) {
+    const lista = historialPorClinica.get(log.clinic_id) ?? [];
+    lista.push({
+      tipo: log.tipo as TipoVisibilidad,
+      accion: log.accion as "alta" | "baja",
+      motivo: log.motivo,
+      meses_duracion: log.meses_duracion,
+      expira_en: log.expira_en,
+      creado_en: log.creado_en,
+    });
+    historialPorClinica.set(log.clinic_id, lista);
+  }
+
   return (
     <div>
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -112,6 +133,7 @@ export default async function VisibilidadPage({
                   {col.titulo}
                 </th>
               ))}
+              <th className="px-4 py-3 font-medium text-ink">Historial</th>
             </tr>
           </thead>
           <tbody>
@@ -159,6 +181,13 @@ export default async function VisibilidadPage({
                     </td>
                   );
                 })}
+                <td className="px-4 py-3">
+                  <HistorialVisibilidad
+                    nombreClinica={clinic.nombre}
+                    entradas={historialPorClinica.get(clinic.id) ?? []}
+                    tipoLabel={TIPO_LABEL}
+                  />
+                </td>
               </tr>
             ))}
           </tbody>
