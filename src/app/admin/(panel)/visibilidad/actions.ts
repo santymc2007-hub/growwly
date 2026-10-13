@@ -5,8 +5,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { TIPO_LABEL, BENEFICIO_LABEL, type TipoVisibilidad } from "./tipos-visibilidad";
 
-export type { TipoVisibilidad };
-
 type FechasVisibilidad = Record<
   string,
   { activado_en: string; expira_en: string | null }
