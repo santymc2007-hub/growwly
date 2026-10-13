@@ -155,7 +155,14 @@ export async function createClinic(formData: FormData) {
   const logoUrl = await subirLogoSiLlega(supabase, formData, "/admin/clinicas/nueva");
 
   const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
-  const slug = await resolverSlug(supabase, slugPedido);
+  let slug = slugPedido;
+  try {
+    slug = await resolverSlug(supabase, slugPedido);
+  } catch {
+    // Si falla la comprobación de colisión, seguimos con el candidato tal
+    // cual — si de verdad colisionara, el unique constraint de la tabla
+    // lo detectaría al insertar y se mostraría como error normal.
+  }
 
   const { error } = await supabase.from("clinics").insert({
     ...fields,
@@ -229,7 +236,13 @@ export async function updateClinic(id: string, formData: FormData) {
   }
 
   if (aEliminar.length > 0) {
-    await deleteClinicPhotos(supabase, aEliminar);
+    try {
+      await deleteClinicPhotos(supabase, aEliminar);
+    } catch {
+      // No crítico — mejor guardar el resto de cambios que hacer fallar
+      // todo el formulario por esto; los archivos huérfanos en el
+      // Storage se pueden limpiar luego a mano.
+    }
   }
 
   const logoUrl = await subirLogoSiLlega(supabase, formData, `/admin/clinicas/${id}/editar`);
@@ -237,22 +250,31 @@ export async function updateClinic(id: string, formData: FormData) {
   // El slug solo cambia si el admin lo ha editado a mano en el
   // formulario (ver CampoSlug) — si cambia, el anterior se guarda en
   // slugs_antiguos para que cualquier enlace ya compartido o indexado
-  // siga redirigiendo a la ficha en vez de dar 404.
-  const { data: clinicaActual } = await supabase
-    .from("clinics")
-    .select("slug, slugs_antiguos")
-    .eq("id", id)
-    .maybeSingle();
-
+  // siga redirigiendo a la ficha en vez de dar 404. El slug/slugs_antiguos
+  // "actuales" vienen del propio formulario (hidden fields) en vez de
+  // releerse de la BD, para no depender de una consulta más que pueda
+  // fallar en mitad del guardado.
   let slugUpdate: { slug: string; slugs_antiguos: string[] } | undefined;
+  const slugActual = String(formData.get("slug_actual") ?? "");
   const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
-  if (clinicaActual && slugPedido && slugPedido !== clinicaActual.slug) {
-    const nuevoSlug = await resolverSlug(supabase, slugPedido, id);
+  if (slugActual && slugPedido && slugPedido !== slugActual) {
+    let slugsAntiguosActuales: string[] = [];
+    try {
+      slugsAntiguosActuales = JSON.parse(String(formData.get("slugs_antiguos_actual") ?? "[]"));
+    } catch {
+      slugsAntiguosActuales = [];
+    }
+    let nuevoSlug = slugPedido;
+    try {
+      nuevoSlug = await resolverSlug(supabase, slugPedido, id);
+    } catch {
+      // Si falla la comprobación de colisión, seguimos con el candidato
+      // tal cual — si de verdad colisionara, el unique constraint de la
+      // tabla lo detectaría al guardar y se mostraría como error normal.
+    }
     slugUpdate = {
       slug: nuevoSlug,
-      slugs_antiguos: Array.from(
-        new Set([...(clinicaActual.slugs_antiguos ?? []), clinicaActual.slug]),
-      ),
+      slugs_antiguos: Array.from(new Set([...slugsAntiguosActuales, slugActual])),
     };
   }
 

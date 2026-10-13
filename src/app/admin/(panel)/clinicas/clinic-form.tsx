@@ -154,6 +154,14 @@ export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicF
             value={JSON.stringify(clinic.fotos)}
           />
         )}
+        {clinic && <input type="hidden" name="slug_actual" value={clinic.slug} />}
+        {clinic && (
+          <input
+            type="hidden"
+            name="slugs_antiguos_actual"
+            value={JSON.stringify(clinic.slugs_antiguos)}
+          />
+        )}
 
         <div className="mt-4">
           <label className={labelClass} htmlFor="fotos_nuevas">
