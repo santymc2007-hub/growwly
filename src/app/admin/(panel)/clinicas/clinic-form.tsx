@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -71,6 +71,18 @@ const labelClass = "text-sm font-medium text-ink";
 export function ClinicForm({ action, clinic, error, guardado, municipios, zonas }: ClinicFormProps) {
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
+  const avisoRef = useRef<HTMLDivElement>(null);
+
+  // Al guardar nos quedamos en la misma ficha (ver actions.ts), así que
+  // el navegador no hace un scroll-to-top automático de navegación — si
+  // el admin estaba abajo del todo rellenando datos, el aviso de
+  // guardado (o de error) queda fuera de la vista y parece que no ha
+  // pasado nada.
+  useEffect(() => {
+    if (guardado || error || errorEnvio) {
+      avisoRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, [guardado, error, errorEnvio]);
 
   // Sin esto, una foto o un logo subidos directos desde el móvil (a
   // veces 5-10MB sin comprimir) pueden hacer que la Server Action tarde
@@ -147,21 +159,23 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
           }
         />
       )}
-      {guardado && !errorEnvio && (
-        <p className="mb-6 rounded-lg bg-teal/10 px-4 py-3 text-sm text-teal-dark">
-          Cambios guardados correctamente.
-        </p>
-      )}
-      {errorEnvio && (
-        <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
-          {errorEnvio}
-        </p>
-      )}
-      {error && (
-        <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
-          {decodeURIComponent(error)}
-        </p>
-      )}
+      <div ref={avisoRef}>
+        {guardado && !errorEnvio && (
+          <p className="mb-6 rounded-lg bg-teal/10 px-4 py-3 text-sm text-teal-dark">
+            Cambios guardados correctamente.
+          </p>
+        )}
+        {errorEnvio && (
+          <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
+            {errorEnvio}
+          </p>
+        )}
+        {error && (
+          <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
+            {decodeURIComponent(error)}
+          </p>
+        )}
+      </div>
 
       <section>
         <h2 className="font-display text-lg text-teal-dark">Datos básicos</h2>
