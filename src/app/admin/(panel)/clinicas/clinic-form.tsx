@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -14,6 +17,8 @@ import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
 import { CampoSlug } from "./campo-slug";
 import { InterruptorVisibilidad } from "../visibilidad/interruptor-visibilidad";
 import { TIPO_LABEL, type TipoVisibilidad } from "../visibilidad/tipos-visibilidad";
+import { comprimirFormData } from "@/lib/comprimir-imagen";
+import { OverlayCargando } from "@/components/ui/overlay-cargando";
 
 // Las mismas 4 palancas que ve el admin en /admin/visibilidad — se
 // reutilizan aquí para que activar/desactivar desde la ficha de la
@@ -63,8 +68,38 @@ const inputClass =
 const labelClass = "text-sm font-medium text-ink";
 
 export function ClinicForm({ action, clinic, error, municipios, zonas }: ClinicFormProps) {
+  const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
+
+  // Sin esto, una foto o un logo subidos directos desde el móvil (a
+  // veces 5-10MB sin comprimir) pueden hacer que la Server Action tarde
+  // más de la cuenta y la función se corte a medias — el admin solo veía
+  // una pantalla de error genérica sin ninguna pista. Se comprimen en el
+  // propio navegador antes de enviar, igual que ya hace el panel de
+  // autoservicio de la clínica (ver ficha-clinica-form.tsx).
+  async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setEstado("comprimiendo");
+    try {
+      const original = new FormData(e.currentTarget);
+      const comprimido = await comprimirFormData(original);
+      setEstado("enviando");
+      await action(comprimido);
+    } finally {
+      setEstado("idle");
+    }
+  }
+
   return (
-    <form action={action} className="max-w-2xl">
+    <form onSubmit={onSubmit} className="max-w-2xl">
+      {estado !== "idle" && (
+        <OverlayCargando
+          mensaje={
+            estado === "comprimiendo"
+              ? "Optimizando las fotos…"
+              : "Guardando los cambios…"
+          }
+        />
+      )}
       {error && (
         <p className="mb-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
           {decodeURIComponent(error)}

@@ -5,6 +5,10 @@ import { ClinicForm } from "../../clinic-form";
 import { updateClinic } from "../../actions";
 import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
 
+// Subir fotos/logo a Supabase Storage desde la Server Action puede
+// tardar más que el límite por defecto en alguna conexión lenta.
+export const maxDuration = 60;
+
 type Params = { id: string };
 type SearchParams = { error?: string };
 
