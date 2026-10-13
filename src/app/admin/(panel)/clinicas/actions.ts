@@ -34,6 +34,18 @@ function isRealFile(value: FormDataEntryValue): value is File {
   return value instanceof File && value.size > 0;
 }
 
+/** redirect() de Next.js funciona lanzando un error especial — hay que
+ * dejarlo pasar tal cual y no tratarlo como un fallo inesperado. */
+function esErrorDeRedirect(e: unknown): boolean {
+  return (
+    typeof e === "object" &&
+    e !== null &&
+    "digest" in e &&
+    typeof (e as { digest?: unknown }).digest === "string" &&
+    (e as { digest: string }).digest.startsWith("NEXT_REDIRECT")
+  );
+}
+
 /**
  * Normaliza el slug pedido desde el formulario y, si colisiona con el
  * de otra clínica (excluyendo la que se esté editando), le añade un
@@ -142,37 +154,46 @@ export async function createClinic(formData: FormData) {
 
   const supabase = createAdminClient();
 
-  let fotos: string[] = [];
+  // Red de seguridad: cualquier fallo no previsto (y no ya convertido en
+  // un redirect con mensaje propio) termina aquí con un mensaje legible
+  // en vez de una pantalla de error genérica en blanco.
   try {
-    const nuevas = formData.getAll("fotos_nuevas").filter(isRealFile);
-    fotos = await uploadClinicPhotos(supabase, nuevas);
-  } catch (uploadError) {
-    const message =
-      uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
+    let fotos: string[] = [];
+    try {
+      const nuevas = formData.getAll("fotos_nuevas").filter(isRealFile);
+      fotos = await uploadClinicPhotos(supabase, nuevas);
+    } catch (uploadError) {
+      const message =
+        uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
+      redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(message)}`);
+    }
+
+    const logoUrl = await subirLogoSiLlega(supabase, formData, "/admin/clinicas/nueva");
+
+    const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
+    let slug = slugPedido;
+    try {
+      slug = await resolverSlug(supabase, slugPedido);
+    } catch {
+      // Si falla la comprobación de colisión, seguimos con el candidato
+      // tal cual — si de verdad colisionara, el unique constraint de la
+      // tabla lo detectaría al insertar y se mostraría como error normal.
+    }
+
+    const { error } = await supabase.from("clinics").insert({
+      ...fields,
+      slug,
+      fotos,
+      ...(logoUrl ? { logo_url: logoUrl } : {}),
+    });
+
+    if (error) {
+      redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(error.message)}`);
+    }
+  } catch (e) {
+    if (esErrorDeRedirect(e)) throw e;
+    const message = e instanceof Error ? e.message : "Error inesperado al crear la clínica.";
     redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(message)}`);
-  }
-
-  const logoUrl = await subirLogoSiLlega(supabase, formData, "/admin/clinicas/nueva");
-
-  const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
-  let slug = slugPedido;
-  try {
-    slug = await resolverSlug(supabase, slugPedido);
-  } catch {
-    // Si falla la comprobación de colisión, seguimos con el candidato tal
-    // cual — si de verdad colisionara, el unique constraint de la tabla
-    // lo detectaría al insertar y se mostraría como error normal.
-  }
-
-  const { error } = await supabase.from("clinics").insert({
-    ...fields,
-    slug,
-    fotos,
-    ...(logoUrl ? { logo_url: logoUrl } : {}),
-  });
-
-  if (error) {
-    redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(error.message)}`);
   }
 
   revalidatePath("/admin/clinicas");
@@ -219,84 +240,95 @@ export async function updateClinic(id: string, formData: FormData) {
 
   const supabase = createAdminClient();
 
-  const fotosActuales: string[] = JSON.parse(
-    String(formData.get("fotos_actuales") ?? "[]"),
-  );
-  const aEliminar = formData.getAll("fotos_eliminar").map(String);
-  const conservadas = fotosActuales.filter((url) => !aEliminar.includes(url));
-
-  let nuevas: string[] = [];
+  // Red de seguridad: cualquier fallo no previsto (y no ya convertido en
+  // un redirect con mensaje propio) termina aquí con un mensaje legible
+  // en vez de una pantalla de error genérica en blanco.
   try {
-    const archivos = formData.getAll("fotos_nuevas").filter(isRealFile);
-    nuevas = await uploadClinicPhotos(supabase, archivos);
-  } catch (uploadError) {
-    const message =
-      uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
-    redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(message)}`);
-  }
-
-  if (aEliminar.length > 0) {
-    try {
-      await deleteClinicPhotos(supabase, aEliminar);
-    } catch {
-      // No crítico — mejor guardar el resto de cambios que hacer fallar
-      // todo el formulario por esto; los archivos huérfanos en el
-      // Storage se pueden limpiar luego a mano.
-    }
-  }
-
-  const logoUrl = await subirLogoSiLlega(supabase, formData, `/admin/clinicas/${id}/editar`);
-
-  // El slug solo cambia si el admin lo ha editado a mano en el
-  // formulario (ver CampoSlug) — si cambia, el anterior se guarda en
-  // slugs_antiguos para que cualquier enlace ya compartido o indexado
-  // siga redirigiendo a la ficha en vez de dar 404. El slug/slugs_antiguos
-  // "actuales" vienen del propio formulario (hidden fields) en vez de
-  // releerse de la BD, para no depender de una consulta más que pueda
-  // fallar en mitad del guardado.
-  let slugUpdate: { slug: string; slugs_antiguos: string[] } | undefined;
-  const slugActual = String(formData.get("slug_actual") ?? "");
-  const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
-  if (slugActual && slugPedido && slugPedido !== slugActual) {
-    let slugsAntiguosActuales: string[] = [];
-    try {
-      slugsAntiguosActuales = JSON.parse(String(formData.get("slugs_antiguos_actual") ?? "[]"));
-    } catch {
-      slugsAntiguosActuales = [];
-    }
-    let nuevoSlug = slugPedido;
-    try {
-      nuevoSlug = await resolverSlug(supabase, slugPedido, id);
-    } catch {
-      // Si falla la comprobación de colisión, seguimos con el candidato
-      // tal cual — si de verdad colisionara, el unique constraint de la
-      // tabla lo detectaría al guardar y se mostraría como error normal.
-    }
-    slugUpdate = {
-      slug: nuevoSlug,
-      slugs_antiguos: Array.from(new Set([...slugsAntiguosActuales, slugActual])),
-    };
-  }
-
-  // Las solicitudes pendientes (destacado/premium) ya no se resuelven
-  // aquí: las gestionan en exclusiva activarVisibilidad/rechazarVisibilidad
-  // desde la sección Visibilidad — así guardar un cambio cualquiera (por
-  // ejemplo el teléfono) nunca rechaza en silencio una solicitud que el
-  // admin aún no ha revisado.
-  const { error } = await supabase
-    .from("clinics")
-    .update({
-      ...fields,
-      fotos: [...conservadas, ...nuevas],
-      ...(logoUrl ? { logo_url: logoUrl } : {}),
-      ...(slugUpdate ?? {}),
-    })
-    .eq("id", id);
-
-  if (error) {
-    redirect(
-      `/admin/clinicas/${id}/editar?error=${encodeURIComponent(error.message)}`,
+    const fotosActuales: string[] = JSON.parse(
+      String(formData.get("fotos_actuales") ?? "[]"),
     );
+    const aEliminar = formData.getAll("fotos_eliminar").map(String);
+    const conservadas = fotosActuales.filter((url) => !aEliminar.includes(url));
+
+    let nuevas: string[] = [];
+    try {
+      const archivos = formData.getAll("fotos_nuevas").filter(isRealFile);
+      nuevas = await uploadClinicPhotos(supabase, archivos);
+    } catch (uploadError) {
+      const message =
+        uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
+      redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(message)}`);
+    }
+
+    if (aEliminar.length > 0) {
+      try {
+        await deleteClinicPhotos(supabase, aEliminar);
+      } catch {
+        // No crítico — mejor guardar el resto de cambios que hacer fallar
+        // todo el formulario por esto; los archivos huérfanos en el
+        // Storage se pueden limpiar luego a mano.
+      }
+    }
+
+    const logoUrl = await subirLogoSiLlega(supabase, formData, `/admin/clinicas/${id}/editar`);
+
+    // El slug solo cambia si el admin lo ha editado a mano en el
+    // formulario (ver CampoSlug) — si cambia, el anterior se guarda en
+    // slugs_antiguos para que cualquier enlace ya compartido o indexado
+    // siga redirigiendo a la ficha en vez de dar 404. El slug/slugs_antiguos
+    // "actuales" vienen del propio formulario (hidden fields) en vez de
+    // releerse de la BD, para no depender de una consulta más que pueda
+    // fallar en mitad del guardado.
+    let slugUpdate: { slug: string; slugs_antiguos: string[] } | undefined;
+    const slugActual = String(formData.get("slug_actual") ?? "");
+    const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
+    if (slugActual && slugPedido && slugPedido !== slugActual) {
+      let slugsAntiguosActuales: string[] = [];
+      try {
+        const parseado = JSON.parse(String(formData.get("slugs_antiguos_actual") ?? "[]"));
+        if (Array.isArray(parseado)) slugsAntiguosActuales = parseado;
+      } catch {
+        slugsAntiguosActuales = [];
+      }
+      let nuevoSlug = slugPedido;
+      try {
+        nuevoSlug = await resolverSlug(supabase, slugPedido, id);
+      } catch {
+        // Si falla la comprobación de colisión, seguimos con el candidato
+        // tal cual — si de verdad colisionara, el unique constraint de la
+        // tabla lo detectaría al guardar y se mostraría como error normal.
+      }
+      slugUpdate = {
+        slug: nuevoSlug,
+        slugs_antiguos: Array.from(new Set([...slugsAntiguosActuales, slugActual])),
+      };
+    }
+
+    // Las solicitudes pendientes (destacado/premium) ya no se resuelven
+    // aquí: las gestionan en exclusiva activarVisibilidad/rechazarVisibilidad
+    // desde la sección Visibilidad — así guardar un cambio cualquiera (por
+    // ejemplo el teléfono) nunca rechaza en silencio una solicitud que el
+    // admin aún no ha revisado.
+    const { error } = await supabase
+      .from("clinics")
+      .update({
+        ...fields,
+        fotos: [...conservadas, ...nuevas],
+        ...(logoUrl ? { logo_url: logoUrl } : {}),
+        ...(slugUpdate ?? {}),
+      })
+      .eq("id", id);
+
+    if (error) {
+      redirect(
+        `/admin/clinicas/${id}/editar?error=${encodeURIComponent(error.message)}`,
+      );
+    }
+  } catch (e) {
+    if (esErrorDeRedirect(e)) throw e;
+    const message =
+      e instanceof Error ? e.message : "Error inesperado al guardar los cambios.";
+    redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(message)}`);
   }
 
   revalidatePath("/admin/clinicas");
