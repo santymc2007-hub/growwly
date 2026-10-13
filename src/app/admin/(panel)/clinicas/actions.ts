@@ -349,7 +349,11 @@ export async function updateClinic(id: string, formData: FormData) {
 
   revalidatePath("/admin/clinicas");
   revalidatePath("/clinicas");
-  redirect("/admin/clinicas");
+  revalidatePath(`/admin/clinicas/${id}/editar`);
+  // Nos quedamos en la misma ficha en vez de volver al listado — el
+  // admin suele seguir editando otras cosas de la misma clínica justo
+  // después de guardar.
+  redirect(`/admin/clinicas/${id}/editar?guardado=1`);
 }
 
 export async function moveClinic(id: string, direction: "up" | "down") {
