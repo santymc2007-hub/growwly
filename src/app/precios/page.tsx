@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle, Check, X } from "lucide-react";
+import { AlertTriangle } from "lucide-react";
 // Caveat solo se usa en esta página (acento manuscrito puntual) — igual
 // que en el resto del sitio, cargarla desde el layout raíz la mandaría
 // a todo el sitio.
@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
+import { TarjetasPlanes } from "@/components/precios/tarjetas-planes";
 
 export const metadata: Metadata = {
   title: "Planes y precios para centros",
@@ -16,27 +17,6 @@ export const metadata: Metadata = {
     "Publica tu centro gratis en el directorio de Growwly, o pasa a Premium para que te enviemos pacientes reales cada mes con un mínimo garantizado.",
   alternates: { canonical: "/precios" },
 };
-
-const INCLUYE_BASICO = [
-  "Ficha en el directorio de Growwly",
-  "Datos básicos: ubicación, horario, técnicas e idiomas",
-  "Nota y reseñas de Google, automáticas",
-  "Estadísticas básicas: impresiones, vistas y contactos",
-];
-
-const NO_INCLUYE_BASICO = [
-  "Reparto automático de pacientes (leads)",
-  "Ficha ampliada: fotos antes/después, vídeo, equipo, certificados",
-  "Estadísticas de leads y conversión",
-];
-
-const INCLUYE_PREMIUM = [
-  "Reparto automático de pacientes, con mínimo garantizado",
-  "Ficha completa: descripción, servicios, vídeo y fotos antes/después",
-  "Equipo médico, certificados, redes sociales y reserva online",
-  "Estadísticas de leads, tasa de elección y estado de cada paciente",
-  'Insignia de "perfil detallado" visible en el listado',
-];
 
 export default function PreciosPage() {
   return (
@@ -70,106 +50,8 @@ export default function PreciosPage() {
           </div>
 
           {/* Tarjetas */}
-          <div className="px-6 pb-2 sm:px-10">
-            <div className="mx-auto -mt-8 flex max-w-4xl flex-wrap items-stretch justify-center gap-7">
-              {/* Básico */}
-              <div className="flex min-w-[320px] flex-1 flex-col gap-6 rounded-3xl border border-line bg-white p-8 shadow-[0_8px_28px_-12px_rgba(31,58,46,0.12)]">
-                <div className="flex flex-col gap-2.5">
-                  <span className="text-xs font-bold uppercase tracking-wide text-ink-soft">
-                    Básico
-                  </span>
-                  <span className="font-display text-4xl font-extrabold text-teal-dark">
-                    Gratis
-                  </span>
-                  <p className="text-sm leading-relaxed text-ink-soft">
-                    Para que te encuentren en el directorio desde el primer
-                    día. Sin coste, sin compromiso.
-                  </p>
-                </div>
-
-                <Link
-                  href="/clinica/registro"
-                  className="press block rounded-full border-2 border-teal-dark px-5 py-3 text-center text-sm font-bold text-teal-dark transition hover:bg-teal-dark/5"
-                >
-                  Publicar mi ficha gratis
-                </Link>
-
-                <div className="h-px bg-line" />
-
-                <div className="flex flex-col gap-3.5">
-                  <p className="text-xs font-bold uppercase tracking-wide text-ink-soft">
-                    Incluye
-                  </p>
-                  {INCLUYE_BASICO.map((item) => (
-                    <div key={item} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-sage">
-                        <Check size={12} strokeWidth={3} className="text-sage-ink" aria-hidden />
-                      </span>
-                      <span className="text-sm leading-snug text-ink">{item}</span>
-                    </div>
-                  ))}
-
-                  <p className="mt-2.5 text-xs font-bold uppercase tracking-wide text-ink-soft">
-                    No incluye
-                  </p>
-                  {NO_INCLUYE_BASICO.map((item) => (
-                    <div key={item} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-paper-dim">
-                        <X size={11} strokeWidth={3} className="text-ink-soft" aria-hidden />
-                      </span>
-                      <span className="text-sm leading-snug text-ink-soft">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Premium */}
-              <div className="relative flex min-w-[320px] flex-1 flex-col gap-6 rounded-3xl bg-teal-dark p-8 shadow-[0_20px_40px_-16px_rgba(31,58,46,0.35)]">
-                <span className="absolute -top-3.5 right-8 rounded-full bg-orange px-4 py-1.5 font-display text-xs font-extrabold uppercase tracking-wide text-teal-dark shadow-[0_6px_16px_-4px_rgba(255,186,31,0.6)]">
-                  Recomendado
-                </span>
-
-                <div className="flex flex-col gap-2.5">
-                  <span className="text-xs font-bold uppercase tracking-wide text-mint">
-                    Premium · Perfil ampliado
-                  </span>
-                  <div className="flex items-baseline gap-2">
-                    <span className="font-display text-4xl font-extrabold text-white">
-                      XX €
-                    </span>
-                    <span className="text-sm text-sage">/ mes</span>
-                  </div>
-                  <p className="text-sm leading-relaxed text-sage">
-                    Pensado para llenar agenda: mínimo de 2 pacientes nuevos
-                    garantizados cada mes, o seguimos trabajando tu ficha
-                    hasta conseguirlo.
-                  </p>
-                </div>
-
-                <a
-                  href="mailto:hola@growwly.es?subject=Quiero%20pasar%20a%20Premium"
-                  className="press block rounded-full bg-orange px-5 py-3 text-center text-sm font-extrabold text-teal-dark shadow-[0_10px_24px_-8px_rgba(255,186,31,0.5)] transition hover:opacity-90"
-                >
-                  Pasar a Premium
-                </a>
-
-                <div className="h-px bg-white/15" />
-
-                <div className="flex flex-col gap-3.5">
-                  <p className="text-xs font-bold uppercase tracking-wide text-mint">
-                    Todo lo de Básico, más
-                  </p>
-                  {INCLUYE_PREMIUM.map((item) => (
-                    <div key={item} className="flex items-start gap-2.5">
-                      <span className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-mint/20">
-                        <Check size={12} strokeWidth={3} className="text-mint" aria-hidden />
-                      </span>
-                      <span className="text-sm leading-snug text-white">{item}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          <div className="-mt-8 px-6 pb-2 sm:px-10">
+            <TarjetasPlanes hrefBasico="/clinica/registro" />
           </div>
 
           {/* Nota visibilidad */}
