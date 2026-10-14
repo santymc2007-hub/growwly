@@ -33,6 +33,7 @@ const REGLAS_TECNICAS: ReglaTecnica[] = [
   { tecnica: "Injerto de barba", patron: /barba|beard/ },
   { tecnica: "Injerto de cejas", patron: /ceja|eyebrow/ },
   { tecnica: "Mesoterapia capilar", patron: /mesoterapia|mesotherapy/ },
+  { tecnica: "Carboxiterapia capilar", patron: /carboxiterapia|carboxiterapy|carboxitherapy/ },
   { tecnica: "PRP", patron: /\bprp\b|plasma|plaquetas|platelet/ },
   {
     tecnica: "Láser de baja intensidad",

@@ -162,6 +162,7 @@ export const TECNICAS_POR_CATEGORIA: Record<
     "Minoxidil",
     "Finasteride / Dutasteride",
     "Mesoterapia capilar",
+    "Carboxiterapia capilar",
     "PRP",
     "Láser de baja intensidad",
   ],
