@@ -149,27 +149,30 @@ export default async function CentrosPage({
       </div>
 
       {/* Barra de filtros flotante: a caballo entre el fondo y el panel
-          blanco de más abajo, como una tarjeta elevada. Sticky para que
-          se pueda seguir filtrando/cambiando de vista sin tener que
-          volver arriba al bajar por el listado. */}
+          blanco de más abajo, como dos tarjetas elevadas. Sticky para
+          que se pueda seguir filtrando/cambiando de vista sin tener que
+          volver arriba al bajar por el listado. El toggle Lista/Mapa va
+          en su propia tarjeta (mismo estilo que la de filtros) a
+          propósito: es un módulo hermano, no parte de los filtros. */}
       <div className="sticky top-0 z-20 mx-auto -mt-12 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
-        <div className="rounded-2xl bg-white p-4 shadow-lg lg:p-5">
-          <p className="font-display text-base font-bold text-ink sm:text-lg">
-            {filtrados.length}{" "}
-            {filtrados.length === 1
-              ? "centro encontrado"
-              : "centros encontrados"}
-          </p>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <ClinicFilters
-              provincias={provincias}
-              tecnicas={tecnicas}
-              tipos={tipos}
-            />
-            <div className="flex items-center gap-3">
-              <span className="hidden h-6 w-px bg-line sm:block" aria-hidden />
-              <VistaToggle />
+        <div className="flex flex-wrap items-stretch gap-3">
+          <div className="min-w-0 flex-1 rounded-2xl bg-white p-4 shadow-lg lg:p-5">
+            <p className="font-display text-base font-bold text-ink sm:text-lg">
+              {filtrados.length}{" "}
+              {filtrados.length === 1
+                ? "centro encontrado"
+                : "centros encontrados"}
+            </p>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <ClinicFilters
+                provincias={provincias}
+                tecnicas={tecnicas}
+                tipos={tipos}
+              />
             </div>
+          </div>
+          <div className="flex items-center justify-center rounded-2xl bg-white p-4 shadow-lg lg:p-5">
+            <VistaToggle />
           </div>
         </div>
       </div>
