@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadClinicPhotos } from "@/lib/supabase/storage";
 import { slugify } from "@/lib/slugify";
-import { TECNICAS_DISPONIBLES, IDIOMAS_DISPONIBLES } from "@/lib/clinic-options";
+import { TECNICAS_DISPONIBLES, IDIOMAS_DISPONIBLES, DESCRIPCION_MIN_CARACTERES } from "@/lib/clinic-options";
 import { extraerDatosWeb, normalizarUrlWeb } from "@/lib/importador/firecrawl";
 import { buscarEnGoogle, fichaDesdeEnlaceMaps } from "@/lib/importador/places";
 import { descargarImagen } from "@/lib/importador/descargar";
@@ -314,7 +314,16 @@ export async function guardarImportacion(
           if (valor && !valorActual) (cambios as Record<string, unknown>)[clave] = true;
           continue;
         }
-        if (vacio(valorActual)) (cambios as Record<string, unknown>)[clave] = valor;
+        // La "descripcion" es un caso especial: un resumen corto (de antes
+        // de generarla con IA a partir de la web, o escrito a mano de
+        // paso) no cuenta como "ya completa" — se sigue pudiendo sustituir
+        // por el texto largo nuevo. El resto de campos, si ya tienen algo,
+        // nunca se tocan.
+        const yaCompleto =
+          clave === "descripcion" && typeof valorActual === "string"
+            ? valorActual.trim().length >= DESCRIPCION_MIN_CARACTERES
+            : !vacio(valorActual);
+        if (!yaCompleto) (cambios as Record<string, unknown>)[clave] = valor;
       }
       // La ficha de Google va en bloque: si ya tenía una vinculada, no se
       // mezclan datos de otra (rating de una y coordenadas de otra).
