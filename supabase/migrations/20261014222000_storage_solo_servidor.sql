@@ -35,3 +35,13 @@ where id in ('clinic-photos', 'blog-photos', 'hero-slides');
 update storage.buckets
 set file_size_limit = 15728640 -- 15 MB
 where id = 'estudios-capilares';
+
+-- clinic-photos admite además SVG: los logos de clínica suelen venir
+-- así (p. ej. Pelosystems). Solo puede subirlos el servidor y en la web
+-- se pintan con <img>, donde un SVG no ejecuta scripts.
+update storage.buckets
+set allowed_mime_types = array[
+      'image/jpeg', 'image/png', 'image/webp', 'image/avif',
+      'image/gif', 'image/heic', 'image/heif', 'image/svg+xml'
+    ]
+where id = 'clinic-photos';
