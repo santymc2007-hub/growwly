@@ -792,8 +792,11 @@ export default async function ClinicaPage({
                           // Maps (SEO local alineado con el perfil
                           // verificado) — el de lat/lng es solo un pin
                           // genérico de respaldo cuando aún no se ha
-                          // vinculado google_place_id.
-                          clinic.google_maps_url ??
+                          // vinculado google_place_id. Con || en vez de ??:
+                          // un google_maps_url guardado como "" (en vez de
+                          // null) debe caer también al fallback, o el link
+                          // se renderiza con href vacío.
+                          clinic.google_maps_url ||
                           `https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`
                         }
                         target="_blank"

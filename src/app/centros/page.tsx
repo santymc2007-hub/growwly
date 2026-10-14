@@ -4,8 +4,10 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
+import { calcularGrowwlyScore } from "@/lib/leads/growwly-score";
+import { calcularMetricasLeadsClinicas } from "@/lib/leads/metricas-clinica";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
-import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
+import { VistaListaMapa, VistaToggle } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
@@ -29,6 +31,9 @@ type SearchParams = {
   rating?: string;
   verificado?: string;
   financiacion?: string;
+  oferta?: string;
+  primera_consulta?: string;
+  vista?: string;
 };
 
 export default async function CentrosPage({
@@ -46,6 +51,9 @@ export default async function CentrosPage({
     rating,
     verificado,
     financiacion,
+    oferta,
+    primera_consulta,
+    vista,
   } = await searchParams;
 
   const supabase = await createClient();
@@ -72,8 +80,36 @@ export default async function CentrosPage({
     if (ratingMinimo && (c.rating_google ?? 0) < ratingMinimo) return false;
     if (verificado === "1" && !c.verificado) return false;
     if (financiacion === "1" && !c.financiacion) return false;
+    // La oferta solo cuenta si de verdad se va a ver en la ficha — una
+    // clínica Básica puede tener tiene_oferta guardado de cuando era
+    // premium, pero no se le muestra al visitante (ver clinic-badges.tsx).
+    if (oferta === "1" && !(c.plan === "premium" && c.tiene_oferta)) return false;
+    if (primera_consulta === "1" && !c.primera_consulta_gratis) return false;
     return true;
   });
+
+  // Mientras no haya ninguna clínica destacada (hueco premium todavía
+  // sin vender), el orden por defecto ("orden" a mano + nombre) no dice
+  // nada sobre calidad — se sustituye por el Growwly Score, que sí
+  // premia perfil completo, rapidez de respuesta y buena gestión de
+  // leads. En cuanto haya al menos una destacada, esa pasa a mandar y
+  // el resto mantiene el orden manual de siempre (no se recalcula el
+  // score de todo el listado en cada visita sin necesidad).
+  if (filtrados.length > 0 && !filtrados.some((c) => c.destacado)) {
+    const metricas = await calcularMetricasLeadsClinicas(
+      createAdminClient(),
+      filtrados.map((c) => c.id),
+    );
+    const metricasVacias = { tiempoRespuestaPromedioMinutos: null, tasaGestionLeads: null };
+    const puntuados = filtrados.map((c) => ({
+      clinic: c,
+      score: calcularGrowwlyScore(c, metricas.get(c.id) ?? metricasVacias).total,
+    }));
+    puntuados.sort(
+      (a, b) => b.score - a.score || a.clinic.nombre.localeCompare(b.clinic.nombre, "es"),
+    );
+    filtrados.splice(0, filtrados.length, ...puntuados.map((p) => p.clinic));
+  }
 
   // Registro propio de impresiones (para las estadísticas del centro)
   // — fuera del camino de renderizado para no retrasar la respuesta.
@@ -113,21 +149,28 @@ export default async function CentrosPage({
       </div>
 
       {/* Barra de filtros flotante: a caballo entre el fondo y el panel
-          blanco de más abajo, como una tarjeta elevada. */}
-      <div className="relative z-10 mx-auto -mt-12 max-w-[1400px] px-3 sm:-mt-14 sm:px-6">
-        <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-lg sm:flex-row sm:items-center sm:justify-between sm:p-5">
-          <p className="text-sm text-ink-soft">
+          blanco de más abajo, como una tarjeta elevada. Sticky para que
+          se pueda seguir filtrando/cambiando de vista sin tener que
+          volver arriba al bajar por el listado. */}
+      <div className="sticky top-0 z-20 mx-auto -mt-12 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
+        <div className="rounded-2xl bg-white p-4 shadow-lg lg:p-5">
+          <p className="font-display text-base font-bold text-ink sm:text-lg">
             {filtrados.length}{" "}
             {filtrados.length === 1
               ? "centro encontrado"
               : "centros encontrados"}
           </p>
-          <ClinicFilters
-            provincias={provincias}
-            ciudades={ciudades}
-            tecnicas={tecnicas}
-            tipos={tipos}
-          />
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <ClinicFilters
+              provincias={provincias}
+              tecnicas={tecnicas}
+              tipos={tipos}
+            />
+            <div className="flex items-center gap-3">
+              <span className="hidden h-6 w-px bg-line sm:block" aria-hidden />
+              <VistaToggle />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -157,7 +200,10 @@ export default async function CentrosPage({
 
             <div className={ciudades.length > 1 ? "mt-8" : undefined}>
               {filtrados.length > 0 ? (
-                <VistaListaMapa clinicas={filtrados} />
+                <VistaListaMapa
+                  clinicas={filtrados}
+                  vista={vista === "mapa" ? "mapa" : "lista"}
+                />
               ) : (
                 <div className="rounded-3xl border border-dashed border-line bg-paper-dim/50 py-16 text-center">
                   <p className="font-display text-xl text-teal-dark">
