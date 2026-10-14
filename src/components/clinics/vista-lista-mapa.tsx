@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useTransition } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
 import { List, MapIcon } from "lucide-react";
 import { ClinicCard } from "./clinic-card";
@@ -23,40 +24,71 @@ const ClinicsMap = dynamic(
   },
 );
 
-export function VistaListaMapa({ clinicas }: { clinicas: Clinic[] }) {
-  const [vista, setVista] = useState<"lista" | "mapa">("lista");
+/**
+ * Toggle Lista/Mapa controlado por el query param "vista" (igual que
+ * ClinicFilters controla sus propios filtros) — así vive en la barra de
+ * filtros, en vez de dentro de VistaListaMapa, sin tener que compartir
+ * estado de React entre dos islas de cliente separadas.
+ */
+export function VistaToggle() {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const [, startTransition] = useTransition();
+  const vista = searchParams.get("vista") === "mapa" ? "mapa" : "lista";
+
+  function elegir(valor: "lista" | "mapa") {
+    const params = new URLSearchParams(searchParams.toString());
+    if (valor === "lista") {
+      params.delete("vista");
+    } else {
+      params.set("vista", valor);
+    }
+    startTransition(() => {
+      const query = params.toString();
+      router.push(query ? `${pathname}?${query}` : pathname);
+    });
+  }
 
   return (
-    <div>
-      <div className="flex justify-end">
-        <div className="inline-flex rounded-full border border-line bg-white p-1">
-          <button
-            type="button"
-            onClick={() => setVista("lista")}
-            className={`press flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
-              vista === "lista"
-                ? "bg-teal-dark text-white"
-                : "text-ink-soft hover:text-teal-dark"
-            }`}
-          >
-            <List className="h-4 w-4" aria-hidden />
-            Lista
-          </button>
-          <button
-            type="button"
-            onClick={() => setVista("mapa")}
-            className={`press flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
-              vista === "mapa"
-                ? "bg-teal-dark text-white"
-                : "text-ink-soft hover:text-teal-dark"
-            }`}
-          >
-            <MapIcon className="h-4 w-4" aria-hidden />
-            Mapa
-          </button>
-        </div>
-      </div>
+    <div className="inline-flex rounded-full border border-line bg-white p-1">
+      <button
+        type="button"
+        onClick={() => elegir("lista")}
+        className={`press flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+          vista === "lista"
+            ? "bg-teal-dark text-white"
+            : "text-ink-soft hover:text-teal-dark"
+        }`}
+      >
+        <List className="h-4 w-4" aria-hidden />
+        Lista
+      </button>
+      <button
+        type="button"
+        onClick={() => elegir("mapa")}
+        className={`press flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+          vista === "mapa"
+            ? "bg-teal-dark text-white"
+            : "text-ink-soft hover:text-teal-dark"
+        }`}
+      >
+        <MapIcon className="h-4 w-4" aria-hidden />
+        Mapa
+      </button>
+    </div>
+  );
+}
 
+export function VistaListaMapa({
+  clinicas,
+  vista,
+}: {
+  clinicas: Clinic[];
+  vista: "lista" | "mapa";
+}) {
+  return (
+    <div>
       {vista === "lista" ? (
         <div data-reveal-grupo className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
           {clinicas.map((clinic) => (
@@ -79,7 +111,11 @@ export function VistaListaMapa({ clinicas }: { clinicas: Clinic[] }) {
               ))}
             </div>
           </div>
-          <div className="hidden lg:sticky lg:top-8 lg:block lg:h-[calc(100vh-6rem)] lg:w-[560px] lg:shrink-0">
+          {/* top-28 en vez de top-8: dejar hueco de sobra para que no
+              quede tapado bajo la barra de filtros, que ahora también es
+              sticky (ver centros/page.tsx) y puede ocupar más de una
+              línea de alto en pantallas más estrechas. */}
+          <div className="hidden lg:sticky lg:top-28 lg:block lg:h-[calc(100vh-9rem)] lg:w-[560px] lg:shrink-0">
             <ClinicsMap clinicas={clinicas} alto="100%" />
           </div>
         </div>

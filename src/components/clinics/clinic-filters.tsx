@@ -5,14 +5,12 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ClinicFiltersProps = {
   provincias: string[];
-  ciudades: string[];
   tecnicas: string[];
   tipos: string[];
 };
 
 const FIELDS = [
   { key: "provincia", label: "Toda España" },
-  { key: "ciudad", label: "Todas las ciudades" },
   { key: "tipo", label: "Todos los tipos de centro" },
   { key: "tecnica", label: "Todos los tratamientos" },
 ] as const;
@@ -56,7 +54,7 @@ function Switch({
   );
 }
 
-export function ClinicFilters({ provincias, ciudades, tecnicas, tipos }: ClinicFiltersProps) {
+export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -64,7 +62,6 @@ export function ClinicFilters({ provincias, ciudades, tecnicas, tipos }: ClinicF
 
   const options: Record<(typeof FIELDS)[number]["key"], string[]> = {
     provincia: provincias,
-    ciudad: ciudades,
     tipo: tipos,
     tecnica: tecnicas,
   };
@@ -82,6 +79,10 @@ export function ClinicFilters({ provincias, ciudades, tecnicas, tipos }: ClinicF
     } else {
       params.delete(key);
     }
+    // El filtro de ciudad ya no tiene selector propio (se navega por
+    // ciudad desde "Explora por ciudad"), pero un enlace externo podría
+    // seguir trayendo ?ciudad= en la URL — se limpia igual al cambiar de
+    // provincia para que no se quede un filtro de ciudad huérfano.
     if (key === "provincia") {
       params.delete("ciudad");
     }
@@ -100,12 +101,16 @@ export function ClinicFilters({ provincias, ciudades, tecnicas, tipos }: ClinicF
 
   const verificadoActivo = searchParams.get("verificado") === "1";
   const financiacionActiva = searchParams.get("financiacion") === "1";
+  const ofertaActiva = searchParams.get("oferta") === "1";
+  const primeraConsultaActiva = searchParams.get("primera_consulta") === "1";
 
   const hasActiveFilters =
     FIELDS.some(({ key }) => searchParams.get(key)) ||
     Boolean(searchParams.get("rating")) ||
     verificadoActivo ||
-    financiacionActiva;
+    financiacionActiva ||
+    ofertaActiva ||
+    primeraConsultaActiva;
 
   return (
     <div className="flex flex-wrap items-center gap-3">
@@ -167,6 +172,17 @@ export function ClinicFilters({ provincias, ciudades, tecnicas, tipos }: ClinicF
         onClick={() => toggleBooleanFilter("financiacion")}
       >
         Financiación
+      </Switch>
+
+      <Switch activo={ofertaActiva} onClick={() => toggleBooleanFilter("oferta")}>
+        Ofertas
+      </Switch>
+
+      <Switch
+        activo={primeraConsultaActiva}
+        onClick={() => toggleBooleanFilter("primera_consulta")}
+      >
+        1ª consulta gratuita
       </Switch>
 
       {hasActiveFilters && (

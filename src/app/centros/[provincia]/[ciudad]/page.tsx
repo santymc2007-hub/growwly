@@ -6,7 +6,7 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
-import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
+import { VistaListaMapa, VistaToggle } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
 import {
@@ -67,10 +67,13 @@ export async function generateMetadata({
 
 export default async function CiudadPage({
   params,
+  searchParams,
 }: {
   params: Promise<Params>;
+  searchParams: Promise<{ vista?: string }>;
 }) {
   const { provincia, ciudad } = await params;
+  const { vista } = await searchParams;
   const provinciaReal = provinciaDesdeSlug(provincia);
 
   if (!provinciaReal) {
@@ -180,7 +183,12 @@ export default async function CiudadPage({
 
       <div className="mx-auto max-w-[1400px] px-6 py-10">
         {clinicas.length > 0 ? (
-          <VistaListaMapa clinicas={clinicas} />
+          <>
+            <div className="flex justify-end">
+              <VistaToggle />
+            </div>
+            <VistaListaMapa clinicas={clinicas} vista={vista === "mapa" ? "mapa" : "lista"} />
+          </>
         ) : (
           <Link
             href="/centros"
