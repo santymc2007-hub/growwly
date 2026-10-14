@@ -1,6 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
+import { esc } from "@/lib/email/escapar";
 
 /**
  * Avisa al paciente por email cuando una clínica le manda su primera
@@ -60,8 +61,8 @@ function construirHtmlEmail(datos: {
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
       <h1 style="font-size: 20px; color: #00566b;">Has recibido un presupuesto</h1>
-      <p>Hola${datos.nombrePaciente ? ` ${datos.nombrePaciente}` : ""},</p>
-      <p><strong>${datos.nombreClinica}</strong> te ha enviado una propuesta para tu solicitud. Échale un vistazo y compárala con el resto antes de elegir.</p>
+      <p>Hola${datos.nombrePaciente ? ` ${esc(datos.nombrePaciente)}` : ""},</p>
+      <p><strong>${esc(datos.nombreClinica)}</strong> te ha enviado una propuesta para tu solicitud. Échale un vistazo y compárala con el resto antes de elegir.</p>
       <p style="margin-top: 24px;">
         <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
           Ver mi propuesta →

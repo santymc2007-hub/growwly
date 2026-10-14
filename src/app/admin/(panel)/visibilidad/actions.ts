@@ -1,10 +1,12 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { TIPO_LABEL, BENEFICIO_LABEL, type TipoVisibilidad } from "./tipos-visibilidad";
+import { esc } from "@/lib/email/escapar";
 
 type FechasVisibilidad = Record<
   string,
@@ -82,7 +84,7 @@ function construirHtmlEmailActivacion(datos: {
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
       <h1 style="font-size: 20px; color: #00566b;">¡Gracias por confiar en Growwly!</h1>
-      <p>Buenos días ${datos.nombreClinica},</p>
+      <p>Buenos días ${esc(datos.nombreClinica)},</p>
       <p>
         Queríamos darte las gracias personalmente por seguir invirtiendo en que más
         pacientes os encuentren. Tu centro ya tiene el modo
@@ -153,6 +155,7 @@ export async function activarVisibilidad(
   tipo: TipoVisibilidad,
   mesesDuracion: number | null,
 ) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   const ahora = new Date();
@@ -253,6 +256,7 @@ export async function desactivarVisibilidad(
   clinicId: string,
   tipo: TipoVisibilidad,
 ) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   const fechas = await leerFechas(supabase, clinicId);
@@ -306,6 +310,7 @@ export async function rechazarVisibilidad(
   clinicId: string,
   tipo: TipoVisibilidad,
 ) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   let errorUpdate: { message: string } | null = null;

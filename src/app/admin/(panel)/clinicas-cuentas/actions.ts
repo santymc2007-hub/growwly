@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
@@ -15,6 +16,7 @@ export async function anadirClinicaAlGrupo(
   profileId: string,
   formData: FormData,
 ) {
+  await requireAdmin();
   const clinicId = String(formData.get("clinicId") ?? "");
   if (!clinicId) return;
   const supabase = createAdminClient();
@@ -30,6 +32,7 @@ export async function quitarClinicaDelGrupo(
   profileId: string,
   clinicId: string,
 ) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   await supabase
@@ -42,6 +45,7 @@ export async function quitarClinicaDelGrupo(
 }
 
 export async function aprobarCuentaClinica(profileId: string) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   const { data: perfil } = await supabase
@@ -84,6 +88,7 @@ export async function aprobarCuentaClinica(profileId: string) {
 }
 
 export async function rechazarCuentaClinica(profileId: string) {
+  await requireAdmin();
   const supabase = createAdminClient();
   await supabase
     .from("profiles")

@@ -1,7 +1,9 @@
 import { NextResponse } from "next/server";
+import { cronAutorizado } from "@/lib/cron/autorizado";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { ESTADOS_FINALES } from "@/lib/leads/estados-lead";
+import { esc } from "@/lib/email/escapar";
 
 /**
  * Vercel Cron llama a esta ruta una vez al día (ver vercel.json). La
@@ -13,12 +15,8 @@ import { ESTADOS_FINALES } from "@/lib/leads/estados-lead";
  * responder, a propósito (no es un envío único).
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+  if (!cronAutorizado(request)) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const supabase = createAdminClient();
@@ -81,7 +79,7 @@ function construirHtmlEmail(datos: {
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
       <h1 style="font-size: 20px; color: #00566b;">${datos.cantidad} ${plural} esperando tu respuesta</h1>
-      <p>Hola ${datos.nombreClinica},</p>
+      <p>Hola ${esc(datos.nombreClinica)},</p>
       <p>Tienes <strong>${datos.cantidad} ${plural}</strong> todavía sin propuesta enviada. Cuanto antes respondas, más opciones tienes de que el paciente te elija.</p>
       <p style="margin-top: 24px;">
         <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">

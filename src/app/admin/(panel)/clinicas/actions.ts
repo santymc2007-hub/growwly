@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -286,6 +287,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
 }
 
 export async function createClinic(formData: FormData) {
+  await requireAdmin();
   const fields = readClinicFields(formData);
 
   if (!fields.nombre) {
@@ -358,6 +360,7 @@ export async function createClinic(formData: FormData) {
 }
 
 export async function deleteClinic(id: string) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   const { data: clinic } = await supabase
@@ -386,6 +389,7 @@ export async function deleteClinic(id: string) {
 }
 
 export async function updateClinic(id: string, formData: FormData) {
+  await requireAdmin();
   const fields = readClinicFields(formData);
 
   if (!fields.nombre) {
@@ -514,6 +518,7 @@ export async function updateClinic(id: string, formData: FormData) {
 }
 
 export async function moveClinic(id: string, direction: "up" | "down") {
+  await requireAdmin();
   const supabase = createAdminClient();
   const { data } = await supabase
     .from("clinics")
@@ -547,6 +552,7 @@ export async function moveClinic(id: string, direction: "up" | "down") {
 
 /** Activa ("Publicada") o desactiva varias clínicas de golpe, desde los checkboxes del listado. */
 export async function setPublicadoBatch(ids: string[], publicado: boolean) {
+  await requireAdmin();
   if (ids.length === 0) return;
   const supabase = createAdminClient();
   await supabase.from("clinics").update({ publicado }).in("id", ids);
@@ -557,6 +563,7 @@ export async function setPublicadoBatch(ids: string[], publicado: boolean) {
 
 /** Igual que deleteClinic pero para varias a la vez, desde los checkboxes del listado. */
 export async function deleteClinicsBatch(ids: string[]) {
+  await requireAdmin();
   if (ids.length === 0) return;
   const supabase = createAdminClient();
 

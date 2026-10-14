@@ -1,9 +1,11 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function anadirMunicipio(formData: FormData) {
+  await requireAdmin();
   const provincia = String(formData.get("provincia") ?? "").trim();
   const nombre = String(formData.get("nombre") ?? "").trim();
   if (!provincia || !nombre) return;
@@ -17,12 +19,14 @@ export async function anadirMunicipio(formData: FormData) {
 }
 
 export async function quitarMunicipio(provincia: string, nombre: string) {
+  await requireAdmin();
   const supabase = createAdminClient();
   await supabase.from("municipios").delete().eq("provincia", provincia).eq("nombre", nombre);
   revalidatePath("/admin/geografia");
 }
 
 export async function anadirZona(formData: FormData) {
+  await requireAdmin();
   const municipio = String(formData.get("municipio") ?? "").trim();
   const nombre = String(formData.get("nombre") ?? "").trim();
   if (!municipio || !nombre) return;
@@ -36,6 +40,7 @@ export async function anadirZona(formData: FormData) {
 }
 
 export async function quitarZona(municipio: string, nombre: string) {
+  await requireAdmin();
   const supabase = createAdminClient();
   await supabase.from("zonas").delete().eq("municipio", municipio).eq("nombre", nombre);
   revalidatePath("/admin/geografia");

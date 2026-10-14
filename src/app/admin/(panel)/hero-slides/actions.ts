@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -37,6 +38,7 @@ function readSlideFields(formData: FormData) {
 }
 
 export async function createSlide(formData: FormData) {
+  await requireAdmin();
   const fields = readSlideFields(formData);
   if (!fields.titular_texto) {
     redirect(
@@ -90,6 +92,7 @@ export async function createSlide(formData: FormData) {
 }
 
 export async function updateSlide(id: string, formData: FormData) {
+  await requireAdmin();
   const fields = readSlideFields(formData);
   if (!fields.titular_texto) {
     redirect(
@@ -148,6 +151,7 @@ export async function updateSlide(id: string, formData: FormData) {
 }
 
 export async function deleteSlide(id: string) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   const { data: slide } = await supabase
@@ -167,6 +171,7 @@ export async function deleteSlide(id: string) {
 }
 
 export async function toggleActivo(id: string, next: boolean) {
+  await requireAdmin();
   const supabase = createAdminClient();
   const { error } = await supabase
     .from("hero_slides")
@@ -180,6 +185,7 @@ export async function toggleActivo(id: string, next: boolean) {
 }
 
 export async function moveSlide(id: string, direction: "up" | "down") {
+  await requireAdmin();
   const supabase = createAdminClient();
   const { data } = await supabase
     .from("hero_slides")
