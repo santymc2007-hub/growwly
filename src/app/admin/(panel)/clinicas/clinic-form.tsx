@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
+  ACCESIBILIDAD_OPCIONES,
   PRECIO_OPCIONES,
   TIPOS_NEGOCIO,
   formatearPrecio,
@@ -68,10 +69,25 @@ const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 const labelClass = "text-sm font-medium text-ink";
 
+const MAX_ANTES_DESPUES = 10;
+const MAX_OPINIONES = 10;
+
 export function ClinicForm({ action, clinic, error, guardado, municipios, zonas }: ClinicFormProps) {
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
   const avisoRef = useRef<HTMLDivElement>(null);
+  const [numAntesDespues, setNumAntesDespues] = useState(() =>
+    Math.min(
+      MAX_ANTES_DESPUES,
+      Math.max(3, Array.isArray(clinic?.fotos_antes_despues) ? clinic.fotos_antes_despues.length : 0),
+    ),
+  );
+  const [numOpiniones, setNumOpiniones] = useState(() =>
+    Math.min(
+      MAX_OPINIONES,
+      Math.max(3, Array.isArray(clinic?.opiniones) ? clinic.opiniones.length : 0),
+    ),
+  );
 
   // Al guardar nos quedamos en la misma ficha (ver actions.ts), así que
   // el navegador no hace un scroll-to-top automático de navegación — si
@@ -450,14 +466,32 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
             </div>
           </div>
           <div>
-            <label className={labelClass} htmlFor="accesibilidad">
-              Accesibilidad
+            <p className={labelClass}>Accesibilidad</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              {ACCESIBILIDAD_OPCIONES.map(({ clave, etiqueta }) => (
+                <label
+                  key={clave}
+                  className="flex items-center gap-1.5 rounded-full border border-line bg-white px-3 py-1.5 text-sm"
+                >
+                  <input
+                    type="checkbox"
+                    name="accesibilidad_checks"
+                    value={clave}
+                    defaultChecked={clinic?.accesibilidad_checks?.includes(clave)}
+                  />
+                  {etiqueta}
+                </label>
+              ))}
+            </div>
+            <label className="mt-3 block text-xs text-ink-soft" htmlFor="accesibilidad">
+              Notas adicionales de accesibilidad (opcional)
             </label>
             <input
               id="accesibilidad"
               name="accesibilidad"
+              placeholder="Ej. Ascensor de 90cm, plaza de aparcamiento reservada..."
               defaultValue={clinic?.accesibilidad ?? undefined}
-              className={inputClass}
+              className={`${inputClass} mt-1`}
             />
           </div>
           <div>
@@ -665,6 +699,245 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
         </div>
       </section>
 
+      <section className="mt-8">
+        <h2 className="font-display text-lg text-teal-dark">
+          Perfil ampliado (contenido)
+        </h2>
+        <p className="mt-1 text-xs text-ink-soft">
+          Se guarda aunque el plan sea Básico — solo se muestra en la ficha
+          pública si la clínica tiene Perfil ampliado activo (ver
+          Visibilidad más abajo).
+        </p>
+
+        <div className="mt-4">
+          <label htmlFor="descripcion_extendida" className={labelClass}>
+            Descripción extendida
+          </label>
+          <p className="mt-0.5 text-xs text-ink-soft">
+            Admite formato Markdown (títulos con #, negrita con **texto**).
+          </p>
+          <textarea
+            id="descripcion_extendida"
+            name="descripcion_extendida"
+            rows={5}
+            defaultValue={clinic?.descripcion_extendida ?? undefined}
+            className={`${inputClass} mt-2`}
+          />
+        </div>
+
+        <div className="mt-4">
+          <label htmlFor="video_url" className={labelClass}>
+            Vídeo (YouTube o Vimeo)
+          </label>
+          <input
+            id="video_url"
+            name="video_url"
+            type="url"
+            placeholder="https://www.youtube.com/watch?v=..."
+            defaultValue={clinic?.video_url ?? undefined}
+            className={inputClass}
+          />
+        </div>
+
+        <div className="mt-4">
+          <label htmlFor="reserva_online_url" className={labelClass}>
+            Reserva de cita online
+          </label>
+          <p className="mt-0.5 text-xs text-ink-soft">
+            Enlace externo a su sistema de reservas (Calendly, su propia
+            web...). Si se rellena, aparece un botón en la ficha.
+          </p>
+          <input
+            id="reserva_online_url"
+            name="reserva_online_url"
+            type="url"
+            placeholder="https://..."
+            defaultValue={clinic?.reserva_online_url ?? undefined}
+            className={`${inputClass} mt-1`}
+          />
+        </div>
+
+        <div className="mt-6">
+          <p className={labelClass}>Equipo médico (hasta 3)</p>
+          {[0, 1, 2].map((i) => {
+            const medico = Array.isArray(clinic?.medicos)
+              ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string }[])[i]
+              : undefined;
+            return (
+              <div key={i} className="mt-2 rounded-lg border border-line p-2.5">
+                <div className="grid grid-cols-2 gap-2">
+                  <input
+                    name={`medico_nombre_${i}`}
+                    placeholder="Nombre"
+                    defaultValue={medico?.nombre ?? undefined}
+                    className={inputClass}
+                  />
+                  <input
+                    name={`medico_especialidad_${i}`}
+                    placeholder="Especialidad (ej. Cirujano capilar)"
+                    defaultValue={medico?.especialidad ?? undefined}
+                    className={inputClass}
+                  />
+                </div>
+                <input
+                  name={`medico_linkedin_${i}`}
+                  type="url"
+                  placeholder="Perfil de LinkedIn (opcional)"
+                  defaultValue={medico?.linkedin ?? undefined}
+                  className={`${inputClass} mt-2`}
+                />
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="mt-6">
+          <p className={labelClass}>
+            Fotos antes / después{" "}
+            <span className="font-normal text-ink-soft">
+              (hasta {MAX_ANTES_DESPUES} pares)
+            </span>
+          </p>
+          {Array.from({ length: numAntesDespues }, (_, i) => i).map((i) => {
+            const par = Array.isArray(clinic?.fotos_antes_despues)
+              ? (
+                  clinic.fotos_antes_despues as {
+                    antes?: string;
+                    despues?: string;
+                    descripcion?: string;
+                  }[]
+                )[i]
+              : undefined;
+            return (
+              <div key={i} className="mt-2 rounded-lg border border-line p-2.5">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label htmlFor={`antes_${i}`} className="block text-xs text-ink-soft">
+                      Antes {i + 1}
+                    </label>
+                    <input
+                      id={`antes_${i}`}
+                      name={`antes_${i}`}
+                      type="file"
+                      accept="image/*"
+                      className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+                    />
+                    {par?.antes && (
+                      <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
+                    )}
+                  </div>
+                  <div>
+                    <label htmlFor={`despues_${i}`} className="block text-xs text-ink-soft">
+                      Después {i + 1}
+                    </label>
+                    <input
+                      id={`despues_${i}`}
+                      name={`despues_${i}`}
+                      type="file"
+                      accept="image/*"
+                      className="mt-1 block w-full text-xs text-ink-soft file:mr-2 file:rounded-lg file:border-0 file:bg-sage file:px-2 file:py-1.5 file:text-xs file:font-medium file:text-sage-ink"
+                    />
+                    {par?.despues && (
+                      <p className="mt-1 text-xs text-ink-soft">Ya tiene foto — sube otra para sustituirla.</p>
+                    )}
+                  </div>
+                </div>
+                <input
+                  name={`antes_despues_descripcion_${i}`}
+                  placeholder="Breve descripción del caso (opcional)"
+                  defaultValue={par?.descripcion ?? undefined}
+                  className={`${inputClass} mt-2`}
+                />
+              </div>
+            );
+          })}
+          {numAntesDespues < MAX_ANTES_DESPUES && (
+            <button
+              type="button"
+              onClick={() => setNumAntesDespues((n) => Math.min(MAX_ANTES_DESPUES, n + 1))}
+              className="press mt-2 text-sm font-medium text-cyan-dark hover:underline"
+            >
+              + Añadir más fotos
+            </button>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <p className={labelClass}>
+            Opiniones de pacientes{" "}
+            <span className="font-normal text-ink-soft">(hasta {MAX_OPINIONES})</span>
+          </p>
+          {Array.from({ length: numOpiniones }, (_, i) => i).map((i) => {
+            const opinion = Array.isArray(clinic?.opiniones)
+              ? (clinic.opiniones as { autor?: string; texto?: string; puntuacion?: number }[])[i]
+              : undefined;
+            return (
+              <div key={i} className="mt-2 rounded-lg border border-line bg-white p-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <input
+                    name={`opinion_autor_${i}`}
+                    placeholder="Nombre del paciente"
+                    defaultValue={opinion?.autor ?? undefined}
+                    className={`${inputClass} mt-0 flex-1`}
+                  />
+                  <label className="flex items-center gap-2 text-sm text-ink-soft">
+                    Puntuación
+                    <select
+                      name={`opinion_puntuacion_${i}`}
+                      defaultValue={opinion?.puntuacion ?? 5}
+                      className="rounded-lg border border-line bg-white px-2 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+                    >
+                      {[5, 4, 3, 2, 1].map((n) => (
+                        <option key={n} value={n}>
+                          {"★".repeat(n)}
+                          {"☆".repeat(5 - n)}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+                <textarea
+                  name={`opinion_texto_${i}`}
+                  rows={2}
+                  placeholder="Lo que dijo..."
+                  defaultValue={opinion?.texto ?? undefined}
+                  className={`${inputClass} mt-2`}
+                />
+              </div>
+            );
+          })}
+          {numOpiniones < MAX_OPINIONES && (
+            <button
+              type="button"
+              onClick={() => setNumOpiniones((n) => Math.min(MAX_OPINIONES, n + 1))}
+              className="press mt-2 text-sm font-medium text-cyan-dark hover:underline"
+            >
+              + Añadir más opiniones
+            </button>
+          )}
+        </div>
+
+        <div className="mt-6">
+          <label htmlFor="certificados" className={labelClass}>
+            Diplomas / certificados
+          </label>
+          {clinic && clinic.certificados.length > 0 && (
+            <p className="mt-1 text-xs text-ink-soft">
+              Ya tiene {clinic.certificados.length} subido(s). Lo que subas
+              aquí se añade a esos, no los sustituye.
+            </p>
+          )}
+          <input
+            id="certificados"
+            name="certificados"
+            type="file"
+            accept="image/*"
+            multiple
+            className="mt-2 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
+          />
+        </div>
+      </section>
+
       <section className="mt-8 flex flex-col gap-3">
         <label className="flex items-center gap-2 text-sm">
           <input
@@ -681,6 +954,14 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
             defaultChecked={clinic?.financiacion}
           />
           Ofrece financiación
+        </label>
+        <label className="flex items-center gap-2 text-sm">
+          <input
+            type="checkbox"
+            name="acepta_videoconsulta"
+            defaultChecked={clinic?.acepta_videoconsulta}
+          />
+          Aceptamos videoconsulta
         </label>
         <label className="flex items-center gap-2 text-sm">
           <input

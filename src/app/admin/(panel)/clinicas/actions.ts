@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slugify";
 import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
-import type { Database } from "@/lib/supabase/database.types";
+import type { Database, Json } from "@/lib/supabase/database.types";
 
 // plan/destacado/destacado_home/destacado_ciudad se excluyen a propósito:
 // ahora se gestionan en exclusiva desde las acciones de Visibilidad
@@ -32,6 +32,66 @@ type ClinicWrite = Omit<
 
 function isRealFile(value: FormDataEntryValue): value is File {
   return value instanceof File && value.size > 0;
+}
+
+/**
+ * Contenido de "Perfil ampliado" que implica subir archivos (fotos
+ * antes/después, certificados) — se guarda aunque el plan sea Básico,
+ * igual que hace la propia clínica desde su panel (ficha/actions.ts):
+ * así puede quedar listo de antemano y activarse sin más tarde desde
+ * Visibilidad.
+ */
+async function leerContenidoPremiumConArchivos(
+  supabase: ReturnType<typeof createAdminClient>,
+  formData: FormData,
+  existente?: {
+    fotos_antes_despues: unknown;
+    certificados: string[] | null;
+  },
+) {
+  const str = (key: string) => {
+    const value = formData.get(key);
+    return value && String(value).trim() !== "" ? String(value).trim() : null;
+  };
+
+  const paresExistentes = Array.isArray(existente?.fotos_antes_despues)
+    ? (existente.fotos_antes_despues as {
+        antes: string;
+        despues: string;
+        descripcion?: string;
+      }[])
+    : [];
+  const nuevosPares: { antes: string; despues: string; descripcion?: string }[] = [];
+  for (let i = 0; i < 10; i++) {
+    const antesFile = formData.get(`antes_${i}`);
+    const despuesFile = formData.get(`despues_${i}`);
+    const descripcion = str(`antes_despues_descripcion_${i}`);
+    const antesUrl =
+      antesFile && isRealFile(antesFile)
+        ? (await uploadClinicPhotos(supabase, [antesFile]))[0]
+        : paresExistentes[i]?.antes;
+    const despuesUrl =
+      despuesFile && isRealFile(despuesFile)
+        ? (await uploadClinicPhotos(supabase, [despuesFile]))[0]
+        : paresExistentes[i]?.despues;
+    if (antesUrl && despuesUrl) {
+      nuevosPares.push({
+        antes: antesUrl,
+        despues: despuesUrl,
+        ...(descripcion ? { descripcion } : {}),
+      });
+    }
+  }
+
+  // Certificados: se añaden a los que ya hubiera.
+  const nuevosCertificados = formData.getAll("certificados").filter(isRealFile);
+  const certificadosSubidos =
+    nuevosCertificados.length > 0
+      ? await uploadClinicPhotos(supabase, nuevosCertificados)
+      : [];
+  const certificados = [...(existente?.certificados ?? []), ...certificadosSubidos];
+
+  return { fotos_antes_despues: nuevosPares as Json, certificados };
 }
 
 /** redirect() de Next.js funciona lanzando un error especial — hay que
@@ -115,6 +175,34 @@ function readClinicFields(formData: FormData): ClinicWrite {
     }
   }
 
+  // Equipo médico: hasta 3 — solo texto, sin archivos, puede leerse aquí.
+  const medicos: { nombre: string; especialidad: string; linkedin?: string }[] = [];
+  for (let i = 0; i < 3; i++) {
+    const nombreMedico = str(`medico_nombre_${i}`);
+    const especialidad = str(`medico_especialidad_${i}`);
+    const linkedin = str(`medico_linkedin_${i}`);
+    if (nombreMedico) {
+      medicos.push({
+        nombre: nombreMedico,
+        especialidad: especialidad ?? "",
+        ...(linkedin ? { linkedin } : {}),
+      });
+    }
+  }
+
+  // Opiniones: hasta 10 — se reemplazan enteras en cada guardado (igual
+  // que hace la propia clínica desde su panel), no hace falta mezclar
+  // con las existentes.
+  const opiniones: { autor: string; texto: string; puntuacion: number }[] = [];
+  for (let i = 0; i < 10; i++) {
+    const autor = str(`opinion_autor_${i}`);
+    const texto = str(`opinion_texto_${i}`);
+    const puntuacion = num(`opinion_puntuacion_${i}`) ?? 5;
+    if (autor && texto) {
+      opiniones.push({ autor, texto, puntuacion: Math.min(5, Math.max(1, puntuacion)) });
+    }
+  }
+
   return {
     nombre: String(formData.get("nombre") ?? "").trim(),
     descripcion: str("descripcion"),
@@ -141,6 +229,8 @@ function readClinicFields(formData: FormData): ClinicWrite {
     precio_desde: num("precio_desde"),
     precio_hasta: num("precio_hasta"),
     accesibilidad: str("accesibilidad"),
+    accesibilidad_checks: formData.getAll("accesibilidad_checks").map(String),
+    acepta_videoconsulta: formData.get("acepta_videoconsulta") === "on",
     horarios_estructurados: (() => {
       try {
         return JSON.parse(String(formData.get("horarios_estructurados") ?? "[]"));
@@ -157,6 +247,11 @@ function readClinicFields(formData: FormData): ClinicWrite {
       .filter(Boolean),
     tiene_oferta: Boolean(str("detalle_oferta")),
     detalle_oferta: str("detalle_oferta"),
+    descripcion_extendida: str("descripcion_extendida"),
+    video_url: str("video_url"),
+    reserva_online_url: str("reserva_online_url"),
+    medicos,
+    opiniones,
   };
 }
 
@@ -187,6 +282,20 @@ export async function createClinic(formData: FormData) {
 
     const logoUrl = await subirLogoSiLlega(supabase, formData, "/admin/clinicas/nueva");
 
+    let contenidoPremium: { fotos_antes_despues: Json; certificados: string[] } = {
+      fotos_antes_despues: [],
+      certificados: [],
+    };
+    try {
+      contenidoPremium = await leerContenidoPremiumConArchivos(supabase, formData);
+    } catch (uploadError) {
+      const message =
+        uploadError instanceof Error
+          ? uploadError.message
+          : "No se pudo subir el contenido de Perfil ampliado.";
+      redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(message)}`);
+    }
+
     const slugPedido = slugify(String(formData.get("slug") ?? "")) || slugify(fields.nombre);
     let slug = slugPedido;
     try {
@@ -199,6 +308,7 @@ export async function createClinic(formData: FormData) {
 
     const { error } = await supabase.from("clinics").insert({
       ...fields,
+      ...contenidoPremium,
       slug,
       fotos,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
@@ -289,6 +399,29 @@ export async function updateClinic(id: string, formData: FormData) {
 
     const logoUrl = await subirLogoSiLlega(supabase, formData, `/admin/clinicas/${id}/editar`);
 
+    const { data: existente } = await supabase
+      .from("clinics")
+      .select("fotos_antes_despues, certificados")
+      .eq("id", id)
+      .maybeSingle();
+
+    let contenidoPremium: { fotos_antes_despues: Json; certificados: string[] } = {
+      fotos_antes_despues: [],
+      certificados: existente?.certificados ?? [],
+    };
+    try {
+      contenidoPremium = await leerContenidoPremiumConArchivos(supabase, formData, {
+        fotos_antes_despues: existente?.fotos_antes_despues,
+        certificados: existente?.certificados ?? null,
+      });
+    } catch (uploadError) {
+      const message =
+        uploadError instanceof Error
+          ? uploadError.message
+          : "No se pudo subir el contenido de Perfil ampliado.";
+      redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(message)}`);
+    }
+
     // El slug solo cambia si el admin lo ha editado a mano en el
     // formulario (ver CampoSlug) — si cambia, el anterior se guarda en
     // slugs_antiguos para que cualquier enlace ya compartido o indexado
@@ -330,6 +463,7 @@ export async function updateClinic(id: string, formData: FormData) {
       .from("clinics")
       .update({
         ...fields,
+        ...contenidoPremium,
         fotos: [...conservadas, ...nuevas],
         ...(logoUrl ? { logo_url: logoUrl } : {}),
         ...(slugUpdate ?? {}),
