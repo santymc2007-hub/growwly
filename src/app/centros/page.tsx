@@ -153,21 +153,23 @@ export default async function CentrosPage({
           se pueda seguir filtrando/cambiando de vista sin tener que
           volver arriba al bajar por el listado. */}
       <div className="sticky top-0 z-20 mx-auto -mt-12 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
-        <div className="flex flex-col gap-4 rounded-2xl bg-white p-4 shadow-lg lg:flex-row lg:items-center lg:justify-between lg:p-5">
-          <p className="text-sm text-ink-soft">
+        <div className="rounded-2xl bg-white p-4 shadow-lg lg:p-5">
+          <p className="font-display text-base font-bold text-ink sm:text-lg">
             {filtrados.length}{" "}
             {filtrados.length === 1
               ? "centro encontrado"
               : "centros encontrados"}
           </p>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
             <ClinicFilters
               provincias={provincias}
               tecnicas={tecnicas}
               tipos={tipos}
             />
-            <span className="hidden h-6 w-px bg-line sm:block" aria-hidden />
-            <VistaToggle />
+            <div className="flex items-center gap-3">
+              <span className="hidden h-6 w-px bg-line sm:block" aria-hidden />
+              <VistaToggle />
+            </div>
           </div>
         </div>
       </div>

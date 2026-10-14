@@ -11,8 +11,8 @@ type ClinicFiltersProps = {
 
 const FIELDS = [
   { key: "provincia", label: "Toda España" },
-  { key: "tipo", label: "Todos los tipos de centro" },
-  { key: "tecnica", label: "Todos los tratamientos" },
+  { key: "tipo", label: "Tipos de centro" },
+  { key: "tecnica", label: "Tratamiento" },
 ] as const;
 
 const RATING_OPCIONES = [
@@ -145,7 +145,7 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
           aria-label="Valoración mínima en Google"
           className="appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30"
         >
-          <option value="">Cualquier valoración</option>
+          <option value="">Valoración</option>
           {RATING_OPCIONES.map((r) => (
             <option key={r.value} value={r.value}>
               {r.label}
