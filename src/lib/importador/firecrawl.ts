@@ -30,7 +30,7 @@ const ESQUEMA = {
 
 const PROMPT = `Extrae los datos de esta clínica (capilar, dermatológica o de medicina estética).
 Regla principal: NO inventes nada. Si un dato no aparece de forma explícita en la página, devuelve null (o una lista vacía).
-- descripcion: 2-3 frases en español, tono neutro e informativo, explicando qué tipo de centro es y qué hace en el ámbito capilar. Sin superlativos ni frases publicitarias ("los mejores", "líderes", "tu mejor versión"...).
+- descripcion: un párrafo de 3-5 frases en español, con un tono humano y natural (como lo escribiría alguien del equipo, no una IA ni un folleto publicitario) y bien orientado a SEO. Empieza siempre hablando de lo que ofrece a nivel CAPILAR (qué tratamientos, para qué tipo de caída o necesidad, su enfoque) — eso va primero y es lo más importante. Si además ofrece otros servicios (estética facial, dermatología, medicina estética...), menciónalos después, en segundo plano. Sin superlativos ni frases publicitarias ("los mejores", "líderes", "tu mejor versión"...), sin repetir el nombre de la clínica más de una vez, y sin inventar nada que no esté en la página.
 - tratamientos_capilares: solo tratamientos del cabello, cuero cabelludo, barba o cejas, con el nombre que usa la web. Ignora tratamientos faciales, corporales, dentales, etc.
 - idiomas_atencion: solo si la web dice en qué idiomas atiende.
 - ofrece_financiacion / primera_consulta_gratis: true solo si se dice claramente; null si no se menciona.
