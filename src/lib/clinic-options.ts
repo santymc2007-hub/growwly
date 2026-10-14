@@ -1,5 +1,12 @@
 import { slugify } from "./slugify";
 
+// Longitud a partir de la cual una "descripcion" cuenta como completa
+// (ver lib/ai/generar-descripcion-clinica.ts, que genera texto de al
+// menos este tamaño) — el importador (admin/clinicas/importar) la usa
+// para decidir si un resumen corto ya guardado se puede seguir
+// sustituyendo por el texto largo nuevo al completar una ficha existente.
+export const DESCRIPCION_MIN_CARACTERES = 800;
+
 // Las 50 provincias españolas — base para la expansión nacional. Cada
 // clínica pertenece a una, usada en la URL (/clinicas/[provincia]/...)
 // y en los filtros de admin.

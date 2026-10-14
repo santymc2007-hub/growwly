@@ -6,6 +6,7 @@ import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
   TIPOS_NEGOCIO,
+  DESCRIPCION_MIN_CARACTERES,
 } from "@/lib/clinic-options";
 import { normalizarIdiomas, normalizarTecnicas } from "@/lib/importador/normalizar";
 import type { Clinic } from "@/lib/supabase/database.types";
@@ -348,11 +349,16 @@ function Revision({
           <Campo etiqueta="Web" actual={clinica?.web}>
             <input name="web" defaultValue={web?.urlFinal ?? g?.web ?? ""} className={inputClass} />
           </Campo>
-          <Campo etiqueta="Descripción" actual={clinica?.descripcion} className="sm:col-span-2">
+          <Campo
+            etiqueta="Descripción"
+            actual={clinica?.descripcion}
+            minLength={DESCRIPCION_MIN_CARACTERES}
+            className="sm:col-span-2"
+          >
             <textarea
               name="descripcion"
               rows={3}
-              defaultValue={web?.descripcion ?? ""}
+              defaultValue={web?.descripcion ?? clinica?.descripcion ?? ""}
               className={inputClass}
             />
           </Campo>
@@ -543,15 +549,20 @@ function Seccion({ titulo, children }: { titulo: string; children: React.ReactNo
 function Campo({
   etiqueta,
   actual,
+  minLength = 1,
   className = "",
   children,
 }: {
   etiqueta: string;
   actual?: string | null;
+  /** Por debajo de esta longitud, "actual" no cuenta como ya completo — se
+   * usa en Descripción para que un resumen corto se pueda seguir
+   * sustituyendo por el texto largo que genera la IA (ver DESCRIPCION_MIN_CARACTERES). */
+  minLength?: number;
   className?: string;
   children: React.ReactNode;
 }) {
-  const bloqueado = typeof actual === "string" && actual.trim() !== "";
+  const bloqueado = typeof actual === "string" && actual.trim().length >= minLength;
   return (
     <div className={className}>
       <span className={labelClass}>{etiqueta}</span>
