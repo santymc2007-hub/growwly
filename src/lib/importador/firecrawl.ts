@@ -4,13 +4,13 @@
 // o "Servicios". Coste: ~5 créditos por página leída.
 
 import { filtrarFotos, limpiarRed, normalizarIdiomas, normalizarTecnicas } from "./normalizar";
+import { generarDescripcionClinica } from "@/lib/ai/generar-descripcion-clinica";
 import type { DatosWeb } from "./tipos";
 
 const ESQUEMA = {
   type: "object",
   properties: {
     nombre_clinica: { type: ["string", "null"] },
-    descripcion: { type: ["string", "null"] },
     telefono: { type: ["string", "null"] },
     email: { type: ["string", "null"] },
     direccion: { type: ["string", "null"] },
@@ -30,7 +30,6 @@ const ESQUEMA = {
 
 const PROMPT = `Extrae los datos de esta clínica (capilar, dermatológica o de medicina estética).
 Regla principal: NO inventes nada. Si un dato no aparece de forma explícita en la página, devuelve null (o una lista vacía).
-- descripcion: un párrafo de 3-5 frases en español, con un tono humano y natural (como lo escribiría alguien del equipo, no una IA ni un folleto publicitario) y bien orientado a SEO. Empieza siempre hablando de lo que ofrece a nivel CAPILAR (qué tratamientos, para qué tipo de caída o necesidad, su enfoque) — eso va primero y es lo más importante. Si además ofrece otros servicios (estética facial, dermatología, medicina estética...), menciónalos después, en segundo plano. Sin superlativos ni frases publicitarias ("los mejores", "líderes", "tu mejor versión"...), sin repetir el nombre de la clínica más de una vez, y sin inventar nada que no esté en la página.
 - tratamientos_capilares: solo tratamientos del cabello, cuero cabelludo, barba o cejas, con el nombre que usa la web. Ignora tratamientos faciales, corporales, dentales, etc.
 - idiomas_atencion: solo si la web dice en qué idiomas atiende.
 - ofrece_financiacion / primera_consulta_gratis: true solo si se dice claramente; null si no se menciona.
@@ -43,6 +42,7 @@ type RespuestaFirecrawl = {
   error?: string;
   data?: {
     json?: Record<string, unknown>;
+    markdown?: string;
     images?: string[];
     links?: string[];
     branding?: {
@@ -101,6 +101,7 @@ async function leerPagina(
     body: JSON.stringify({
       url,
       formats: [
+        "markdown",
         "images",
         ...(conMarca ? ["branding", "links"] : []),
         { type: "json", schema: ESQUEMA, prompt: PROMPT },
@@ -206,10 +207,23 @@ export async function extraerDatosWeb(urlEntrada: string): Promise<DatosWeb> {
   const de = (clave: string) => texto(json[clave]) ?? texto(jsonExtra[clave]);
   const deBool = (clave: string) => booleano(json[clave]) ?? booleano(jsonExtra[clave]);
 
+  const titulo = texto(json.nombre_clinica) ?? texto(metadata?.ogTitle) ?? texto(metadata?.title);
+
+  // Llamada aparte (no es parte del JSON de arriba): pedirle a esa misma
+  // extracción un texto largo y natural de más de 800 caracteres, mezclado
+  // con el resto de campos cortos, salía poco fiable. Si falla (sin API
+  // key, error de red...) no rompe la importación — el admin la rellena.
+  const descripcion = await generarDescripcionClinica({
+    nombreClinica: titulo,
+    markdownHome: home.markdown,
+    markdownSubpagina: extra?.markdown,
+    tecnicas,
+  });
+
   return {
     urlFinal,
-    titulo: texto(json.nombre_clinica) ?? texto(metadata?.ogTitle) ?? texto(metadata?.title),
-    descripcion: texto(json.descripcion),
+    titulo,
+    descripcion,
     telefono: de("telefono"),
     email: de("email"),
     direccion: de("direccion"),
