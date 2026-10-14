@@ -34,6 +34,36 @@ function isRealFile(value: FormDataEntryValue): value is File {
   return value instanceof File && value.size > 0;
 }
 
+const MAX_FOTOS = 10;
+type OrdenFotoEntrada = { t: "e"; url: string } | { t: "n" };
+
+/**
+ * Lee el orden final de fotos (campo fotos_orden, rellenado por
+ * FotosClinicaField — ver clinica/ficha/actions.ts, de donde se copia
+ * este mismo patrón) y sube las nuevas. La primera del array resultante
+ * es la que se usa como foto principal en los listados.
+ */
+async function leerFotosConOrden(
+  supabase: ReturnType<typeof createAdminClient>,
+  formData: FormData,
+): Promise<string[]> {
+  const orden: OrdenFotoEntrada[] = (() => {
+    try {
+      return JSON.parse(String(formData.get("fotos_orden") ?? "[]"));
+    } catch {
+      return [];
+    }
+  })();
+
+  const archivosNuevos = formData.getAll("fotos_nuevas").filter(isRealFile);
+  const nuevasUrls = await uploadClinicPhotos(supabase, archivosNuevos);
+  let cursorNuevas = 0;
+  return orden
+    .map((entrada) => (entrada.t === "e" ? entrada.url : nuevasUrls[cursorNuevas++]))
+    .filter((url): url is string => Boolean(url))
+    .slice(0, MAX_FOTOS);
+}
+
 /**
  * Contenido de "Perfil ampliado" que implica subir archivos (fotos
  * antes/después, certificados) — se guarda aunque el plan sea Básico,
@@ -272,8 +302,7 @@ export async function createClinic(formData: FormData) {
   try {
     let fotos: string[] = [];
     try {
-      const nuevas = formData.getAll("fotos_nuevas").filter(isRealFile);
-      fotos = await uploadClinicPhotos(supabase, nuevas);
+      fotos = await leerFotosConOrden(supabase, formData);
     } catch (uploadError) {
       const message =
         uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
@@ -371,25 +400,25 @@ export async function updateClinic(id: string, formData: FormData) {
   // un redirect con mensaje propio) termina aquí con un mensaje legible
   // en vez de una pantalla de error genérica en blanco.
   try {
-    const fotosActuales: string[] = JSON.parse(
-      String(formData.get("fotos_actuales") ?? "[]"),
-    );
-    const aEliminar = formData.getAll("fotos_eliminar").map(String);
-    const conservadas = fotosActuales.filter((url) => !aEliminar.includes(url));
+    const { data: existente } = await supabase
+      .from("clinics")
+      .select("fotos, fotos_antes_despues, certificados")
+      .eq("id", id)
+      .maybeSingle();
 
-    let nuevas: string[] = [];
+    let fotos: string[] = [];
     try {
-      const archivos = formData.getAll("fotos_nuevas").filter(isRealFile);
-      nuevas = await uploadClinicPhotos(supabase, archivos);
+      fotos = await leerFotosConOrden(supabase, formData);
     } catch (uploadError) {
       const message =
         uploadError instanceof Error ? uploadError.message : "No se pudieron subir las fotos.";
       redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(message)}`);
     }
 
-    if (aEliminar.length > 0) {
+    const fotosEliminadas = (existente?.fotos ?? []).filter((url) => !fotos.includes(url));
+    if (fotosEliminadas.length > 0) {
       try {
-        await deleteClinicPhotos(supabase, aEliminar);
+        await deleteClinicPhotos(supabase, fotosEliminadas);
       } catch {
         // No crítico — mejor guardar el resto de cambios que hacer fallar
         // todo el formulario por esto; los archivos huérfanos en el
@@ -398,12 +427,6 @@ export async function updateClinic(id: string, formData: FormData) {
     }
 
     const logoUrl = await subirLogoSiLlega(supabase, formData, `/admin/clinicas/${id}/editar`);
-
-    const { data: existente } = await supabase
-      .from("clinics")
-      .select("fotos_antes_despues, certificados")
-      .eq("id", id)
-      .maybeSingle();
 
     let contenidoPremium: { fotos_antes_despues: Json; certificados: string[] } = {
       fotos_antes_despues: [],
@@ -464,7 +487,7 @@ export async function updateClinic(id: string, formData: FormData) {
       .update({
         ...fields,
         ...contenidoPremium,
-        fotos: [...conservadas, ...nuevas],
+        fotos,
         ...(logoUrl ? { logo_url: logoUrl } : {}),
         ...(slugUpdate ?? {}),
       })
