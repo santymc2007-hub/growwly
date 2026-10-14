@@ -477,6 +477,7 @@ export type Database = {
       estudios_capilares: {
         Row: {
           claim_token: string
+          consentimiento_en: string | null
           created_at: string
           error_detalle: string | null
           es_alopecia_tratable: boolean | null
@@ -489,6 +490,7 @@ export type Database = {
           foto_perfil_izquierdo: string | null
           fotos_adicionales: string[]
           id: string
+          ip_hash: string | null
           informe: Json | null
           norwood_estimado: string | null
           recordatorio_presupuesto_enviado_en: string | null
@@ -497,6 +499,7 @@ export type Database = {
         }
         Insert: {
           claim_token?: string
+          consentimiento_en?: string | null
           created_at?: string
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
@@ -509,6 +512,7 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
+          ip_hash?: string | null
           informe?: Json | null
           norwood_estimado?: string | null
           recordatorio_presupuesto_enviado_en?: string | null
@@ -517,6 +521,7 @@ export type Database = {
         }
         Update: {
           claim_token?: string
+          consentimiento_en?: string | null
           created_at?: string
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
@@ -529,6 +534,7 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
+          ip_hash?: string | null
           informe?: Json | null
           norwood_estimado?: string | null
           recordatorio_presupuesto_enviado_en?: string | null

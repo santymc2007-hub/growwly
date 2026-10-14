@@ -1,6 +1,8 @@
 "use server";
 
 import { redirect } from "next/navigation";
+import { headers } from "next/headers";
+import { createHash } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { subirFotoEstudio } from "@/lib/supabase/estudios-storage";
@@ -18,6 +20,38 @@ const ANGULOS = [
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
+}
+
+// Límites del análisis (auditoría de seguridad, oct 2026): cada envío
+// es una llamada de pago a la API de IA, y antes no había ningún tope.
+const MAX_FOTOS = 10;
+const MAX_BYTES_FOTO = 15 * 1024 * 1024;
+const MAX_POR_IP_HORA = 5;
+const MAX_GLOBAL_HORA = 200;
+const TIPOS_VALIDOS = ["image/jpeg", "image/png", "image/webp", "image/heic", "image/heif", "image/avif"];
+const EXTENSIONES_VALIDAS = ["jpg", "jpeg", "png", "webp", "heic", "heif", "avif"];
+
+function esImagenValida(file: File): boolean {
+  if (file.size > MAX_BYTES_FOTO) return false;
+  if (file.type) return TIPOS_VALIDOS.includes(file.type.toLowerCase());
+  // Algunos móviles mandan la foto sin content-type: se mira la extensión.
+  const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
+  return EXTENSIONES_VALIDAS.includes(ext);
+}
+
+async function huellaIp(): Promise<string | null> {
+  const h = await headers();
+  const ip =
+    h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip")?.trim() || null;
+  if (!ip) return null;
+  // Con sal secreta: no se guarda la IP en claro ni se puede revertir
+  // con una tabla de IPs.
+  const sal = process.env.SUPABASE_SECRET_KEY ?? "growwly";
+  return createHash("sha256").update(`${sal}:${ip}`).digest("hex");
+}
+
+function errorAnalisis(mensaje: string): never {
+  redirect(`/analisis/nuevo?error=${encodeURIComponent(mensaje)}`);
 }
 
 export async function crearEstudio(formData: FormData) {
@@ -43,6 +77,41 @@ export async function crearEstudio(formData: FormData) {
         "Sube al menos una foto para poder analizarla.",
       )}`,
     );
+  }
+
+  // Consentimiento explícito (fotos = datos de salud) + mayoría de edad.
+  if (formData.get("consentimiento") !== "on") {
+    errorAnalisis("Para analizar tus fotos necesitamos que marques la casilla de consentimiento.");
+  }
+
+  const todos = [...archivosAngulo.map((a) => a.file), ...archivosAdicionales];
+  if (todos.length > MAX_FOTOS) {
+    errorAnalisis(`Puedes subir como máximo ${MAX_FOTOS} fotos por análisis.`);
+  }
+  if (!todos.every(esImagenValida)) {
+    errorAnalisis("Solo se admiten fotos JPG, PNG, WEBP o HEIC de hasta 15 MB.");
+  }
+
+  const ipHash = await huellaIp();
+  const haceUnaHora = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const [{ count: porIp }, { count: global }] = await Promise.all([
+    ipHash
+      ? admin
+          .from("estudios_capilares")
+          .select("id", { count: "exact", head: true })
+          .eq("ip_hash", ipHash)
+          .gte("created_at", haceUnaHora)
+      : Promise.resolve({ count: 0 }),
+    admin
+      .from("estudios_capilares")
+      .select("id", { count: "exact", head: true })
+      .gte("created_at", haceUnaHora),
+  ]);
+  if ((porIp ?? 0) >= MAX_POR_IP_HORA) {
+    errorAnalisis("Has hecho varios análisis seguidos. Espera un rato y vuelve a intentarlo.");
+  }
+  if ((global ?? 0) >= MAX_GLOBAL_HORA) {
+    errorAnalisis("Ahora mismo estamos recibiendo muchos análisis. Inténtalo de nuevo en unos minutos.");
   }
 
   const claimToken = crypto.randomUUID();
@@ -85,6 +154,8 @@ export async function crearEstudio(formData: FormData) {
       foto_perfil_izquierdo: rutasAngulo.perfil_izquierdo ?? null,
       fotos_adicionales: rutasAdicionales,
       estado: "procesando",
+      consentimiento_en: new Date().toISOString(),
+      ip_hash: ipHash,
     })
     .select()
     .single();
