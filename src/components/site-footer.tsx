@@ -28,6 +28,29 @@ export async function SiteFooter() {
               </p>
             </div>
 
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wide text-white">
+                Para centros
+              </p>
+              <ul className="mt-3 flex flex-col gap-1.5 text-xs">
+                <li>
+                  <Link href="/precios" className="hover:text-white">
+                    Precios
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/clinica/registro" className="hover:text-white">
+                    Publicar mi centro gratis
+                  </Link>
+                </li>
+                <li>
+                  <Link href="/clinica/login" className="hover:text-white">
+                    Acceso centros
+                  </Link>
+                </li>
+              </ul>
+            </div>
+
             {ciudades.length > 0 && (
               <div>
                 <p className="text-xs font-medium uppercase tracking-wide text-white">

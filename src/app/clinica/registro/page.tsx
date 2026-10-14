@@ -40,6 +40,15 @@ export default async function RegistroClinicaPage({
         nueva si todavía no aparece. Tu cuenta quedará pendiente de
         aprobación antes de activarse.
       </p>
+      <p className="mt-1 text-sm text-ink-soft">
+        Publicar tu ficha es gratis.{" "}
+        <Link
+          href="/precios"
+          className="font-medium text-cyan hover:text-cyan-dark"
+        >
+          Ver planes y precios
+        </Link>
+      </p>
 
       <div className="mt-8">
         <RegistroClinicaForm
