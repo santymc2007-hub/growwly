@@ -40,7 +40,7 @@ export async function registrarClinica(formData: FormData) {
       );
     }
 
-    const clinicId_ = await crearClinicaNueva(nombreClinica);
+    const clinicId_ = await crearClinicaNueva(nombreClinica, email);
     if (!clinicId_) {
       redirect(
         `/clinica/registro?modo=nueva&error=${encodeURIComponent(
@@ -90,7 +90,7 @@ export async function registrarClinica(formData: FormData) {
 
   if (data.user) {
     await vincularClinica(data.user.id, clinicId, nombreGestor, {
-      autoAprobar: esNueva,
+      emailUsuario: data.user.email ?? email,
     });
   }
 
@@ -108,7 +108,7 @@ export async function registrarClinica(formData: FormData) {
  * Si el slug ya existe (nombre repetido), reintenta una vez con un
  * sufijo aleatorio antes de rendirse.
  */
-async function crearClinicaNueva(nombre: string): Promise<string | null> {
+async function crearClinicaNueva(nombre: string, emailAlta: string): Promise<string | null> {
   const admin = createAdminClient();
   const slugBase = slugify(nombre);
 
@@ -124,7 +124,17 @@ async function crearClinicaNueva(nombre: string): Promise<string | null> {
       .select("id")
       .single();
 
-    if (!error && data) return data.id;
+    if (!error && data) {
+      // Quién la ha creado: solo esa persona (mismo email) podrá
+      // autoaprobarse como gestora — ver vincularClinica().
+      await admin
+        .from("clinic_privado")
+        .upsert(
+          { clinic_id: data.id, alta_email: emailAlta.trim().toLowerCase() },
+          { onConflict: "clinic_id" },
+        );
+      return data.id;
+    }
   }
 
   return null;

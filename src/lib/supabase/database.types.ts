@@ -171,6 +171,35 @@ export type Database = {
           },
         ]
       }
+      clinic_privado: {
+        Row: {
+          alta_email: string | null
+          clinic_id: string
+          datos_facturacion: Json | null
+          updated_at: string
+        }
+        Insert: {
+          alta_email?: string | null
+          clinic_id: string
+          datos_facturacion?: Json | null
+          updated_at?: string
+        }
+        Update: {
+          alta_email?: string | null
+          clinic_id?: string
+          datos_facturacion?: Json | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_privado_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: true
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_page_views: {
         Row: {
           clinic_id: string

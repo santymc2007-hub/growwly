@@ -30,8 +30,14 @@ export default async function FacturacionPage({
   const supabase = createAdminClient();
   const { data: clinic } = await supabase
     .from("clinics")
-    .select("nombre, logo_url, fotos, datos_facturacion, publicado")
+    .select("nombre, logo_url, fotos, publicado")
     .eq("id", clinicId)
+    .maybeSingle();
+
+  const { data: privado } = await supabase
+    .from("clinic_privado")
+    .select("datos_facturacion")
+    .eq("clinic_id", clinicId)
     .maybeSingle();
 
   if (!clinic) {
@@ -42,8 +48,8 @@ export default async function FacturacionPage({
   const darDeBajaAction = cambiarPublicacion.bind(null, false);
 
   const datos =
-    clinic.datos_facturacion && typeof clinic.datos_facturacion === "object"
-      ? (clinic.datos_facturacion as {
+    privado?.datos_facturacion && typeof privado.datos_facturacion === "object"
+      ? (privado.datos_facturacion as {
           titular?: string;
           nif_cif?: string;
           email_facturacion?: string;
