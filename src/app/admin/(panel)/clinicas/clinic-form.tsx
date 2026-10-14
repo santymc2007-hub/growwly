@@ -15,6 +15,7 @@ import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
+import { FotosClinicaField } from "@/components/clinica/fotos-clinica-field";
 import { CampoSlug } from "./campo-slug";
 import { InterruptorVisibilidad } from "../visibilidad/interruptor-visibilidad";
 import { TIPO_LABEL, type TipoVisibilidad } from "../visibilidad/tipos-visibilidad";
@@ -246,36 +247,11 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
 
       <section className="mt-8">
         <h2 className="font-display text-lg text-teal-dark">Fotos</h2>
+        <p className="mt-1 text-xs text-ink-soft">
+          La primera es la que se usa como foto principal en los listados —
+          arrastra las fotos (o usa ‹ ›) para cambiar el orden.
+        </p>
 
-        {clinic && clinic.fotos.length > 0 && (
-          <div className="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {clinic.fotos.map((foto) => (
-              <div key={foto}>
-                <div className="relative aspect-square overflow-hidden rounded-lg border border-line bg-sage">
-                  <Image
-                    src={foto}
-                    alt=""
-                    fill
-                    sizes="120px"
-                    className="object-cover"
-                  />
-                </div>
-                <label className="mt-1 flex items-center gap-1.5 text-xs text-ink-soft">
-                  <input type="checkbox" name="fotos_eliminar" value={foto} />
-                  Eliminar
-                </label>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {clinic && (
-          <input
-            type="hidden"
-            name="fotos_actuales"
-            value={JSON.stringify(clinic.fotos)}
-          />
-        )}
         {clinic && <input type="hidden" name="slug_actual" value={clinic.slug} />}
         {clinic && (
           <input
@@ -285,19 +261,7 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
           />
         )}
 
-        <div className="mt-4">
-          <label className={labelClass} htmlFor="fotos_nuevas">
-            {clinic ? "Añadir fotos nuevas" : "Fotos"}
-          </label>
-          <input
-            id="fotos_nuevas"
-            name="fotos_nuevas"
-            type="file"
-            accept="image/*"
-            multiple
-            className="mt-1 block w-full text-sm text-ink-soft file:mr-3 file:rounded-lg file:border-0 file:bg-sage file:px-3 file:py-2 file:text-sm file:font-medium file:text-sage-ink"
-          />
-        </div>
+        <FotosClinicaField fotosIniciales={clinic?.fotos ?? []} max={10} />
       </section>
 
       <section className="mt-8">
