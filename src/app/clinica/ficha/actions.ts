@@ -131,6 +131,7 @@ export async function actualizarMiFicha(formData: FormData) {
     nombre: str("nombre") ?? undefined,
     descripcion: str("descripcion"),
     telefono: str("telefono"),
+    telefono_es_movil: formData.get("telefono_es_movil") === "on",
     email: str("email"),
     web: str("web"),
     direccion: str("direccion"),

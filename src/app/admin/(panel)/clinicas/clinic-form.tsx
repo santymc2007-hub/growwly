@@ -329,6 +329,14 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
               defaultValue={clinic?.telefono ?? undefined}
               className={inputClass}
             />
+            <label className="mt-1.5 flex items-center gap-2 text-xs text-ink-soft">
+              <input
+                type="checkbox"
+                name="telefono_es_movil"
+                defaultChecked={clinic ? clinic.telefono_es_movil : true}
+              />
+              Es un móvil (recibe WhatsApp)
+            </label>
           </div>
           <div>
             <label className={labelClass} htmlFor="email">
