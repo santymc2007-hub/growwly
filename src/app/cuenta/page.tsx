@@ -13,6 +13,7 @@ import { BorrarEstudioButton } from "./analisis/[id]/borrar-estudio-button";
 import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
 import type { Flujo } from "@/lib/informe/tipos";
 import { BorrarSolicitudButton } from "./solicitud/[id]/borrar-solicitud-button";
+import { EliminarCuentaButton } from "./eliminar/eliminar-cuenta-button";
 
 type SearchParams = { error?: string; guardado?: string; aviso?: string };
 
@@ -504,6 +505,13 @@ export default async function CuentaPage({
               </p>
             )}
           </section>
+        </div>
+
+        <div className="mt-10 flex flex-col items-center gap-1 text-center">
+          <EliminarCuentaButton />
+          <p className="text-xs text-ink-soft">
+            Borra tu perfil, tus valoraciones y tus solicitudes de forma definitiva.
+          </p>
         </div>
       </div>
     </main>

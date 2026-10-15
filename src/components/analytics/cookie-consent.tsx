@@ -112,6 +112,17 @@ export function CookieConsent() {
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
+              // Consent Mode v2: este script solo carga si se aceptaron
+              // las cookies analíticas, así que analytics_storage va
+              // concedido; publicidad siempre denegada hasta que exista
+              // una categoría "Publicidad" en el banner (antes de poner
+              // el píxel de Google Ads o Meta).
+              gtag('consent', 'default', {
+                analytics_storage: 'granted',
+                ad_storage: 'denied',
+                ad_user_data: 'denied',
+                ad_personalization: 'denied'
+              });
               gtag('js', new Date());
               gtag('config', '${GA_MEASUREMENT_ID}', { anonymize_ip: true });
             `}
