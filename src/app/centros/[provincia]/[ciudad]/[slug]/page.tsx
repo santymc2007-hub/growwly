@@ -371,7 +371,7 @@ export default async function ClinicaPage({
 
   const medicos =
     esPremium && Array.isArray(clinic.medicos)
-      ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string }[])
+      ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string; colegiado?: string }[])
       : [];
 
   return (
@@ -468,8 +468,11 @@ export default async function ClinicaPage({
                   </div>
                 </div>
                 {clinic.verificado && (
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-1">
                     <VerifiedBadge />
+                    <p className="max-w-[13rem] text-right text-[11px] leading-snug text-ink-soft">
+                      Hemos comprobado que existe y que sus datos de contacto son correctos.
+                    </p>
                   </div>
                 )}
               </div>
@@ -634,6 +637,9 @@ export default async function ClinicaPage({
                         {m.especialidad && (
                           <p className="text-sm text-ink-soft">{m.especialidad}</p>
                         )}
+                        {m.colegiado && (
+                          <p className="text-xs text-ink-soft">Nº de colegiado: {m.colegiado}</p>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -797,6 +803,13 @@ export default async function ClinicaPage({
                     <p className="mt-2 break-words text-sm text-ink-soft">{clinic.direccion}</p>
                     <MapaFichaClinica clinic={clinic} />
                   </>
+                )}
+
+                {clinic.registro_sanitario && (
+                  <p className="mt-4 text-xs text-ink-soft">
+                    Nº de registro sanitario:{" "}
+                    <span className="font-medium text-ink">{clinic.registro_sanitario}</span>
+                  </p>
                 )}
 
                 {Array.isArray(clinic.horarios_estructurados) &&

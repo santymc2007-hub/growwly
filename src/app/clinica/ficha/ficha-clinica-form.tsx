@@ -173,6 +173,22 @@ export function FichaClinicaForm({
             </div>
           </div>
           <div>
+            <label className={labelClass} htmlFor="registro_sanitario">
+              Nº de registro sanitario
+            </label>
+            <p className="mt-0.5 text-xs text-ink-soft">
+              El número de autorización de tu centro en el registro de centros
+              sanitarios de tu comunidad. Obligatorio si haces tratamientos
+              médicos (injerto, PRP, mesoterapia…). Se muestra en tu ficha.
+            </p>
+            <input
+              id="registro_sanitario"
+              name="registro_sanitario"
+              defaultValue={clinic.registro_sanitario ?? undefined}
+              className={`${inputClass} mt-2`}
+            />
+          </div>
+          <div>
             <label className={labelClass} htmlFor="direccion">
               Dirección
             </label>
@@ -577,7 +593,7 @@ export function FichaClinicaForm({
             <p className={labelClass}>Equipo médico (hasta 3)</p>
             {[0, 1, 2].map((i) => {
               const medico = Array.isArray(clinic.medicos)
-                ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string }[])[i]
+                ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string; colegiado?: string }[])[i]
                 : undefined;
               return (
                 <div key={i} className="mt-2 rounded-lg border border-line p-2.5">
@@ -595,13 +611,21 @@ export function FichaClinicaForm({
                       className={inputClass}
                     />
                   </div>
-                  <input
-                    name={`medico_linkedin_${i}`}
-                    type="url"
-                    placeholder="Perfil de LinkedIn (opcional)"
-                    defaultValue={medico?.linkedin ?? undefined}
-                    className={`${inputClass} mt-2`}
-                  />
+                  <div className="mt-2 grid grid-cols-2 gap-2">
+                    <input
+                      name={`medico_colegiado_${i}`}
+                      placeholder="Nº de colegiado (médicos)"
+                      defaultValue={medico?.colegiado ?? undefined}
+                      className={inputClass}
+                    />
+                    <input
+                      name={`medico_linkedin_${i}`}
+                      type="url"
+                      placeholder="Perfil de LinkedIn (opcional)"
+                      defaultValue={medico?.linkedin ?? undefined}
+                      className={inputClass}
+                    />
+                  </div>
                 </div>
               );
             })}
