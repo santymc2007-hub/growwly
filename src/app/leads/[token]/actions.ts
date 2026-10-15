@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { autorizarAccesoLead } from "@/lib/leads/autorizar-lead";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { notificarPacientePropuesta } from "@/lib/leads/notificar-paciente";
 import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
@@ -21,6 +22,7 @@ import { notificarPacienteFechas } from "@/lib/leads/notificar-cita";
  * alguien reabre un enlace de email viejo.
  */
 export async function guardarPropuesta(token: string, formData: FormData) {
+  await autorizarAccesoLead(token);
   try {
     const supabase = createAdminClient();
 
@@ -127,6 +129,7 @@ export async function guardarPropuesta(token: string, formData: FormData) {
  * la fecha sin volver a disparar el evento ni tocar el estado.
  */
 export async function programarCita(token: string, formData: FormData) {
+  await autorizarAccesoLead(token);
   try {
     const supabase = createAdminClient();
 
@@ -192,6 +195,7 @@ export async function programarCita(token: string, formData: FormData) {
 
 /** Fase 6: la clínica confirma que la cita ya tuvo lugar. */
 export async function marcarCitaRealizada(token: string) {
+  await autorizarAccesoLead(token);
   try {
     const supabase = createAdminClient();
 
@@ -234,6 +238,7 @@ export async function marcarResultadoTratamiento(
   token: string,
   resultado: "convertido" | "no_convertido",
 ) {
+  await autorizarAccesoLead(token);
   try {
     const supabase = createAdminClient();
 
@@ -281,6 +286,7 @@ export async function marcarResultadoTratamiento(
  * "cita_pendiente".
  */
 export async function proponerFechasCita(token: string, formData: FormData) {
+  await autorizarAccesoLead(token);
   try {
     const supabase = createAdminClient();
 

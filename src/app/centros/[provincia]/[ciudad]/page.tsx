@@ -188,7 +188,18 @@ export default async function CiudadPage({
             <div className="flex justify-end">
               <VistaToggle />
             </div>
-            <VistaListaMapa clinicas={clinicas} vista={vista === "mapa" ? "mapa" : "lista"} />
+            <VistaListaMapa
+              clinicas={clinicas}
+              vista={vista === "mapa" ? "mapa" : "lista"}
+              idsDestacados={clinicas
+                .filter((c) => c.destacado_ciudad || c.destacado)
+                .map((c) => c.id)}
+            />
+            <p className="mt-6 text-xs text-ink-soft">
+              <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
+                Cómo ordenamos los centros
+              </Link>
+            </p>
           </>
         ) : (
           <Link

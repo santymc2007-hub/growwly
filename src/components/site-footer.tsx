@@ -114,6 +114,11 @@ export async function SiteFooter() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/como-ordenamos" className="hover:text-white">
+                    Cómo ordenamos los centros
+                  </Link>
+                </li>
+                <li>
                   <BotonPreferenciasCookies />
                 </li>
               </ul>

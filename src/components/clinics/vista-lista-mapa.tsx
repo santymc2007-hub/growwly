@@ -83,16 +83,20 @@ export function VistaToggle() {
 export function VistaListaMapa({
   clinicas,
   vista,
+  idsDestacados = [],
 }: {
   clinicas: Clinic[];
   vista: "lista" | "mapa";
+  /** Clínicas que salen arriba por visibilidad pagada en este listado. */
+  idsDestacados?: string[];
 }) {
+  const destacados = new Set(idsDestacados);
   return (
     <div>
       {vista === "lista" ? (
         <div data-reveal-grupo className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
           {clinicas.map((clinic) => (
-            <ClinicCard key={clinic.id} clinic={clinic} />
+            <ClinicCard key={clinic.id} clinic={clinic} destacado={destacados.has(clinic.id)} />
           ))}
         </div>
       ) : (
@@ -107,7 +111,7 @@ export function VistaListaMapa({
           <div className="hidden lg:block lg:flex-1">
             <div className="grid grid-cols-3 gap-3 xl:grid-cols-4">
               {clinicas.map((clinic) => (
-                <ClinicCardCompact key={clinic.id} clinic={clinic} />
+                <ClinicCardCompact key={clinic.id} clinic={clinic} destacado={destacados.has(clinic.id)} />
               ))}
             </div>
           </div>

@@ -4,7 +4,11 @@ import { useRef, useState } from "react";
 import { Star } from "lucide-react";
 import { GoogleG } from "./modulo-valoraciones";
 
-type Opinion = { autor: string; texto: string; puntuacion?: number };
+/** origen: "google" = reseña real traída de Google; "centro" = escrita
+ *  o aportada por la propia clínica en su panel (Growwly no la verifica).
+ *  Se etiqueta siempre: la Directiva Ómnibus exige decir al consumidor
+ *  de dónde salen las opiniones y si se han comprobado. */
+type Opinion = { autor: string; texto: string; puntuacion?: number; origen: "google" | "centro" };
 
 // A partir de aquí el texto es tan largo que merece un "leer más" en
 // vez de dejar crecer la tarjeta (y con ella, por "align-items: stretch"
@@ -45,6 +49,9 @@ function TarjetaOpinion({ opinion }: { opinion: Opinion }) {
         </button>
       )}
       <footer className="mt-2 font-medium text-ink">— {opinion.autor}</footer>
+      <p className="mt-1 text-[11px] text-ink-soft">
+        {opinion.origen === "google" ? "Reseña de Google" : "Aportada por el centro"}
+      </p>
     </blockquote>
   );
 }
@@ -68,9 +75,15 @@ export function ModuloOpiniones({ opiniones }: { opiniones: Opinion[] }) {
   return (
     <section className="mt-8">
       <h2 className="flex items-center gap-2 font-display text-lg text-teal-dark">
-        <GoogleG />
-        Qué opinan nuestros clientes
+        {opiniones.some((o) => o.origen === "google") && <GoogleG />}
+        Qué opinan sus pacientes
       </h2>
+      {opiniones.some((o) => o.origen === "centro") && (
+        <p className="mt-1 text-xs text-ink-soft">
+          Las reseñas de Google se muestran tal cual. Las marcadas como «Aportada por el
+          centro» las ha añadido la propia clínica y Growwly no las ha verificado.
+        </p>
+      )}
       <div className="relative mt-3">
         <div
           ref={scrollRef}

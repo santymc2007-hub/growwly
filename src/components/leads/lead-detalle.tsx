@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
+import { autorizarAccesoLead } from "@/lib/leads/autorizar-lead";
 import { contactoLiberado, type EstadoLead } from "@/lib/leads/estados-lead";
 import { PropuestaForm } from "@/components/leads/propuesta-form";
 import { CitaSeguimiento } from "@/components/leads/cita-seguimiento";
@@ -37,6 +38,8 @@ export async function LeadDetalle({
   /** Desplegado dentro del listado del panel: sin saludo de cabecera. */
   embebido?: boolean;
 }) {
+  await autorizarAccesoLead(token);
+
   const supabase = createAdminClient();
 
   const { data: lead } = await supabase
