@@ -138,7 +138,7 @@ export async function recalcularEstudio(
     await borrarFotosEstudio(admin, rutasNuevas);
     return {
       error:
-        "No hemos podido recalcular la valoración esta vez. Tu informe anterior sigue igual; inténtalo de nuevo en un momento.",
+        "No hemos podido recalcular la valoración esta vez. Tu valoración anterior sigue igual; inténtalo de nuevo en un momento.",
     };
   }
 

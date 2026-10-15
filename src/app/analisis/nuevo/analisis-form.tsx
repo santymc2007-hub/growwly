@@ -57,8 +57,11 @@ export function AnalisisForm({
   // Las fotos del cuero cabelludo analizadas para valorar la caída son
   // datos de salud (art. 9 RGPD): hace falta consentimiento explícito,
   // no premarcado, antes de subirlas. Mayoría de edad en la misma
-  // casilla. Texto pendiente de revisión legal (oct 2026).
+  // casilla. Segunda casilla aparte (art. 7.2 RGPD: el consentimiento no
+  // se mezcla con otras declaraciones): el usuario confirma que entiende
+  // que no es un diagnóstico.
   const [consiente, setConsiente] = useState(false);
+  const [entiendeAviso, setEntiendeAviso] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const camaraRef = useRef<HTMLInputElement>(null);
   const fotosAnadidasRef = useRef<HTMLDivElement>(null);
@@ -101,13 +104,14 @@ export function AnalisisForm({
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (fotos.length === 0 || !consiente) return;
+    if (fotos.length === 0 || !consiente || !entiendeAviso) return;
 
     setEstado("enviando");
     try {
       const formData = new FormData();
       for (const foto of fotos) formData.append("adicionales", foto.file);
       formData.append("consentimiento", consiente ? "on" : "");
+      formData.append("aviso_no_diagnostico", entiendeAviso ? "on" : "");
       await action(formData);
       // La action redirige internamente al terminar (tanto si va bien
       // como si hay error), así que normalmente no se llega más allá.
@@ -364,12 +368,30 @@ export function AnalisisForm({
                     className="mt-0.5 h-4 w-4 shrink-0 accent-teal-dark"
                   />
                   <span>
-                    Soy mayor de 18 años y consiento que Growwly trate estas fotos, que pueden
-                    revelar datos de salud, para generar una primera impresión orientativa con
-                    inteligencia artificial (procesada por un proveedor tecnológico que puede estar
-                    fuera de la UE). Puedo borrarlas cuando quiera.{" "}
+                    Soy mayor de 18 años y consiento expresamente que Growwly trate estas fotos, que
+                    pueden revelar datos de salud, para darme una valoración orientativa con
+                    inteligencia artificial. Las fotos las analiza nuestro proveedor Anthropic, en
+                    EE. UU. Puedo borrarlas y retirar este consentimiento cuando quiera.{" "}
                     <a href="/legal/privacidad" target="_blank" className="font-medium text-cyan-dark underline">
                       Política de privacidad
+                    </a>
+                  </span>
+                </label>
+
+                <label className="mt-3 flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-ink-soft">
+                  <input
+                    type="checkbox"
+                    name="aviso_no_diagnostico"
+                    checked={entiendeAviso}
+                    onChange={(e) => setEntiendeAviso(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-teal-dark"
+                  />
+                  <span>
+                    Entiendo que es una valoración orientativa basada solo en mis fotos: no es un
+                    diagnóstico médico, no me indica ningún tratamiento y no sustituye la consulta con
+                    un médico.{" "}
+                    <a href="/legal/terminos" target="_blank" className="font-medium text-cyan-dark underline">
+                      Términos
                     </a>
                   </span>
                 </label>
@@ -395,7 +417,7 @@ export function AnalisisForm({
 
                   <button
                     type="submit"
-                    disabled={fotos.length === 0 || !consiente || estado !== "idle"}
+                    disabled={fotos.length === 0 || !consiente || !entiendeAviso || estado !== "idle"}
                     className="press w-full rounded-full bg-yellow px-7 py-3.5 font-display text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                   >
                     {estado === "enviando" ? "Analizando tus fotos…" : "Analiza mis fotos"}

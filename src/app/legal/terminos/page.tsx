@@ -11,40 +11,53 @@ export default function TerminosPage() {
     <LegalLayout activo="/legal/terminos">
       <h1>Términos y Condiciones</h1>
       <p>
-        <em>
-          Plantilla de partida — haz que un abogado la revise antes de
-          publicarla con carácter definitivo, especialmente en lo referente
-          a las condiciones comerciales con las clínicas.
-        </em>
+        <em>Última actualización: 15 de octubre de 2026.</em>
       </p>
 
       <h2>1. Objeto</h2>
       <p>
         Estos Términos y Condiciones regulan el acceso y uso de Growwly, un
         directorio online de clínicas especializadas en salud capilar en
-        España, así como los servicios de análisis orientativo y solicitud
-        de presupuesto que ofrece.
+        España, así como los servicios de valoración orientativa y solicitud
+        de presupuesto que ofrece. Growwly es titularidad de Santiago Mulet
+        Cortés (ver <a href="/legal/aviso-legal">Aviso Legal</a>) y solo
+        pueden usarlo personas mayores de 18 años.
       </p>
 
       <h2>2. Registro de usuarios</h2>
       <p>
-        Para usar determinadas funciones (guardar un análisis, solicitar
+        Para usar determinadas funciones (guardar una valoración, solicitar
         presupuesto) es necesario registrarse con datos veraces. El usuario
         es responsable de la custodia de su contraseña y de la actividad
         realizada desde su cuenta.
       </p>
 
-      <h2>3. El análisis orientativo con inteligencia artificial</h2>
+      <h2>3. La valoración orientativa con inteligencia artificial</h2>
       <p>
         Growwly ofrece, a partir de fotografías subidas voluntariamente por
-        el usuario, una primera impresión orientativa sobre el aspecto
-        capilar generada mediante inteligencia artificial.{" "}
+        el usuario, una valoración orientativa sobre el aspecto visible del
+        cabello generada mediante inteligencia artificial. Su única
+        finalidad es ayudar al usuario a describir su caso y a encontrar
+        clínicas.
+      </p>
+      <p>
         <strong>
-          Esto no es un diagnóstico médico ni sustituye la valoración
-          presencial de un profesional sanitario.
+          La valoración no es un diagnóstico médico, no indica ni prescribe
+          ningún tratamiento y no sustituye la consulta presencial con un
+          médico.
         </strong>{" "}
-        Cualquier decisión sobre tratamiento debe tomarse siempre en
-        consulta con una clínica o especialista cualificado.
+        Se basa solo en lo que se ve en las fotos, puede contener errores y
+        su precisión depende de la calidad de las imágenes. Las referencias a
+        escalas, grados, tratamientos habituales o número aproximado de
+        unidades foliculares son orientativas y genéricas. Cualquier decisión
+        sobre un tratamiento debe tomarse siempre con un médico, en consulta.
+      </p>
+      <p>
+        Antes de subir sus fotos, el usuario confirma expresamente que
+        entiende lo anterior. El usuario no debe usar la valoración para
+        automedicarse ni para retrasar una consulta médica, y debe acudir a
+        un médico si nota síntomas como dolor, picor intenso,
+        enrojecimiento, heridas o una caída brusca.
       </p>
 
       <h2>4. Solicitud de presupuesto</h2>
@@ -134,9 +147,9 @@ export default function TerminosPage() {
 
       <h3 id="uso-de-fotografias">5.3 Uso de fotografías</h3>
       <p>
-        Las fotografías que el usuario sube (para el análisis orientativo
+        Las fotografías que el usuario sube (para la valoración orientativa
         con IA o vinculadas a una solicitud de presupuesto) se usan
-        exclusivamente para (i) generar la primera impresión orientativa
+        exclusivamente para (i) generar la valoración orientativa
         mediante inteligencia artificial, y (ii) permitir que las clínicas
         a las que se dirige la solicitud puedan valorar visualmente el
         caso, cuando el usuario vincula un análisis a su solicitud.
@@ -148,7 +161,7 @@ export default function TerminosPage() {
         los proveedores tecnológicos que actúan como encargados del
         tratamiento (alojamiento y análisis de imagen mediante IA), bajo
         contrato de confidencialidad. El usuario puede retirar este
-        consentimiento en cualquier momento borrando su análisis desde{" "}
+        consentimiento en cualquier momento borrando su valoración desde{" "}
         <a href="/cuenta">Mi cuenta</a>, lo que elimina también las
         fotografías asociadas.
       </p>
@@ -188,8 +201,8 @@ export default function TerminosPage() {
         de dos formas igual de válidas: desde el apartado correspondiente
         en <a href="/cuenta">Mi cuenta</a>, o pulsando el enlace de baja
         que incluye cada email enviado. Retirarlo no afecta en ningún caso
-        a la prestación del resto de servicios de Growwly (cuenta, análisis
-        orientativo, solicitudes de presupuesto).
+        a la prestación del resto de servicios de Growwly (cuenta, valoración
+        orientativa, solicitudes de presupuesto).
       </p>
 
       <h3 id="terminos-de-servicio">5.6 Términos de servicio</h3>
@@ -220,10 +233,20 @@ export default function TerminosPage() {
 
       <h2>8. Limitación de responsabilidad</h2>
       <p>
-        Growwly no garantiza la disponibilidad continua del servicio ni se
-        responsabiliza de los resultados de los tratamientos contratados
-        con las clínicas del directorio. El uso de la plataforma es bajo
-        responsabilidad del usuario.
+        Growwly es un intermediario tecnológico: no es un centro sanitario,
+        no presta asistencia sanitaria y no es parte de la relación entre el
+        usuario y la clínica. Cada clínica es la única responsable de la
+        información de su ficha, de sus presupuestos, de la asistencia que
+        presta y de los resultados de sus tratamientos.
+      </p>
+      <p>
+        Growwly no garantiza la disponibilidad continua del servicio ni que
+        la valoración orientativa esté libre de errores, y no responde de las
+        decisiones que el usuario tome basándose en ella sin consultar a un
+        médico. Todo ello en la medida permitida por la ley: nada de lo
+        anterior limita los derechos que la normativa de consumidores
+        reconoce al usuario ni la responsabilidad que no pueda excluirse
+        legalmente.
       </p>
 
       <h2>9. Modificación de los términos</h2>
@@ -234,7 +257,9 @@ export default function TerminosPage() {
 
       <h2>10. Legislación aplicable</h2>
       <p>
-        Estos términos se rigen por la legislación española.
+        Estos términos se rigen por la legislación española. Para cualquier
+        controversia serán competentes los juzgados y tribunales de Palma,
+        salvo que la normativa de consumidores establezca otro fuero.
       </p>
     </LegalLayout>
   );

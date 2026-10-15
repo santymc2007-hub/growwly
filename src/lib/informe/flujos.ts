@@ -89,9 +89,9 @@ const TRATAMIENTOS_POSIBLES_TOPICO_INYECTABLE: Tile = {
 
 export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
   alopecia_androgenetica_masculina: {
-    etiqueta: "Alopecia androgenética masculina",
+    etiqueta: "Patrón androgenético masculino",
     titulo: (n) =>
-      conNombre(n, "tus fotos muestran un patrón compatible con alopecia androgenética masculina"),
+      conNombre(n, "lo que vemos en tus fotos se parece al patrón típico de la alopecia androgenética masculina"),
     intro:
       "Es la caída más habitual en hombres. Tiene tratamiento y hay varias opciones. Te contamos qué vemos y qué puedes hacer.",
     escala: {
@@ -121,7 +121,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
           tipo: "Tópico u oral",
           top: !injertoTop,
           porque:
-            "Minoxidil o finasterida para frenar la caída del pelo que conservas. Siempre con receta y pauta médica.",
+            "Tratamientos tópicos como el minoxidil u otros fármacos que solo puede pautar un médico, para frenar la caída del pelo que conservas.",
           sesiones: "Continuo",
         },
         {
@@ -190,13 +190,13 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Recibe hasta 5 presupuestos de clínicas que encajan contigo", boton: "Solicitar presupuesto" },
-    tecnicas: ["Injerto FUE", "Injerto DHI", "Injerto sin afeitado", "Minoxidil", "Finasteride / Dutasteride", "PRP"],
+    tecnicas: ["Injerto FUE", "Injerto DHI", "Injerto sin afeitado", "Minoxidil", "Tratamiento farmacológico", "PRP"],
   },
 
   alopecia_androgenetica_femenina: {
-    etiqueta: "Alopecia androgenética femenina",
+    etiqueta: "Patrón androgenético femenino",
     titulo: (n) =>
-      conNombre(n, "tus fotos muestran un patrón compatible con alopecia androgenética femenina"),
+      conNombre(n, "lo que vemos en tus fotos se parece al patrón típico de la alopecia androgenética femenina"),
     intro:
       "Es la causa más frecuente de pérdida de densidad en mujeres. No se recupera sola, pero se puede frenar y mejorar con tratamiento, sobre todo si se empieza pronto.",
     escala: {
@@ -234,7 +234,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
         ],
       }),
       tiles: () => [
-        { label: "Evolución", valor: "Tratable", tono: "ok", nota: "Se puede frenar y ganar densidad. Cuanto antes, mejor." },
+        { label: "Evolución", valor: "Suele mejorar con tratamiento", tono: "ok", nota: "Se puede frenar y ganar densidad. Cuanto antes, mejor." },
         { ...TRATAMIENTOS_POSIBLES_TOPICO_INYECTABLE, nota: "Minoxidil, PRP o mesoterapia. Mejor que los paute un médico." },
         { label: "¿Injerto?", valor: "Poco probable", tono: "aviso", nota: "Solo en casos concretos. Lo valora el especialista." },
       ],
@@ -257,8 +257,8 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
   },
 
   efluvio_telogeno: {
-    etiqueta: "Efluvio telógeno",
-    titulo: (n) => conNombre(n, "tus fotos muestran un patrón compatible con efluvio telógeno"),
+    etiqueta: "Caída difusa",
+    titulo: (n) => conNombre(n, "lo que vemos en tus fotos se parece al patrón típico de un efluvio telógeno"),
     intro:
       "Es una caída repartida por toda la cabeza, sin zonas calvas. En la mayoría de los casos es temporal, pero conviene que un médico confirme la causa.",
     escala: {
@@ -319,8 +319,8 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
   },
 
   alopecia_areata: {
-    etiqueta: "Alopecia areata",
-    titulo: (n) => conNombre(n, "tus fotos muestran un patrón compatible con alopecia areata"),
+    etiqueta: "Caída en placas",
+    titulo: (n) => conNombre(n, "lo que vemos en tus fotos se parece al patrón típico de la alopecia areata"),
     intro:
       "Son zonas redondas sin pelo que aparecen de forma repentina. El folículo no se destruye, así que el pelo puede volver a crecer. Tiene tratamiento, y responde mejor si se empieza pronto.",
     escala: {
@@ -328,7 +328,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       sub: "alopecia areata",
       niveles: ["Placa única", "Varias placas", "Extensa"],
       resultado: (ia) =>
-        ia.placas ? `${ia.placas} ${ia.placas === 1 ? "placa detectada" : "placas detectadas"}` : ia.grado,
+        ia.placas ? `${ia.placas} ${ia.placas === 1 ? "placa visible" : "placas visibles"}` : ia.grado,
     },
     mostrarDonante: false,
     significa: [
@@ -337,9 +337,9 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
     ],
     tratTitulo: "Posibles tratamientos",
     tratamientos: () => [
-      { nombre: "Consulta con dermatología", tipo: "Consulta", top: true, porque: "Confirma el diagnóstico y elige el tratamiento según el número y tamaño de las placas.", sesiones: "1 consulta" },
-      { nombre: "Tratamiento tópico", tipo: "Tópico", porque: "Cremas o lociones con corticoide y, a veces, minoxidil como apoyo. Con pauta médica.", sesiones: "Diario, según pauta" },
-      { nombre: "Infiltraciones", tipo: "Inyectable", porque: "Pequeñas inyecciones de corticoide en la placa. Las aplica el dermatólogo en consulta.", sesiones: "Cada 4–6 semanas" },
+      { nombre: "Consulta con dermatología", tipo: "Consulta", top: true, porque: "El dermatólogo hace el diagnóstico y elige el tratamiento según el número y tamaño de las placas.", sesiones: "1 consulta" },
+      { nombre: "Tratamiento tópico", tipo: "Tópico", porque: "Cremas o lociones que solo puede pautar un médico, a veces con minoxidil como apoyo.", sesiones: "Diario, según pauta" },
+      { nombre: "Infiltraciones", tipo: "Inyectable", porque: "Pequeñas inyecciones en la placa. Las decide y aplica el dermatólogo en consulta.", sesiones: "Cada 4–6 semanas" },
     ],
     rec: {
       tag: () => "Consulta con dermatología",
@@ -360,7 +360,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       }),
       tiles: () => [
         { label: "¿Se recupera?", valor: "Es posible", tono: "ok", nota: "Muchas placas se repueblan solas o con tratamiento." },
-        { label: "Tratamientos posibles", valor: "Tópicos o infiltraciones", nota: "Corticoides en crema o infiltrados en la placa. Siempre con pauta médica." },
+        { label: "Tratamientos posibles", valor: "Tópicos o infiltraciones", nota: "En crema o infiltrados en la placa. Siempre los decide un médico." },
         { label: "¿Injerto?", valor: "No indicado", tono: "aviso", nota: "En la areata el problema no es la falta de folículos." },
       ],
       pregunta: "¿Quieres que lo vea un especialista?",
@@ -382,8 +382,8 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
   },
 
   alopecia_por_traccion: {
-    etiqueta: "Alopecia por tracción",
-    titulo: (n) => conNombre(n, "tus fotos muestran un patrón compatible con alopecia por tracción"),
+    etiqueta: "Caída por tracción",
+    titulo: (n) => conNombre(n, "lo que vemos en tus fotos se parece al patrón típico de la alopecia por tracción"),
     intro:
       "Es la pérdida típica del pelo que pasa mucho tiempo tirante, por coletas, moños, trenzas o extensiones. Si se quita la tensión a tiempo, lo normal es que se recupere.",
     escala: {
@@ -552,7 +552,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
     esperar: {
       titulo: "Cómo seguir tu pelo",
       pasos: [
-        { when: "Hoy", what: "Este informe es tu punto de partida" },
+        { when: "Hoy", what: "Esta valoración es tu punto de partida" },
         { when: "Mes 6", what: "Repite el análisis con la misma luz" },
         { when: "Mes 12", what: "Compara con hoy" },
         { when: "Si notas cambios", what: "Pide una revisión con un especialista" },

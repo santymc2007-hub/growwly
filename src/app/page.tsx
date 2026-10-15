@@ -36,7 +36,7 @@ const PASOS = [
   {
     icono: "/brand/icono-paso-documento.png",
     titulo: "3. Recibe tu valoración",
-    texto: "Te damos un informe gratuito con el diagnóstico.",
+    texto: "Te damos una valoración orientativa gratuita.",
   },
   {
     icono: "/brand/icono-paso-envelope.png",
