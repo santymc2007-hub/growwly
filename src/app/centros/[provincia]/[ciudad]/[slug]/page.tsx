@@ -8,7 +8,6 @@ import {
   Phone,
   Mail,
   Globe,
-  MapPin,
   CheckCircle2,
   DoorOpen,
   MoveHorizontal,
@@ -41,6 +40,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { TrackFichaClinica } from "@/components/analytics/track-ficha-clinica";
 import { TrackedNextLink } from "@/components/analytics/tracked-next-link";
 import { BotonContactoClinica } from "@/components/analytics/boton-contacto-clinica";
+import { MapaFichaClinica } from "@/components/clinics/mapa-ficha-clinica";
 
 type Params = { provincia: string; ciudad: string; slug: string };
 
@@ -218,15 +218,6 @@ export default async function ClinicaPage({
     .eq("clinic_status", "aprobado")
     .maybeSingle();
   const yaReclamada = Boolean(perfilAprobado);
-
-  const ubicacion = [
-    clinic.zona,
-    clinic.ciudad,
-    clinic.provincia,
-    clinic.comunidad_autonoma,
-  ]
-    .filter(Boolean)
-    .join(", ");
 
   const socialLinks = getSocialLinks(clinic.redes_sociales);
   const actualizado = new Date(clinic.updated_at).toLocaleDateString("es-ES", {
@@ -460,36 +451,26 @@ export default async function ClinicaPage({
                       />
                     </>
                   )}
+                  {/* Cabecera reducida a lo esencial (logo, nombre,
+                      tipo) — cada uno en su propia línea, siempre, para
+                      que el alto no cambie según haya o no badge de
+                      verificada: eso ahora vive aparte (ver más abajo). */}
                   <div>
-                    <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-1">
-                      <h1 className="font-display text-[25px] text-teal-dark sm:text-3xl lg:text-4xl">
-                        {clinic.nombre}
-                      </h1>
-                      {clinic.tipo_negocio && (
-                        <span className="hidden text-xs uppercase tracking-wide text-ink-soft/70 sm:inline sm:text-sm">
-                          {clinic.tipo_negocio}
-                        </span>
-                      )}
-                    </div>
-                    {ubicacion && <p className="text-ink-soft sm:mt-1.5">{ubicacion}</p>}
+                    <h1 className="font-display text-[25px] text-teal-dark sm:text-3xl lg:text-4xl">
+                      {clinic.nombre}
+                    </h1>
                     {clinic.tipo_negocio && (
-                      <span className="mt-1 block text-xs uppercase tracking-wide text-ink-soft/70 sm:hidden">
+                      <p className="mt-1 text-xs uppercase tracking-wide text-ink-soft/70 sm:text-sm">
                         {clinic.tipo_negocio}
-                      </span>
+                      </p>
                     )}
                   </div>
                 </div>
-                <div className="flex flex-col items-end gap-2">
-                  {clinic.verificado && <VerifiedBadge />}
-                  {!yaReclamada && (
-                    <Link
-                      href={`/clinica/registro?clinic=${clinic.id}`}
-                      className="text-xs font-medium text-cyan hover:text-cyan-dark"
-                    >
-                      ¿Eres el propietario? Reclama este centro →
-                    </Link>
-                  )}
-                </div>
+                {clinic.verificado && (
+                  <div className="flex flex-col items-end gap-2">
+                    <VerifiedBadge />
+                  </div>
+                )}
               </div>
 
               {clinic.fotos.length > 0 ? (
@@ -785,30 +766,7 @@ export default async function ClinicaPage({
                       Dirección
                     </h2>
                     <p className="mt-2 break-words text-sm text-ink-soft">{clinic.direccion}</p>
-                    {(clinic.google_maps_url || (clinic.lat != null && clinic.lng != null)) && (
-                      <BotonContactoClinica
-                        href={
-                          // Preferimos el enlace real a la ficha de Google
-                          // Maps (SEO local alineado con el perfil
-                          // verificado) — el de lat/lng es solo un pin
-                          // genérico de respaldo cuando aún no se ha
-                          // vinculado google_place_id. Con || en vez de ??:
-                          // un google_maps_url guardado como "" (en vez de
-                          // null) debe caer también al fallback, o el link
-                          // se renderiza con href vacío.
-                          clinic.google_maps_url ||
-                          `https://www.google.com/maps?q=${clinic.lat},${clinic.lng}`
-                        }
-                        target="_blank"
-                        rel="noreferrer"
-                        className="mt-2 inline-flex items-center gap-1.5 text-sm text-cyan hover:text-cyan-dark"
-                        clinicId={clinic.id}
-                        metodo="ver_mapa"
-                      >
-                        <MapPin className="h-4 w-4" aria-hidden />
-                        Ver en el mapa ↗
-                      </BotonContactoClinica>
-                    )}
+                    <MapaFichaClinica clinic={clinic} />
                   </>
                 )}
 
@@ -925,6 +883,19 @@ export default async function ClinicaPage({
                 >
                   Valoración gratuita →
                 </TrackedNextLink>
+
+                {/* Antes vivía en la cabecera (al lado del nombre),
+                    donde al ser condicional hacía que el alto del
+                    título cambiara según el centro. Aquí tiene su
+                    propio hueco fijo y no mueve nada más. */}
+                {!yaReclamada && (
+                  <Link
+                    href={`/clinica/registro?clinic=${clinic.id}`}
+                    className="mt-3 block rounded-xl border border-dashed border-line px-4 py-2.5 text-center text-xs font-medium text-ink-soft transition hover:border-cyan/40 hover:text-cyan-dark"
+                  >
+                    ¿Eres el propietario? Reclama este centro →
+                  </Link>
+                )}
 
                 {esPremium && clinic.reserva_online_url && (
                   <BotonContactoClinica

@@ -35,7 +35,13 @@ export async function SiteHeader() {
   const tratamientos = await tratamientosMenu();
 
   return (
-    <header className="relative z-20">
+    // z-40: tiene que quedar siempre por encima de la barra de filtros
+    // sticky de /centros (z-20) — con el mismo z-20 que antes, al
+    // empatar en el contexto de apilamiento raíz ganaba la barra de
+    // filtros por ir después en el DOM, y el desplegable de
+    // "Tratamientos" (aunque internamente use z-30) quedaba tapado
+    // detrás de ella.
+    <header className="relative z-40">
       <div className="mx-auto flex max-w-[1400px] items-center justify-between px-6 py-3">
         <Link href="/" className="flex items-center gap-3">
           <Image

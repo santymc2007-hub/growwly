@@ -20,6 +20,10 @@ const RATING_OPCIONES = [
   { value: "4.5", label: "4,5+ estrellas Google" },
 ] as const;
 
+// Mismo estilo que "Acceso Centros"/"Mi cuenta" del header (ver
+// site-header.tsx): pill bordeada en amarillo, rellena cuando está
+// activa — en vez del toggle iOS anterior, para que los filtros se
+// sientan parte de la misma familia visual del sitio.
 function Switch({
   activo,
   onClick,
@@ -35,20 +39,10 @@ function Switch({
       role="switch"
       aria-checked={activo}
       onClick={onClick}
-      className="flex items-center gap-2 rounded-full border border-line bg-white px-3.5 py-2 text-sm font-medium text-ink shadow-sm transition hover:border-teal/40"
+      className={`press rounded-full border-2 border-yellow px-4 py-2 text-sm font-semibold text-teal-dark transition ${
+        activo ? "bg-yellow hover:opacity-90" : "hover:bg-yellow/10"
+      }`}
     >
-      <span
-        aria-hidden
-        className={`relative inline-flex h-5 w-9 flex-none items-center rounded-full transition-colors ${
-          activo ? "bg-teal" : "bg-line"
-        }`}
-      >
-        <span
-          className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${
-            activo ? "translate-x-4" : "translate-x-0.5"
-          }`}
-        />
-      </span>
       {children}
     </button>
   );
@@ -113,19 +107,47 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
     primeraConsultaActiva;
 
   return (
-    <div className="flex flex-wrap items-center gap-3">
-      {FIELDS.map(({ key, label }) => (
-        <div key={key} className="relative">
+    <div className="flex flex-col gap-3">
+      {/* Fila 1: desplegables. Fila 2 (siempre debajo, nunca mezclada
+          aquí aunque haya hueco de sobra): switches — así el bloque de
+          filtros tiene una forma predecible en vez de reordenarse según
+          el ancho disponible. */}
+      <div className="flex flex-wrap items-center gap-3">
+        {FIELDS.map(({ key, label }) => (
+          <div key={key} className="relative">
+            <select
+              value={searchParams.get(key) ?? ""}
+              onChange={(e) => updateFilter(key, e.target.value)}
+              aria-label={label}
+              className="appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30"
+            >
+              <option value="">{label}</option>
+              {options[key].map((value) => (
+                <option key={value} value={value}>
+                  {value}
+                </option>
+              ))}
+            </select>
+            <span
+              aria-hidden
+              className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft"
+            >
+              ⌄
+            </span>
+          </div>
+        ))}
+
+        <div className="relative">
           <select
-            value={searchParams.get(key) ?? ""}
-            onChange={(e) => updateFilter(key, e.target.value)}
-            aria-label={label}
+            value={searchParams.get("rating") ?? ""}
+            onChange={(e) => updateFilter("rating", e.target.value)}
+            aria-label="Valoración mínima en Google"
             className="appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30"
           >
-            <option value="">{label}</option>
-            {options[key].map((value) => (
-              <option key={value} value={value}>
-                {value}
+            <option value="">Valoración</option>
+            {RATING_OPCIONES.map((r) => (
+              <option key={r.value} value={r.value}>
+                {r.label}
               </option>
             ))}
           </select>
@@ -136,77 +158,57 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
             ⌄
           </span>
         </div>
-      ))}
-
-      <div className="relative">
-        <select
-          value={searchParams.get("rating") ?? ""}
-          onChange={(e) => updateFilter("rating", e.target.value)}
-          aria-label="Valoración mínima en Google"
-          className="appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30"
-        >
-          <option value="">Valoración</option>
-          {RATING_OPCIONES.map((r) => (
-            <option key={r.value} value={r.value}>
-              {r.label}
-            </option>
-          ))}
-        </select>
-        <span
-          aria-hidden
-          className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft"
-        >
-          ⌄
-        </span>
       </div>
 
-      <Switch
-        activo={verificadoActivo}
-        onClick={() => toggleBooleanFilter("verificado")}
-      >
-        Sello verificado Growwly
-      </Switch>
-
-      <Switch
-        activo={financiacionActiva}
-        onClick={() => toggleBooleanFilter("financiacion")}
-      >
-        Financiación
-      </Switch>
-
-      <Switch activo={ofertaActiva} onClick={() => toggleBooleanFilter("oferta")}>
-        Ofertas
-      </Switch>
-
-      <Switch
-        activo={primeraConsultaActiva}
-        onClick={() => toggleBooleanFilter("primera_consulta")}
-      >
-        1ª consulta gratuita
-      </Switch>
-
-      {hasActiveFilters && (
-        <button
-          type="button"
-          onClick={() => navegar("")}
-          className="text-sm font-medium text-cyan hover:text-cyan-dark"
+      <div className="flex flex-wrap items-center gap-3">
+        <Switch
+          activo={verificadoActivo}
+          onClick={() => toggleBooleanFilter("verificado")}
         >
-          Quitar filtros
-        </button>
-      )}
+          Sello verificado Growwly
+        </Switch>
 
-      {buscando && (
-        <span
-          className="flex items-center gap-1.5 text-sm text-ink-soft"
-          aria-live="polite"
+        <Switch
+          activo={financiacionActiva}
+          onClick={() => toggleBooleanFilter("financiacion")}
         >
+          Financiación
+        </Switch>
+
+        <Switch activo={ofertaActiva} onClick={() => toggleBooleanFilter("oferta")}>
+          Ofertas
+        </Switch>
+
+        <Switch
+          activo={primeraConsultaActiva}
+          onClick={() => toggleBooleanFilter("primera_consulta")}
+        >
+          1ª consulta gratuita
+        </Switch>
+
+        {hasActiveFilters && (
+          <button
+            type="button"
+            onClick={() => navegar("")}
+            className="text-sm font-medium text-cyan hover:text-cyan-dark"
+          >
+            Quitar filtros
+          </button>
+        )}
+
+        {buscando && (
           <span
-            className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-line border-t-teal"
-            aria-hidden
-          />
-          Buscando…
-        </span>
-      )}
+            className="flex items-center gap-1.5 text-sm text-ink-soft"
+            aria-live="polite"
+          >
+            <span
+              className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-line border-t-teal"
+              aria-hidden
+            />
+            Buscando…
+          </span>
+        )}
+      </div>
     </div>
   );
 }
