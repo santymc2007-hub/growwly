@@ -679,7 +679,31 @@ export default async function ClinicaPage({
                   </div>
                 )}
 
-              <p className="mt-10 text-xs text-ink-soft lg:order-120">
+              {/* Fuera del aside de Contacto a propósito — es un aviso
+                  para el propietario, no información de contacto para
+                  el paciente, y así tiene sitio para ser bien visible
+                  en vez de ser un link diminuto. */}
+              {!yaReclamada && (
+                <div className="mt-10 flex flex-col items-start gap-3 rounded-2xl border border-cyan/30 bg-cyan/5 p-5 sm:flex-row sm:items-center sm:justify-between lg:order-115">
+                  <div>
+                    <p className="font-display text-base text-teal-dark">
+                      ¿Eres el propietario de este centro?
+                    </p>
+                    <p className="mt-1 text-sm text-ink-soft">
+                      Reclama la ficha para gestionarla y empezar a recibir
+                      solicitudes de pacientes.
+                    </p>
+                  </div>
+                  <Link
+                    href={`/clinica/registro?clinic=${clinic.id}`}
+                    className="press inline-block shrink-0 rounded-full border-2 border-cyan px-5 py-2.5 text-sm font-bold text-cyan-dark transition hover:bg-cyan/10"
+                  >
+                    Reclama este centro →
+                  </Link>
+                </div>
+              )}
+
+              <p className="mt-6 text-xs text-ink-soft lg:order-120">
                 Última actualización: {actualizado}
               </p>
             </div>
@@ -747,17 +771,19 @@ export default async function ClinicaPage({
                       <Phone className="h-4 w-4" aria-hidden />
                       Llamar
                     </BotonContactoClinica>
-                    <BotonContactoClinica
-                      href={`https://wa.me/${soloDigitos(clinic.telefono)}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="press inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
-                      clinicId={clinic.id}
-                      metodo="whatsapp"
-                    >
-                      <WhatsAppIcon className="h-4 w-4" />
-                      WhatsApp
-                    </BotonContactoClinica>
+                    {clinic.telefono_es_movil && (
+                      <BotonContactoClinica
+                        href={`https://wa.me/${soloDigitos(clinic.telefono)}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="press inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
+                        clinicId={clinic.id}
+                        metodo="whatsapp"
+                      >
+                        <WhatsAppIcon className="h-4 w-4" />
+                        WhatsApp
+                      </BotonContactoClinica>
+                    )}
                   </div>
                 )}
 
@@ -884,19 +910,6 @@ export default async function ClinicaPage({
                 >
                   Valoración gratuita →
                 </TrackedNextLink>
-
-                {/* Antes vivía en la cabecera (al lado del nombre),
-                    donde al ser condicional hacía que el alto del
-                    título cambiara según el centro. Aquí tiene su
-                    propio hueco fijo y no mueve nada más. */}
-                {!yaReclamada && (
-                  <Link
-                    href={`/clinica/registro?clinic=${clinic.id}`}
-                    className="mt-3 block rounded-xl border border-dashed border-line px-4 py-2.5 text-center text-xs font-medium text-ink-soft transition hover:border-cyan/40 hover:text-cyan-dark"
-                  >
-                    ¿Eres el propietario? Reclama este centro →
-                  </Link>
-                )}
 
                 {esPremium && clinic.reserva_online_url && (
                   <BotonContactoClinica

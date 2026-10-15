@@ -244,6 +244,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     lat: num("lat"),
     lng: num("lng"),
     telefono: str("telefono"),
+    telefono_es_movil: formData.get("telefono_es_movil") === "on",
     email: str("email"),
     web: str("web"),
     redes_sociales: redesSociales,

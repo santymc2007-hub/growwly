@@ -19,7 +19,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.15"
   }
   public: {
     Tables: {
@@ -171,6 +171,32 @@ export type Database = {
           },
         ]
       }
+      clinic_page_views: {
+        Row: {
+          clinic_id: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          clinic_id: string
+          created_at?: string
+          id?: string
+        }
+        Update: {
+          clinic_id?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_page_views_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       clinic_privado: {
         Row: {
           alta_email: string | null
@@ -195,32 +221,6 @@ export type Database = {
             foreignKeyName: "clinic_privado_clinic_id_fkey"
             columns: ["clinic_id"]
             isOneToOne: true
-            referencedRelation: "clinics"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clinic_page_views: {
-        Row: {
-          clinic_id: string
-          created_at: string
-          id: string
-        }
-        Insert: {
-          clinic_id: string
-          created_at?: string
-          id?: string
-        }
-        Update: {
-          clinic_id?: string
-          created_at?: string
-          id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinic_page_views_clinic_id_fkey"
-            columns: ["clinic_id"]
-            isOneToOne: false
             referencedRelation: "clinics"
             referencedColumns: ["id"]
           },
@@ -326,6 +326,7 @@ export type Database = {
           slugs_antiguos: string[]
           tecnicas: string[]
           telefono: string | null
+          telefono_es_movil: boolean
           tiene_oferta: boolean
           tipo_negocio: string | null
           updated_at: string
@@ -394,6 +395,7 @@ export type Database = {
           slugs_antiguos?: string[]
           tecnicas?: string[]
           telefono?: string | null
+          telefono_es_movil?: boolean
           tiene_oferta?: boolean
           tipo_negocio?: string | null
           updated_at?: string
@@ -462,6 +464,7 @@ export type Database = {
           slugs_antiguos?: string[]
           tecnicas?: string[]
           telefono?: string | null
+          telefono_es_movil?: boolean
           tiene_oferta?: boolean
           tipo_negocio?: string | null
           updated_at?: string
@@ -490,8 +493,8 @@ export type Database = {
           foto_perfil_izquierdo: string | null
           fotos_adicionales: string[]
           id: string
-          ip_hash: string | null
           informe: Json | null
+          ip_hash: string | null
           norwood_estimado: string | null
           recordatorio_presupuesto_enviado_en: string | null
           resultado_texto: string | null
@@ -512,8 +515,8 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
-          ip_hash?: string | null
           informe?: Json | null
+          ip_hash?: string | null
           norwood_estimado?: string | null
           recordatorio_presupuesto_enviado_en?: string | null
           resultado_texto?: string | null
@@ -534,8 +537,8 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
-          ip_hash?: string | null
           informe?: Json | null
+          ip_hash?: string | null
           norwood_estimado?: string | null
           recordatorio_presupuesto_enviado_en?: string | null
           resultado_texto?: string | null
