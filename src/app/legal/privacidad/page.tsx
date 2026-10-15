@@ -132,8 +132,13 @@ export default function PrivacidadPage() {
           Estados Unidos.
         </li>
         <li>
-          Google (analítica web si la aceptas, inicio de sesión con Google y
-          mapas), Estados Unidos.
+          Google (analítica web si la aceptas e inicio de sesión con
+          Google), Estados Unidos.
+        </li>
+        <li>
+          OpenStreetMap Foundation (imágenes de los mapas de clínicas), Reino
+          Unido: al cargar un mapa, tu navegador le pide las imágenes y recibe
+          tu dirección IP.
         </li>
       </ul>
       <p>

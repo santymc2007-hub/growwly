@@ -3,6 +3,8 @@
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { borrarFotosEstudio } from "@/lib/supabase/estudios-storage";
 
 export async function actualizarPerfil(formData: FormData) {
   const supabase = await createClient();
@@ -105,6 +107,75 @@ export async function cambiarPassword(formData: FormData) {
   }
 
   redirect("/cuenta?guardado=1");
+}
+
+/**
+ * El paciente borra su cuenta y todo lo suyo: valoraciones (y sus
+ * fotos del bucket privado), solicitudes de presupuesto y, por cascada
+ * en la base de datos, los leads, propuestas y eventos asociados. La
+ * política de privacidad promete hacerlo en 30 días como mucho; se
+ * hace al momento.
+ *
+ * Solo cuentas de paciente: una cuenta de clínica o de admin tiene
+ * fichas y datos de facturación detrás y se da de baja escribiendo a
+ * Growwly.
+ */
+export async function eliminarCuenta() {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) {
+    redirect("/cuenta/login");
+  }
+
+  const admin = createAdminClient();
+  const { data: perfil } = await admin
+    .from("profiles")
+    .select("role")
+    .eq("id", user.id)
+    .maybeSingle();
+
+  if (perfil && perfil.role !== "patient") {
+    redirect(
+      `/cuenta?error=${encodeURIComponent(
+        "Las cuentas de clínica se dan de baja escribiendo a direccion@growwly.es.",
+      )}`,
+    );
+  }
+
+  // Las fotos viven en Storage, fuera de la cascada de la base de datos.
+  const { data: estudios } = await admin
+    .from("estudios_capilares")
+    .select(
+      "foto_frontal, foto_donante, foto_coronilla, foto_perfil_derecho, foto_perfil_izquierdo, fotos_adicionales",
+    )
+    .eq("user_id", user.id);
+
+  const rutas = (estudios ?? []).flatMap((e) => [
+    e.foto_frontal,
+    e.foto_donante,
+    e.foto_coronilla,
+    e.foto_perfil_derecho,
+    e.foto_perfil_izquierdo,
+    ...(e.fotos_adicionales ?? []),
+  ]);
+  await borrarFotosEstudio(admin, rutas);
+
+  // Borrar el usuario de Auth arrastra profiles → estudios_capilares,
+  // solicitudes_presupuesto → leads_clinica, propuestas, eventos.
+  const { error } = await admin.auth.admin.deleteUser(user.id);
+  if (error) {
+    redirect(
+      `/cuenta?error=${encodeURIComponent(
+        "No se ha podido eliminar la cuenta. Inténtalo de nuevo o escríbenos a direccion@growwly.es.",
+      )}`,
+    );
+  }
+
+  await supabase.auth.signOut();
+  redirect("/?cuenta_eliminada=1");
 }
 
 export async function cerrarSesionPaciente() {

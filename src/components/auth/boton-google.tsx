@@ -29,6 +29,20 @@ export function BotonGoogle({
           </svg>
           {origen === "registro" ? "Registrarme con Google" : "Continuar con Google"}
         </button>
+        {/* Con Google no hay casilla de edad (la cuenta se crea al
+            volver de Google): la confirmación va aquí, junto al botón,
+            igual que la aceptación de los términos. Auditoría oct 2026. */}
+        <p className="mt-2 text-center text-xs text-ink-soft">
+          Al continuar con Google confirmas que eres mayor de 18 años y aceptas los{" "}
+          <a href="/legal/terminos" className="underline hover:text-teal-dark">
+            Términos
+          </a>{" "}
+          y la{" "}
+          <a href="/legal/privacidad" className="underline hover:text-teal-dark">
+            Política de privacidad
+          </a>
+          .
+        </p>
       </form>
       <div className="flex items-center gap-3 text-xs font-medium text-ink-soft">
         <span className="h-px flex-1 bg-line" />
