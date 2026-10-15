@@ -81,8 +81,8 @@ export function calcularFiabilidad(informe: InformeCapilar): Fiabilidad {
     nivel === "Alta"
       ? "Tienes fotos de todas las zonas que pedimos y con buena calidad. Es lo máximo que podemos afinar sin una consulta."
       : calidad !== "Buena"
-        ? "Algunas fotos tienen poca luz o no se ve bien el cuero cabelludo. Con fotos más claras el informe sería más preciso."
-        : `Te falta ${faltan.length === 1 ? "la zona" : "las zonas"} ${listaFaltan}. Con ${faltan.length === 1 ? "esa foto" : "esas fotos"} el informe sería más preciso.`;
+        ? "Algunas fotos tienen poca luz o no se ve bien el cuero cabelludo. Con fotos más claras la valoración sería más precisa."
+        : `Te falta ${faltan.length === 1 ? "la zona" : "las zonas"} ${listaFaltan}. Con ${faltan.length === 1 ? "esa foto" : "esas fotos"} la valoración sería más precisa.`;
 
   return { nivel, cubiertas, totalZonas: zonas.length, fotosBuenas, totalFotos, calidad, faltan, texto };
 }

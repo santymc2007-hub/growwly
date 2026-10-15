@@ -73,7 +73,7 @@ export function InformeCapilarVista({
           {esClinica ? "← Volver a la solicitud" : "← Volver a mi cuenta"}
         </Link>
         <span className="text-sm text-ink-soft">
-          {esClinica ? "Valoración que vio el paciente" : "Informe orientativo"} · {fecha}
+          {esClinica ? "Valoración que vio el paciente" : "Valoración orientativa"} · {fecha}
         </span>
       </div>
 
@@ -184,7 +184,7 @@ export function InformeCapilarVista({
                     </span>
                     {t.top && (
                       <span className="rounded-full bg-yellow px-3 py-1 text-xs font-bold text-teal-dark">
-                        Te lo recomendamos
+                        Lo más habitual
                       </span>
                     )}
                   </div>
@@ -206,7 +206,7 @@ export function InformeCapilarVista({
           <section className="flex flex-col gap-5 rounded-3xl bg-paper-dim p-6 sm:p-8">
             <div className="flex flex-col gap-2">
               <span className="self-start rounded-full bg-yellow px-3 py-1 text-xs font-bold text-teal-dark">
-                Te lo recomendamos · {contenido.rec.tag(informe)}
+                Lo más habitual en casos así · {contenido.rec.tag(informe)}
               </span>
               <h2 className="font-display text-3xl font-extrabold text-teal-dark">{contenido.rec.titulo}</h2>
               <p className="text-base text-ink-soft">{contenido.rec.sub}</p>
@@ -357,7 +357,7 @@ export function InformeCapilarVista({
                 {esClinica ? "Fotos del paciente" : "Las fotos que nos has enviado"}
               </h2>
               <p className="text-sm leading-relaxed text-ink-soft">
-                Todo este informe sale de lo que se ve en estas imágenes. No es una prueba médica.
+                Toda esta valoración sale de lo que se ve en estas imágenes. No es una prueba médica.
               </p>
             </div>
             {esClinica ? (
@@ -425,7 +425,7 @@ export function InformeCapilarVista({
               {contenido.cta.titulo}
             </h2>
             <p className="text-lg leading-relaxed text-ink-soft">
-              Usamos este informe para que no tengas que explicar tu caso cinco veces. Tú decides con qué clínica reservar.
+              Usamos esta valoración para que no tengas que explicar tu caso cinco veces. Tú decides con qué clínica reservar.
             </p>
             <Link
               href={hrefPresupuesto}

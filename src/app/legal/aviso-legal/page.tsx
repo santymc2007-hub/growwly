@@ -10,31 +10,22 @@ export default function AvisoLegalPage() {
   return (
     <LegalLayout activo="/legal/aviso-legal">
       <h1>Aviso Legal</h1>
-      <p>
-        <em>
-          Plantilla de partida — sustituye los datos entre corchetes por los
-          reales de tu empresa y haz que un abogado la revise antes de
-          publicarla con carácter definitivo.
-        </em>
-      </p>
-
       <h2>1. Datos identificativos</h2>
       <p>
         En cumplimiento del artículo 10 de la Ley 34/2002, de 11 de julio, de
         Servicios de la Sociedad de la Información y de Comercio Electrónico
         (LSSI-CE), se informa de los siguientes datos: el presente sitio web,
-        accesible en [URL DEL DOMINIO], es titularidad de [NOMBRE LEGAL DE LA
-        EMPRESA / AUTÓNOMO], con NIF/CIF [NÚMERO], domicilio en [DIRECCIÓN
-        COMPLETA], [inscrita en el Registro Mercantil de (provincia), tomo
-        (X), folio (X), hoja (X) — si aplica]. Email de contacto:
-        [email@dominio.com].
+        accesible en growwly.es, es titularidad de Santiago Mulet Cortés,
+        con NIF 43139455B y domicilio en calle Joan Sastre Prevere, 6, bajos,
+        07015 Palma (Illes Balears). Email de contacto:{" "}
+        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>.
       </p>
 
       <h2>2. Objeto</h2>
       <p>
         Growwly es un directorio online de clínicas especializadas en salud
         capilar en España. A través de la plataforma, los usuarios pueden
-        consultar información sobre clínicas, recibir una primera impresión
+        consultar información sobre clínicas, recibir una valoración
         orientativa (no un diagnóstico médico) a partir de fotografías, y
         solicitar presupuestos que se hacen llegar a las clínicas que
         encajen con su perfil.
@@ -54,7 +45,7 @@ export default function AvisoLegalPage() {
       <h2>4. Propiedad intelectual e industrial</h2>
       <p>
         Todos los contenidos del sitio (textos, imágenes, marca, logotipo,
-        diseño y código fuente) son propiedad de [NOMBRE DE LA EMPRESA] o de
+        diseño y código fuente) son propiedad del titular de Growwly o de
         terceros que han autorizado su uso, y están protegidos por la
         normativa de propiedad intelectual e industrial. Queda prohibida su
         reproducción, distribución o transformación sin autorización
@@ -63,20 +54,22 @@ export default function AvisoLegalPage() {
 
       <h2>5. Exclusión de responsabilidad</h2>
       <p>
-        El análisis orientativo que ofrece la plataforma a partir de
+        La valoración orientativa que ofrece la plataforma a partir de
         fotografías se genera mediante inteligencia artificial y{" "}
-        <strong>no constituye en ningún caso un diagnóstico médico</strong>.
-        Growwly no participa en la relación médico-paciente entre el usuario
-        y la clínica, y no se responsabiliza de los tratamientos,
-        presupuestos o resultados ofrecidos por las clínicas que figuran en
-        el directorio.
+        <strong>no constituye en ningún caso un diagnóstico médico</strong>,
+        ni una indicación o prescripción de tratamiento. Growwly no es un
+        centro sanitario, no presta servicios sanitarios y no participa en la
+        relación médico-paciente entre el usuario y la clínica. Growwly no se
+        responsabiliza de los tratamientos, presupuestos o resultados
+        ofrecidos por las clínicas que figuran en el directorio, que son las
+        únicas responsables de la asistencia que prestan.
       </p>
 
       <h2>6. Legislación aplicable</h2>
       <p>
         Las presentes condiciones se rigen por la legislación española. Para
         cualquier controversia derivada del acceso o uso de este sitio web,
-        las partes se someten a los juzgados y tribunales de [CIUDAD], salvo
+        las partes se someten a los juzgados y tribunales de Palma, salvo
         que la normativa de consumidores establezca otro fuero.
       </p>
     </LegalLayout>

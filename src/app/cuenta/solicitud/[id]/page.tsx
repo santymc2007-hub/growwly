@@ -315,7 +315,7 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
           { t: "Tú decides", d: "Elige con quién seguir. Solo esa clínica verá tu contacto." },
         ]
       : [
-          { t: "Las clínicas revisan tu caso", d: "Ven tu informe y tus fotos, pero no tu nombre ni tu teléfono." },
+          { t: "Las clínicas revisan tu caso", d: "Ven tu valoración y tus fotos, pero no tu nombre ni tu teléfono." },
           { t: "Te envían su propuesta", d: "Precio, tratamiento y condiciones. Te avisamos por email." },
           { t: "Tú decides", d: "Las revisas aquí mismo y eliges con quién seguir. Sin compromiso." },
         ];
@@ -338,7 +338,7 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
     resumen.push({ k: "Cuándo", v: etiqueta(CUANDO_LABEL, solicitud.cuando_tratamiento) ?? "" });
   if (solicitud.presupuesto_rango)
     resumen.push({ k: "Presupuesto", v: labelPresupuesto(solicitud.presupuesto_rango) });
-  resumen.push({ k: "Fotos", v: solicitud.estudio_id ? "Informe capilar adjunto" : "Sin fotos" });
+  resumen.push({ k: "Fotos", v: solicitud.estudio_id ? "Valoración capilar adjunta" : "Sin fotos" });
 
   const propuestaElegida = leadElegido ? propuestaPorLead.get(leadElegido.id) : undefined;
   const lugarCita =
@@ -689,7 +689,7 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
                     href={`/cuenta/analisis/${solicitud.estudio_id}`}
                     className="text-sm font-semibold text-teal hover:text-teal-dark"
                   >
-                    Ver mi informe capilar →
+                    Ver mi valoración capilar →
                   </Link>
                 )}
               </div>

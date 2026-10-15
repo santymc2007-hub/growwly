@@ -83,6 +83,9 @@ export async function crearEstudio(formData: FormData) {
   if (formData.get("consentimiento") !== "on") {
     errorAnalisis("Para analizar tus fotos necesitamos que marques la casilla de consentimiento.");
   }
+  if (formData.get("aviso_no_diagnostico") !== "on") {
+    errorAnalisis("Marca la casilla que confirma que entiendes que la valoración no es un diagnóstico médico.");
+  }
 
   const todos = [...archivosAngulo.map((a) => a.file), ...archivosAdicionales];
   if (todos.length > MAX_FOTOS) {

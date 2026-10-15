@@ -388,7 +388,7 @@ export default async function CuentaPage({
                           href={`/cuenta/analisis/${e.id}`}
                           className="press rounded-full bg-yellow px-4 py-2 text-sm font-semibold text-teal-dark hover:opacity-90"
                         >
-                          Ver informe →
+                          Ver valoración →
                         </Link>
                       ) : (
                         <span className="text-sm text-ink-soft">
