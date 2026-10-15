@@ -29,6 +29,14 @@ export async function registrarPaciente(formData: FormData) {
     volverConError("Las contraseñas no coinciden.");
   }
 
+  // Growwly trata datos de salud: solo mayores de edad (auditoría oct 2026).
+  if (formData.get("mayor_edad") !== "on") {
+    volverConError("Para registrarte tienes que ser mayor de 18 años.");
+  }
+  if (edadRaw && (!/^\d{1,3}$/.test(edadRaw) || Number(edadRaw) < 18)) {
+    volverConError("Para registrarte tienes que ser mayor de 18 años.");
+  }
+
   const supabase = await createClient();
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
   // Si hay un estudio pendiente de reclamar, el enlace de confirmación

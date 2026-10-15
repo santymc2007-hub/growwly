@@ -90,7 +90,7 @@ export default async function RegistroPage({
               id="edad"
               name="edad"
               type="number"
-              min="16"
+              min="18"
               max="100"
               className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
             />
@@ -124,6 +124,16 @@ export default async function RegistroPage({
             className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
           />
         </div>
+
+        <label className="flex items-start gap-2 text-sm text-ink-soft">
+          <input
+            type="checkbox"
+            name="mayor_edad"
+            required
+            className="mt-0.5 h-4 w-4 shrink-0 accent-teal"
+          />
+          <span>Soy mayor de 18 años</span>
+        </label>
 
         {error && (
           <p className="text-sm text-error">{decodeURIComponent(error)}</p>

@@ -19,9 +19,41 @@ function suscribirseAConsentimiento(callback: () => void) {
   return () => window.removeEventListener(EVENTO_CONSENTIMIENTO, callback);
 }
 
+const VALIDEZ_MS = 24 * 30 * 24 * 60 * 60 * 1000; // ~24 meses
+
 function leerConsentimiento(): Eleccion {
-  const guardada = localStorage.getItem(STORAGE_KEY);
-  return guardada === "aceptado" || guardada === "rechazado" ? guardada : null;
+  try {
+    const guardada = localStorage.getItem(STORAGE_KEY);
+    if (guardada !== "aceptado" && guardada !== "rechazado") return null;
+    // Elecciones sin fecha (anteriores a oct 2026) siguen valiendo hasta
+    // que la persona vuelva a elegir; con fecha, caducan a los ~24 meses.
+    const fecha = localStorage.getItem(`${STORAGE_KEY}_fecha`);
+    if (fecha && Date.now() - new Date(fecha).getTime() > VALIDEZ_MS) return null;
+    return guardada;
+  } catch {
+    return null;
+  }
+}
+
+/** Borra las cookies de Google Analytics (_ga, _ga_*, _gid) del dominio. */
+function borrarCookiesAnalitica() {
+  const nombres = document.cookie
+    .split(";")
+    .map((c) => c.split("=")[0].trim())
+    .filter((n) => n === "_ga" || n.startsWith("_ga_") || n === "_gid" || n === "_gat");
+  const host = window.location.hostname;
+  const partes = host.split(".");
+  // GA las pone en el dominio "raíz" (p. ej. .growwly.es); se prueba
+  // con el host y con cada dominio padre.
+  const dominios = [host];
+  for (let i = 1; i < partes.length - 1; i++) dominios.push("." + partes.slice(i).join("."));
+  dominios.push("." + host);
+  for (const nombre of nombres) {
+    document.cookie = `${nombre}=; Max-Age=0; path=/`;
+    for (const d of dominios) {
+      document.cookie = `${nombre}=; Max-Age=0; path=/; domain=${d}`;
+    }
+  }
 }
 
 function leerConsentimientoServidor(): Eleccion {
@@ -49,7 +81,21 @@ export function CookieConsent() {
   const visible = eleccion === null || reabierta;
 
   function elegir(valor: "aceptado" | "rechazado") {
+    const habiaAceptado = eleccion === "aceptado";
     localStorage.setItem(STORAGE_KEY, valor);
+    // Fecha de la elección: permite volver a preguntar pasado un tiempo
+    // (la AEPD recomienda como mucho 24 meses).
+    localStorage.setItem(`${STORAGE_KEY}_fecha`, new Date().toISOString());
+
+    if (valor === "rechazado" && habiaAceptado) {
+      // Retirar el consentimiento tiene que ser efectivo: borrar las
+      // cookies de Google Analytics y recargar para que el script ya
+      // cargado deje de ejecutarse (auditoría oct 2026).
+      borrarCookiesAnalitica();
+      window.location.reload();
+      return;
+    }
+
     window.dispatchEvent(new Event(EVENTO_CONSENTIMIENTO));
     setReabierta(false);
   }

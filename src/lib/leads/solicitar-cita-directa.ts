@@ -2,6 +2,7 @@
 
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
+import { esc } from "@/lib/email/escapar";
 
 type Resultado = { ok: true } | { ok: false; error: string };
 
@@ -83,16 +84,16 @@ function construirHtmlCita(datos: {
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
       <h1 style="font-size: 20px; color: #00566b;">Nueva petición de cita</h1>
-      <p>Hola ${datos.clinicaNombre},</p>
+      <p>Hola ${esc(datos.clinicaNombre)},</p>
       <p>Alguien ha pedido cita directamente desde tu ficha en Growwly:</p>
       <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
-        <tr><td style="padding:4px 0; color:#66756f;">Nombre</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${datos.nombre}</td></tr>
-        <tr><td style="padding:4px 0; color:#66756f;">Teléfono</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${datos.telefono}</td></tr>
-        ${datos.email ? `<tr><td style="padding:4px 0; color:#66756f;">Email</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${datos.email}</td></tr>` : ""}
+        <tr><td style="padding:4px 0; color:#66756f;">Nombre</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(datos.nombre)}</td></tr>
+        <tr><td style="padding:4px 0; color:#66756f;">Teléfono</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(datos.telefono)}</td></tr>
+        ${datos.email ? `<tr><td style="padding:4px 0; color:#66756f;">Email</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(datos.email)}</td></tr>` : ""}
       </table>
       ${
         datos.mensaje
-          ? `<p style="background:#eef6f1; padding:12px; border-radius:8px; font-size:13px;"><strong>Mensaje:</strong> ${datos.mensaje}</p>`
+          ? `<p style="background:#eef6f1; padding:12px; border-radius:8px; font-size:13px;"><strong>Mensaje:</strong> ${esc(datos.mensaje)}</p>`
           : ""
       }
       <p style="font-size: 12px; color: #66756f; margin-top: 24px;">

@@ -16,10 +16,14 @@ export async function guardarDatosFacturacion(formData: FormData) {
       String(formData.get("email_facturacion") ?? "").trim() || null,
   };
 
+  // Va a clinic_privado (solo servidor), no a clinics: clinics es
+  // legible por cualquiera con la clave pública.
   await supabase
-    .from("clinics")
-    .update({ datos_facturacion: datos })
-    .eq("id", clinicId);
+    .from("clinic_privado")
+    .upsert(
+      { clinic_id: clinicId, datos_facturacion: datos, updated_at: new Date().toISOString() },
+      { onConflict: "clinic_id" },
+    );
 
   revalidatePath("/clinica/facturacion");
   redirect("/clinica/facturacion?guardado=1");

@@ -1,3 +1,4 @@
+import { serializarJsonLd } from "@/lib/json-ld";
 import Link from "next/link";
 
 export type BreadcrumbItem = { label: string; href: string };
@@ -31,7 +32,7 @@ export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializarJsonLd(breadcrumbJsonLd) }}
       />
       <nav
         aria-label="Migas de pan"

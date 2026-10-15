@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { cronAutorizado } from "@/lib/cron/autorizado";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
+import { esc } from "@/lib/email/escapar";
 
 /**
  * Vercel Cron llama a esta ruta una vez al día (ver vercel.json).
@@ -10,12 +12,8 @@ import { enviarEmail } from "@/lib/email/resend";
  * (recordatorio_feedback_enviado_en evita mandarlo dos veces).
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+  if (!cronAutorizado(request)) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const supabase = createAdminClient();
@@ -90,8 +88,8 @@ function construirHtmlEmail(datos: {
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
       <h1 style="font-size: 20px; color: #00566b;">¿Cómo fue tu cita?</h1>
-      <p>Hola${datos.nombrePaciente ? ` ${datos.nombrePaciente}` : ""},</p>
-      <p>Vimos que ya tuviste tu cita con ${datos.nombreClinica}. ¿Nos cuentas en 1 minuto cómo fue? Tu valoración ayuda a otros pacientes a elegir mejor.</p>
+      <p>Hola${datos.nombrePaciente ? ` ${esc(datos.nombrePaciente)}` : ""},</p>
+      <p>Vimos que ya tuviste tu cita con ${esc(datos.nombreClinica)}. ¿Nos cuentas en 1 minuto cómo fue? Tu valoración ayuda a otros pacientes a elegir mejor.</p>
       <p style="margin-top: 24px;">
         <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
           Dejar mi valoración →

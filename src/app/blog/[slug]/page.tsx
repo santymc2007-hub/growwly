@@ -1,3 +1,4 @@
+import { serializarJsonLd } from "@/lib/json-ld";
 import Image from "next/image";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -104,13 +105,13 @@ export default async function BlogPostPage({
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializarJsonLd(jsonLd) }}
       />
       {faqJsonLd && (
         <script
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+          dangerouslySetInnerHTML={{ __html: serializarJsonLd(faqJsonLd) }}
         />
       )}
       <SiteHeader />

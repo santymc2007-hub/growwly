@@ -1,3 +1,4 @@
+import { serializarJsonLd } from "@/lib/json-ld";
 import Image from "next/image";
 import Link from "next/link";
 import { cache } from "react";
@@ -394,19 +395,19 @@ export default async function ClinicaPage({
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializarJsonLd(jsonLd) }}
       />
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializarJsonLd(breadcrumbJsonLd) }}
       />
       {reviewsJsonLd.map((review, i) => (
         <script
           key={i}
           type="application/ld+json"
           // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(review) }}
+          dangerouslySetInnerHTML={{ __html: serializarJsonLd(review) }}
         />
       ))}
       <SiteHeader />

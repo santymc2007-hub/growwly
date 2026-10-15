@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { cronAutorizado } from "@/lib/cron/autorizado";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { obtenerDetallesPlace } from "@/lib/google-places";
 
@@ -10,12 +11,8 @@ import { obtenerDetallesPlace } from "@/lib/google-places";
  * no se intenta adivinar/emparejar automáticamente.
  */
 export async function GET(request: Request) {
-  const secret = process.env.CRON_SECRET;
-  if (secret) {
-    const auth = request.headers.get("authorization");
-    if (auth !== `Bearer ${secret}`) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
-    }
+  if (!cronAutorizado(request)) {
+    return NextResponse.json({ error: "No autorizado" }, { status: 401 });
   }
 
   const supabase = createAdminClient();

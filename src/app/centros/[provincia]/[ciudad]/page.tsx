@@ -1,3 +1,4 @@
+import { serializarJsonLd } from "@/lib/json-ld";
 import Link from "next/link";
 import { cache } from "react";
 import { notFound } from "next/navigation";
@@ -143,7 +144,7 @@ export default async function CiudadPage({
       <script
         type="application/ld+json"
         // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+        dangerouslySetInnerHTML={{ __html: serializarJsonLd(breadcrumbJsonLd) }}
       />
       <SiteHeader />
 

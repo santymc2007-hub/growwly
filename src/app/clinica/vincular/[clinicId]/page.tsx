@@ -13,7 +13,9 @@ export default async function VincularClinicaPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { clinicId } = await params;
-  const { nombre, nueva } = await searchParams;
+  // `nueva` ya no decide nada (se ignora): la autoaprobación se
+  // comprueba en el servidor dentro de vincularClinica().
+  const { nombre } = await searchParams;
 
   const supabase = await createClient();
   const {
@@ -24,6 +26,6 @@ export default async function VincularClinicaPage({
     redirect("/clinica/login");
   }
 
-  await vincularClinica(user.id, clinicId, nombre, { autoAprobar: nueva === "1" });
+  await vincularClinica(user.id, clinicId, nombre, { emailUsuario: user.email });
   redirect("/clinica");
 }

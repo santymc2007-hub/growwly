@@ -2,6 +2,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
 import { fechaCitaLarga, type OpcionCita } from "@/lib/leads/opciones-cita";
+import { esc } from "@/lib/email/escapar";
 
 /**
  * Emails del paso "cita" entre paciente y clínica. Un fallo al enviar
@@ -83,7 +84,7 @@ export async function notificarPacienteFechas(
       subject: "Elige fecha para tu valoración · Growwly",
       html: plantilla(
         "Elige fecha para tu valoración",
-        `<p>Hola${perfil.nombre ? ` ${perfil.nombre}` : ""},</p><p><strong>${clinica?.nombre ?? "La clínica"}</strong> te propone varias fechas. Solo tienes que confirmar la que mejor te venga.</p>`,
+        `<p>Hola${perfil.nombre ? ` ${esc(perfil.nombre)}` : ""},</p><p><strong>${esc(clinica?.nombre ?? "La clínica")}</strong> te propone varias fechas. Solo tienes que confirmar la que mejor te venga.</p>`,
         enlace,
         "Elegir fecha →",
       ),

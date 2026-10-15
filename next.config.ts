@@ -23,6 +23,37 @@ const nextConfig: NextConfig = {
       { protocol: "https", hostname: "*.supabase.co" },
     ],
   },
+  async headers() {
+    // Cabeceras de seguridad (auditoría oct 2026). La CSP es solo
+    // "estructural" a propósito: impide meter la web en un iframe
+    // ajeno (clickjacking), cambiar la <base> o cargar <object>, sin
+    // restringir scripts — una CSP de scripts estricta rompería Google
+    // Analytics, los JSON-LD y el script de animaciones, y habría que
+    // probarla con calma. NO se añade form-action: Chrome lo aplica
+    // también a la redirección del login con Google y lo rompería.
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "Content-Security-Policy",
+            value: "frame-ancestors 'none'; base-uri 'self'; object-src 'none'",
+          },
+          { key: "X-Frame-Options", value: "DENY" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), payment=(), usb=(), interest-cohort=()",
+          },
+          {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains",
+          },
+        ],
+      },
+    ];
+  },
   async redirects() {
     // El directorio público pasó de /clinicas a /centros. El sitio aún
     // no está indexado (noindex), pero por si alguien guardó un enlace

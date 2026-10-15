@@ -10,6 +10,7 @@ import {
   CUANDO_LABEL,
   labelPresupuesto,
 } from "@/lib/solicitud-labels";
+import { esc } from "@/lib/email/escapar";
 
 /**
  * Tope de clínicas que reciben un mismo lead. Repartir un lead entre
@@ -233,7 +234,7 @@ function construirHtmlEmail(datos: {
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
       <h1 style="font-size: 20px; color: #00566b;">Nueva solicitud de presupuesto</h1>
-      <p>Hola ${datos.clinicaNombre},</p>
+      <p>Hola ${esc(datos.clinicaNombre)},</p>
       <p>Un paciente ha pedido presupuesto a través de Growwly y tu clínica encaja con lo que busca:</p>
       <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
         ${datos.ciudad ? fila("Ciudad", datos.ciudad) : ""}
@@ -244,7 +245,7 @@ function construirHtmlEmail(datos: {
       </table>
       ${
         datos.resumenIA
-          ? `<p style="background:#eef6f1; padding:12px; border-radius:8px; font-size:13px;"><strong>Primera impresión orientativa:</strong> ${datos.resumenIA}</p>`
+          ? `<p style="background:#eef6f1; padding:12px; border-radius:8px; font-size:13px;"><strong>Primera impresión orientativa:</strong> ${esc(datos.resumenIA)}</p>`
           : ""
       }
       <p style="margin-top: 24px;">
@@ -260,5 +261,5 @@ function construirHtmlEmail(datos: {
 }
 
 function fila(label: string, valor: string): string {
-  return `<tr><td style="padding:4px 0; color:#66756f;">${label}</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${valor}</td></tr>`;
+  return `<tr><td style="padding:4px 0; color:#66756f;">${label}</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(valor)}</td></tr>`;
 }

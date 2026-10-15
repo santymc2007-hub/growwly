@@ -54,6 +54,11 @@ export function AnalisisForm({
   const [fotos, setFotos] = useState<FotoAdjunta[]>([]);
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
   const [arrastrando, setArrastrando] = useState(false);
+  // Las fotos del cuero cabelludo analizadas para valorar la caída son
+  // datos de salud (art. 9 RGPD): hace falta consentimiento explícito,
+  // no premarcado, antes de subirlas. Mayoría de edad en la misma
+  // casilla. Texto pendiente de revisión legal (oct 2026).
+  const [consiente, setConsiente] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const camaraRef = useRef<HTMLInputElement>(null);
   const fotosAnadidasRef = useRef<HTMLDivElement>(null);
@@ -96,12 +101,13 @@ export function AnalisisForm({
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (fotos.length === 0) return;
+    if (fotos.length === 0 || !consiente) return;
 
     setEstado("enviando");
     try {
       const formData = new FormData();
       for (const foto of fotos) formData.append("adicionales", foto.file);
+      formData.append("consentimiento", consiente ? "on" : "");
       await action(formData);
       // La action redirige internamente al terminar (tanto si va bien
       // como si hay error), así que normalmente no se llega más allá.
@@ -349,7 +355,26 @@ export function AnalisisForm({
                   </button>
                 </div>
 
-                <div className="mt-8 flex flex-col items-start gap-4 border-t border-dashed border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
+                <label className="mt-8 flex cursor-pointer items-start gap-3 text-xs leading-relaxed text-ink-soft">
+                  <input
+                    type="checkbox"
+                    name="consentimiento"
+                    checked={consiente}
+                    onChange={(e) => setConsiente(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 shrink-0 accent-teal-dark"
+                  />
+                  <span>
+                    Soy mayor de 18 años y consiento que Growwly trate estas fotos, que pueden
+                    revelar datos de salud, para generar una primera impresión orientativa con
+                    inteligencia artificial (procesada por un proveedor tecnológico que puede estar
+                    fuera de la UE). Puedo borrarlas cuando quiera.{" "}
+                    <a href="/legal/privacidad" target="_blank" className="font-medium text-cyan-dark underline">
+                      Política de privacidad
+                    </a>
+                  </span>
+                </label>
+
+                <div className="mt-6 flex flex-col items-start gap-4 border-t border-dashed border-line pt-6 sm:flex-row sm:items-center sm:justify-between">
                   <div className="flex items-center gap-2.5">
                     <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-teal-dark text-white">
                       <Check className="h-3.5 w-3.5" aria-hidden />
@@ -370,7 +395,7 @@ export function AnalisisForm({
 
                   <button
                     type="submit"
-                    disabled={fotos.length === 0 || estado !== "idle"}
+                    disabled={fotos.length === 0 || !consiente || estado !== "idle"}
                     className="press w-full rounded-full bg-yellow px-7 py-3.5 font-display text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto"
                   >
                     {estado === "enviando" ? "Analizando tus fotos…" : "Analiza mis fotos"}

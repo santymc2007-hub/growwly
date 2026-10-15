@@ -1,5 +1,6 @@
 "use server";
 
+import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -54,6 +55,7 @@ function readFields(formData: FormData) {
 }
 
 export async function createTratamiento(formData: FormData) {
+  await requireAdmin();
   const fields = readFields(formData);
   if (!fields.nombre) {
     redirect(
@@ -111,6 +113,7 @@ export async function createTratamiento(formData: FormData) {
 }
 
 export async function updateTratamiento(id: string, formData: FormData) {
+  await requireAdmin();
   const fields = readFields(formData);
   if (!fields.nombre) {
     redirect(
@@ -178,6 +181,7 @@ export async function updateTratamiento(id: string, formData: FormData) {
 }
 
 export async function deleteTratamiento(id: string) {
+  await requireAdmin();
   const supabase = createAdminClient();
 
   const { data: tratamiento } = await supabase
