@@ -40,12 +40,16 @@ function AjustarVista({ clinicas }: { clinicas: ClinicConCoords[] }) {
 export function ClinicsMap({
   clinicas,
   alto,
+  ocultarEnlaceFicha,
 }: {
   clinicas: Clinic[];
   /** Alto del contenedor del mapa. Por defecto 420/480px (uso normal a
    * ancho completo); en el panel sticky del modo dividido se le pasa
    * "100%" para que llene el hueco disponible en pantalla. */
   alto?: string;
+  /** Se usa en la propia ficha de una clínica (un único marcador): el
+   * link "Ver ficha →" del popup no tiene sentido si ya estás en ella. */
+  ocultarEnlaceFicha?: boolean;
 }) {
   const conCoords = useMemo(
     () =>
@@ -99,12 +103,14 @@ export function ClinicsMap({
                   {c.ciudad && (
                     <p className="text-xs text-ink-soft">{c.ciudad}</p>
                   )}
-                  <Link
-                    href={href}
-                    className="mt-1 inline-block text-xs font-semibold text-cyan hover:text-cyan-dark"
-                  >
-                    Ver ficha →
-                  </Link>
+                  {!ocultarEnlaceFicha && (
+                    <Link
+                      href={href}
+                      className="mt-1 inline-block text-xs font-semibold text-cyan hover:text-cyan-dark"
+                    >
+                      Ver ficha →
+                    </Link>
+                  )}
                 </div>
               </Popup>
             </Marker>
