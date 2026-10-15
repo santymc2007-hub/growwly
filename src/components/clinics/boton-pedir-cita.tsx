@@ -5,11 +5,14 @@ import { solicitarCitaDirecta } from "@/lib/leads/solicitar-cita-directa";
 import { trackEvent } from "@/lib/analytics/events";
 
 /**
- * Barra fija en móvil con el botón "Pedir cita", siempre visible
- * mientras se hace scroll (en escritorio no hace falta: los datos de
- * contacto ya están a la vista en la barra lateral). Al pulsarla se
- * abre un formulario corto y sin login — la petición llega
- * directamente a esta clínica por email, sin repartirse entre varias.
+ * Único punto de entrada a "pedir cita/presupuesto a esta clínica
+ * concreta" — mismo componente, mismo modal y mismo flujo tanto en
+ * móvil (barra fija inferior) como en escritorio (botón dentro del
+ * aside de Contacto): a propósito no hay un segundo botón ni una
+ * segunda Server Action para lo mismo. La petición llega directamente
+ * a esta clínica, sin repartirse entre varias ni paywall para quien
+ * la envía — lo que varía según el plan de la clínica es si puede ver
+ * los datos del paciente (ver crear-solicitud-cita-directa.ts).
  */
 export function BotonPedirCita({
   clinicId,
@@ -80,6 +83,17 @@ export function BotonPedirCita({
           Pedir cita →
         </button>
       </div>
+
+      <button
+        type="button"
+        onClick={() => {
+          setAbierto(true);
+          trackEvent("clic_pedir_cita_directa", { clinic_id: clinicId });
+        }}
+        className="press mt-5 hidden w-full items-center justify-center rounded-full border-2 border-cyan px-5 py-3 text-center text-sm font-bold text-cyan-dark transition hover:bg-cyan/10 lg:flex"
+      >
+        Pedir presupuesto a esta clínica →
+      </button>
 
       {abierto && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
