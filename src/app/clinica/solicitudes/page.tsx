@@ -9,6 +9,7 @@ import {
   Clock3,
   Calendar,
   CheckCircle2,
+  MessageCircle,
 } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
@@ -22,6 +23,7 @@ import { type EstadoLead } from "@/lib/leads/estados-lead";
 import { construirPasosTimeline } from "@/lib/leads/linea-tiempo";
 import { EvolucionLead } from "@/components/leads/evolucion-lead";
 import { LeadDetalle } from "@/components/leads/lead-detalle";
+import { BloqueoPremium } from "@/components/estadisticas/bloqueo-premium";
 
 type SearchParams = { estado?: string; abierto?: string };
 
@@ -135,22 +137,31 @@ export default async function SolicitudesClinicaPage({
   } = await supabase.auth.getUser();
 
   const admin = createAdminClient();
-  const [{ data: leads }, { data: clinic }, nombreGestor] = await Promise.all([
-    admin
-      .from("leads_clinica")
-      .select("*")
-      .eq("clinic_id", clinicId)
-      .order("enviado_en", { ascending: false }),
-    admin
-      .from("clinics")
-      .select("nombre, logo_url, fotos")
-      .eq("id", clinicId)
-      .maybeSingle(),
-    obtenerNombreGestor(profileId),
-  ]);
+  const [{ data: leads }, { data: clinic }, { data: solicitudesDirectas }, nombreGestor] =
+    await Promise.all([
+      admin
+        .from("leads_clinica")
+        .select("*")
+        .eq("clinic_id", clinicId)
+        .order("enviado_en", { ascending: false }),
+      admin
+        .from("clinics")
+        .select("nombre, logo_url, fotos, plan")
+        .eq("id", clinicId)
+        .maybeSingle(),
+      admin
+        .from("solicitudes_cita_directa")
+        .select("id, nombre, telefono, email, mensaje, creado_en")
+        .eq("clinic_id", clinicId)
+        .order("creado_en", { ascending: false })
+        .limit(20),
+      obtenerNombreGestor(profileId),
+    ]);
   const todos = leads ?? [];
   const solicitudesPendientes = todos.filter((l) => l.estado === "enviado").length;
   const fotoPrincipal = clinic?.logo_url ?? clinic?.fotos?.[0] ?? null;
+  const esPremium = clinic?.plan === "premium";
+  const directas = solicitudesDirectas ?? [];
 
   const leadsFiltrados =
     filtro && filtro !== "todos" ? todos.filter((l) => l.estado === filtro) : todos;
@@ -288,6 +299,80 @@ export default async function SolicitudesClinicaPage({
               ? "Todavía no tienes solicitudes de presupuesto."
               : "No hay solicitudes en este filtro."}
           </p>
+        )}
+
+        {directas.length > 0 && (
+          <div className="mt-10">
+            <h2 className="border-b border-line pb-2 font-display text-lg text-teal-dark">
+              Solicitudes directas desde tu ficha
+            </h2>
+            <p className="mt-2 text-sm text-ink-soft">
+              Pacientes que han pedido cita o presupuesto directamente desde el botón de
+              tu ficha pública (no se reparten entre varias clínicas).
+            </p>
+
+            {esPremium ? (
+              <ul className="mt-4 flex flex-col gap-3">
+                {directas.map((d) => (
+                  <li
+                    key={d.id}
+                    className="flex items-start gap-3 rounded-2xl border border-line bg-white p-4"
+                  >
+                    <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper-dim">
+                      <MessageCircle className="h-5 w-5 text-teal-dark" aria-hidden />
+                    </div>
+                    <div className="min-w-0 flex-1 text-sm">
+                      <p className="font-medium text-ink">{d.nombre}</p>
+                      <p className="mt-0.5 text-ink-soft">
+                        {d.telefono}
+                        {d.email ? ` · ${d.email}` : ""}
+                      </p>
+                      {d.mensaje && <p className="mt-1.5 text-ink-soft">{d.mensaje}</p>}
+                      <p className="mt-1.5 text-xs text-ink-soft">
+                        {new Date(d.creado_en).toLocaleDateString("es-ES", {
+                          day: "numeric",
+                          month: "long",
+                          year: "numeric",
+                        })}
+                      </p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div className="mt-4">
+                <BloqueoPremium>
+                  <ul className="flex flex-col gap-3">
+                    {directas.map((d) => (
+                      <li
+                        key={d.id}
+                        className="flex items-start gap-3 rounded-2xl border border-line bg-white p-4"
+                      >
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-paper-dim">
+                          <MessageCircle className="h-5 w-5 text-teal-dark" aria-hidden />
+                        </div>
+                        <div className="min-w-0 flex-1 text-sm">
+                          <p className="font-medium text-ink">Nombre del paciente</p>
+                          <p className="mt-0.5 text-ink-soft">Teléfono · email</p>
+                          <p className="mt-1.5 text-xs text-ink-soft">
+                            {new Date(d.creado_en).toLocaleDateString("es-ES", {
+                              day: "numeric",
+                              month: "long",
+                              year: "numeric",
+                            })}
+                          </p>
+                        </div>
+                      </li>
+                    ))}
+                  </ul>
+                </BloqueoPremium>
+                <p className="mt-2 text-xs text-ink-soft">
+                  Tienes {directas.length} {directas.length === 1 ? "solicitud" : "solicitudes"}{" "}
+                  que no puedes ver ni responder con el plan básico.
+                </p>
+              </div>
+            )}
+          </div>
         )}
       </div>
     </main>

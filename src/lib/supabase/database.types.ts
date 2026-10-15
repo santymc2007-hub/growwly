@@ -891,30 +891,36 @@ export type Database = {
       }
       solicitudes_cita_directa: {
         Row: {
+          alternativas_enviadas_en: string | null
           clinic_id: string
           creado_en: string
           email: string | null
           id: string
           mensaje: string | null
           nombre: string
+          respondida_en: string | null
           telefono: string
         }
         Insert: {
+          alternativas_enviadas_en?: string | null
           clinic_id: string
           creado_en?: string
           email?: string | null
           id?: string
           mensaje?: string | null
           nombre: string
+          respondida_en?: string | null
           telefono: string
         }
         Update: {
+          alternativas_enviadas_en?: string | null
           clinic_id?: string
           creado_en?: string
           email?: string | null
           id?: string
           mensaje?: string | null
           nombre?: string
+          respondida_en?: string | null
           telefono?: string
         }
         Relationships: [
@@ -923,6 +929,48 @@ export type Database = {
             columns: ["clinic_id"]
             isOneToOne: false
             referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      solicitudes_cita_directa_alternativas: {
+        Row: {
+          clinic_id: string
+          creado_en: string
+          enviada_en: string | null
+          id: string
+          solicitud_id: string
+          token: string
+        }
+        Insert: {
+          clinic_id: string
+          creado_en?: string
+          enviada_en?: string | null
+          id?: string
+          solicitud_id: string
+          token: string
+        }
+        Update: {
+          clinic_id?: string
+          creado_en?: string
+          enviada_en?: string | null
+          id?: string
+          solicitud_id?: string
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "solicitudes_cita_directa_alternativas_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "solicitudes_cita_directa_alternativas_solicitud_id_fkey"
+            columns: ["solicitud_id"]
+            isOneToOne: false
+            referencedRelation: "solicitudes_cita_directa"
             referencedColumns: ["id"]
           },
         ]

@@ -787,6 +787,8 @@ export default async function ClinicaPage({
                   </div>
                 )}
 
+                <BotonPedirCita clinicId={clinic.id} clinicNombre={clinic.nombre} />
+
                 {clinic.direccion && (
                   <>
                     <h2 className="mt-6 font-display text-lg text-teal-dark">
@@ -984,7 +986,6 @@ export default async function ClinicaPage({
       <div className="h-24 lg:hidden" aria-hidden />
 
       <SiteFooter />
-      <BotonPedirCita clinicId={clinic.id} clinicNombre={clinic.nombre} />
     </main>
   );
 }
