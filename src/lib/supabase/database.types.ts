@@ -480,10 +480,53 @@ export type Database = {
         }
         Relationships: []
       }
+      denuncias_contenido: {
+        Row: {
+          buena_fe: boolean
+          creado_en: string
+          email: string | null
+          estado: string
+          explicacion: string
+          id: string
+          ip_hash: string | null
+          motivo: string
+          nombre: string | null
+          resolucion: string | null
+          url: string
+        }
+        Insert: {
+          buena_fe?: boolean
+          creado_en?: string
+          email?: string | null
+          estado?: string
+          explicacion: string
+          id?: string
+          ip_hash?: string | null
+          motivo: string
+          nombre?: string | null
+          resolucion?: string | null
+          url: string
+        }
+        Update: {
+          buena_fe?: boolean
+          creado_en?: string
+          email?: string | null
+          estado?: string
+          explicacion?: string
+          id?: string
+          ip_hash?: string | null
+          motivo?: string
+          nombre?: string | null
+          resolucion?: string | null
+          url?: string
+        }
+        Relationships: []
+      }
       estudios_capilares: {
         Row: {
           claim_token: string
           consentimiento_en: string | null
+          consentimiento_version: string | null
           created_at: string
           error_detalle: string | null
           es_alopecia_tratable: boolean | null
@@ -506,6 +549,7 @@ export type Database = {
         Insert: {
           claim_token?: string
           consentimiento_en?: string | null
+          consentimiento_version?: string | null
           created_at?: string
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
@@ -528,6 +572,7 @@ export type Database = {
         Update: {
           claim_token?: string
           consentimiento_en?: string | null
+          consentimiento_version?: string | null
           created_at?: string
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
@@ -899,9 +944,12 @@ export type Database = {
         Row: {
           alternativas_enviadas_en: string | null
           clinic_id: string
+          consentimiento_en: string | null
+          consentimiento_version: string | null
           creado_en: string
           email: string | null
           id: string
+          ip_hash: string | null
           mensaje: string | null
           nombre: string
           respondida_en: string | null
@@ -910,9 +958,12 @@ export type Database = {
         Insert: {
           alternativas_enviadas_en?: string | null
           clinic_id: string
+          consentimiento_en?: string | null
+          consentimiento_version?: string | null
           creado_en?: string
           email?: string | null
           id?: string
+          ip_hash?: string | null
           mensaje?: string | null
           nombre: string
           respondida_en?: string | null
@@ -921,9 +972,12 @@ export type Database = {
         Update: {
           alternativas_enviadas_en?: string | null
           clinic_id?: string
+          consentimiento_en?: string | null
+          consentimiento_version?: string | null
           creado_en?: string
           email?: string | null
           id?: string
+          ip_hash?: string | null
           mensaje?: string | null
           nombre?: string
           respondida_en?: string | null
@@ -996,6 +1050,7 @@ export type Database = {
           consentimiento_fotos_en: string | null
           consentimiento_info_medica_en: string | null
           consentimiento_terminos_en: string | null
+          consentimiento_version: string | null
           created_at: string
           cuando_tratamiento: string | null
           dejar_decidir_medico: boolean
@@ -1030,6 +1085,7 @@ export type Database = {
           consentimiento_fotos_en?: string | null
           consentimiento_info_medica_en?: string | null
           consentimiento_terminos_en?: string | null
+          consentimiento_version?: string | null
           created_at?: string
           cuando_tratamiento?: string | null
           dejar_decidir_medico?: boolean
@@ -1064,6 +1120,7 @@ export type Database = {
           consentimiento_fotos_en?: string | null
           consentimiento_info_medica_en?: string | null
           consentimiento_terminos_en?: string | null
+          consentimiento_version?: string | null
           created_at?: string
           cuando_tratamiento?: string | null
           dejar_decidir_medico?: boolean

@@ -5,11 +5,7 @@ import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { calcularMetricasLeadsClinica } from "@/lib/leads/metricas-clinica";
 import { calcularGrowwlyScore } from "@/lib/leads/growwly-score";
 import { calcularMatchScore } from "@/lib/leads/match-score";
-import {
-  PROGRESION_LABEL,
-  CUANDO_LABEL,
-  labelPresupuesto,
-} from "@/lib/solicitud-labels";
+import { CUANDO_LABEL, labelPresupuesto } from "@/lib/solicitud-labels";
 import { esc } from "@/lib/email/escapar";
 
 /**
@@ -34,6 +30,11 @@ const LEADS_MINIMOS_GARANTIZADOS_AL_MES = 2;
  * interés), crea un lead con token único por cada una (como mucho
  * MAX_CLINICAS_POR_SOLICITUD), y les manda un email con un resumen
  * anonimizado + el enlace a ese lead.
+ *
+ * El email no lleva datos de salud (progresión de la pérdida ni la
+ * primera impresión de la IA): un correo se reenvía, se queda en
+ * buzones compartidos y no se puede retirar. Se ven al abrir el lead,
+ * que pide sesión de la clínica (auditoría, oct 2026).
  *
  * `supabaseAdmin` debe ser el cliente con la clave secreta (createAdminClient),
  * porque necesita leer todas las clínicas y escribir en leads_clinica
@@ -61,16 +62,6 @@ export async function notificarClinicasDeSolicitud(
       ultimoError: "Solicitud no encontrada",
       matchScorePaciente: null,
     };
-  }
-
-  let resumenIA: string | null = null;
-  if (solicitud.estudio_id) {
-    const { data: estudio } = await supabaseAdmin
-      .from("estudios_capilares")
-      .select("resultado_texto")
-      .eq("id", solicitud.estudio_id)
-      .maybeSingle();
-    resumenIA = estudio?.resultado_texto ?? null;
   }
 
   let query = supabaseAdmin
@@ -196,10 +187,6 @@ export async function notificarClinicasDeSolicitud(
       presupuesto: solicitud.presupuesto_rango
         ? labelPresupuesto(solicitud.presupuesto_rango)
         : null,
-      progresion: solicitud.progresion_perdida
-        ? PROGRESION_LABEL[solicitud.progresion_perdida]
-        : null,
-      resumenIA,
       enlace,
     });
 
@@ -226,8 +213,6 @@ function construirHtmlEmail(datos: {
   tratamientos: string;
   cuando: string | null;
   presupuesto: string | null;
-  progresion: string | null;
-  resumenIA: string | null;
   enlace: string;
 }): string {
   return `
@@ -239,15 +224,10 @@ function construirHtmlEmail(datos: {
       <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
         ${datos.ciudad ? fila("Ciudad", datos.ciudad) : ""}
         ${fila("Tratamientos de interés", datos.tratamientos)}
-        ${datos.progresion ? fila("Progresión de la pérdida", datos.progresion) : ""}
         ${datos.cuando ? fila("Cuándo quiere el tratamiento", datos.cuando) : ""}
         ${datos.presupuesto ? fila("Presupuesto aproximado", datos.presupuesto) : ""}
       </table>
-      ${
-        datos.resumenIA
-          ? `<p style="background:#eef6f1; padding:12px; border-radius:8px; font-size:13px;"><strong>Primera impresión orientativa:</strong> ${esc(datos.resumenIA)}</p>`
-          : ""
-      }
+      <p style="font-size: 13px; color: #66756f;">La progresión de la pérdida, la primera impresión orientativa y los datos de contacto los verás al abrir la solicitud con tu cuenta.</p>
       <p style="margin-top: 24px;">
         <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
           Ver solicitud →

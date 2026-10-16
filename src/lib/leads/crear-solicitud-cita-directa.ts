@@ -12,6 +12,11 @@ export type DatosSolicitudDirecta = {
   telefono: string;
   email: string;
   mensaje: string;
+  /** Cuándo y a qué versión de los textos dijo que sí (casilla del formulario). */
+  consentimientoEn?: string | null;
+  consentimientoVersion?: string | null;
+  /** Huella de IP para limitar envíos (se borra a los 30 días). */
+  ipHash?: string | null;
 };
 
 /**
@@ -50,6 +55,9 @@ export async function crearSolicitudCitaDirecta(
       telefono,
       email: email || null,
       mensaje: mensaje || null,
+      consentimiento_en: datos.consentimientoEn ?? null,
+      consentimiento_version: datos.consentimientoVersion ?? null,
+      ip_hash: datos.ipHash ?? null,
     });
 
     if (error) {

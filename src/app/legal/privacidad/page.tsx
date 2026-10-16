@@ -11,7 +11,7 @@ export default function PrivacidadPage() {
     <LegalLayout activo="/legal/privacidad">
       <h1>Política de Privacidad</h1>
       <p>
-        <em>Última actualización: 15 de octubre de 2026.</em>
+        <em>Última actualización: 16 de octubre de 2026.</em>
       </p>
 
       <h2>1. Responsable del tratamiento</h2>
@@ -53,6 +53,14 @@ export default function PrivacidadPage() {
           .
         </li>
         <li>
+          <strong>Petición de cita a una clínica concreta</strong> (desde su
+          ficha): tu nombre, teléfono, email y el mensaje que escribas, para
+          enviárselos a esa clínica y, si no responde en 48 horas, sugerirte
+          otras por email. Base legal: tu petición (art. 6.1.b RGPD) y, si el
+          mensaje incluye datos de salud, tu consentimiento explícito, que
+          das en la casilla del formulario (art. 9.2.a RGPD).
+        </li>
+        <li>
           <strong>Avisos y recordatorios:</strong> te escribimos sobre tus
           solicitudes (propuestas de clínicas, citas y cambios), porque es
           parte del servicio (art. 6.1.b RGPD). También te enviamos algún
@@ -80,6 +88,12 @@ export default function PrivacidadPage() {
           legítimo en ofrecer un directorio completo (art. 6.1.f RGPD). La
           clínica puede pedir en cualquier momento que corrijamos o retiremos
           su ficha.
+        </li>
+        <li>
+          <strong>Denuncias de contenido:</strong> si nos avisas de algo falso
+          o ilegal en Growwly, tu nombre, tu email y lo que nos cuentas, para
+          revisarlo y responderte. Base legal: obligación legal (Reglamento
+          (UE) 2022/2065 de Servicios Digitales; art. 6.1.c RGPD).
         </li>
         <li>
           <strong>Seguridad y uso de la web:</strong> una huella cifrada de tu
@@ -182,13 +196,17 @@ export default function PrivacidadPage() {
           ninguna cuenta: 6 meses desde su creación.
         </li>
         <li>
-          <strong>Solicitudes de presupuesto:</strong> 2 años desde su envío,
+          <strong>Solicitudes de presupuesto y peticiones de cita:</strong> 2
+          años desde su envío,
           salvo que las borres antes.
         </li>
         <li>
           <strong>Datos de clínicas y facturación:</strong> mientras dure la
           relación y, después, el tiempo que exija la normativa fiscal y
           mercantil (hasta 6 años).
+        </li>
+        <li>
+          <strong>Denuncias de contenido:</strong> 2 años desde su envío.
         </li>
         <li>
           <strong>Huella de IP para limitar abusos:</strong> el tiempo

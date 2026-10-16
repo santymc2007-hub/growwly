@@ -9,6 +9,7 @@ import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
 import { leerOpcionesCita } from "@/lib/leads/opciones-cita";
 import { notificarClinicaCita } from "@/lib/leads/notificar-cita";
+import { VERSION_TEXTOS_LEGALES } from "@/lib/legal/version";
 
 export type DatosSolicitud = {
   estudioId: string | null;
@@ -109,6 +110,7 @@ export async function crearSolicitud(
       consentimiento_fotos_en: ahora,
       consentimiento_compartir_en: ahora,
       consentimiento_terminos_en: ahora,
+      consentimiento_version: VERSION_TEXTOS_LEGALES,
       estado: "pendiente",
     })
     .select()
