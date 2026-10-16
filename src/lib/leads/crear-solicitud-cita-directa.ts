@@ -1,3 +1,4 @@
+import type { Atribucion } from "@/lib/analytics/atribucion";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
@@ -12,6 +13,8 @@ export type DatosSolicitudDirecta = {
   telefono: string;
   email: string;
   mensaje: string;
+  /** Campaña de la que viene (gclid, utm…), ya saneada. */
+  atribucion?: Atribucion | null;
 };
 
 /**
@@ -50,6 +53,7 @@ export async function crearSolicitudCitaDirecta(
       telefono,
       email: email || null,
       mensaje: mensaje || null,
+      atribucion: datos.atribucion ?? null,
     });
 
     if (error) {

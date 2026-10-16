@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { crearSolicitud } from "../actions";
 import { trackEvent } from "@/lib/analytics/events";
+import { leerAtribucion } from "@/lib/analytics/atribucion";
 import { TECNICAS_POR_CATEGORIA } from "@/lib/clinic-options";
 import {
   PRESUPUESTO_PACIENTE_OPCIONES,
@@ -179,6 +180,7 @@ export function SolicitudWizard({
     setEnviando(true);
     setErrorEnvio(null);
     const resultado = await crearSolicitud({
+      atribucion: leerAtribucion(),
       estudioId,
       sexo,
       tipoPerdidaCabello,

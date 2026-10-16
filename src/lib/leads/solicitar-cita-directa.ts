@@ -1,6 +1,7 @@
 "use server";
 
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sanearAtribucion } from "@/lib/analytics/atribucion";
 import {
   crearSolicitudCitaDirecta,
   type ResultadoSolicitudDirecta,
@@ -19,6 +20,7 @@ export async function solicitarCitaDirecta(formData: FormData): Promise<Resultad
   const telefono = String(formData.get("telefono") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
   const mensaje = String(formData.get("mensaje") ?? "").trim();
+  const atribucion = sanearAtribucion(formData.get("atribucion"));
 
   const supabaseAdmin = createAdminClient();
   return crearSolicitudCitaDirecta(supabaseAdmin, {
@@ -27,5 +29,6 @@ export async function solicitarCitaDirecta(formData: FormData): Promise<Resultad
     telefono,
     email,
     mensaje,
+    atribucion,
   });
 }
