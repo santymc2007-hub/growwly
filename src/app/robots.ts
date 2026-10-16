@@ -5,7 +5,8 @@ const siteUrl =
 
 export default function robots(): MetadataRoute.Robots {
   // ⚠️ NOINDEX TEMPORAL — bloqueado por completo mientras la web está en
-  // pruebas. Al lanzar, cambiar disallow por la lista de rutas privadas
+  // pruebas. Las fichas no publicadas dan 404 y no están en el sitemap,
+  // así que tampoco saldrán en Google después del lanzamiento. Al lanzar, cambiar disallow por la lista de rutas privadas
   // (ver comentario abajo) y avisar a Claude para quitar el noindex del
   // layout raíz también.
   return {
@@ -21,7 +22,10 @@ export default function robots(): MetadataRoute.Robots {
   //   rules: {
   //     userAgent: "*",
   //     allow: "/",
-  //     disallow: ["/admin", "/cuenta", "/clinica", "/leads", "/analisis/reclamar"],
+  //     disallow: [
+  //       "/admin", "/cuenta", "/clinica", "/leads", "/analisis/reclamar",
+  //       "/denunciar", "/emails", "/solicitudes", "/solicitud-enviada",
+  //     ],
   //   },
   //   sitemap: `${siteUrl}/sitemap.xml`,
   // };
