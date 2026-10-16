@@ -4,6 +4,7 @@ import type { Database } from "@/lib/supabase/database.types";
 export type PuntoSerie = { fecha: string; valor: number };
 export type FunnelPaso = { clave: string; etiqueta: string; total: number };
 export type Ranking = { clinicId: string; nombre: string; total: number };
+export type RankingContactos = Ranking & { conCuenta: boolean };
 
 export type EstadisticasAdmin = {
   solicitudesCreadas: number;
@@ -14,6 +15,14 @@ export type EstadisticasAdmin = {
   porCiudad: { ciudad: string; total: number }[];
   clinicasMasVistas: Ranking[];
   clinicasMasLeads: Ranking[];
+  /**
+   * Peticiones de "Contactar con este centro" desde la ficha, aparte
+   * de los leads del asistente de presupuesto: son otro embudo y otro
+   * valor, así que nunca se suman. conCuenta = el centro tiene alguien
+   * con acceso aprobado (si no, nadie las está viendo).
+   */
+  contactosDirectosTotal: number;
+  clinicasContactosDirectos: RankingContactos[];
 };
 
 const SEXO_LABEL: Record<string, string> = {
@@ -92,7 +101,18 @@ export async function calcularEstadisticasAdmin(
     .lte("created_at", hastaIso);
   if (clinicIdsFiltro) vistasQuery = vistasQuery.in("clinic_id", clinicIdsFiltro);
 
-  const [{ data: leads }, { data: vistas }] = await Promise.all([leadsQuery, vistasQuery]);
+  let directosQuery = admin
+    .from("solicitudes_cita_directa")
+    .select("clinic_id")
+    .gte("creado_en", desdeIso)
+    .lte("creado_en", hastaIso);
+  if (clinicIdsFiltro) directosQuery = directosQuery.in("clinic_id", clinicIdsFiltro);
+
+  const [{ data: leads }, { data: vistas }, { data: directos }] = await Promise.all([
+    leadsQuery,
+    vistasQuery,
+    directosQuery,
+  ]);
 
   let solicitudesQuery = admin
     .from("solicitudes_presupuesto")
@@ -173,8 +193,28 @@ export async function calcularEstadisticasAdmin(
 
   const topVistas = topN(vistasPorClinica, 5);
   const topLeads = topN(leadsPorClinica, 5);
+
+  const directosPorClinica = new Map<string, number>();
+  for (const d of directos ?? []) {
+    directosPorClinica.set(d.clinic_id, (directosPorClinica.get(d.clinic_id) ?? 0) + 1);
+  }
+  const topDirectos = topN(directosPorClinica, 10);
+  const conCuenta = new Set<string>();
+  if (topDirectos.length > 0) {
+    const { data: perfiles } = await admin
+      .from("profiles")
+      .select("clinic_id")
+      .in("clinic_id", topDirectos.map((d) => d.clave))
+      .eq("clinic_status", "aprobado");
+    for (const p of perfiles ?? []) if (p.clinic_id) conCuenta.add(p.clinic_id);
+  }
+
   const idsClinicas = Array.from(
-    new Set([...topVistas.map((v) => v.clave), ...topLeads.map((v) => v.clave)]),
+    new Set([
+      ...topVistas.map((v) => v.clave),
+      ...topLeads.map((v) => v.clave),
+      ...topDirectos.map((v) => v.clave),
+    ]),
   );
   const nombresPorId = new Map<string, string>();
   if (idsClinicas.length > 0) {
@@ -205,6 +245,13 @@ export async function calcularEstadisticasAdmin(
       clinicId: v.clave,
       nombre: nombresPorId.get(v.clave) ?? "—",
       total: v.total,
+    })),
+    contactosDirectosTotal: directos?.length ?? 0,
+    clinicasContactosDirectos: topDirectos.map((v) => ({
+      clinicId: v.clave,
+      nombre: nombresPorId.get(v.clave) ?? "—",
+      total: v.total,
+      conCuenta: conCuenta.has(v.clave),
     })),
   };
 }

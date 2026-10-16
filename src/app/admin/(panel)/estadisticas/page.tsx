@@ -335,7 +335,8 @@ export default async function EstadisticasAdminPage({
 
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-line bg-white p-5">
-          <h2 className="font-display text-lg text-teal-dark">Clínicas con más leads</h2>
+          <h2 className="font-display text-lg text-teal-dark">Clínicas con más solicitudes de presupuesto</h2>
+          <p className="mt-1 text-xs text-ink-soft">Leads del asistente de valoración y presupuesto.</p>
           {stats.clinicasMasLeads.length === 0 ? (
             <p className="mt-3 text-sm text-ink-soft">Sin leads en este rango.</p>
           ) : (
@@ -354,6 +355,37 @@ export default async function EstadisticasAdminPage({
           )}
         </div>
 
+        <div className="rounded-2xl border border-line bg-white p-5">
+          <h2 className="font-display text-lg text-teal-dark">
+            Contactos directos desde la ficha
+            <span className="ml-2 text-sm font-normal text-ink-soft">
+              {stats.contactosDirectosTotal} en total
+            </span>
+          </h2>
+          <p className="mt-1 text-xs text-ink-soft">
+            Peticiones de &ldquo;Contactar con este centro&rdquo;. Van aparte de los presupuestos.
+            &ldquo;Sin cuenta&rdquo; = nadie del centro las está viendo.
+          </p>
+          {stats.clinicasContactosDirectos.length === 0 ? (
+            <p className="mt-3 text-sm text-ink-soft">Sin contactos directos en este rango.</p>
+          ) : (
+            <div className="mt-4 flex flex-col gap-3">
+              {stats.clinicasContactosDirectos.map((c) => (
+                <Link key={c.clinicId} href={`?rango=${rango}&clinica=${c.clinicId}`} className="block">
+                  <BarraCategoria
+                    etiqueta={c.conCuenta ? c.nombre : `${c.nombre} · Sin cuenta`}
+                    valor={c.total}
+                    total={stats.clinicasContactosDirectos[0]?.total ?? 0}
+                    color={c.conCuenta ? "#00768f" : "#e08a00"}
+                  />
+                </Link>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <div className="rounded-2xl border border-line bg-white p-5">
           <h2 className="font-display text-lg text-teal-dark">Tráfico web (Google Analytics)</h2>
           {lookerUrl ? (
