@@ -12,7 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
+import { ordenarTiposNegocio, slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
   title: "Centros capilares en España",
@@ -128,7 +128,7 @@ export default async function CentrosPage({
       .map((c) => c.ciudad),
   );
   const tecnicas = uniqueSorted(centros.flatMap((c) => c.tecnicas));
-  const tipos = uniqueSorted(centros.map((c) => c.tipo_negocio));
+  const tipos = ordenarTiposNegocio(uniqueSorted(centros.map((c) => c.tipo_negocio)));
 
   return (
     <main className="relative flex-1">

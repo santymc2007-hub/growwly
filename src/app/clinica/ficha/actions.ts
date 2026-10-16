@@ -7,6 +7,7 @@ import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
 import type { Json } from "@/lib/supabase/database.types";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { slugify } from "@/lib/slugify";
+import { tipoNegocioValido } from "@/lib/clinic-options";
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
@@ -142,7 +143,7 @@ export async function actualizarMiFicha(formData: FormData) {
     redes_sociales: redesSociales,
     tecnicas: formData.getAll("tecnicas").map(String),
     idiomas: formData.getAll("idiomas").map(String),
-    tipo_negocio: str("tipo_negocio"),
+    tipo_negocio: tipoNegocioValido(str("tipo_negocio")),
     servicios_adicionales: servicios,
     precio_desde: num("precio_desde"),
     precio_hasta: num("precio_hasta"),

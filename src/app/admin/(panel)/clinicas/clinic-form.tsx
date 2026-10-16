@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectorCategoriaCentro } from "@/components/clinics/selector-categoria-centro";
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
@@ -8,7 +9,6 @@ import {
   IDIOMAS_DISPONIBLES,
   ACCESIBILIDAD_OPCIONES,
   PRECIO_OPCIONES,
-  TIPOS_NEGOCIO,
   formatearPrecio,
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
@@ -478,24 +478,7 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
               className={`${inputClass} mt-1`}
             />
           </div>
-          <div>
-            <label className={labelClass} htmlFor="tipo_negocio">
-              Tipo de negocio
-            </label>
-            <select
-              id="tipo_negocio"
-              name="tipo_negocio"
-              defaultValue={clinic?.tipo_negocio ?? ""}
-              className={inputClass}
-            >
-              <option value="">Selecciona un tipo</option>
-              {TIPOS_NEGOCIO.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SelectorCategoriaCentro valorInicial={clinic?.tipo_negocio} />
           <div>
             <label className={labelClass} htmlFor="servicios_adicionales">
               Otros servicios (separados por coma)
