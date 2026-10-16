@@ -780,7 +780,7 @@ export default async function ClinicaPage({
                   </div>
                 )}
 
-                <BotonPedirCita clinicId={clinic.id} clinicNombre={clinic.nombre} />
+                <BotonPedirCita clinicId={clinic.id} clinicNombre={clinic.nombre} variante="boton" />
 
                 {clinic.direccion && (
                   <>
@@ -981,8 +981,12 @@ export default async function ClinicaPage({
         </div>
       </div>
 
-      {/* Espacio reservado para que la barra fija de "Pedir cita" en
-          móvil no tape el final del contenido ni el footer. */}
+      {/* Barra fija de "Contactar con este centro" en móvil: fuera de
+          las pestañas para que salga en Información y en Contacto. */}
+      <BotonPedirCita clinicId={clinic.id} clinicNombre={clinic.nombre} variante="barra" />
+
+      {/* Espacio reservado para que la barra fija de contacto en móvil
+          no tape el final del contenido ni el footer. */}
       <div className="h-24 lg:hidden" aria-hidden />
 
       <SiteFooter />

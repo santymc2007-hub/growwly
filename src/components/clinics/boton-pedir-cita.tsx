@@ -17,9 +17,17 @@ import { trackEvent } from "@/lib/analytics/events";
 export function BotonPedirCita({
   clinicId,
   clinicNombre,
+  variante,
 }: {
   clinicId: string;
   clinicNombre: string;
+  /**
+   * "barra": la barra fija inferior de móvil. Va fuera de las pestañas
+   * de la ficha para que se vea tanto en Información como en Contacto
+   * (dentro de una pestaña oculta desaparecería con ella).
+   * "boton": el botón del aside de Contacto, solo en escritorio.
+   */
+  variante: "barra" | "boton";
 }) {
   const [abierto, setAbierto] = useState(false);
   const [estado, setEstado] = useState<"idle" | "ok" | "error">("idle");
@@ -68,6 +76,7 @@ export function BotonPedirCita({
 
   return (
     <>
+      {variante === "barra" && (
       <div
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 pt-3 backdrop-blur lg:hidden"
         style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
@@ -83,7 +92,9 @@ export function BotonPedirCita({
           Contactar con este centro →
         </button>
       </div>
+      )}
 
+      {variante === "boton" && (
       <button
         type="button"
         onClick={() => {
@@ -94,6 +105,7 @@ export function BotonPedirCita({
       >
         Contactar con este centro →
       </button>
+      )}
 
       {abierto && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
