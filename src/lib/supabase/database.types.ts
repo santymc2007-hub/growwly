@@ -774,6 +774,7 @@ export type Database = {
       profiles: {
         Row: {
           acepta_marketing_email: boolean
+          acepta_recordatorios_email: boolean
           apellidos: string | null
           ciudad: string | null
           clinic_id: string | null
@@ -792,6 +793,7 @@ export type Database = {
         }
         Insert: {
           acepta_marketing_email?: boolean
+          acepta_recordatorios_email?: boolean
           apellidos?: string | null
           ciudad?: string | null
           clinic_id?: string | null
@@ -810,6 +812,7 @@ export type Database = {
         }
         Update: {
           acepta_marketing_email?: boolean
+          acepta_recordatorios_email?: boolean
           apellidos?: string | null
           ciudad?: string | null
           clinic_id?: string | null

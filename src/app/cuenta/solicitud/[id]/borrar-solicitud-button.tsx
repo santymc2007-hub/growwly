@@ -13,6 +13,7 @@ export function BorrarSolicitudButton({ id }: { id: string }) {
       title="¿Retirar esta solicitud de presupuesto?"
       message="Las clínicas a las que ya se envió dejarán de poder contactarte por esta vía. Esta acción no se puede deshacer."
       confirmLabel="Sí, retirar"
+      triggerClassName="press rounded-full bg-error px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:opacity-90"
     />
   );
 }

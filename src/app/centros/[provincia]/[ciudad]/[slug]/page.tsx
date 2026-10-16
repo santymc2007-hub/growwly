@@ -107,19 +107,22 @@ export async function generateMetadata({
   };
 }
 
+// Vídeos sin cookies de seguimiento hasta que se reproducen
+// (youtube-nocookie, Vimeo con dnt=1): el iframe se carga sin pedir
+// consentimiento, así que no puede dejar cookies de terceros.
 function urlEmbedVideo(url: string): string | null {
   try {
     const u = new URL(url);
     if (u.hostname.includes("youtube.com")) {
       const id = u.searchParams.get("v");
-      return id ? `https://www.youtube.com/embed/${id}` : null;
+      return id ? `https://www.youtube-nocookie.com/embed/${id}` : null;
     }
     if (u.hostname === "youtu.be") {
-      return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+      return `https://www.youtube-nocookie.com/embed/${u.pathname.slice(1)}`;
     }
     if (u.hostname.includes("vimeo.com")) {
       const id = u.pathname.split("/").filter(Boolean)[0];
-      return id ? `https://player.vimeo.com/video/${id}` : null;
+      return id ? `https://player.vimeo.com/video/${id}?dnt=1` : null;
     }
     return null;
   } catch {

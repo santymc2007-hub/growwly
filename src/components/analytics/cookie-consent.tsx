@@ -2,52 +2,111 @@
 
 import Link from "next/link";
 import Script from "next/script";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
+import {
+  GA_MEASUREMENT_ID,
+  GOOGLE_ADS_ID,
+  META_PIXEL_ID,
+  PREFIJOS_ANALITICA,
+  PREFIJOS_PUBLICIDAD,
+  PUBLICIDAD_ACTIVA,
+} from "@/lib/cookies/config";
 
-const GA_MEASUREMENT_ID = "G-20S7PBB85Z";
-const STORAGE_KEY = "growwly_consent_analytics_v1";
+/**
+ * Banner de cookies por categorías (auditoría oct 2026):
+ * - Necesarias: siempre activas, no piden consentimiento.
+ * - Analíticas: Google Analytics.
+ * - Publicidad: Google Ads / Meta. Solo aparece si hay algún píxel
+ *   configurado (ver lib/cookies/config.ts).
+ *
+ * Rechazar y Aceptar están al mismo nivel (guía de la AEPD); Configurar
+ * abre el detalle por categoría. Nada se carga sin consentimiento, y
+ * retirarlo borra las cookies de esa categoría y recarga la página.
+ * Google recibe además las señales de Consent Mode v2.
+ */
 
-type Eleccion = "aceptado" | "rechazado" | null;
+const STORAGE_KEY = "growwly_consent_v2";
+const STORAGE_KEY_V1 = "growwly_consent_analytics_v1";
+const VALIDEZ_MS = 24 * 30 * 24 * 60 * 60 * 1000; // ~24 meses
+
+type Consentimiento = {
+  analitica: boolean;
+  /** null = todavía no se le ha preguntado (la categoría no existía). */
+  publicidad: boolean | null;
+  fecha: string;
+};
 
 // Evento que dispara el enlace "Preferencias de cookies" del footer
 // para poder reabrir este aviso y cambiar de opinión más tarde.
 export const EVENTO_ABRIR_PREFERENCIAS = "growwly:abrir-preferencias-cookies";
 const EVENTO_CONSENTIMIENTO = "growwly:consentimiento-cookies";
 
-function suscribirseAConsentimiento(callback: () => void) {
+declare global {
+  interface Window {
+    growwlyConsent?: { analitica: boolean; publicidad: boolean };
+  }
+}
+
+function suscribirse(callback: () => void) {
   window.addEventListener(EVENTO_CONSENTIMIENTO, callback);
   return () => window.removeEventListener(EVENTO_CONSENTIMIENTO, callback);
 }
 
-const VALIDEZ_MS = 24 * 30 * 24 * 60 * 60 * 1000; // ~24 meses
-
-function leerConsentimiento(): Eleccion {
+/**
+ * Devuelve el consentimiento guardado como texto (no como objeto):
+ * useSyncExternalStore exige que la instantánea sea estable entre
+ * llamadas, y un objeto nuevo en cada lectura provocaría bucles.
+ */
+function leerSnapshot(): string | null {
   try {
-    const guardada = localStorage.getItem(STORAGE_KEY);
-    if (guardada !== "aceptado" && guardada !== "rechazado") return null;
-    // Elecciones sin fecha (anteriores a oct 2026) siguen valiendo hasta
-    // que la persona vuelva a elegir; con fecha, caducan a los ~24 meses.
-    const fecha = localStorage.getItem(`${STORAGE_KEY}_fecha`);
-    if (fecha && Date.now() - new Date(fecha).getTime() > VALIDEZ_MS) return null;
-    return guardada;
+    const v2 = localStorage.getItem(STORAGE_KEY);
+    if (v2) return v2;
+    // Migración desde la versión con una sola casilla (analítica).
+    const v1 = localStorage.getItem(STORAGE_KEY_V1);
+    if (v1 === "aceptado" || v1 === "rechazado") {
+      const migrado: Consentimiento = {
+        analitica: v1 === "aceptado",
+        publicidad: null,
+        fecha: localStorage.getItem(`${STORAGE_KEY_V1}_fecha`) ?? new Date().toISOString(),
+      };
+      const texto = JSON.stringify(migrado);
+      localStorage.setItem(STORAGE_KEY, texto);
+      return texto;
+    }
+    return null;
   } catch {
     return null;
   }
 }
 
-/** Borra las cookies de Google Analytics (_ga, _ga_*, _gid) del dominio. */
-function borrarCookiesAnalitica() {
+function leerSnapshotServidor(): string | null {
+  return null;
+}
+
+function parsear(texto: string | null): Consentimiento | null {
+  if (!texto) return null;
+  try {
+    const c = JSON.parse(texto) as Consentimiento;
+    if (typeof c.analitica !== "boolean" || !c.fecha) return null;
+    if (Date.now() - new Date(c.fecha).getTime() > VALIDEZ_MS) return null;
+    return c;
+  } catch {
+    return null;
+  }
+}
+
+/** Borra del dominio las cookies cuyo nombre empieza por alguno de los prefijos. */
+function borrarCookies(prefijos: string[]) {
   const nombres = document.cookie
     .split(";")
     .map((c) => c.split("=")[0].trim())
-    .filter((n) => n === "_ga" || n.startsWith("_ga_") || n === "_gid" || n === "_gat");
+    .filter((n) => prefijos.some((p) => n.startsWith(p)));
   const host = window.location.hostname;
   const partes = host.split(".");
-  // GA las pone en el dominio "raíz" (p. ej. .growwly.es); se prueba
-  // con el host y con cada dominio padre.
-  const dominios = [host];
+  // Google y Meta las ponen en el dominio "raíz" (p. ej. .growwly.es):
+  // se prueba con el host y con cada dominio padre.
+  const dominios = [host, "." + host];
   for (let i = 1; i < partes.length - 1; i++) dominios.push("." + partes.slice(i).join("."));
-  dominios.push("." + host);
   for (const nombre of nombres) {
     document.cookie = `${nombre}=; Max-Age=0; path=/`;
     for (const d of dominios) {
@@ -56,110 +115,230 @@ function borrarCookiesAnalitica() {
   }
 }
 
-function leerConsentimientoServidor(): Eleccion {
-  return null;
-}
-
 export function CookieConsent() {
-  // Se lee con useSyncExternalStore (en vez de leerlo en un efecto y
-  // volcarlo a estado a mano) para que React resuelva por sí mismo el
-  // valor "desconocido" del render en servidor frente al real que hay
-  // en localStorage del navegador, sin warnings de hidratación.
-  const eleccion = useSyncExternalStore(
-    suscribirseAConsentimiento,
-    leerConsentimiento,
-    leerConsentimientoServidor,
-  );
+  const snapshot = useSyncExternalStore(suscribirse, leerSnapshot, leerSnapshotServidor);
+  const consentimiento = useMemo(() => parsear(snapshot), [snapshot]);
+
   const [reabierta, setReabierta] = useState(false);
+  const [configurando, setConfigurando] = useState(false);
+  const [borradorAnalitica, setBorradorAnalitica] = useState(false);
+  const [borradorPublicidad, setBorradorPublicidad] = useState(false);
 
   useEffect(() => {
-    const abrir = () => setReabierta(true);
+    const abrir = () => {
+      setReabierta(true);
+      setConfigurando(true);
+    };
     window.addEventListener(EVENTO_ABRIR_PREFERENCIAS, abrir);
     return () => window.removeEventListener(EVENTO_ABRIR_PREFERENCIAS, abrir);
   }, []);
 
-  const visible = eleccion === null || reabierta;
+  const analitica = consentimiento?.analitica === true;
+  const publicidad = PUBLICIDAD_ACTIVA && consentimiento?.publicidad === true;
 
-  function elegir(valor: "aceptado" | "rechazado") {
-    const habiaAceptado = eleccion === "aceptado";
-    localStorage.setItem(STORAGE_KEY, valor);
-    // Fecha de la elección: permite volver a preguntar pasado un tiempo
-    // (la AEPD recomienda como mucho 24 meses).
-    localStorage.setItem(`${STORAGE_KEY}_fecha`, new Date().toISOString());
+  useEffect(() => {
+    window.growwlyConsent = { analitica, publicidad };
+  }, [analitica, publicidad]);
 
-    if (valor === "rechazado" && habiaAceptado) {
-      // Retirar el consentimiento tiene que ser efectivo: borrar las
-      // cookies de Google Analytics y recargar para que el script ya
-      // cargado deje de ejecutarse (auditoría oct 2026).
-      borrarCookiesAnalitica();
+  // Hay que preguntar si no hay elección válida, o si ya hay anuncios y
+  // esta persona decidió antes de que existiera la categoría.
+  const faltaDecidir =
+    consentimiento === null || (PUBLICIDAD_ACTIVA && consentimiento.publicidad === null);
+  const visible = faltaDecidir || reabierta;
+
+  function abrirConfiguracion() {
+    setBorradorAnalitica(analitica);
+    setBorradorPublicidad(publicidad);
+    setConfigurando(true);
+  }
+
+  function guardar(nuevaAnalitica: boolean, nuevaPublicidad: boolean) {
+    const nuevo: Consentimiento = {
+      analitica: nuevaAnalitica,
+      publicidad: PUBLICIDAD_ACTIVA ? nuevaPublicidad : (consentimiento?.publicidad ?? null),
+      fecha: new Date().toISOString(),
+    };
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(nuevo));
+      localStorage.removeItem(STORAGE_KEY_V1);
+      localStorage.removeItem(`${STORAGE_KEY_V1}_fecha`);
+    } catch {
+      // Sin almacenamiento (modo privado estricto): la elección dura
+      // solo esta visita, y no se carga nada que no se haya aceptado.
+    }
+
+    // Retirar un consentimiento tiene que ser efectivo: borrar sus
+    // cookies y recargar para que los scripts ya cargados se detengan.
+    const retiraAnalitica = analitica && !nuevaAnalitica;
+    const retiraPublicidad = publicidad && !nuevaPublicidad;
+    if (retiraAnalitica || retiraPublicidad) {
+      if (retiraAnalitica) borrarCookies(PREFIJOS_ANALITICA);
+      if (retiraPublicidad) borrarCookies(PREFIJOS_PUBLICIDAD);
       window.location.reload();
       return;
     }
 
     window.dispatchEvent(new Event(EVENTO_CONSENTIMIENTO));
     setReabierta(false);
+    setConfigurando(false);
   }
+
+  const cargarGtag = analitica || (publicidad && Boolean(GOOGLE_ADS_ID));
+  const idGtag = analitica ? GA_MEASUREMENT_ID : GOOGLE_ADS_ID;
 
   return (
     <>
-      {eleccion === "aceptado" && (
+      {cargarGtag && (
         <>
           <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            src={`https://www.googletagmanager.com/gtag/js?id=${idGtag}`}
             strategy="afterInteractive"
           />
-          <Script id="ga4-init" strategy="afterInteractive">
+          <Script id="gtag-init" strategy="afterInteractive">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
-              // Consent Mode v2: este script solo carga si se aceptaron
-              // las cookies analíticas, así que analytics_storage va
-              // concedido; publicidad siempre denegada hasta que exista
-              // una categoría "Publicidad" en el banner (antes de poner
-              // el píxel de Google Ads o Meta).
               gtag('consent', 'default', {
-                analytics_storage: 'granted',
-                ad_storage: 'denied',
-                ad_user_data: 'denied',
-                ad_personalization: 'denied'
+                analytics_storage: '${analitica ? "granted" : "denied"}',
+                ad_storage: '${publicidad ? "granted" : "denied"}',
+                ad_user_data: '${publicidad ? "granted" : "denied"}',
+                ad_personalization: '${publicidad ? "granted" : "denied"}'
               });
               gtag('js', new Date());
-              gtag('config', '${GA_MEASUREMENT_ID}', { anonymize_ip: true });
+              ${analitica ? `gtag('config', '${GA_MEASUREMENT_ID}');` : ""}
+              ${publicidad && GOOGLE_ADS_ID ? `gtag('config', '${GOOGLE_ADS_ID}');` : ""}
             `}
           </Script>
         </>
+      )}
+
+      {publicidad && META_PIXEL_ID && (
+        <Script id="meta-pixel" strategy="afterInteractive">
+          {`
+            !function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;
+            n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,
+            document,'script','https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '${META_PIXEL_ID}');
+            fbq('track', 'PageView');
+          `}
+        </Script>
       )}
 
       {visible && (
         <div
           role="dialog"
           aria-label="Preferencias de cookies"
-          className="fixed inset-x-4 bottom-4 z-[100] mx-auto flex max-w-2xl flex-col gap-3 rounded-2xl border border-line bg-white p-5 shadow-xl sm:flex-row sm:items-center sm:gap-4"
+          className="fixed inset-x-4 bottom-4 z-[100] mx-auto max-w-2xl rounded-2xl border border-line bg-white p-5 shadow-xl"
         >
-          <p className="flex-1 text-sm text-ink-soft">
-            Usamos cookies analíticas (Google Analytics) para entender cómo se
-            usa Growwly y mejorar el sitio. Solo las activamos si nos das tu
-            consentimiento.{" "}
-            <Link href="/legal/cookies" className="font-medium text-cyan-dark hover:underline">
-              Más información
-            </Link>
-          </p>
-          <div className="flex shrink-0 gap-2">
-            <button
-              type="button"
-              onClick={() => elegir("rechazado")}
-              className="press rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink hover:border-ink/40"
-            >
-              Rechazar
-            </button>
-            <button
-              type="button"
-              onClick={() => elegir("aceptado")}
-              className="press rounded-lg bg-teal-dark px-4 py-2 text-sm font-medium text-white hover:bg-teal"
-            >
-              Aceptar
-            </button>
-          </div>
+          {!configurando ? (
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+              <p className="flex-1 text-sm text-ink-soft">
+                {PUBLICIDAD_ACTIVA
+                  ? "Usamos cookies analíticas para entender cómo se usa Growwly y cookies de publicidad para medir nuestros anuncios. Solo las activamos si nos das tu consentimiento."
+                  : "Usamos cookies analíticas (Google Analytics) para entender cómo se usa Growwly y mejorar el sitio. Solo las activamos si nos das tu consentimiento."}{" "}
+                <Link href="/legal/cookies" className="font-medium text-cyan-dark hover:underline">
+                  Más información
+                </Link>
+              </p>
+              <div className="flex shrink-0 flex-wrap gap-2">
+                <button
+                  type="button"
+                  onClick={abrirConfiguracion}
+                  className="press rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline hover:text-ink"
+                >
+                  Configurar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => guardar(false, false)}
+                  className="press rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink hover:border-ink/40"
+                >
+                  Rechazar
+                </button>
+                <button
+                  type="button"
+                  onClick={() => guardar(true, true)}
+                  className="press rounded-lg bg-teal-dark px-4 py-2 text-sm font-medium text-white hover:bg-teal"
+                >
+                  Aceptar
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div>
+              <p className="font-display text-base font-bold text-teal-dark">
+                Preferencias de cookies
+              </p>
+              <ul className="mt-3 flex flex-col gap-3 text-sm">
+                <li className="flex items-start justify-between gap-4">
+                  <span>
+                    <span className="font-medium text-ink">Necesarias</span>
+                    <span className="block text-xs text-ink-soft">
+                      Sesión iniciada y tu elección de cookies. Sin ellas la web no funciona.
+                    </span>
+                  </span>
+                  <span className="shrink-0 text-xs font-medium text-ink-soft">Siempre activas</span>
+                </li>
+                <li>
+                  <label className="flex cursor-pointer items-start justify-between gap-4">
+                    <span>
+                      <span className="font-medium text-ink">Analíticas</span>
+                      <span className="block text-xs text-ink-soft">
+                        Google Analytics: cuántas visitas hay y qué páginas se usan.
+                      </span>
+                    </span>
+                    <input
+                      type="checkbox"
+                      checked={borradorAnalitica}
+                      onChange={(e) => setBorradorAnalitica(e.target.checked)}
+                      className="mt-1 h-4 w-4 shrink-0 accent-teal-dark"
+                    />
+                  </label>
+                </li>
+                {PUBLICIDAD_ACTIVA && (
+                  <li>
+                    <label className="flex cursor-pointer items-start justify-between gap-4">
+                      <span>
+                        <span className="font-medium text-ink">Publicidad</span>
+                        <span className="block text-xs text-ink-soft">
+                          Medir si nuestros anuncios en Google, Facebook o Instagram funcionan.
+                        </span>
+                      </span>
+                      <input
+                        type="checkbox"
+                        checked={borradorPublicidad}
+                        onChange={(e) => setBorradorPublicidad(e.target.checked)}
+                        className="mt-1 h-4 w-4 shrink-0 accent-teal-dark"
+                      />
+                    </label>
+                  </li>
+                )}
+              </ul>
+              <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
+                <Link href="/legal/cookies" className="text-xs font-medium text-cyan-dark hover:underline">
+                  Ver todas las cookies
+                </Link>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => guardar(false, false)}
+                    className="press rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink hover:border-ink/40"
+                  >
+                    Rechazar todas
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => guardar(borradorAnalitica, borradorPublicidad)}
+                    className="press rounded-lg bg-teal-dark px-4 py-2 text-sm font-medium text-white hover:bg-teal"
+                  >
+                    Guardar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </>
