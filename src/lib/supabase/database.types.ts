@@ -897,6 +897,7 @@ export type Database = {
       }
       solicitudes_cita_directa: {
         Row: {
+          atribucion: Json | null
           alternativas_enviadas_en: string | null
           clinic_id: string
           creado_en: string
@@ -908,6 +909,7 @@ export type Database = {
           telefono: string
         }
         Insert: {
+          atribucion?: Json | null
           alternativas_enviadas_en?: string | null
           clinic_id: string
           creado_en?: string
@@ -919,6 +921,7 @@ export type Database = {
           telefono: string
         }
         Update: {
+          atribucion?: Json | null
           alternativas_enviadas_en?: string | null
           clinic_id?: string
           creado_en?: string
@@ -983,6 +986,7 @@ export type Database = {
       }
       solicitudes_presupuesto: {
         Row: {
+          atribucion: Json | null
           alergias: string | null
           antecedentes_familiares: string | null
           cambios_salud_recientes: string | null
@@ -1017,6 +1021,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          atribucion?: Json | null
           alergias?: string | null
           antecedentes_familiares?: string | null
           cambios_salud_recientes?: string | null
@@ -1051,6 +1056,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          atribucion?: Json | null
           alergias?: string | null
           antecedentes_familiares?: string | null
           cambios_salud_recientes?: string | null

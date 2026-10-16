@@ -3,6 +3,7 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { solicitarCitaDirecta } from "@/lib/leads/solicitar-cita-directa";
 import { trackEvent } from "@/lib/analytics/events";
+import { leerAtribucion } from "@/lib/analytics/atribucion";
 
 /**
  * Único punto de entrada a "pedir cita/presupuesto a esta clínica
@@ -50,6 +51,8 @@ export function BotonPedirCita({
     // cuando nosotros decidimos (al confirmar el envío).
     const formData = new FormData(e.currentTarget);
     formData.set("clinicId", clinicId);
+    const atribucion = leerAtribucion();
+    if (atribucion) formData.set("atribucion", JSON.stringify(atribucion));
     startTransition(async () => {
       const resultado = await solicitarCitaDirecta(formData);
       if (resultado.ok) {

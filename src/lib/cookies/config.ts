@@ -93,6 +93,17 @@ export const COOKIES_PUBLICIDAD: FilaCookie[] = [
         },
       ]
     : []),
+  ...(PUBLICIDAD_ACTIVA
+    ? [
+        {
+          nombre: "growwly_atribucion (almacenamiento local)",
+          proveedor: "Growwly",
+          finalidad:
+            "Recordar desde qué anuncio o campaña llegaste, para saber qué anuncios traen solicitudes. No sale de Growwly.",
+          duracion: "90 días",
+        },
+      ]
+    : []),
 ];
 
 /** Prefijos de las cookies que hay que borrar al retirar cada consentimiento. */

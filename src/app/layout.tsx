@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieConsent } from "@/components/analytics/cookie-consent";
+import { CapturaAtribucion } from "@/components/analytics/captura-atribucion";
 import "@fontsource/geist/400.css";
 import "@fontsource/geist/500.css";
 import "@fontsource/geist/600.css";
@@ -63,6 +64,7 @@ export default function RootLayout({
         {children}
         {ANIMACIONES_ACTIVAS && <RevealObserver />}
         <CookieConsent />
+        <CapturaAtribucion />
         <SpeedInsights />
       </body>
     </html>
