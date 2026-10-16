@@ -80,7 +80,7 @@ export function BotonPedirCita({
           }}
           className="press block w-full rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
         >
-          Pedir cita →
+          Contactar con este centro →
         </button>
       </div>
 
@@ -90,9 +90,9 @@ export function BotonPedirCita({
           setAbierto(true);
           trackEvent("clic_pedir_cita_directa", { clinic_id: clinicId });
         }}
-        className="press mt-5 hidden w-full items-center justify-center rounded-full border-2 border-cyan px-5 py-3 text-center text-sm font-bold text-cyan-dark transition hover:bg-cyan/10 lg:flex"
+        className="press mt-5 hidden w-full items-center justify-center rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90 lg:flex"
       >
-        Pedir presupuesto a esta clínica →
+        Contactar con este centro →
       </button>
 
       {abierto && (
@@ -131,10 +131,10 @@ export function BotonPedirCita({
             ) : (
               <>
                 <h2 className="pr-8 font-display text-xl text-teal-dark">
-                  Pedir cita en {clinicNombre}
+                  Contactar con {clinicNombre}
                 </h2>
                 <p className="mt-1 text-sm text-ink-soft">
-                  Déjanos tus datos y la clínica te contactará para concretar la cita.
+                  Déjanos tus datos y el centro se pondrá en contacto contigo.
                 </p>
 
                 <form onSubmit={onSubmit} className="mt-5 flex flex-col gap-3">

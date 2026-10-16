@@ -41,6 +41,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { TrackFichaClinica } from "@/components/analytics/track-ficha-clinica";
 import { TrackedNextLink } from "@/components/analytics/tracked-next-link";
 import { BotonContactoClinica } from "@/components/analytics/boton-contacto-clinica";
+import { numeroWhatsApp } from "@/lib/telefono";
 import { MapaFichaClinica } from "@/components/clinics/mapa-ficha-clinica";
 
 type Params = { provincia: string; ciudad: string; slug: string };
@@ -130,11 +131,6 @@ function urlEmbedVideo(url: string): string | null {
   }
 }
 
-/** wa.me solo acepta dígitos (con prefijo de país, sin +, espacios ni guiones). */
-function soloDigitos(telefono: string): string {
-  return telefono.replace(/\D/g, "");
-}
-
 function WhatsAppIcon({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 16 16" fill="currentColor" className={className} aria-hidden>
@@ -194,6 +190,7 @@ export default async function ClinicaPage({
   }
 
   const esPremium = clinic.plan === "premium";
+  const whatsapp = numeroWhatsApp(clinic.telefono);
 
   // Registro propio de vistas de ficha (para las estadísticas de la
   // clínica), a mayores del evento de Google Analytics — fuera del
@@ -767,9 +764,9 @@ export default async function ClinicaPage({
                       <Phone className="h-4 w-4" aria-hidden />
                       Llamar
                     </BotonContactoClinica>
-                    {clinic.telefono_es_movil && (
+                    {clinic.telefono_es_movil && whatsapp && (
                       <BotonContactoClinica
-                        href={`https://wa.me/${soloDigitos(clinic.telefono)}`}
+                        href={`https://wa.me/${whatsapp}`}
                         target="_blank"
                         rel="noreferrer"
                         className="press inline-flex items-center gap-1.5 rounded-full bg-[#25D366] px-4 py-2 text-sm font-semibold text-white transition hover:opacity-90"
@@ -909,7 +906,7 @@ export default async function ClinicaPage({
 
                 <TrackedNextLink
                   href="/analisis/nuevo"
-                  className="press mt-5 block rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
+                  className="press mt-5 block rounded-full border-2 border-cyan px-5 py-3 text-center text-sm font-bold text-cyan-dark transition hover:bg-cyan/10"
                   evento="clic_valoracion_gratuita"
                   parametros={{ clinic_id: clinic.id, origen: "ficha_clinica" }}
                 >
