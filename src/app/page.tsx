@@ -8,6 +8,7 @@ import "@fontsource/caveat/700.css";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
+import { PLAZAS_PORTADA, seleccionarPortada } from "@/lib/clinica/seleccion-portada";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
@@ -47,8 +48,12 @@ const PASOS = [
 
 export default async function HomePage() {
   const supabase = await createClient();
-  const [{ data }, { data: tratamientosData }, { data: postsDestacadosData }] =
-    await Promise.all([
+  const [
+    { data },
+    { data: candidatosData },
+    { data: tratamientosData },
+    { data: postsDestacadosData },
+  ] = await Promise.all([
       supabase
         .from("clinics")
         .select("*")
@@ -58,7 +63,14 @@ export default async function HomePage() {
         .order("destacado_home", { ascending: false })
         .order("destacado", { ascending: false })
         .order("orden", { ascending: true })
-        .limit(8),
+        .limit(PLAZAS_PORTADA),
+      // Para rellenar la portada mientras no haya suficientes centros
+      // de pago: se sortean por día entre todos los verificados.
+      supabase
+        .from("clinics")
+        .select("*")
+        .eq("publicado", true)
+        .eq("verificado_admin", true),
       supabase
         .from("tratamientos")
         .select("slug, nombre, categoria, imagen_portada, resumen, destacado_home")
@@ -72,14 +84,18 @@ export default async function HomePage() {
         .order("publicado_en", { ascending: false })
         .limit(4),
     ]);
-  const destacadas = data ?? [];
+  const { pagados: destacadas, relleno } = seleccionarPortada(
+    data ?? [],
+    candidatosData ?? [],
+  );
+  const centrosPortada = [...destacadas, ...relleno];
 
   after(async () => {
-    await registrarImpresionesListado(
-      createAdminClient(),
-      destacadas.map((c) => c.id),
-      "home_destacadas",
-    );
+    const admin = createAdminClient();
+    await Promise.all([
+      registrarImpresionesListado(admin, destacadas.map((c) => c.id), "home_destacadas"),
+      registrarImpresionesListado(admin, relleno.map((c) => c.id), "home_seleccion"),
+    ]);
   });
 
   // Si el admin ha marcado tratamientos como destacados a mano, se
@@ -114,7 +130,7 @@ export default async function HomePage() {
           <div className="px-6 py-5 sm:px-10 sm:py-6">
             <div data-reveal className="rounded-3xl bg-paper-dim px-6 py-6 text-center sm:px-10 sm:py-8">
               <h2 className="font-display text-2xl font-extrabold text-teal-dark sm:text-3xl lg:text-4xl">
-                El directorio nº1 de centros capilares verificados en España
+                El directorio de centros capilares verificados
               </h2>
               <p className="mt-3 text-base text-ink-soft sm:text-lg">
                 Tratamientos, opiniones reales y precios sin fricción
@@ -140,14 +156,20 @@ export default async function HomePage() {
             </div>
           </div>
 
-          {/* Centros destacados */}
-          {destacadas.length > 0 && (
+          {/* Centros en portada: primero los de pago (con etiqueta
+              «Destacado»); los huecos se rellenan con un sorteo diario
+              entre centros verificados, sin etiqueta. */}
+          {centrosPortada.length > 0 && (
             <div className="border-t border-line px-6 py-10 sm:px-10">
               <h2 data-reveal className="font-display text-4xl font-extrabold text-teal-dark">
-                Centros destacados
+                {relleno.length === 0 ? "Centros destacados" : "Centros capilares"}
               </h2>
               <p className="mt-2 text-sm text-ink-soft">
-                Centros que pagan por aparecer aquí.{" "}
+                {relleno.length === 0
+                  ? "Centros que pagan por aparecer aquí."
+                  : destacadas.length > 0
+                    ? "Los marcados como «Destacado» pagan por aparecer aquí; el resto es una selección de centros verificados que cambia cada día."
+                    : "Una selección de centros verificados que cambia cada día."}{" "}
                 <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
                   Cómo ordenamos
                 </Link>
@@ -155,6 +177,9 @@ export default async function HomePage() {
               <div data-reveal-grupo className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
                 {destacadas.map((clinic) => (
                   <ClinicCard key={clinic.id} clinic={clinic} destacado />
+                ))}
+                {relleno.map((clinic) => (
+                  <ClinicCard key={clinic.id} clinic={clinic} />
                 ))}
               </div>
               <Link

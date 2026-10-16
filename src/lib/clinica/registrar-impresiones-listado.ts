@@ -6,6 +6,7 @@ export type SuperficieListado =
   | "ciudad"
   | "home_destacadas"
   | "home_semana"
+  | "home_seleccion"
   | "tratamiento";
 
 /**
