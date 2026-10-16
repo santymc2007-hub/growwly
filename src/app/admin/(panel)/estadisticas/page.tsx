@@ -33,6 +33,7 @@ const SUPERFICIE_LABEL: Record<string, string> = {
   ciudad: "Listado de su ciudad",
   home_destacadas: "Home (destacadas)",
   home_semana: "Home (clínica de la semana)",
+  home_seleccion: "Home (selección del día)",
   tratamiento: "Ficha de tratamiento",
 };
 

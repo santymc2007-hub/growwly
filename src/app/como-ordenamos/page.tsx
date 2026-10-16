@@ -53,6 +53,11 @@ export default function ComoOrdenamosPage() {
         dice la ficha ni las valoraciones.
       </p>
       <p>
+        Si no hay suficientes centros destacados para llenar esa sección de la
+        portada, completamos los huecos con centros verificados elegidos al
+        azar cada día. Esos centros no pagan y no llevan etiqueta.
+      </p>
+      <p>
         El «Centro de la semana» de la portada rota entre centros con Perfil
         detallado (servicio de pago) que tienen la ficha completa al menos en
         un 60 %.
