@@ -3,6 +3,7 @@ import { cronAutorizado } from "@/lib/cron/autorizado";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
+import { pieRecordatorio } from "@/lib/email/baja";
 
 /**
  * Vercel Cron llama a esta ruta una vez al día (ver vercel.json —
@@ -44,14 +45,21 @@ export async function GET(request: Request) {
 
     const { data: perfil } = await supabase
       .from("profiles")
-      .select("nombre, email")
+      .select("nombre, email, acepta_recordatorios_email")
       .eq("id", estudio.user_id!)
       .maybeSingle();
 
     if (!perfil?.email) continue;
+    // El paciente puede haber desactivado los recordatorios (en Mi
+    // cuenta o con el enlace de baja del email): no se le escribe.
+    if (perfil.acepta_recordatorios_email === false) continue;
 
     const enlace = `${siteUrl}/cuenta/analisis/${estudio.id}`;
-    const html = construirHtmlEmail({ nombrePaciente: perfil.nombre, enlace });
+    const html = construirHtmlEmail({
+      nombrePaciente: perfil.nombre,
+      enlace,
+      pie: pieRecordatorio(siteUrl, estudio.user_id!),
+    });
 
     try {
       await enviarEmail({
@@ -73,7 +81,11 @@ export async function GET(request: Request) {
   return NextResponse.json({ ok: true, enviados });
 }
 
-function construirHtmlEmail(datos: { nombrePaciente: string | null; enlace: string }): string {
+function construirHtmlEmail(datos: {
+  nombrePaciente: string | null;
+  enlace: string;
+  pie: string;
+}): string {
   return `
     <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
       <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
@@ -85,6 +97,7 @@ function construirHtmlEmail(datos: { nombrePaciente: string | null; enlace: stri
           Pedir presupuesto gratis →
         </a>
       </p>
+      ${datos.pie}
     </div>
   `;
 }

@@ -248,19 +248,44 @@ export default async function CuentaPage({
                     </div>
                   </div>
 
-                  <label className="flex items-start gap-2 text-sm">
-                    <input
-                      type="checkbox"
-                      name="acepta_marketing_email"
-                      defaultChecked={profile?.acepta_marketing_email ?? false}
-                      className="mt-0.5"
-                    />
-                    <span>
-                      Quiero recibir novedades de Growwly por email
-                      (consejos, nuevas clínicas, ofertas). Opcional, puedes
-                      cambiarlo cuando quieras.
-                    </span>
-                  </label>
+                  <fieldset id="emails" className="scroll-mt-6 rounded-xl border border-line p-4">
+                    <legend className="px-1 text-sm font-medium text-ink">Emails que recibes</legend>
+                    <p className="text-xs text-ink-soft">
+                      Los avisos sobre tus solicitudes (propuestas de clínicas,
+                      citas y cambios) te llegan siempre, porque son parte del
+                      servicio.
+                    </p>
+                    <label className="mt-3 flex items-start gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="acepta_recordatorios_email"
+                        defaultChecked={profile?.acepta_recordatorios_email ?? true}
+                        className="mt-0.5"
+                      />
+                      <span>
+                        <span className="font-medium">Recordatorios</span>
+                        <span className="block text-xs text-ink-soft">
+                          Si dejas una valoración sin pedir presupuesto, o para
+                          que valores la clínica después de tu cita.
+                        </span>
+                      </span>
+                    </label>
+                    <label className="mt-3 flex items-start gap-2 text-sm">
+                      <input
+                        type="checkbox"
+                        name="acepta_marketing_email"
+                        defaultChecked={profile?.acepta_marketing_email ?? false}
+                        className="mt-0.5"
+                      />
+                      <span>
+                        <span className="font-medium">Comunicaciones comerciales</span>
+                        <span className="block text-xs text-ink-soft">
+                          Novedades, consejos, nuevas clínicas y ofertas de
+                          Growwly. Opcional.
+                        </span>
+                      </span>
+                    </label>
+                  </fieldset>
 
                   <button
                     type="submit"

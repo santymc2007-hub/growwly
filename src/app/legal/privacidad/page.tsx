@@ -53,6 +53,15 @@ export default function PrivacidadPage() {
           .
         </li>
         <li>
+          <strong>Avisos y recordatorios:</strong> te escribimos sobre tus
+          solicitudes (propuestas de clínicas, citas y cambios), porque es
+          parte del servicio (art. 6.1.b RGPD). También te enviamos algún
+          recordatorio relacionado con lo que ya usas, como pedir presupuesto
+          tras tu valoración o valorar la clínica tras la cita (art. 21.2
+          LSSI). Puedes desactivar los recordatorios en tu cuenta o desde el
+          enlace de cada email.
+        </li>
+        <li>
           <strong>Comunicaciones de marketing:</strong> solo si marcas la
           casilla opcional correspondiente (art. 6.1.a RGPD). Puedes darte de
           baja desde tu cuenta o desde el enlace de cada email.
