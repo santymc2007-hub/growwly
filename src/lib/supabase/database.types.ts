@@ -318,6 +318,7 @@ export type Database = {
           rating_doctoralia: number | null
           rating_google: number | null
           redes_sociales: Json
+          registro_sanitario: string | null
           resenas_doctoralia: number | null
           resenas_google: number | null
           reserva_online_url: string | null
@@ -387,6 +388,7 @@ export type Database = {
           rating_doctoralia?: number | null
           rating_google?: number | null
           redes_sociales?: Json
+          registro_sanitario?: string | null
           resenas_doctoralia?: number | null
           resenas_google?: number | null
           reserva_online_url?: string | null
@@ -456,6 +458,7 @@ export type Database = {
           rating_doctoralia?: number | null
           rating_google?: number | null
           redes_sociales?: Json
+          registro_sanitario?: string | null
           resenas_doctoralia?: number | null
           resenas_google?: number | null
           reserva_online_url?: string | null

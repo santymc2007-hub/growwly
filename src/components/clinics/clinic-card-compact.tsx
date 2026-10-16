@@ -3,6 +3,7 @@ import Link from "next/link";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { ClinicBadges } from "./clinic-badges";
+import { EtiquetaDestacado } from "./etiqueta-destacado";
 import { RatingCompacto } from "./rating-stars";
 
 /**
@@ -11,7 +12,14 @@ import { RatingCompacto } from "./rating-stars";
  * ciudad, técnicas y botón. Sin descripción, sin tipo de negocio, sin
  * financiación/consulta gratis.
  */
-export function ClinicCardCompact({ clinic }: { clinic: Clinic }) {
+export function ClinicCardCompact({
+  clinic,
+  destacado = false,
+}: {
+  clinic: Clinic;
+  /** Sale arriba por visibilidad pagada: muestra la etiqueta "Destacado". */
+  destacado?: boolean;
+}) {
   const foto = clinic.fotos[0];
   const provinciaSlug = slugifyProvincia(clinic.provincia);
   const href = clinic.ciudad
@@ -37,6 +45,7 @@ export function ClinicCardCompact({ clinic }: { clinic: Clinic }) {
             Sin foto
           </div>
         )}
+        {destacado && <EtiquetaDestacado />}
         <ClinicBadges clinic={clinic} />
       </div>
 

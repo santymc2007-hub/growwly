@@ -281,7 +281,7 @@ export default async function TratamientoPage({
                 </h2>
                 <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {clinicasConTecnica.map((c) => (
-                    <ClinicCard key={c.id} clinic={c} />
+                    <ClinicCard key={c.id} clinic={c} destacado={c.destacado} />
                   ))}
                 </div>
                 {tratamiento.tecnica_relacionada && (

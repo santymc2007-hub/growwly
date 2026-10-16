@@ -21,6 +21,12 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
         <p className="mt-2 text-ink-soft">
           Cada semana, te presentaremos un centro y sus servicios.
         </p>
+        <p className="mt-1 text-xs text-ink-soft">
+          Rota entre centros con Perfil detallado (servicio de pago) y la ficha completa.{" "}
+          <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
+            Cómo ordenamos
+          </Link>
+        </p>
 
         <Link
           href={href}

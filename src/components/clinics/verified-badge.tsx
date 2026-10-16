@@ -5,6 +5,13 @@ type VerifiedBadgeProps = {
   className?: string;
 };
 
+/**
+ * Qué significa "Verificada" (auditoría oct 2026): el paciente puede
+ * leerlo como un sello de calidad médica, y no lo es.
+ */
+export const EXPLICACION_VERIFICADA =
+  "Growwly ha comprobado que este centro existe y que sus datos de contacto son correctos. No es una valoración de su calidad médica.";
+
 export function VerifiedBadge({
   variant = "inline",
   className = "",
@@ -16,6 +23,7 @@ export function VerifiedBadge({
 
   return (
     <span
+      title={EXPLICACION_VERIFICADA}
       className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium ${styles} ${className}`}
     >
       <svg

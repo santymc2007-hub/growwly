@@ -8,6 +8,7 @@ const PAGINAS = [
   { href: "/legal/privacidad", label: "Privacidad" },
   { href: "/legal/cookies", label: "Cookies" },
   { href: "/legal/terminos", label: "Términos y Condiciones" },
+  { href: "/como-ordenamos", label: "Cómo ordenamos" },
 ];
 
 export function LegalLayout({

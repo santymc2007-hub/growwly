@@ -203,10 +203,18 @@ export default async function CentrosPage({
 
             <div className={ciudades.length > 1 ? "mt-8" : undefined}>
               {filtrados.length > 0 ? (
-                <VistaListaMapa
-                  clinicas={filtrados}
-                  vista={vista === "mapa" ? "mapa" : "lista"}
-                />
+                <>
+                  <VistaListaMapa
+                    clinicas={filtrados}
+                    vista={vista === "mapa" ? "mapa" : "lista"}
+                    idsDestacados={filtrados.filter((c) => c.destacado).map((c) => c.id)}
+                  />
+                  <p className="mt-6 text-xs text-ink-soft">
+                    <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
+                      Cómo ordenamos los centros
+                    </Link>
+                  </p>
+                </>
               ) : (
                 <div className="rounded-3xl border border-dashed border-line bg-paper-dim/50 py-16 text-center">
                   <p className="font-display text-xl text-teal-dark">

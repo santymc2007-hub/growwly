@@ -4,9 +4,17 @@ import { Gift, Wallet } from "lucide-react";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { ClinicBadges } from "./clinic-badges";
+import { EtiquetaDestacado } from "./etiqueta-destacado";
 import { RatingCompacto } from "./rating-stars";
 
-export function ClinicCard({ clinic }: { clinic: Clinic }) {
+export function ClinicCard({
+  clinic,
+  destacado = false,
+}: {
+  clinic: Clinic;
+  /** Sale arriba por visibilidad pagada: muestra la etiqueta "Destacado". */
+  destacado?: boolean;
+}) {
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
   const foto = clinic.fotos[0];
   const provinciaSlug = slugifyProvincia(clinic.provincia);
@@ -34,6 +42,7 @@ export function ClinicCard({ clinic }: { clinic: Clinic }) {
           </div>
         )}
 
+        {destacado && <EtiquetaDestacado />}
         <ClinicBadges clinic={clinic} />
       </div>
 

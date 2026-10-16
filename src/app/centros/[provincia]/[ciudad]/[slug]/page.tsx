@@ -339,29 +339,24 @@ export default async function ClinicaPage({
   const resenasGoogle = Array.isArray(clinic.google_reviews)
     ? (clinic.google_reviews as { autor: string; texto: string; puntuacion: number }[])
     : [];
-  const opinionesVisibles = [...resenasGoogle, ...opiniones].map(
-    ({ autor, texto, puntuacion }) => ({ autor, texto, puntuacion }),
-  );
-  const reviewsJsonLd = esPremium
-    ? opiniones
-        .filter((o) => o.puntuacion)
-        .map((o) => ({
-          "@context": "https://schema.org",
-          "@type": "Review",
-          itemReviewed: {
-            "@type": schemaTypeDeClinica(clinic.tipo_negocio),
-            name: clinic.nombre,
-          },
-          author: { "@type": "Person", name: o.autor },
-          reviewBody: o.texto,
-          reviewRating: {
-            "@type": "Rating",
-            ratingValue: o.puntuacion,
-            bestRating: 5,
-            worstRating: 1,
-          },
-        }))
-    : [];
+  const opinionesVisibles = [
+    ...resenasGoogle.map(({ autor, texto, puntuacion }) => ({
+      autor,
+      texto,
+      puntuacion,
+      origen: "google" as const,
+    })),
+    ...opiniones.map(({ autor, texto, puntuacion }) => ({
+      autor,
+      texto,
+      puntuacion,
+      origen: "centro" as const,
+    })),
+  ];
+  // Las opiniones escritas por la propia clínica ya NO se marcan como
+  // schema.org Review: Google no admite reseñas "autopromocionales" de
+  // un negocio sobre sí mismo y puede penalizar el marcado (auditoría
+  // oct 2026). Se siguen mostrando en la ficha, etiquetadas.
 
   const hayDestacados =
     clinic.primera_consulta_gratis ||
@@ -371,7 +366,7 @@ export default async function ClinicaPage({
 
   const medicos =
     esPremium && Array.isArray(clinic.medicos)
-      ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string }[])
+      ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string; colegiado?: string }[])
       : [];
 
   return (
@@ -393,14 +388,6 @@ export default async function ClinicaPage({
         // eslint-disable-next-line react/no-danger
         dangerouslySetInnerHTML={{ __html: serializarJsonLd(breadcrumbJsonLd) }}
       />
-      {reviewsJsonLd.map((review, i) => (
-        <script
-          key={i}
-          type="application/ld+json"
-          // eslint-disable-next-line react/no-danger
-          dangerouslySetInnerHTML={{ __html: serializarJsonLd(review) }}
-        />
-      ))}
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 pt-8">
@@ -468,8 +455,11 @@ export default async function ClinicaPage({
                   </div>
                 </div>
                 {clinic.verificado && (
-                  <div className="flex flex-col items-end gap-2">
+                  <div className="flex flex-col items-end gap-1">
                     <VerifiedBadge />
+                    <p className="max-w-[13rem] text-right text-[11px] leading-snug text-ink-soft">
+                      Hemos comprobado que existe y que sus datos de contacto son correctos.
+                    </p>
                   </div>
                 )}
               </div>
@@ -634,6 +624,9 @@ export default async function ClinicaPage({
                         {m.especialidad && (
                           <p className="text-sm text-ink-soft">{m.especialidad}</p>
                         )}
+                        {m.colegiado && (
+                          <p className="text-xs text-ink-soft">Nº de colegiado: {m.colegiado}</p>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -797,6 +790,13 @@ export default async function ClinicaPage({
                     <p className="mt-2 break-words text-sm text-ink-soft">{clinic.direccion}</p>
                     <MapaFichaClinica clinic={clinic} />
                   </>
+                )}
+
+                {clinic.registro_sanitario && (
+                  <p className="mt-4 text-xs text-ink-soft">
+                    Nº de registro sanitario:{" "}
+                    <span className="font-medium text-ink">{clinic.registro_sanitario}</span>
+                  </p>
                 )}
 
                 {Array.isArray(clinic.horarios_estructurados) &&

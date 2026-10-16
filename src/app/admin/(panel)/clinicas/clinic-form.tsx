@@ -363,6 +363,18 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
               className={inputClass}
             />
           </div>
+          <div className="col-span-2">
+            <label className={labelClass} htmlFor="registro_sanitario">
+              Nº de registro sanitario
+            </label>
+            <input
+              id="registro_sanitario"
+              name="registro_sanitario"
+              placeholder="Autorización del registro de centros sanitarios"
+              defaultValue={clinic?.registro_sanitario ?? undefined}
+              className={inputClass}
+            />
+          </div>
         </div>
       </section>
 
@@ -733,7 +745,7 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
           <p className={labelClass}>Equipo médico (hasta 3)</p>
           {[0, 1, 2].map((i) => {
             const medico = Array.isArray(clinic?.medicos)
-              ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string }[])[i]
+              ? (clinic.medicos as { nombre?: string; especialidad?: string; linkedin?: string; colegiado?: string }[])[i]
               : undefined;
             return (
               <div key={i} className="mt-2 rounded-lg border border-line p-2.5">
@@ -751,13 +763,21 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
                     className={inputClass}
                   />
                 </div>
-                <input
-                  name={`medico_linkedin_${i}`}
-                  type="url"
-                  placeholder="Perfil de LinkedIn (opcional)"
-                  defaultValue={medico?.linkedin ?? undefined}
-                  className={`${inputClass} mt-2`}
-                />
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <input
+                    name={`medico_colegiado_${i}`}
+                    placeholder="Nº de colegiado (médicos)"
+                    defaultValue={medico?.colegiado ?? undefined}
+                    className={inputClass}
+                  />
+                  <input
+                    name={`medico_linkedin_${i}`}
+                    type="url"
+                    placeholder="Perfil de LinkedIn (opcional)"
+                    defaultValue={medico?.linkedin ?? undefined}
+                    className={inputClass}
+                  />
+                </div>
               </div>
             );
           })}

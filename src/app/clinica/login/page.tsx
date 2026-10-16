@@ -2,14 +2,14 @@ import Link from "next/link";
 import { iniciarSesionClinica } from "./actions";
 import { AuthCard } from "@/components/auth/auth-card";
 
-type SearchParams = { error?: string };
+type SearchParams = { error?: string; next?: string };
 
 export default async function LoginClinicaPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { error } = await searchParams;
+  const { error, next } = await searchParams;
 
   return (
     <AuthCard variant="clinica">
@@ -21,6 +21,7 @@ export default async function LoginClinicaPage({
         action={iniciarSesionClinica}
         className="mt-8 flex flex-col gap-4"
       >
+        {next && <input type="hidden" name="next" value={next} />}
         <div>
           <label htmlFor="email" className="text-sm font-medium text-ink">
             Email

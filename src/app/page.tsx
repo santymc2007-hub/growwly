@@ -146,9 +146,15 @@ export default async function HomePage() {
               <h2 data-reveal className="font-display text-4xl font-extrabold text-teal-dark">
                 Centros destacados
               </h2>
+              <p className="mt-2 text-sm text-ink-soft">
+                Centros que pagan por aparecer aquí.{" "}
+                <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
+                  Cómo ordenamos
+                </Link>
+              </p>
               <div data-reveal-grupo className="mt-8 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
                 {destacadas.map((clinic) => (
-                  <ClinicCard key={clinic.id} clinic={clinic} />
+                  <ClinicCard key={clinic.id} clinic={clinic} destacado />
                 ))}
               </div>
               <Link

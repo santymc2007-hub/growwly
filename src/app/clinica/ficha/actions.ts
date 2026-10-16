@@ -134,6 +134,7 @@ export async function actualizarMiFicha(formData: FormData) {
     telefono_es_movil: formData.get("telefono_es_movil") === "on",
     email: str("email"),
     web: str("web"),
+    registro_sanitario: str("registro_sanitario"),
     direccion: str("direccion"),
     ciudad: str("ciudad"),
     provincia: str("provincia") ?? "Illes Balears",
@@ -213,16 +214,18 @@ export async function actualizarMiFicha(formData: FormData) {
     ];
 
     // Equipo médico: hasta 3
-    const medicos: { nombre: string; especialidad: string; linkedin?: string }[] = [];
+    const medicos: { nombre: string; especialidad: string; linkedin?: string; colegiado?: string }[] = [];
     for (let i = 0; i < 3; i++) {
       const nombreMedico = str(`medico_nombre_${i}`);
       const especialidad = str(`medico_especialidad_${i}`);
       const linkedin = str(`medico_linkedin_${i}`);
+      const colegiado = str(`medico_colegiado_${i}`);
       if (nombreMedico) {
         medicos.push({
           nombre: nombreMedico,
           especialidad: especialidad ?? "",
           ...(linkedin ? { linkedin } : {}),
+          ...(colegiado ? { colegiado } : {}),
         });
       }
     }

@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { autorizarAccesoLead } from "@/lib/leads/autorizar-lead";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { InformeCapilarVista } from "@/components/informe/informe-capilar";
 import { leerInforme } from "@/lib/informe/sanear";
@@ -16,6 +17,7 @@ type Params = { token: string };
  */
 export default async function ValoracionLeadPage({ params }: { params: Promise<Params> }) {
   const { token } = await params;
+  await autorizarAccesoLead(token);
   const admin = createAdminClient();
 
   const { data: lead } = await admin

@@ -2,10 +2,12 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { destinoTrasLogin } from "@/lib/leads/autorizar-lead";
 
 export async function iniciarSesionClinica(formData: FormData) {
   const email = String(formData.get("email") ?? "");
   const password = String(formData.get("password") ?? "");
+  const next = destinoTrasLogin(String(formData.get("next") ?? ""));
 
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({
@@ -15,7 +17,9 @@ export async function iniciarSesionClinica(formData: FormData) {
 
   if (error) {
     redirect(
-      `/clinica/login?error=${encodeURIComponent("Email o contraseña incorrectos.")}`,
+      `/clinica/login?error=${encodeURIComponent("Email o contraseña incorrectos.")}${
+        next ? `&next=${encodeURIComponent(next)}` : ""
+      }`,
     );
   }
 
@@ -52,5 +56,5 @@ export async function iniciarSesionClinica(formData: FormData) {
     );
   }
 
-  redirect("/clinica");
+  redirect(next ?? "/clinica");
 }
