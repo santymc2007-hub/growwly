@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { AlertTriangle } from "lucide-react";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarClinica } from "./actions";
 import { RegistroClinicaForm } from "./registro-clinica-form";
 import { SiteHeader } from "@/components/site-header";
@@ -25,7 +25,11 @@ export default async function RegistroClinicaPage({
 }) {
   const { error, clinic, modo } = await searchParams;
 
-  const supabase = await createClient();
+  // Con la clave secreta: la lista de fichas que se pueden reclamar
+  // incluye las no publicadas, que la clave pública ya no ve, y para
+  // saber cuáles están ya reclamadas hay que leer perfiles de clínica.
+  // Solo se pasan a la página id, nombre y ciudad.
+  const supabase = createAdminClient();
   const { data: todasLasClinicas } = await supabase
     .from("clinics")
     .select("id, nombre, ciudad")

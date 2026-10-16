@@ -6,10 +6,8 @@ import { SiteFooter } from "@/components/site-footer";
 type SearchParams = { clinica?: string; estado?: string };
 
 /**
- * Destino del enlace de un solo uso de "enviarles mi solicitud" en el
- * email de clínicas alternativas — no hay pantalla intermedia de "mi
- * cuenta", el clic ya ha hecho el envío (ver
- * /api/solicitudes/reenviar/[token]).
+ * Resultado de "Enviarles mi solicitud" (email de clínicas
+ * alternativas), tras confirmar en /solicitudes/reenviar/[token].
  */
 export default async function SolicitudEnviadaPage({
   searchParams,

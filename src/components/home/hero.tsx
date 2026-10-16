@@ -1,11 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Zap, Wallet, ShieldCheck } from "lucide-react";
+import { Zap, Wallet, HeartHandshake } from "lucide-react";
 
 const BADGES = [
   { icono: Zap, texto: "Rápido y fácil" },
   { icono: Wallet, texto: "100% Gratuito" },
-  { icono: ShieldCheck, texto: "Centros verificados" },
+  // Antes "Centros verificados": no todas las fichas lo están (solo
+  // las que llevan la etiqueta Verificada). Auditoría oct 2026.
+  { icono: HeartHandshake, texto: "Sin compromiso" },
 ];
 
 export function Hero() {

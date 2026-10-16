@@ -700,7 +700,17 @@ export default async function ClinicaPage({
               )}
 
               <p className="mt-6 text-xs text-ink-soft lg:order-120">
-                Última actualización: {actualizado}
+                Última actualización: {actualizado} ·{" "}
+                {/* Mecanismo de notificación del Reglamento de Servicios
+                    Digitales (art. 16): el contenido de la ficha lo
+                    aporta en parte la clínica. */}
+                <Link
+                  href={`/denunciar?url=${encodeURIComponent(`/centros/${provincia}/${ciudad}/${slug}`)}`}
+                  className="underline hover:text-teal-dark"
+                  rel="nofollow"
+                >
+                  Denunciar contenido
+                </Link>
               </p>
             </div>
             }

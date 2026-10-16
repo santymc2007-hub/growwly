@@ -1,10 +1,10 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
-import { createHash } from "node:crypto";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { huellaIp } from "@/lib/seguridad/huella-ip";
+import { VERSION_TEXTOS_LEGALES } from "@/lib/legal/version";
 import { subirFotoEstudio } from "@/lib/supabase/estudios-storage";
 import { analizarFotosCapilares } from "@/lib/ai/analizar-fotos";
 import type { InformeCapilar } from "@/lib/informe/tipos";
@@ -37,17 +37,6 @@ function esImagenValida(file: File): boolean {
   // Algunos móviles mandan la foto sin content-type: se mira la extensión.
   const ext = file.name.split(".").pop()?.toLowerCase() ?? "";
   return EXTENSIONES_VALIDAS.includes(ext);
-}
-
-async function huellaIp(): Promise<string | null> {
-  const h = await headers();
-  const ip =
-    h.get("x-forwarded-for")?.split(",")[0]?.trim() || h.get("x-real-ip")?.trim() || null;
-  if (!ip) return null;
-  // Con sal secreta: no se guarda la IP en claro ni se puede revertir
-  // con una tabla de IPs.
-  const sal = process.env.SUPABASE_SECRET_KEY ?? "growwly";
-  return createHash("sha256").update(`${sal}:${ip}`).digest("hex");
 }
 
 function errorAnalisis(mensaje: string): never {
@@ -158,6 +147,7 @@ export async function crearEstudio(formData: FormData) {
       fotos_adicionales: rutasAdicionales,
       estado: "procesando",
       consentimiento_en: new Date().toISOString(),
+      consentimiento_version: VERSION_TEXTOS_LEGALES,
       ip_hash: ipHash,
     })
     .select()

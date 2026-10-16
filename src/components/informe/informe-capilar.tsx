@@ -394,7 +394,7 @@ export function InformeCapilarVista({
               </span>
               <div className="flex flex-col gap-1">
                 <p className="font-display text-lg font-bold leading-snug text-teal-dark">
-                  Encuentra las mejores clínicas para tu caso
+                  Compara clínicas para tu caso
                 </p>
                 <p className="text-[15px] leading-relaxed text-ink-soft">
                   Rellena el formulario en 2 minutos y elegiremos las 5 que mejor encajen contigo para pedirles presupuesto.

@@ -65,7 +65,19 @@ export default function AvisoLegalPage() {
         únicas responsables de la asistencia que prestan.
       </p>
 
-      <h2>6. Legislación aplicable</h2>
+      <h2>6. Punto de contacto y denuncia de contenidos</h2>
+      <p>
+        A efectos del Reglamento (UE) 2022/2065 de Servicios Digitales, el
+        punto de contacto único para autoridades y usuarios es{" "}
+        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>, en
+        español. Si crees que un contenido de Growwly (una ficha, una reseña,
+        una foto o un texto) es falso o ilegal, puedes denunciarlo desde{" "}
+        <a href="/denunciar">este formulario</a>, también enlazado en el pie de
+        cada página y en cada ficha de clínica. Confirmamos la recepción, lo
+        revisamos y te comunicamos lo que decidamos y por qué.
+      </p>
+
+      <h2>7. Legislación aplicable</h2>
       <p>
         Las presentes condiciones se rigen por la legislación española. Para
         cualquier controversia derivada del acceso o uso de este sitio web,
