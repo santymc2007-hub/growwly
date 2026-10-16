@@ -22,7 +22,14 @@ export function BotonContactoClinica({
     <a
       {...props}
       onClick={(e) => {
-        trackEvent("clic_contacto_clinica", { clinic_id: clinicId, metodo });
+        // "Ver en el mapa" no es un contacto: evento propio en Analytics
+        // para que no infle clic_contacto_clinica (que se mide como
+        // conversión). En nuestra base de datos sigue igual.
+        if (metodo === "ver_mapa") {
+          trackEvent("clic_ver_mapa", { clinic_id: clinicId });
+        } else {
+          trackEvent("clic_contacto_clinica", { clinic_id: clinicId, metodo });
+        }
         fetch("/api/track/contacto-clinica", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
