@@ -149,13 +149,13 @@ export default async function CentrosPage({
       </div>
 
       {/* Barra de filtros flotante: a caballo entre el fondo y el panel
-          blanco de más abajo, como dos tarjetas elevadas. Sticky para
-          que se pueda seguir filtrando/cambiando de vista sin tener que
-          volver arriba al bajar por el listado. El toggle Lista/Mapa va
+          blanco de más abajo, como dos tarjetas elevadas. Sticky solo en
+          escritorio (lg): en móvil la barra ocupa casi toda la pantalla y
+          taparía el listado al hacer scroll. El toggle Lista/Mapa va
           en su propia tarjeta (mismo estilo que la de filtros) a
           propósito: es un módulo hermano, no parte de los filtros. */}
-      <div className="sticky top-0 z-20 mx-auto -mt-12 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
-        <div className="flex flex-wrap items-stretch gap-3">
+      <div className="relative z-20 mx-auto -mt-12 lg:sticky lg:top-0 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-stretch">
           <div className="min-w-0 flex-1 rounded-2xl bg-white p-4 shadow-lg lg:p-5">
             <p className="font-display text-base font-bold text-ink sm:text-lg">
               {filtrados.length}{" "}
@@ -163,7 +163,7 @@ export default async function CentrosPage({
                 ? "centro encontrado"
                 : "centros encontrados"}
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+            <div className="mt-3">
               <ClinicFilters
                 provincias={provincias}
                 tecnicas={tecnicas}

@@ -15,6 +15,12 @@ const FIELDS = [
   { key: "tecnica", label: "Tratamiento" },
 ] as const;
 
+// En móvil los desplegables van en rejilla de 2 columnas y ocupan su
+// celda (w-full + truncate): un <select> nativo mide lo que su opción
+// más larga, y sin esto se salía de la tarjeta.
+const SELECT_CLASS =
+  "w-full min-w-0 truncate appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30 sm:w-auto";
+
 const RATING_OPCIONES = [
   { value: "4", label: "4+ estrellas Google" },
   { value: "4.5", label: "4,5+ estrellas Google" },
@@ -39,7 +45,7 @@ function Switch({
       role="switch"
       aria-checked={activo}
       onClick={onClick}
-      className={`press rounded-full border-2 border-yellow px-4 py-2 text-sm font-semibold text-teal-dark transition ${
+      className={`press shrink-0 whitespace-nowrap rounded-full border-2 border-yellow px-4 py-2 text-sm font-semibold text-teal-dark transition ${
         activo ? "bg-yellow hover:opacity-90" : "hover:bg-yellow/10"
       }`}
     >
@@ -112,14 +118,14 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
           aquí aunque haya hueco de sobra): switches — así el bloque de
           filtros tiene una forma predecible en vez de reordenarse según
           el ancho disponible. */}
-      <div className="flex flex-wrap items-center gap-3">
+      <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
         {FIELDS.map(({ key, label }) => (
-          <div key={key} className="relative">
+          <div key={key} className="relative min-w-0">
             <select
               value={searchParams.get(key) ?? ""}
               onChange={(e) => updateFilter(key, e.target.value)}
               aria-label={label}
-              className="appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30"
+              className={SELECT_CLASS}
             >
               <option value="">{label}</option>
               {options[key].map((value) => (
@@ -137,12 +143,12 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
           </div>
         ))}
 
-        <div className="relative">
+        <div className="relative min-w-0">
           <select
             value={searchParams.get("rating") ?? ""}
             onChange={(e) => updateFilter("rating", e.target.value)}
             aria-label="Valoración mínima en Google"
-            className="appearance-none rounded-full border border-line bg-white px-4 py-2 pr-9 text-sm text-ink shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30"
+            className={SELECT_CLASS}
           >
             <option value="">Valoración</option>
             {RATING_OPCIONES.map((r) => (
@@ -160,7 +166,9 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
         </div>
       </div>
 
-      <div className="flex flex-wrap items-center gap-3">
+      {/* En móvil, los switches van en una fila con scroll horizontal
+          (sin barra visible) en vez de apilarse en 3-4 líneas. */}
+      <div className="-mx-4 flex items-center gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
         <Switch
           activo={verificadoActivo}
           onClick={() => toggleBooleanFilter("verificado")}
@@ -190,7 +198,7 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
           <button
             type="button"
             onClick={() => navegar("")}
-            className="text-sm font-medium text-cyan hover:text-cyan-dark"
+            className="shrink-0 whitespace-nowrap text-sm font-medium text-cyan hover:text-cyan-dark"
           >
             Quitar filtros
           </button>
@@ -198,7 +206,7 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
 
         {buscando && (
           <span
-            className="flex items-center gap-1.5 text-sm text-ink-soft"
+            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm text-ink-soft"
             aria-live="polite"
           >
             <span
