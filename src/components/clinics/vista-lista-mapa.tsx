@@ -51,11 +51,11 @@ export function VistaToggle() {
   }
 
   return (
-    <div className="inline-flex rounded-full border border-line bg-white p-1">
+    <div className="flex shrink-0 self-start rounded-full bg-paper-dim p-1 sm:self-auto">
       <button
         type="button"
         onClick={() => elegir("lista")}
-        className={`press flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+        className={`press flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition sm:px-3.5 sm:py-1.5 sm:text-sm ${
           vista === "lista"
             ? "bg-teal-dark text-white"
             : "text-ink-soft hover:text-teal-dark"
@@ -67,7 +67,7 @@ export function VistaToggle() {
       <button
         type="button"
         onClick={() => elegir("mapa")}
-        className={`press flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm font-medium transition ${
+        className={`press flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-medium transition sm:px-3.5 sm:py-1.5 sm:text-sm ${
           vista === "mapa"
             ? "bg-teal-dark text-white"
             : "text-ink-soft hover:text-teal-dark"
