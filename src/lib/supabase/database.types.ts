@@ -106,6 +106,30 @@ export type Database = {
           },
         ]
       }
+      clinic_avisos_reclamo: {
+        Row: {
+          baja_en: string | null
+          clinic_id: string
+          enviado_a: string | null
+          enviado_en: string | null
+          veces: number
+        }
+        Insert: {
+          baja_en?: string | null
+          clinic_id: string
+          enviado_a?: string | null
+          enviado_en?: string | null
+          veces?: number
+        }
+        Update: {
+          baja_en?: string | null
+          clinic_id?: string
+          enviado_a?: string | null
+          enviado_en?: string | null
+          veces?: number
+        }
+        Relationships: []
+      }
       clinic_impresiones_listado: {
         Row: {
           clinic_id: string
