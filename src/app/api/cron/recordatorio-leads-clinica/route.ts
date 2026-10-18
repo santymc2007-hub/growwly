@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { ESTADOS_FINALES } from "@/lib/leads/estados-lead";
 import { esc } from "@/lib/email/escapar";
+import { destinatariosLeads } from "@/lib/clinica/emails-leads";
 
 /**
  * Vercel Cron llama a esta ruta una vez al día (ver vercel.json). La
@@ -42,7 +43,9 @@ export async function GET(request: Request) {
       .eq("id", clinicId)
       .maybeSingle();
 
-    if (!clinica?.email) continue;
+    if (!clinica) continue;
+    const para = await destinatariosLeads(supabase, { id: clinicId, email: clinica.email });
+    if (para.length === 0) continue;
 
     const html = construirHtmlEmail({
       nombreClinica: clinica.nombre,
@@ -52,7 +55,7 @@ export async function GET(request: Request) {
 
     try {
       await enviarEmail({
-        to: clinica.email,
+        to: para,
         subject:
           cantidad === 1
             ? "Tienes 1 lead esperando respuesta"

@@ -11,6 +11,7 @@ import {
   labelPresupuesto,
 } from "@/lib/solicitud-labels";
 import { esc } from "@/lib/email/escapar";
+import { mapaDestinatariosLeads } from "@/lib/clinica/emails-leads";
 
 /**
  * Tope de clínicas que reciben un mismo lead. Repartir un lead entre
@@ -76,7 +77,6 @@ export async function notificarClinicasDeSolicitud(
   let query = supabaseAdmin
     .from("clinics")
     .select("*")
-    .not("email", "is", null)
     // Antes no se filtraba aquí por publicado/verificado_admin: una
     // clínica recién creada por sí misma (pendiente de que admin
     // confirme que es de verdad quien dice ser) podía recibir datos
@@ -104,10 +104,17 @@ export async function notificarClinicasDeSolicitud(
     query = query.overlaps("tecnicas", solicitud.tratamientos_interes);
   }
 
-  const { data: clinicas } = await query;
+  const { data: clinicasEncontradas } = await query;
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
 
-  const candidatas = (clinicas ?? []).filter((c) => c.email).length;
+  // Solo cuentan las clínicas a las que se les puede avisar: con
+  // emails para leads propios o, en su defecto, el email de la ficha.
+  const destinatarios = await mapaDestinatariosLeads(supabaseAdmin, clinicasEncontradas ?? []);
+  const clinicas = (clinicasEncontradas ?? []).filter(
+    (c) => (destinatarios.get(c.id)?.length ?? 0) > 0,
+  );
+
+  const candidatas = clinicas.length;
 
   // Cobertura que verá el paciente: cuántas de las candidatas (tope 5)
   // encajaban con su solicitud. No es una media de calidad — si hay 5
@@ -120,7 +127,7 @@ export async function notificarClinicasDeSolicitud(
   const inicioMes = new Date();
   inicioMes.setDate(1);
   inicioMes.setHours(0, 0, 0, 0);
-  const clinicIds = (clinicas ?? []).map((c) => c.id);
+  const clinicIds = clinicas.map((c) => c.id);
   const { data: leadsDelMes } =
     clinicIds.length > 0
       ? await supabaseAdmin
@@ -138,7 +145,7 @@ export async function notificarClinicasDeSolicitud(
   // encaja con ESTA solicitud) + leads recibidos este mes, por
   // candidata.
   const conPuntuacion = await Promise.all(
-    (clinicas ?? []).map(async (clinica) => {
+    clinicas.map(async (clinica) => {
       const metricas = await calcularMetricasLeadsClinica(supabaseAdmin, clinica.id);
       const growwlyScore = calcularGrowwlyScore(clinica, metricas);
       const matchScore = calcularMatchScore(solicitud, clinica);
@@ -163,7 +170,8 @@ export async function notificarClinicasDeSolicitud(
   let ultimoError: string | null = null;
 
   for (const { clinica, matchScore } of seleccionadas) {
-    if (!clinica.email) continue;
+    const para = destinatarios.get(clinica.id) ?? [];
+    if (para.length === 0) continue;
 
     const { data: lead } = await supabaseAdmin
       .from("leads_clinica")
@@ -205,7 +213,7 @@ export async function notificarClinicasDeSolicitud(
 
     try {
       await enviarEmail({
-        to: clinica.email,
+        to: para,
         subject: "Nueva solicitud de presupuesto en Growwly",
         html,
       });

@@ -96,6 +96,12 @@ export default async function ClinicaPanelPage({
     notFound();
   }
 
+  const { data: privado } = await admin
+    .from("clinic_privado")
+    .select("emails_leads")
+    .eq("clinic_id", clinicId)
+    .maybeSingle();
+
   const { municipios, zonas } = await getMunicipiosYZonas();
   const solicitudesPendientes = await contarSolicitudesPendientes(clinicId);
   const nombreGestor = await obtenerNombreGestor(profileId);
@@ -162,6 +168,7 @@ export default async function ClinicaPanelPage({
 
         <FichaClinicaForm
           clinic={clinic}
+          emailsLeads={privado?.emails_leads ?? []}
           action={actualizarMiFicha}
           municipios={municipios}
           zonas={zonas}
