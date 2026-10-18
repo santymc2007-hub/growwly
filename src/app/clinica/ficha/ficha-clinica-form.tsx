@@ -385,7 +385,7 @@ export function FichaClinicaForm({
           </div>
           <div>
             <label className={labelClass}>Horario</label>
-            <div className="mt-2 rounded-xl border border-line bg-white p-4">
+            <div className="mt-2 rounded-xl border border-line bg-white p-3 sm:p-4">
               <HorarioSemanal valorInicial={clinic.horarios_estructurados} />
             </div>
           </div>
