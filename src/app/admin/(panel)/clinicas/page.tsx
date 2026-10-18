@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/admin";
+import type { EstadoReclamo } from "@/lib/admin/email-reclamo";
 import { AdminClinicFilters } from "./admin-clinic-filters";
 import { ClinicsTable, type ClinicRow } from "./clinics-table";
 
@@ -32,6 +34,30 @@ export default async function AdminClinicasPage({
     .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
   const clinicas = data ?? [];
+
+  // Estado del email "reclama tu ficha" de cada centro: avisos enviados
+  // o bajas (tabla solo accesible con la clave secreta) y centros que ya
+  // tienen alguien con acceso aprobado.
+  const admin = createAdminClient();
+  const [{ data: avisos }, { data: perfilesClinica }] = await Promise.all([
+    admin.from("clinic_avisos_reclamo").select("clinic_id, enviado_en, baja_en"),
+    admin.from("profiles").select("clinic_id").eq("clinic_status", "aprobado").not("clinic_id", "is", null),
+  ]);
+  const avisoPorClinica = new Map((avisos ?? []).map((a) => [a.clinic_id, a]));
+  const conCuenta = new Set((perfilesClinica ?? []).map((p) => p.clinic_id));
+  function estadoReclamo(c: (typeof clinicas)[number]): { estado: EstadoReclamo; enviadoEn: string | null } {
+    const aviso = avisoPorClinica.get(c.id);
+    const estado: EstadoReclamo = !c.email
+      ? "sin-email"
+      : conCuenta.has(c.id)
+        ? "con-cuenta"
+        : aviso?.baja_en
+          ? "baja"
+          : aviso?.enviado_en
+            ? "enviado"
+            : "pendiente";
+    return { estado, enviadoEn: aviso?.enviado_en ?? null };
+  }
 
   const ciudades = uniqueSorted(clinicas.map((c) => c.ciudad));
 
@@ -101,6 +127,7 @@ export default async function AdminClinicasPage({
           (clinic): ClinicRow => ({
             ...clinic,
             ...groupPosition(clinic.id, clinic.destacado),
+            reclamo: estadoReclamo(clinic),
           }),
         )}
       />

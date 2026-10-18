@@ -2,9 +2,11 @@ type EnviarEmailInput = {
   to: string;
   subject: string;
   html: string;
+  /** Dirección a la que llegan las respuestas (si no, la del remitente). */
+  replyTo?: string;
 };
 
-export async function enviarEmail({ to, subject, html }: EnviarEmailInput) {
+export async function enviarEmail({ to, subject, html, replyTo }: EnviarEmailInput) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
     throw new Error("Falta configurar RESEND_API_KEY para poder enviar emails.");
@@ -22,7 +24,7 @@ export async function enviarEmail({ to, subject, html }: EnviarEmailInput) {
       "Content-Type": "application/json",
       Authorization: `Bearer ${apiKey}`,
     },
-    body: JSON.stringify({ from, to, subject, html }),
+    body: JSON.stringify({ from, to, subject, html, ...(replyTo ? { reply_to: replyTo } : {}) }),
   });
 
   if (!response.ok) {
