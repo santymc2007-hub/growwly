@@ -226,18 +226,21 @@ export type Database = {
           alta_email: string | null
           clinic_id: string
           datos_facturacion: Json | null
+          emails_leads: string[]
           updated_at: string
         }
         Insert: {
           alta_email?: string | null
           clinic_id: string
           datos_facturacion?: Json | null
+          emails_leads?: string[]
           updated_at?: string
         }
         Update: {
           alta_email?: string | null
           clinic_id?: string
           datos_facturacion?: Json | null
+          emails_leads?: string[]
           updated_at?: string
         }
         Relationships: [

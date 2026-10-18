@@ -8,6 +8,7 @@ import type { Json } from "@/lib/supabase/database.types";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { slugify } from "@/lib/slugify";
 import { tipoNegocioValido } from "@/lib/clinic-options";
+import { normalizarEmailsLeads } from "@/lib/clinica/emails-leads";
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
@@ -277,6 +278,21 @@ export async function actualizarMiFicha(formData: FormData) {
 
   if (error) {
     redirect(`/clinica?error=${encodeURIComponent(error.message)}`);
+  }
+
+  // Emails que reciben los leads: dato privado, va a clinic_privado
+  // (nunca a clinics, que es legible con la clave pública).
+  const emailsLeads = normalizarEmailsLeads(formData.getAll("emails_leads"));
+  const { error: errorEmails } = await admin
+    .from("clinic_privado")
+    .upsert(
+      { clinic_id: clinicId, emails_leads: emailsLeads, updated_at: new Date().toISOString() },
+      { onConflict: "clinic_id" },
+    );
+  if (errorEmails) {
+    redirect(
+      `/clinica?error=${encodeURIComponent("No se pudieron guardar los emails para solicitudes.")}`,
+    );
   }
 
   revalidatePath("/clinica");

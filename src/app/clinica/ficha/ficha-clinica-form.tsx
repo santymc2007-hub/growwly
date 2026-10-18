@@ -20,9 +20,12 @@ import { FotosClinicaField } from "@/components/clinica/fotos-clinica-field";
 import { SeccionFicha } from "@/components/clinica/seccion-ficha";
 import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
+import { EmailsLeadsField } from "@/components/clinica/emails-leads-field";
 
 type Props = {
   clinic: Clinic;
+  /** Emails que reciben los avisos de leads (clinic_privado). */
+  emailsLeads: string[];
   action: (formData: FormData) => void;
   municipios: { provincia: string; nombre: string }[];
   zonas: { municipio: string; nombre: string }[];
@@ -37,6 +40,7 @@ const MAX_OPINIONES = 10;
 
 export function FichaClinicaForm({
   clinic,
+  emailsLeads,
   action,
   municipios,
   zonas,
@@ -150,7 +154,7 @@ export function FichaClinicaForm({
             </div>
             <div>
               <label className={labelClass} htmlFor="email">
-                Email
+                Email de contacto
               </label>
               <input
                 id="email"
@@ -172,6 +176,10 @@ export function FichaClinicaForm({
               />
             </div>
           </div>
+          <p className="-mt-2 text-xs text-ink-soft">
+            El email de contacto se muestra en tu ficha pública.
+          </p>
+          <EmailsLeadsField iniciales={emailsLeads} emailFicha={clinic.email} />
           <div>
             <label className={labelClass} htmlFor="registro_sanitario">
               Nº de registro sanitario

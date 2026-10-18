@@ -239,3 +239,58 @@ html.anim .rv-on {
   padding-right: 0.5rem;
   color: var(--color-teal-dark);
 }
+
+/* Asistente de solicitud: cada paso entra con un fundido corto. */
+@keyframes paso-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@media (prefers-reduced-motion: no-preference) {
+  .paso-anim {
+    animation: paso-in 240ms var(--ease-out) backwards;
+  }
+}
+
+/* Deslizador de presupuesto: pista con relleno en el color de marca
+   (--relleno lo pone el componente, en %). */
+.rango-presupuesto {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 8px;
+  border-radius: 999px;
+  background: linear-gradient(
+    to right,
+    var(--color-teal) var(--relleno, 0%),
+    var(--color-line) var(--relleno, 0%)
+  );
+  outline: none;
+}
+.rango-presupuesto::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid var(--color-teal);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+.rango-presupuesto::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 999px;
+  background: #fff;
+  border: 3px solid var(--color-teal);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+.rango-presupuesto:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-teal) 18%, transparent);
+}

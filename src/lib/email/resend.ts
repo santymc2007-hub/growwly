@@ -1,5 +1,6 @@
 type EnviarEmailInput = {
-  to: string;
+  /** Uno o varios destinatarios (p. ej. los emails de leads de una clínica). */
+  to: string | string[];
   subject: string;
   html: string;
   /** Dirección a la que llegan las respuestas (si no, la del remitente). */

@@ -1,8 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import {
+  ArrowLeft,
+  ArrowRight,
+  Camera,
+  Check,
+  HeartPulse,
+  History,
+  LoaderCircle,
+  ShieldCheck,
+  SlidersHorizontal,
+  Sparkles,
+  UserRound,
+  type LucideIcon,
+} from "lucide-react";
 import { crearSolicitud } from "../actions";
 import { trackEvent } from "@/lib/analytics/events";
 import { leerAtribucion } from "@/lib/analytics/atribucion";
@@ -26,11 +40,89 @@ type Props = {
   estudioInicialId?: string | null;
 };
 
-const TOTAL_PASOS = 6;
+const PASOS: { corto: string; titulo: string; subtitulo: string; icono: LucideIcon }[] = [
+  {
+    corto: "Tú",
+    titulo: "Perfil personal",
+    subtitulo: "Revisa tus datos: son los que verá la clínica para responderte.",
+    icono: UserRound,
+  },
+  {
+    corto: "Historial",
+    titulo: "Historial capilar",
+    subtitulo: "Cómo ha ido tu pérdida de cabello y qué has probado.",
+    icono: History,
+  },
+  {
+    corto: "Tratamientos",
+    titulo: "Tratamientos que te interesan",
+    subtitulo: "Elige los que quieres valorar, o deja que decida el médico.",
+    icono: Sparkles,
+  },
+  {
+    corto: "Preferencias",
+    titulo: "Preferencias",
+    subtitulo: "Presupuesto, ubicación y cuándo.",
+    icono: SlidersHorizontal,
+  },
+  {
+    corto: "Salud",
+    titulo: "Salud general",
+    subtitulo: "Ayuda a la clínica a valorar tu caso con seguridad.",
+    icono: HeartPulse,
+  },
+  {
+    corto: "Confirmar",
+    titulo: "Términos y condiciones",
+    subtitulo: "Lee y acepta los siguientes términos para enviar tu solicitud.",
+    icono: ShieldCheck,
+  },
+];
 
-const inputClass =
-  "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
-const labelClass = "text-sm font-medium text-ink";
+const TOTAL_PASOS = PASOS.length;
+
+const PRESUPUESTO_MIN = Number(PRESUPUESTO_PACIENTE_OPCIONES[0]);
+const PRESUPUESTO_MAX = Number(
+  PRESUPUESTO_PACIENTE_OPCIONES[PRESUPUESTO_PACIENTE_OPCIONES.length - 1],
+);
+const PRESUPUESTO_PASO = 500;
+const PRESUPUESTO_INICIAL = 3000;
+
+const PROGRESION_OPCIONES = [
+  { valor: "lenta", nombre: "Lenta", detalle: "Poco a poco, a lo largo de años" },
+  { valor: "moderada", nombre: "Moderada", detalle: "Se nota de un mes a otro" },
+  { valor: "rapida", nombre: "Rápida", detalle: "Cambios en cuestión de semanas" },
+  { valor: "estable", nombre: "Estable", detalle: "Hace tiempo que no va a más" },
+];
+
+const DONDE_OPCIONES = [
+  { valor: "ciudad", nombre: "En mi ciudad o cerca de mí", detalle: null },
+  { valor: "provincia", nombre: "En mi provincia", detalle: "Solo en mi provincia" },
+  {
+    valor: "comunidad",
+    nombre: "En mi Comunidad Autónoma",
+    detalle: "Estoy abierto/a a moverme por mi Comunidad Autónoma",
+  },
+  {
+    valor: "sin_preferencia",
+    nombre: "Sin preferencia",
+    detalle: "Me desplazaría a cualquier parte de España por la clínica adecuada",
+  },
+];
+
+const CUANDO_OPCIONES = [
+  { valor: "lo_antes_posible", nombre: "Lo antes posible", detalle: null },
+  { valor: "1_3_meses", nombre: "1 a 3 meses", detalle: "Es urgente, ya estoy convencido/a" },
+  { valor: "3_6_meses", nombre: "3 a 6 meses", detalle: "Estoy convencido/a, sin prisa" },
+  { valor: "6_12_meses", nombre: "6 a 12 meses", detalle: "No estoy convencido/a" },
+  { valor: "flexible", nombre: "Flexible", detalle: "Solo estoy explorando opciones" },
+];
+
+const FUMADOR_OPCIONES = [
+  { valor: "no_fumo", nombre: "No fumo" },
+  { valor: "ocasional", nombre: "Ocasionalmente" },
+  { valor: "regular", nombre: "Regularmente" },
+];
 
 const CONDICIONES_MEDICAS_INFO = [
   { valor: "diabetes", nombre: "Diabetes" },
@@ -42,6 +134,149 @@ const CONDICIONES_MEDICAS_INFO = [
   { valor: "depresion_ansiedad", nombre: "Depresión/Ansiedad" },
 ] as const;
 
+const inputClass =
+  "mt-2 w-full rounded-xl border border-line bg-white px-4 py-3 text-[15px] text-ink placeholder:text-ink-soft/70 transition-colors focus:border-teal focus:outline-none focus:ring-4 focus:ring-teal/10";
+
+/* ───────────── Piezas de UI del asistente ───────────── */
+
+function Pregunta({
+  titulo,
+  ayuda,
+  children,
+}: {
+  titulo: string;
+  ayuda?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <fieldset className="min-w-0">
+      <legend className="text-[15px] font-semibold text-ink">{titulo}</legend>
+      {ayuda && <p className="mt-0.5 text-sm text-ink-soft">{ayuda}</p>}
+      {children}
+    </fieldset>
+  );
+}
+
+function MarcaCheck({ activo, redondo }: { activo: boolean; redondo?: boolean }) {
+  return (
+    <span
+      aria-hidden
+      className={`flex h-5 w-5 shrink-0 items-center justify-center border-2 transition-colors ${
+        redondo ? "rounded-full" : "rounded-md"
+      } ${activo ? "border-teal bg-teal text-white" : "border-line bg-white"}`}
+    >
+      {activo && <Check className="h-3 w-3" strokeWidth={3.5} />}
+    </span>
+  );
+}
+
+/** Tarjeta de opción única (se comporta como un radio). */
+function OpcionTarjeta({
+  activo,
+  onClick,
+  titulo,
+  detalle,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  titulo: string;
+  detalle?: string | null;
+}) {
+  return (
+    <button
+      type="button"
+      role="radio"
+      aria-checked={activo}
+      onClick={onClick}
+      className={`press flex w-full items-start gap-3 rounded-2xl border-2 px-4 py-3.5 text-left transition-colors ${
+        activo
+          ? "border-teal bg-teal/[0.06]"
+          : "border-line bg-white hover:border-teal/40"
+      }`}
+    >
+      <span className="mt-0.5">
+        <MarcaCheck activo={activo} redondo />
+      </span>
+      <span className="min-w-0">
+        <span className={`block text-[15px] font-medium ${activo ? "text-teal-dark" : "text-ink"}`}>
+          {titulo}
+        </span>
+        {detalle && <span className="mt-0.5 block text-sm text-ink-soft">{detalle}</span>}
+      </span>
+    </button>
+  );
+}
+
+/** Píldora de selección múltiple. */
+function Chip({
+  activo,
+  onClick,
+  children,
+}: {
+  activo: boolean;
+  onClick: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      aria-pressed={activo}
+      onClick={onClick}
+      className={`press inline-flex items-center gap-1.5 rounded-full border-2 px-4 py-2 text-sm font-medium transition-colors ${
+        activo
+          ? "border-teal bg-teal text-white"
+          : "border-line bg-white text-ink hover:border-teal/40"
+      }`}
+    >
+      {activo && <Check className="h-3.5 w-3.5" strokeWidth={3} aria-hidden />}
+      {children}
+    </button>
+  );
+}
+
+/** Casilla de consentimiento (checkbox nativo, estilo tarjeta). */
+function Consentimiento({
+  checked,
+  onChange,
+  href,
+  enlace,
+  texto,
+}: {
+  checked: boolean;
+  onChange: (v: boolean) => void;
+  href: string;
+  enlace: string;
+  texto: string;
+}) {
+  return (
+    <label
+      className={`flex cursor-pointer items-start gap-3 rounded-2xl border-2 p-4 text-sm leading-relaxed transition-colors ${
+        checked ? "border-teal/50 bg-teal/[0.04]" : "border-line bg-white hover:border-teal/30"
+      }`}
+    >
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => onChange(e.target.checked)}
+        className="mt-0.5 h-5 w-5 shrink-0 accent-teal"
+        required
+      />
+      <span className="text-ink">
+        <Link
+          href={href}
+          target="_blank"
+          className="font-semibold text-cyan-dark underline-offset-2 hover:underline"
+        >
+          {enlace}
+        </Link>{" "}
+        — {texto}
+      </span>
+    </label>
+  );
+}
+
+/* ───────────── Asistente ───────────── */
+
 export function SolicitudWizard({
   profile,
   estudios,
@@ -51,6 +286,8 @@ export function SolicitudWizard({
   const [paso, setPaso] = useState(1);
   const [enviando, setEnviando] = useState(false);
   const [errorEnvio, setErrorEnvio] = useState<string | null>(null);
+  const arribaRef = useRef<HTMLDivElement>(null);
+  const primerRender = useRef(true);
 
   const estudiosListos = estudios.filter((e) => e.estado === "listo");
   // Se vincula el análisis que llega preseleccionado desde el botón del
@@ -125,6 +362,19 @@ export function SolicitudWizard({
     consentimientoCompartir &&
     consentimientoTerminos;
 
+  // Al cambiar de paso, vuelve arriba del asistente (en móvil el paso
+  // anterior suele dejar el scroll a media pantalla).
+  useEffect(() => {
+    if (primerRender.current) {
+      primerRender.current = false;
+      return;
+    }
+    const el = arribaRef.current;
+    if (!el) return;
+    const top = el.getBoundingClientRect().top + window.scrollY - 88;
+    if (window.scrollY > top) window.scrollTo({ top });
+  }, [paso]);
+
   function marcarTodosLosConsentimientos(valor: boolean) {
     setConsentimientoDatos(valor);
     setConsentimientoInfoMedica(valor);
@@ -174,6 +424,10 @@ export function SolicitudWizard({
   }
   function anterior() {
     setPaso((p) => Math.max(p - 1, 1));
+  }
+  function irAPaso(n: number) {
+    // Solo hacia atrás: los pasos siguientes se completan en orden.
+    if (n < paso) setPaso(n);
   }
 
   async function enviar() {
@@ -225,689 +479,638 @@ export function SolicitudWizard({
     router.push(`/cuenta/solicitud/${resultado.id}`);
   }
 
+  const pasoActual = PASOS[paso - 1];
+  const IconoPaso = pasoActual.icono;
+  const presupuestoNumero =
+    presupuestoRango && presupuestoRango !== "flexible"
+      ? Number(presupuestoRango)
+      : PRESUPUESTO_INICIAL;
+  const porcentajePresupuesto =
+    ((presupuestoNumero - PRESUPUESTO_MIN) / (PRESUPUESTO_MAX - PRESUPUESTO_MIN)) * 100;
+
   return (
-    <div>
-      <div className="mb-6 flex items-center gap-1.5">
-        {Array.from({ length: TOTAL_PASOS }, (_, i) => i + 1).map((n) => (
-          <div
-            key={n}
-            className={`h-1.5 flex-1 rounded-full ${
-              n <= paso ? "bg-teal" : "bg-line"
-            }`}
-          />
-        ))}
-      </div>
-      <p className="mb-4 text-xs font-medium uppercase tracking-wide text-ink-soft">
-        Paso {paso} de {TOTAL_PASOS}
-      </p>
-
-      {paso === 1 && (
-        <section>
-          <h2 className="font-display text-lg text-teal-dark">
-            Perfil personal
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Necesitamos estos datos para crear tu ficha médica.
-          </p>
-
-          <div className="mt-4 flex flex-col gap-4">
-            <div>
-              <label className={labelClass}>Soy</label>
-              <div className="mt-1 grid grid-cols-2 gap-2">
-                {(["hombre", "mujer"] as const).map((opcion) => (
-                  <button
-                    key={opcion}
-                    type="button"
-                    onClick={() => setSexo(opcion)}
-                    className={`rounded-lg border px-3 py-2 text-sm font-medium capitalize ${
-                      sexo === opcion
-                        ? "border-teal bg-teal/10 text-teal-dark"
-                        : "border-line bg-white text-ink hover:border-teal/40"
-                    }`}
-                  >
-                    {opcion === "hombre" ? "Hombre" : "Mujer"}
-                  </button>
-                ))}
+    <div ref={arribaRef}>
+      {/* ── Progreso ── */}
+      <nav aria-label="Progreso de la solicitud" className="mb-5">
+        {/* Móvil: barra segmentada + paso actual */}
+        <div className="sm:hidden">
+          <div className="flex items-baseline justify-between">
+            <p className="text-sm font-semibold text-teal-dark">{pasoActual.corto}</p>
+            <p className="text-xs font-medium text-ink-soft">
+              Paso {paso} de {TOTAL_PASOS}
+            </p>
+          </div>
+          <div className="mt-2 flex gap-1.5">
+            {PASOS.map((p, i) => (
+              <div key={p.corto} className="h-1.5 flex-1 overflow-hidden rounded-full bg-line">
+                <div
+                  className="h-full rounded-full bg-teal transition-[width] duration-300 ease-out"
+                  style={{ width: i + 1 <= paso ? "100%" : "0%" }}
+                />
               </div>
-            </div>
+            ))}
           </div>
+        </div>
 
-          <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-line bg-white p-4 text-sm">
-            <div>
-              <p className="text-xs text-ink-soft">Nombre</p>
-              <p className="text-ink">
-                {profile?.nombre || "—"} {profile?.apellidos ?? ""}
-              </p>
-            </div>
-            <div>
-              <p className="text-xs text-ink-soft">Edad</p>
-              <p className="text-ink">{profile?.edad ?? "—"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-ink-soft">Teléfono</p>
-              <p className="text-ink">{profile?.telefono || "—"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-ink-soft">Email</p>
-              <p className="text-ink">{profile?.email}</p>
-            </div>
-            <div>
-              <p className="text-xs text-ink-soft">Ciudad</p>
-              <p className="text-ink">{ciudad || "—"}</p>
-            </div>
-            <div>
-              <p className="text-xs text-ink-soft">Tipo de pérdida de cabello</p>
-              <p className="text-ink">
-                {tipoPerdidaCabello || "Se calcula con tu análisis"}
-              </p>
-            </div>
-          </div>
-          <p className="mt-2 text-xs text-ink-soft">
-            Los usaremos para que las clínicas puedan responderte. Los
-            puedes actualizar desde{" "}
-            <Link href="/cuenta" className="text-cyan hover:text-cyan-dark">
-              Mi cuenta
-            </Link>{" "}
-            si algo no es correcto.
-          </p>
-
-          {estudioSeleccionado ? (
-            <div className="mt-4 rounded-lg border border-line bg-white p-4 text-sm">
-              <p className="text-ink-soft">
-                {estudioSeleccionado.id === estudioInicialId
-                  ? "Vinculamos el análisis que elegiste:"
-                  : "Vinculamos automáticamente tu análisis más reciente:"}
-              </p>
-              <p className="mt-1 font-medium text-ink">
-                Análisis del{" "}
-                {new Date(estudioSeleccionado.created_at).toLocaleDateString(
-                  "es-ES",
+        {/* Escritorio: pasos con nombre */}
+        <ol className="hidden items-start sm:flex">
+          {PASOS.map((p, i) => {
+            const n = i + 1;
+            const hecho = n < paso;
+            const actual = n === paso;
+            return (
+              <li key={p.corto} className="relative flex flex-1 flex-col items-center">
+                {i > 0 && (
+                  <span
+                    aria-hidden
+                    className={`absolute right-1/2 top-4 h-0.5 w-full -translate-y-1/2 transition-colors duration-300 ${
+                      n <= paso ? "bg-teal" : "bg-line"
+                    }`}
+                  />
                 )}
-                {estudioSeleccionado.norwood_estimado
-                  ? ` · ${estudioSeleccionado.norwood_estimado}`
-                  : ""}
-              </p>
-            </div>
-          ) : (
-            <div className="mt-4 rounded-lg border border-dashed border-line bg-white p-4 text-sm">
-              <p className="text-ink-soft">
-                Todavía no tienes fotos subidas. Puedes continuar sin
-                ellas, pero ayudan mucho a que las clínicas valoren tu
-                caso.
-              </p>
-              <Link
-                href="/analisis/nuevo"
-                className="mt-2 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
-              >
-                Subir fotos ahora →
-              </Link>
-            </div>
+                <button
+                  type="button"
+                  onClick={() => irAPaso(n)}
+                  disabled={!hecho}
+                  aria-current={actual ? "step" : undefined}
+                  aria-label={`Paso ${n}: ${p.titulo}`}
+                  className={`relative z-10 flex h-8 w-8 items-center justify-center rounded-full text-sm font-semibold transition-colors ${
+                    hecho
+                      ? "bg-teal text-white hover:bg-teal-dark"
+                      : actual
+                        ? "bg-white text-teal-dark ring-2 ring-teal"
+                        : "bg-white text-ink-soft ring-1 ring-line"
+                  }`}
+                >
+                  {hecho ? <Check className="h-4 w-4" strokeWidth={3} aria-hidden /> : n}
+                </button>
+                <span
+                  className={`mt-2 text-xs font-medium ${
+                    actual ? "text-teal-dark" : hecho ? "text-ink" : "text-ink-soft"
+                  }`}
+                >
+                  {p.corto}
+                </span>
+              </li>
+            );
+          })}
+        </ol>
+      </nav>
+
+      {/* ── Tarjeta del paso ── */}
+      <div className="rounded-[28px] bg-white p-5 shadow-[0_4px_6px_rgba(0,0,0,0.05)] ring-1 ring-line sm:p-8">
+        <header className="flex items-start gap-3.5">
+          <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-sage text-sage-ink">
+            <IconoPaso className="h-5 w-5" strokeWidth={2} aria-hidden />
+          </span>
+          <div>
+            <h2 className="font-display text-xl text-teal-dark">{pasoActual.titulo}</h2>
+            <p className="mt-0.5 text-sm text-ink-soft">{pasoActual.subtitulo}</p>
+          </div>
+        </header>
+
+        <div key={paso} className="paso-anim mt-6">
+          {paso === 1 && (
+            <section className="flex flex-col gap-6">
+              <Pregunta titulo="Soy">
+                <div role="radiogroup" className="mt-2 grid grid-cols-2 gap-2">
+                  {(["hombre", "mujer"] as const).map((opcion) => (
+                    <OpcionTarjeta
+                      key={opcion}
+                      activo={sexo === opcion}
+                      onClick={() => setSexo(opcion)}
+                      titulo={opcion === "hombre" ? "Hombre" : "Mujer"}
+                    />
+                  ))}
+                </div>
+              </Pregunta>
+
+              <div>
+                <dl className="grid grid-cols-2 gap-x-4 gap-y-3 rounded-2xl bg-paper-dim/70 p-4 text-sm">
+                  {[
+                    ["Nombre", `${profile?.nombre || "—"} ${profile?.apellidos ?? ""}`],
+                    ["Edad", profile?.edad ? String(profile.edad) : "—"],
+                    ["Teléfono", profile?.telefono || "—"],
+                    ["Email", profile?.email ?? "—"],
+                    ["Ciudad", ciudad || "—"],
+                    ["Tipo de pérdida", tipoPerdidaCabello || "Se calcula con tu análisis"],
+                  ].map(([dt, dd]) => (
+                    <div key={dt} className="min-w-0">
+                      <dt className="text-xs text-ink-soft">{dt}</dt>
+                      <dd className="truncate font-medium text-ink">{dd}</dd>
+                    </div>
+                  ))}
+                </dl>
+                <p className="mt-2 text-xs text-ink-soft">
+                  Los usaremos para que las clínicas puedan responderte. Los
+                  puedes actualizar desde{" "}
+                  <Link href="/cuenta" className="font-medium text-cyan-dark hover:underline">
+                    Mi cuenta
+                  </Link>{" "}
+                  si algo no es correcto.
+                </p>
+              </div>
+
+              {estudioSeleccionado ? (
+                <div className="flex items-center gap-3 rounded-2xl border border-teal/20 bg-teal/[0.04] p-4 text-sm">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal text-white">
+                    <Check className="h-4 w-4" strokeWidth={3} aria-hidden />
+                  </span>
+                  <div className="min-w-0">
+                    <p className="text-ink-soft">
+                      {estudioSeleccionado.id === estudioInicialId
+                        ? "Vinculamos la valoración que elegiste:"
+                        : "Vinculamos automáticamente tu valoración más reciente:"}
+                    </p>
+                    <p className="font-medium text-ink">
+                      Valoración del{" "}
+                      {new Date(estudioSeleccionado.created_at).toLocaleDateString("es-ES")}
+                      {estudioSeleccionado.norwood_estimado
+                        ? ` · ${estudioSeleccionado.norwood_estimado}`
+                        : ""}
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex items-start gap-3 rounded-2xl border-2 border-dashed border-line p-4 text-sm">
+                  <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-paper-dim text-teal">
+                    <Camera className="h-4 w-4" aria-hidden />
+                  </span>
+                  <div>
+                    <p className="text-ink-soft">
+                      Todavía no tienes fotos subidas. Puedes continuar sin
+                      ellas, pero ayudan mucho a que las clínicas valoren tu
+                      caso.
+                    </p>
+                    <Link
+                      href="/analisis/nuevo"
+                      className="mt-1 inline-block font-medium text-cyan-dark hover:underline"
+                    >
+                      Subir fotos ahora →
+                    </Link>
+                  </div>
+                </div>
+              )}
+
+              <label className="flex cursor-pointer items-start gap-3 text-sm leading-relaxed text-ink-soft">
+                <input
+                  type="checkbox"
+                  checked={aceptaMarketingEmail}
+                  onChange={(e) => setAceptaMarketingEmail(e.target.checked)}
+                  className="mt-0.5 h-5 w-5 shrink-0 accent-teal"
+                />
+                <span>
+                  <span className="font-medium text-ink">
+                    Quiero recibir novedades de Growwly por email
+                  </span>{" "}
+                  — consejos sobre salud capilar, nuevas clínicas y ofertas.
+                  Es opcional y puedes darte de baja cuando quieras desde{" "}
+                  <Link href="/cuenta" className="text-cyan-dark hover:underline">
+                    Mi cuenta
+                  </Link>{" "}
+                  o desde el propio email. Más información en nuestra{" "}
+                  <Link
+                    href="/legal/terminos#comunicaciones-marketing"
+                    className="text-cyan-dark hover:underline"
+                  >
+                    política de comunicaciones
+                  </Link>
+                  .
+                </span>
+              </label>
+            </section>
           )}
 
-          <label className="mt-4 flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
-            <input
-              type="checkbox"
-              checked={aceptaMarketingEmail}
-              onChange={(e) => setAceptaMarketingEmail(e.target.checked)}
-              className="mt-0.5"
-            />
-            <span>
-              <span className="font-medium">
-                Quiero recibir novedades de Growwly por email
-              </span>{" "}
-              — consejos sobre salud capilar, nuevas clínicas y ofertas.
-              Es opcional y puedes darte de baja cuando quieras desde{" "}
-              <Link href="/cuenta" className="text-cyan hover:text-cyan-dark">
-                Mi cuenta
-              </Link>{" "}
-              o desde el propio email. Más información en nuestra{" "}
-              <Link
-                href="/legal/terminos#comunicaciones-marketing"
-                className="text-cyan hover:text-cyan-dark"
-              >
-                política de comunicaciones
-              </Link>
-              .
-            </span>
-          </label>
-        </section>
-      )}
+          {paso === 2 && (
+            <section className="flex flex-col gap-7">
+              <Pregunta titulo="¿Cómo describirías la progresión de tu pérdida de cabello?">
+                <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {PROGRESION_OPCIONES.map((o) => (
+                    <OpcionTarjeta
+                      key={o.valor}
+                      activo={progresionPerdida === o.valor}
+                      onClick={() => setProgresionPerdida(o.valor)}
+                      titulo={o.nombre}
+                      detalle={o.detalle}
+                    />
+                  ))}
+                </div>
+              </Pregunta>
 
-      {paso === 2 && (
-        <section>
-          <h2 className="font-display text-lg text-teal-dark">
-            Historial capilar
-          </h2>
-          <div className="mt-4 flex flex-col gap-4">
-            <div>
-              <label className={labelClass}>
-                ¿Cómo describirías la progresión de tu pérdida de cabello?
-              </label>
-              <select
-                value={progresionPerdida}
-                onChange={(e) => setProgresionPerdida(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="lenta">Lenta (años)</option>
-                <option value="moderada">Moderada (meses)</option>
-                <option value="rapida">Rápida (semanas)</option>
-                <option value="estable">Estable</option>
-              </select>
-            </div>
-            <div>
-              <label className={labelClass}>
-                Antecedentes familiares con alopecia
-              </label>
-              <textarea
-                value={antecedentesFamiliares}
-                onChange={(e) => setAntecedentesFamiliares(e.target.value)}
-                rows={2}
-                placeholder="Ej. mi abuelo era calvo, mi padre tiene el pelo fino y canoso"
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label className={labelClass}>
-                Medicación actual para el cabello
-              </label>
-              <textarea
-                value={medicacionActual}
-                onChange={(e) => setMedicacionActual(e.target.value)}
-                rows={2}
-                placeholder="Ej. minoxidil desde hace 1 año, o ninguna"
-                className={inputClass}
-              />
-            </div>
+              <Pregunta titulo="¿Notas algo en el cuero cabelludo?" ayuda="Marca todo lo que aplique.">
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {SINTOMAS_CUERO_CABELLUDO_OPCIONES.map((s) => (
+                    <Chip
+                      key={s.valor}
+                      activo={sintomasCueroCabelludo.includes(s.valor)}
+                      onClick={() => toggleSintoma(s.valor)}
+                    >
+                      {s.nombre}
+                    </Chip>
+                  ))}
+                </div>
+              </Pregunta>
 
-            <div>
-              <label className={labelClass}>
-                ¿Notas algo en el cuero cabelludo?
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {SINTOMAS_CUERO_CABELLUDO_OPCIONES.map((s) => (
-                  <button
-                    key={s.valor}
-                    type="button"
-                    onClick={() => toggleSintoma(s.valor)}
-                    className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
-                      sintomasCueroCabelludo.includes(s.valor)
-                        ? "border-teal bg-teal/10 text-teal-dark"
-                        : "border-line bg-white text-ink hover:border-teal/40"
-                    }`}
-                  >
-                    {s.nombre}
-                  </button>
-                ))}
-              </div>
-            </div>
+              <Pregunta titulo="Qué tratamientos has usado antes">
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {TRATAMIENTOS_USADOS_OPCIONES.map((t) => (
+                    <Chip
+                      key={t.valor}
+                      activo={tratamientosUsados.includes(t.valor)}
+                      onClick={() => toggleTratamientoUsado(t.valor)}
+                    >
+                      {t.nombre}
+                    </Chip>
+                  ))}
+                </div>
+                {tratamientosUsados.length > 0 && (
+                  <textarea
+                    value={tratamientosUsadosDetalle}
+                    onChange={(e) => setTratamientosUsadosDetalle(e.target.value)}
+                    rows={2}
+                    aria-label="Detalle de los tratamientos usados"
+                    placeholder="Dosis, desde cuándo, y si notaste algún efecto secundario"
+                    className={`${inputClass} mt-3`}
+                  />
+                )}
+              </Pregunta>
 
-            <div>
-              <label className={labelClass}>
-                Qué tratamientos has usado antes
-              </label>
-              <div className="mt-2 flex flex-wrap gap-2">
-                {TRATAMIENTOS_USADOS_OPCIONES.map((t) => (
-                  <button
-                    key={t.valor}
-                    type="button"
-                    onClick={() => toggleTratamientoUsado(t.valor)}
-                    className={`rounded-full border px-3 py-1.5 text-sm font-medium ${
-                      tratamientosUsados.includes(t.valor)
-                        ? "border-teal bg-teal/10 text-teal-dark"
-                        : "border-line bg-white text-ink hover:border-teal/40"
-                    }`}
-                  >
-                    {t.nombre}
-                  </button>
-                ))}
-              </div>
-              {tratamientosUsados.length > 0 && (
+              <label className="block">
+                <span className="text-[15px] font-semibold text-ink">
+                  Antecedentes familiares con alopecia
+                </span>
                 <textarea
-                  value={tratamientosUsadosDetalle}
-                  onChange={(e) =>
-                    setTratamientosUsadosDetalle(e.target.value)
-                  }
+                  value={antecedentesFamiliares}
+                  onChange={(e) => setAntecedentesFamiliares(e.target.value)}
                   rows={2}
-                  placeholder="Dosis, desde cuándo, y si notaste algún efecto secundario"
-                  className={`${inputClass} mt-2`}
+                  placeholder="Ej. mi abuelo era calvo, mi padre tiene el pelo fino y canoso"
+                  className={inputClass}
                 />
-              )}
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Cambios de salud recientes
               </label>
-              <textarea
-                value={cambiosSaludRecientes}
-                onChange={(e) => setCambiosSaludRecientes(e.target.value)}
-                rows={2}
-                placeholder="Enfermedades, periodos de mucho estrés, pérdida de peso, cambios de dieta o de medicación — o ninguno"
-                className={inputClass}
-              />
-            </div>
-          </div>
-        </section>
-      )}
 
-      {paso === 3 && (
-        <section>
-          <h2 className="font-display text-lg text-teal-dark">
-            Tratamientos que te interesan
-          </h2>
+              <label className="block">
+                <span className="text-[15px] font-semibold text-ink">
+                  Medicación actual para el cabello
+                </span>
+                <textarea
+                  value={medicacionActual}
+                  onChange={(e) => setMedicacionActual(e.target.value)}
+                  rows={2}
+                  placeholder="Ej. minoxidil desde hace 1 año, o ninguna"
+                  className={inputClass}
+                />
+              </label>
 
-          <label className="mt-3 flex items-center gap-3 rounded-xl border-2 border-sage bg-sage px-5 py-5 text-base font-semibold text-sage-ink">
-            <input
-              type="checkbox"
-              checked={dejarDecidirMedico}
-              onChange={(e) => setDejarDecidirMedico(e.target.checked)}
-              className="h-5 w-5 shrink-0 accent-sage-ink"
-            />
-            Me dejo asesorar — que el médico decida la mejor opción para
-            mi caso
-          </label>
+              <label className="block">
+                <span className="text-[15px] font-semibold text-ink">
+                  Cambios de salud recientes
+                </span>
+                <textarea
+                  value={cambiosSaludRecientes}
+                  onChange={(e) => setCambiosSaludRecientes(e.target.value)}
+                  rows={2}
+                  placeholder="Enfermedades, periodos de mucho estrés, pérdida de peso, cambios de dieta o de medicación — o ninguno"
+                  className={inputClass}
+                />
+              </label>
+            </section>
+          )}
 
-          {!dejarDecidirMedico && (
-            <>
-              <p className="mt-4 text-sm text-ink-soft">
-                O elige tú directamente los que te interesan:
-              </p>
-              <div className="mt-2 flex flex-col gap-4">
-                {Object.entries(TECNICAS_POR_CATEGORIA).map(
-                  ([categoria, tecnicas]) => (
+          {paso === 3 && (
+            <section className="flex flex-col gap-6">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={dejarDecidirMedico}
+                onClick={() => setDejarDecidirMedico((v) => !v)}
+                className={`press flex w-full items-center gap-4 rounded-2xl border-2 p-5 text-left transition-colors ${
+                  dejarDecidirMedico
+                    ? "border-sage-ink/40 bg-sage"
+                    : "border-sage bg-sage/40 hover:bg-sage/60"
+                }`}
+              >
+                <MarcaCheck activo={dejarDecidirMedico} />
+                <span>
+                  <span className="block text-base font-semibold text-sage-ink">
+                    Me dejo asesorar
+                  </span>
+                  <span className="block text-sm text-sage-ink/80">
+                    Que el médico decida la mejor opción para mi caso
+                  </span>
+                </span>
+              </button>
+
+              {!dejarDecidirMedico && (
+                <div className="flex flex-col gap-5">
+                  <div className="flex items-center gap-3 text-xs font-medium uppercase tracking-wide text-ink-soft">
+                    <span className="h-px flex-1 bg-line" />o elige tú directamente
+                    <span className="h-px flex-1 bg-line" />
+                  </div>
+                  {Object.entries(TECNICAS_POR_CATEGORIA).map(([categoria, tecnicas]) => (
                     <div key={categoria}>
                       <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">
                         {categoria}
                       </p>
-                      <div className="mt-2 flex flex-col gap-2">
+                      <div className="mt-2 flex flex-wrap gap-2">
                         {tecnicas.map((t) => (
-                          <label
+                          <Chip
                             key={t}
-                            className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm hover:border-teal/40"
+                            activo={tratamientosInteres.includes(t)}
+                            onClick={() => toggleTratamiento(t)}
                           >
-                            <input
-                              type="checkbox"
-                              checked={tratamientosInteres.includes(t)}
-                              onChange={() => toggleTratamiento(t)}
-                              className="mt-0.5"
-                            />
-                            <span className="font-medium text-ink">
-                              {t}
-                            </span>
-                          </label>
+                            {t}
+                          </Chip>
                         ))}
                       </div>
                     </div>
-                  ),
-                )}
-              </div>
-            </>
+                  ))}
+                  {tratamientosInteres.length > 0 && (
+                    <p className="text-sm font-medium text-teal-dark">
+                      {tratamientosInteres.length === 1
+                        ? "1 tratamiento seleccionado"
+                        : `${tratamientosInteres.length} tratamientos seleccionados`}
+                    </p>
+                  )}
+                </div>
+              )}
+            </section>
           )}
-        </section>
-      )}
 
-      {paso === 4 && (
-        <section>
-          <h2 className="font-display text-lg text-teal-dark">
-            Preferencias
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Presupuesto, ubicación y cuándo.
-          </p>
-          <div className="mt-4 flex flex-col gap-4">
-            <div>
-              <label className={labelClass}>Rango de presupuesto</label>
-              <select
-                value={presupuestoRango}
-                onChange={(e) => setPresupuestoRango(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                {PRESUPUESTO_PACIENTE_OPCIONES.map((valor) => (
-                  <option key={valor} value={valor}>
-                    Hasta {labelPresupuesto(valor)}
-                  </option>
-                ))}
-                <option value="flexible">Flexible</option>
-              </select>
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                A la hora de decidir, ¿qué es lo MÁS importante para ti?
-              </label>
-              <select
-                value={prioridadDecision}
-                onChange={(e) => setPrioridadDecision(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                {PRIORIDAD_OPCIONES.map((o) => (
-                  <option key={o.valor} value={o.valor}>
-                    {o.nombre}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div>
-              <label className={labelClass}>Código postal</label>
-              <input
-                type="text"
-                inputMode="numeric"
-                pattern="\d{5}"
-                maxLength={5}
-                value={codigoPostal}
-                onChange={(e) =>
-                  setCodigoPostal(e.target.value.replace(/\D/g, "").slice(0, 5))
-                }
-                placeholder="Ej. 07001"
-                className={inputClass}
-              />
-              <p className="mt-1 text-xs text-ink-soft">
-                Nos ayuda a acercarte a las clínicas más próximas a ti.
-              </p>
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Ubicación preferida para la cirugía
-              </label>
-              <select
-                value={dondeTratamiento}
-                onChange={(e) => setDondeTratamiento(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="ciudad">En mi ciudad o cerca de mí</option>
-                <option value="provincia">
-                  En mi provincia — Solo en mi provincia
-                </option>
-                <option value="comunidad">
-                  En mi Comunidad Autónoma — Estoy abierto/a a moverme por
-                  mi Comunidad Autónoma
-                </option>
-                <option value="sin_preferencia">
-                  Sin preferencia — Me desplazaría a cualquier parte de
-                  España por la clínica adecuada
-                </option>
-              </select>
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Tiempo disponible para la cirugía
-              </label>
-              <select
-                value={cuandoTratamiento}
-                onChange={(e) => setCuandoTratamiento(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="lo_antes_posible">Lo antes posible</option>
-                <option value="1_3_meses">
-                  1 a 3 meses — Es urgente, ya estoy convencido/a
-                </option>
-                <option value="3_6_meses">
-                  3 a 6 meses — Estoy convencido/a, sin prisa
-                </option>
-                <option value="6_12_meses">
-                  6 a 12 meses — No estoy convencido/a
-                </option>
-                <option value="flexible">
-                  Flexible — Solo estoy explorando opciones
-                </option>
-              </select>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {paso === 5 && (
-        <section>
-          <h2 className="font-display text-lg text-teal-dark">
-            Salud general
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Esta información ayuda a la clínica a valorar tu caso con
-            seguridad.
-          </p>
-          <div className="mt-4 flex flex-col gap-4">
-            <div>
-              <label className={labelClass}>Alergias conocidas</label>
-              <textarea
-                value={alergias}
-                onChange={(e) => setAlergias(e.target.value)}
-                rows={2}
-                placeholder="Lista cualquier alergia a medicamentos, anestesia, etc."
-                className={inputClass}
-              />
-            </div>
-
-            <div>
-              <label className={labelClass}>
-                Condiciones médicas (selecciona todas las que apliquen)
-              </label>
-              <div className="mt-2 flex flex-col gap-2">
-                {CONDICIONES_MEDICAS_INFO.map((c) => (
-                  <label
-                    key={c.valor}
-                    className="flex items-center gap-2 rounded-lg border border-line bg-white p-2.5 text-sm hover:border-teal/40"
-                  >
-                    <input
-                      type="checkbox"
-                      checked={condicionesMedicas.includes(c.valor)}
-                      onChange={() => toggleCondicionMedica(c.valor)}
-                    />
-                    {c.nombre}
-                  </label>
-                ))}
-                <label className="flex items-center gap-2 rounded-lg border border-line bg-white p-2.5 text-sm font-medium hover:border-teal/40">
+          {paso === 4 && (
+            <section className="flex flex-col gap-7">
+              <Pregunta titulo="Rango de presupuesto">
+                <div className="mt-3 rounded-2xl bg-paper-dim/70 p-4">
+                  <div className="flex items-baseline justify-between gap-3">
+                    <p className="font-display text-2xl text-teal-dark" aria-live="polite">
+                      {presupuestoRango === "flexible"
+                        ? "Flexible"
+                        : presupuestoRango
+                          ? `Hasta ${labelPresupuesto(presupuestoRango)}`
+                          : "Sin indicar"}
+                    </p>
+                    <Chip
+                      activo={presupuestoRango === "flexible"}
+                      onClick={() =>
+                        setPresupuestoRango((v) => (v === "flexible" ? "" : "flexible"))
+                      }
+                    >
+                      Flexible
+                    </Chip>
+                  </div>
                   <input
-                    type="checkbox"
-                    checked={condicionesMedicas.includes("ninguna")}
-                    onChange={() => toggleCondicionMedica("ninguna")}
+                    type="range"
+                    min={PRESUPUESTO_MIN}
+                    max={PRESUPUESTO_MAX}
+                    step={PRESUPUESTO_PASO}
+                    value={presupuestoNumero}
+                    onChange={(e) => setPresupuestoRango(e.target.value)}
+                    aria-label="Presupuesto máximo"
+                    aria-valuetext={`Hasta ${labelPresupuesto(String(presupuestoNumero))}`}
+                    className={`rango-presupuesto mt-4 w-full ${
+                      presupuestoRango === "flexible" || !presupuestoRango ? "opacity-60" : ""
+                    }`}
+                    style={
+                      {
+                        "--relleno": `${presupuestoRango && presupuestoRango !== "flexible" ? porcentajePresupuesto : 0}%`,
+                      } as React.CSSProperties
+                    }
                   />
-                  Ninguna
-                </label>
-              </div>
-            </div>
+                  <div className="mt-1 flex justify-between text-xs text-ink-soft">
+                    <span>{labelPresupuesto(String(PRESUPUESTO_MIN))}</span>
+                    <span>{labelPresupuesto(String(PRESUPUESTO_MAX))}</span>
+                  </div>
+                </div>
+              </Pregunta>
 
-            <div>
-              <label className={labelClass}>Cirugías previas</label>
-              <textarea
-                value={cirugiasPrevias}
-                onChange={(e) => setCirugiasPrevias(e.target.value)}
-                rows={2}
-                placeholder="Describe cualquier cirugía previa relevante"
-                className={inputClass}
-              />
-            </div>
+              <Pregunta titulo="A la hora de decidir, ¿qué es lo MÁS importante para ti?">
+                <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-2">
+                  {PRIORIDAD_OPCIONES.map((o) => (
+                    <OpcionTarjeta
+                      key={o.valor}
+                      activo={prioridadDecision === o.valor}
+                      onClick={() => setPrioridadDecision(o.valor)}
+                      titulo={o.nombre}
+                    />
+                  ))}
+                </div>
+              </Pregunta>
 
-            <div>
-              <label className={labelClass}>¿Fumas actualmente?</label>
-              <select
-                value={fumador}
-                onChange={(e) => setFumador(e.target.value)}
-                className={inputClass}
-              >
-                <option value="">Selecciona una opción</option>
-                <option value="no_fumo">No fumo</option>
-                <option value="ocasional">Ocasionalmente</option>
-                <option value="regular">Regularmente</option>
-              </select>
-            </div>
-          </div>
-        </section>
-      )}
+              <Pregunta titulo="Ubicación preferida para la cirugía">
+                <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {DONDE_OPCIONES.map((o) => (
+                    <OpcionTarjeta
+                      key={o.valor}
+                      activo={dondeTratamiento === o.valor}
+                      onClick={() => setDondeTratamiento(o.valor)}
+                      titulo={o.nombre}
+                      detalle={o.detalle}
+                    />
+                  ))}
+                </div>
+              </Pregunta>
 
-      {paso === 6 && (
-        <section>
-          <h2 className="font-display text-lg text-teal-dark">
-            Términos y condiciones
-          </h2>
-          <p className="mt-1 text-sm text-ink-soft">
-            Por favor, lee y acepta los siguientes términos para
-            continuar.
-          </p>
+              <label className="block">
+                <span className="text-[15px] font-semibold text-ink">Código postal</span>
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="\d{5}"
+                  maxLength={5}
+                  value={codigoPostal}
+                  onChange={(e) =>
+                    setCodigoPostal(e.target.value.replace(/\D/g, "").slice(0, 5))
+                  }
+                  placeholder="Ej. 07001"
+                  className={`${inputClass} max-w-[180px] tracking-widest`}
+                />
+                <span className="mt-1.5 block text-xs text-ink-soft">
+                  Nos ayuda a acercarte a las clínicas más próximas a ti.
+                </span>
+              </label>
 
-          <label className="mt-3 flex items-center gap-2 rounded-lg bg-sage px-3 py-2.5 text-sm font-medium text-sage-ink">
-            <input
-              type="checkbox"
-              checked={todosLosConsentimientos}
-              onChange={(e) =>
-                marcarTodosLosConsentimientos(e.target.checked)
-              }
-            />
-            Aceptar todo
-          </label>
-
-          <div className="mt-3 flex flex-col gap-3">
-            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
-              <input
-                type="checkbox"
-                checked={consentimientoDatos}
-                onChange={(e) => setConsentimientoDatos(e.target.checked)}
-                className="mt-0.5"
-                required
-              />
-              <span>
-                <Link
-                  href="/legal/terminos#politica-de-privacidad"
-                  target="_blank"
-                  className="font-medium text-cyan-dark hover:underline"
-                >
-                  Política de privacidad
-                </Link>{" "}
-                — Acepto el tratamiento de mis datos personales según la
-                política de privacidad.
-              </span>
-            </label>
-            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
-              <input
-                type="checkbox"
-                checked={consentimientoInfoMedica}
-                onChange={(e) =>
-                  setConsentimientoInfoMedica(e.target.checked)
-                }
-                className="mt-0.5"
-                required
-              />
-              <span>
-                <Link
-                  href="/legal/terminos#informacion-medica"
-                  target="_blank"
-                  className="font-medium text-cyan-dark hover:underline"
-                >
-                  Información médica
-                </Link>{" "}
-                — Confirmo que la información médica proporcionada es
-                veraz y completa.
-              </span>
-            </label>
-            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
-              <input
-                type="checkbox"
-                checked={consentimientoFotos}
-                onChange={(e) => setConsentimientoFotos(e.target.checked)}
-                className="mt-0.5"
-                required
-              />
-              <span>
-                <Link
-                  href="/legal/terminos#uso-de-fotografias"
-                  target="_blank"
-                  className="font-medium text-cyan-dark hover:underline"
-                >
-                  Uso de fotografías
-                </Link>{" "}
-                — Autorizo el uso de mis fotografías únicamente para
-                evaluación médica.
-              </span>
-            </label>
-            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
-              <input
-                type="checkbox"
-                checked={consentimientoCompartir}
-                onChange={(e) =>
-                  setConsentimientoCompartir(e.target.checked)
-                }
-                className="mt-0.5"
-                required
-              />
-              <span>
-                <Link
-                  href="/legal/terminos#comunicaciones-de-clinicas"
-                  target="_blank"
-                  className="font-medium text-cyan-dark hover:underline"
-                >
-                  Comunicaciones
-                </Link>{" "}
-                — Acepto recibir comunicaciones de clínicas
-                especializadas.
-              </span>
-            </label>
-            <label className="flex items-start gap-2 rounded-lg border border-line bg-white p-3 text-sm">
-              <input
-                type="checkbox"
-                checked={consentimientoTerminos}
-                onChange={(e) =>
-                  setConsentimientoTerminos(e.target.checked)
-                }
-                className="mt-0.5"
-                required
-              />
-              <span>
-                <Link
-                  href="/legal/terminos"
-                  target="_blank"
-                  className="font-medium text-cyan-dark hover:underline"
-                >
-                  Términos de servicio
-                </Link>{" "}
-                — He leído y acepto los términos y condiciones del
-                servicio.
-              </span>
-            </label>
-          </div>
-
-          {errorEnvio && (
-            <p className="mt-4 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
-              {errorEnvio}
-            </p>
+              <Pregunta titulo="Tiempo disponible para la cirugía">
+                <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-2">
+                  {CUANDO_OPCIONES.map((o) => (
+                    <OpcionTarjeta
+                      key={o.valor}
+                      activo={cuandoTratamiento === o.valor}
+                      onClick={() => setCuandoTratamiento(o.valor)}
+                      titulo={o.nombre}
+                      detalle={o.detalle}
+                    />
+                  ))}
+                </div>
+              </Pregunta>
+            </section>
           )}
-        </section>
-      )}
 
-      <div className="mt-8 flex justify-between">
-        <button
-          type="button"
-          onClick={anterior}
-          disabled={paso === 1}
-          className="rounded-lg px-4 py-2 text-sm font-medium text-ink-soft hover:text-teal disabled:opacity-0"
-        >
-          ← Atrás
-        </button>
+          {paso === 5 && (
+            <section className="flex flex-col gap-7">
+              <Pregunta titulo="Condiciones médicas" ayuda="Selecciona todas las que apliquen.">
+                <div className="mt-3 flex flex-wrap gap-2">
+                  {CONDICIONES_MEDICAS_INFO.map((c) => (
+                    <Chip
+                      key={c.valor}
+                      activo={condicionesMedicas.includes(c.valor)}
+                      onClick={() => toggleCondicionMedica(c.valor)}
+                    >
+                      {c.nombre}
+                    </Chip>
+                  ))}
+                  <Chip
+                    activo={condicionesMedicas.includes("ninguna")}
+                    onClick={() => toggleCondicionMedica("ninguna")}
+                  >
+                    Ninguna
+                  </Chip>
+                </div>
+              </Pregunta>
 
-        {paso < TOTAL_PASOS ? (
+              <Pregunta titulo="¿Fumas actualmente?">
+                <div role="radiogroup" className="mt-3 grid grid-cols-1 gap-2 sm:grid-cols-3">
+                  {FUMADOR_OPCIONES.map((o) => (
+                    <OpcionTarjeta
+                      key={o.valor}
+                      activo={fumador === o.valor}
+                      onClick={() => setFumador(o.valor)}
+                      titulo={o.nombre}
+                    />
+                  ))}
+                </div>
+              </Pregunta>
+
+              <label className="block">
+                <span className="text-[15px] font-semibold text-ink">Alergias conocidas</span>
+                <textarea
+                  value={alergias}
+                  onChange={(e) => setAlergias(e.target.value)}
+                  rows={2}
+                  placeholder="Lista cualquier alergia a medicamentos, anestesia, etc."
+                  className={inputClass}
+                />
+              </label>
+
+              <label className="block">
+                <span className="text-[15px] font-semibold text-ink">Cirugías previas</span>
+                <textarea
+                  value={cirugiasPrevias}
+                  onChange={(e) => setCirugiasPrevias(e.target.value)}
+                  rows={2}
+                  placeholder="Describe cualquier cirugía previa relevante"
+                  className={inputClass}
+                />
+              </label>
+            </section>
+          )}
+
+          {paso === 6 && (
+            <section className="flex flex-col gap-3">
+              <label
+                className={`flex cursor-pointer items-center gap-3 rounded-2xl px-4 py-3.5 text-[15px] font-semibold transition-colors ${
+                  todosLosConsentimientos ? "bg-teal text-white" : "bg-sage text-sage-ink"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={todosLosConsentimientos}
+                  onChange={(e) => marcarTodosLosConsentimientos(e.target.checked)}
+                  className="h-5 w-5 shrink-0 accent-teal-dark"
+                />
+                Aceptar todo
+              </label>
+
+              <Consentimiento
+                checked={consentimientoDatos}
+                onChange={setConsentimientoDatos}
+                href="/legal/terminos#politica-de-privacidad"
+                enlace="Política de privacidad"
+                texto="Acepto el tratamiento de mis datos personales según la política de privacidad."
+              />
+              <Consentimiento
+                checked={consentimientoInfoMedica}
+                onChange={setConsentimientoInfoMedica}
+                href="/legal/terminos#informacion-medica"
+                enlace="Información médica"
+                texto="Confirmo que la información médica proporcionada es veraz y completa."
+              />
+              <Consentimiento
+                checked={consentimientoFotos}
+                onChange={setConsentimientoFotos}
+                href="/legal/terminos#uso-de-fotografias"
+                enlace="Uso de fotografías"
+                texto="Autorizo el uso de mis fotografías únicamente para evaluación médica."
+              />
+              <Consentimiento
+                checked={consentimientoCompartir}
+                onChange={setConsentimientoCompartir}
+                href="/legal/terminos#comunicaciones-de-clinicas"
+                enlace="Comunicaciones"
+                texto="Acepto recibir comunicaciones de clínicas especializadas."
+              />
+              <Consentimiento
+                checked={consentimientoTerminos}
+                onChange={setConsentimientoTerminos}
+                href="/legal/terminos"
+                enlace="Términos de servicio"
+                texto="He leído y acepto los términos y condiciones del servicio."
+              />
+
+              {errorEnvio && (
+                <p
+                  role="alert"
+                  className="mt-2 rounded-xl bg-error/10 px-4 py-3 text-sm text-error-dark"
+                >
+                  {errorEnvio}
+                </p>
+              )}
+            </section>
+          )}
+        </div>
+      </div>
+
+      {/* ── Navegación (fija abajo en móvil) ── */}
+      <div className="sticky bottom-0 z-20 -mx-6 mt-6 border-t border-line bg-white/90 px-6 py-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:py-0 sm:backdrop-blur-none">
+        <div className="flex items-center justify-between gap-3">
           <button
             type="button"
-            onClick={siguiente}
-            className="rounded-lg bg-teal px-5 py-2.5 text-sm font-medium text-paper hover:bg-teal-dark"
+            onClick={anterior}
+            disabled={paso === 1}
+            className="press inline-flex items-center gap-1.5 rounded-xl px-3 py-3 text-sm font-medium text-ink-soft hover:text-teal disabled:invisible"
           >
-            Siguiente →
+            <ArrowLeft className="h-4 w-4" aria-hidden />
+            Atrás
           </button>
-        ) : (
-          <button
-            type="button"
-            onClick={enviar}
-            disabled={enviando || !todosLosConsentimientos}
-            className="rounded-lg bg-cyan px-5 py-2.5 text-sm font-medium text-white hover:bg-cyan-dark disabled:opacity-50"
-          >
-            {enviando ? "Enviando…" : "Enviar solicitud"}
-          </button>
-        )}
+
+          {paso < TOTAL_PASOS ? (
+            <button
+              type="button"
+              onClick={siguiente}
+              className="press inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-teal-dark sm:flex-none"
+            >
+              Siguiente
+              <ArrowRight className="h-4 w-4" aria-hidden />
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={enviar}
+              disabled={enviando || !todosLosConsentimientos}
+              className="press inline-flex flex-1 items-center justify-center gap-2 rounded-xl bg-teal px-6 py-3 text-[15px] font-semibold text-white transition-colors hover:bg-teal-dark disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none"
+            >
+              {enviando ? (
+                <>
+                  <LoaderCircle className="h-4 w-4 animate-spin" aria-hidden />
+                  Enviando…
+                </>
+              ) : (
+                <>
+                  Enviar solicitud
+                  <ArrowRight className="h-4 w-4" aria-hidden />
+                </>
+              )}
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
