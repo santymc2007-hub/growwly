@@ -8,15 +8,19 @@ import { entrarConGoogle } from "@/app/cuenta/google/actions";
 export function BotonGoogle({
   claim,
   origen,
+  area = "paciente",
 }: {
   claim?: string;
   origen: "login" | "registro";
+  /** "clinica" = login del panel de clínicas. */
+  area?: "paciente" | "clinica";
 }) {
   return (
     <div className="mt-8 flex flex-col gap-6">
       <form action={entrarConGoogle}>
         {claim && <input type="hidden" name="claim" value={claim} />}
         <input type="hidden" name="origen" value={origen} />
+        <input type="hidden" name="area" value={area} />
         <button
           type="submit"
           className="press flex w-full items-center justify-center gap-3 rounded-lg border border-[#dadce0] bg-white px-4 py-2.5 text-sm font-medium text-[#1f1f1f] transition hover:bg-[#f8f9fa]"
@@ -29,20 +33,29 @@ export function BotonGoogle({
           </svg>
           {origen === "registro" ? "Registrarme con Google" : "Continuar con Google"}
         </button>
-        {/* Con Google no hay casilla de edad (la cuenta se crea al
-            volver de Google): la confirmación va aquí, junto al botón,
-            igual que la aceptación de los términos. Auditoría oct 2026. */}
-        <p className="mt-2 text-center text-xs text-ink-soft">
-          Al continuar con Google confirmas que eres mayor de 18 años y aceptas los{" "}
-          <a href="/legal/terminos" className="underline hover:text-teal-dark">
-            Términos
-          </a>{" "}
-          y la{" "}
-          <a href="/legal/privacidad" className="underline hover:text-teal-dark">
-            Política de privacidad
-          </a>
-          .
-        </p>
+        {area === "clinica" ? (
+          <p className="mt-2 text-center text-xs text-ink-soft">
+            Usa la cuenta de Google con el mismo email con el que diste de
+            alta tu clínica.
+          </p>
+        ) : (
+          <>
+            {/* Con Google no hay casilla de edad (la cuenta se crea al
+                volver de Google): la confirmación va aquí, junto al botón,
+                igual que la aceptación de los términos. Auditoría oct 2026. */}
+            <p className="mt-2 text-center text-xs text-ink-soft">
+              Al continuar con Google confirmas que eres mayor de 18 años y aceptas los{" "}
+              <a href="/legal/terminos" className="underline hover:text-teal-dark">
+                Términos
+              </a>{" "}
+              y la{" "}
+              <a href="/legal/privacidad" className="underline hover:text-teal-dark">
+                Política de privacidad
+              </a>
+              .
+            </p>
+          </>
+        )}
       </form>
       <div className="flex items-center gap-3 text-xs font-medium text-ink-soft">
         <span className="h-px flex-1 bg-line" />

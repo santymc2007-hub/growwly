@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { iniciarSesionClinica } from "./actions";
 import { AuthCard } from "@/components/auth/auth-card";
+import { BotonGoogle } from "@/components/auth/boton-google";
 
 type SearchParams = { error?: string; next?: string };
 
@@ -17,9 +18,11 @@ export default async function LoginClinicaPage({
         Inicia sesión
       </h1>
 
+      <BotonGoogle origen="login" area="clinica" />
+
       <form
         action={iniciarSesionClinica}
-        className="mt-8 flex flex-col gap-4"
+        className="mt-6 flex flex-col gap-4"
       >
         {next && <input type="hidden" name="next" value={next} />}
         <div>
