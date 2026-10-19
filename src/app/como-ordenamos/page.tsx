@@ -113,9 +113,9 @@ export default function ComoOrdenamosPage() {
         Cuando pides presupuesto desde el formulario general, tu solicitud
         llega a un máximo de 5 centros colaboradores (con Perfil detallado)
         que ofrecen el tratamiento que buscas y, si lo indicas, en tu ciudad.
-        Entre ellos damos prioridad a los que aún no han recibido el mínimo
-        mensual de solicitudes incluido en su plan, y después a los de mejor
-        puntuación Growwly. Los centros solo ven tu nombre y contacto si tú
+        Entre ellos damos prioridad a los que este mes han recibido menos
+        solicitudes, para repartirlas, y después a los de mejor puntuación
+        Growwly. Los centros solo ven tu nombre y contacto si tú
         los eliges.
       </p>
       <p>
