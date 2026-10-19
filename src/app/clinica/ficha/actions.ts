@@ -9,6 +9,7 @@ import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { slugify } from "@/lib/slugify";
 import { tipoNegocioValido } from "@/lib/clinic-options";
 import { normalizarEmailsLeads } from "@/lib/clinica/emails-leads";
+import { limpiarDescripcion } from "@/lib/clinica/descripcion";
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
@@ -131,7 +132,7 @@ export async function actualizarMiFicha(formData: FormData) {
     // por si acaso llega vacío nunca se manda null — nombre es NOT
     // NULL en la base de datos.
     nombre: str("nombre") ?? undefined,
-    descripcion: str("descripcion"),
+    descripcion: limpiarDescripcion(formData.get("descripcion")),
     telefono: str("telefono"),
     telefono_es_movil: formData.get("telefono_es_movil") === "on",
     email: str("email"),
