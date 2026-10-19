@@ -3,14 +3,15 @@ import Image from "next/image";
 // width/height = tamaño real del icono (viewBox del svg), para que el
 // navegador escale manteniendo su proporción en vez de forzarlo a un
 // cuadrado y deformarlo.
-const CARACTERISTICAS = [
+export const CARACTERISTICAS = [
   { icono: "/analisis/ic-rapido.svg", texto: "Rápido y fácil", w: 34, h: 63 },
   { icono: "/analisis/ic-verificado.svg", texto: "Centros verificados", w: 56, h: 53 },
   { icono: "/analisis/ic-gratuito.svg", texto: "100% Gratuito", w: 44, h: 63 },
   { icono: "/analisis/ic-seguro.svg", texto: "Seguro y confidencial", w: 63, h: 60 },
 ] as const;
 
-/** Franja de iconos de confianza (subir fotos y adelanto de la valoración). */
+/** Franja de iconos de confianza (subir fotos y adelanto de la valoración).
+ *  Los mismos iconos se usan en la home, bajo el CTA (ver hero.tsx). */
 export function SellosConfianza() {
   return (
     <div className="grid grid-cols-2 gap-x-4 gap-y-6 rounded-2xl bg-paper-dim px-6 py-6 sm:flex sm:flex-wrap sm:items-center sm:justify-between sm:gap-4 sm:px-10 lg:flex-nowrap lg:divide-x lg:divide-line">
