@@ -119,6 +119,11 @@ export async function SiteFooter() {
                   </Link>
                 </li>
                 <li>
+                  <Link href="/denunciar" className="hover:text-white" rel="nofollow">
+                    Denunciar un contenido
+                  </Link>
+                </li>
+                <li>
                   <BotonPreferenciasCookies />
                 </li>
               </ul>

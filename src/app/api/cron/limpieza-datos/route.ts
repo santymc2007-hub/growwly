@@ -15,6 +15,7 @@ import { borrarFotosEstudio } from "@/lib/supabase/estudios-storage";
  *   directa desde la ficha.
  * - Huella de IP para limitar abusos: se quita a los 30 días (la
  *   política dice "nunca más de 6 meses"; el límite solo mira 1 hora).
+ * - Denuncias de contenido (/denunciar): 2 años.
  *
  * Si cambian los plazos de la política, cambiarlos aquí también.
  */
@@ -76,11 +77,30 @@ export async function GET(request: Request) {
     .not("ip_hash", "is", null)
     .lt("created_at", hace30Dias);
 
+  const { count: huellasCitas } = await admin
+    .from("solicitudes_cita_directa")
+    .update({ ip_hash: null }, { count: "exact" })
+    .not("ip_hash", "is", null)
+    .lt("creado_en", hace30Dias);
+
+  const { count: huellasDenuncias } = await admin
+    .from("denuncias_contenido")
+    .update({ ip_hash: null }, { count: "exact" })
+    .not("ip_hash", "is", null)
+    .lt("creado_en", hace30Dias);
+
+  // 4. Denuncias de contenido: 2 años.
+  const { count: denuncias } = await admin
+    .from("denuncias_contenido")
+    .delete({ count: "exact" })
+    .lt("creado_en", hace2Anios);
+
   return NextResponse.json({
     ok: true,
     valoraciones,
     solicitudes: solicitudes ?? 0,
     citasDirectas: citasDirectas ?? 0,
-    huellas: huellas ?? 0,
+    huellas: (huellas ?? 0) + (huellasCitas ?? 0) + (huellasDenuncias ?? 0),
+    denuncias: denuncias ?? 0,
   });
 }

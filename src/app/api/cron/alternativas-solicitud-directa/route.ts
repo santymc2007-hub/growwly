@@ -13,7 +13,8 @@ const HORAS_ESPERA = 48;
  * directa no se ha marcado como respondida en 48h, avisamos al
  * paciente por email (honesto, sin culpar a la clínica ni mencionar
  * planes de pago) y le ofrecemos hasta 3 clínicas alternativas de su
- * misma ciudad, clicables directamente desde el correo.
+ * misma ciudad. Cada enlace lleva a una pantalla donde el paciente
+ * confirma el envío con un botón (abrir el enlace no envía nada).
  */
 export async function GET(request: Request) {
   if (!cronAutorizado(request)) {
@@ -101,7 +102,7 @@ function construirHtmlAviso(datos: {
 
   const filas = datos.alternativas
     .map((alt) => {
-      const enlace = `${datos.siteUrl}/api/solicitudes/reenviar/${alt.token}`;
+      const enlace = `${datos.siteUrl}/solicitudes/reenviar/${alt.token}`;
       const rating =
         alt.ratingGoogle != null
           ? `★ ${alt.ratingGoogle.toFixed(1)}${alt.resenasGoogle ? ` (${alt.resenasGoogle})` : ""}`
@@ -135,7 +136,7 @@ function construirHtmlAviso(datos: {
       </div>
       <div style="border:1px solid #e1e8e6;border-top:none;border-radius:0 0 12px 12px;padding:28px;">
         <h1 style="font-size:20px;color:#00566b;margin-top:0;">Esta clínica todavía no ha respondido</h1>
-        <p>Han pasado más de 48 horas desde que enviamos tu solicitud a <strong>${esc(datos.clinicaOriginalNombre)}</strong> y todavía no ha contestado. Mientras esperas, aquí tienes otras clínicas de tu zona que suelen responder rápido — puedes enviarles tu solicitud con un clic, directamente desde este correo.</p>
+        <p>Han pasado más de 48 horas desde que enviamos tu solicitud a <strong>${esc(datos.clinicaOriginalNombre)}</strong> y todavía no ha contestado. Mientras esperas, aquí tienes otras clínicas de tu zona que suelen responder rápido — puedes enviarles tu solicitud sin volver a rellenar nada.</p>
         ${filas}
         <p style="font-size:13px;color:#66756f;margin-top:16px;">Tu solicitud original sigue activa — si ${esc(datos.clinicaOriginalNombre)} responde más tarde, también lo sabrás.</p>
       </div>

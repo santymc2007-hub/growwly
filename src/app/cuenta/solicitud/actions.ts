@@ -10,6 +10,7 @@ import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
 import { leerOpcionesCita } from "@/lib/leads/opciones-cita";
 import { notificarClinicaCita } from "@/lib/leads/notificar-cita";
+import { VERSION_TEXTOS_LEGALES } from "@/lib/legal/version";
 
 export type DatosSolicitud = {
   /** Campaña de la que viene (gclid, utm…); se sanea aquí antes de guardarla. */
@@ -113,6 +114,7 @@ export async function crearSolicitud(
       consentimiento_compartir_en: ahora,
       atribucion: sanearAtribucion(datos.atribucion),
       consentimiento_terminos_en: ahora,
+      consentimiento_version: VERSION_TEXTOS_LEGALES,
       estado: "pendiente",
     })
     .select()

@@ -180,6 +180,23 @@ export function BotonPedirCita({
                     className="resize-none rounded-xl border border-line px-4 py-2.5 text-sm text-ink outline-none focus:border-cyan"
                   />
 
+                  <label className="flex items-start gap-2 text-xs text-ink-soft">
+                    <input type="checkbox" name="consentimiento" required className="mt-0.5" />
+                    <span>
+                      Soy mayor de 18 años y acepto que Growwly envíe estos datos a{" "}
+                      {clinicNombre} para que me contacte. Si no responde en 48 h,
+                      Growwly puede sugerirme otras clínicas por email.{" "}
+                      <a
+                        href="/legal/privacidad"
+                        target="_blank"
+                        rel="noopener"
+                        className="underline hover:text-teal-dark"
+                      >
+                        Política de privacidad
+                      </a>
+                    </span>
+                  </label>
+
                   {estado === "error" && <p className="text-sm text-error">{errorMsg}</p>}
 
                   <button
