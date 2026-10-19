@@ -78,7 +78,58 @@ export async function GET(request: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, enviados });
+  // Valoraciones sin cuenta en las que la persona dejó su email en el
+  // adelanto pero no llegó a escribir el código: un único aviso para
+  // que vuelva a verla. Sin datos de salud en el email, solo el enlace.
+  const { data: anonimos } = await supabase
+    .from("estudios_capilares")
+    .select("id, claim_token, email_contacto, nombre_contacto")
+    .eq("estado", "listo")
+    .is("user_id", null)
+    .not("email_contacto", "is", null)
+    .is("recordatorio_presupuesto_enviado_en", null)
+    .lte("email_capturado_en", hace24h);
+
+  let enviadosSinCuenta = 0;
+
+  for (const estudio of anonimos ?? []) {
+    try {
+      await enviarEmail({
+        to: estudio.email_contacto!,
+        subject: "Tu valoración capilar te está esperando",
+        html: construirHtmlEmailSinCuenta({
+          nombre: estudio.nombre_contacto,
+          enlace: `${siteUrl}/analisis/${estudio.claim_token}`,
+        }),
+      });
+      await supabase
+        .from("estudios_capilares")
+        .update({ recordatorio_presupuesto_enviado_en: new Date().toISOString() })
+        .eq("id", estudio.id);
+      enviadosSinCuenta++;
+    } catch {
+      // Se reintenta en la siguiente ejecución.
+    }
+  }
+
+  return NextResponse.json({ ok: true, enviados, enviadosSinCuenta });
+}
+
+function construirHtmlEmailSinCuenta(datos: { nombre: string | null; enlace: string }): string {
+  return `
+    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
+      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
+      <h1 style="font-size: 20px; color: #1f5568;">Tu valoración te está esperando</h1>
+      <p>Hola${datos.nombre ? ` ${esc(datos.nombre)}` : ""},</p>
+      <p>Tu valoración capilar con IA está lista, pero todavía no la has visto completa. Entra, confirma tu email y la tendrás en un minuto, guardada para pedir presupuesto cuando quieras.</p>
+      <p style="margin-top: 24px;">
+        <a href="${datos.enlace}" style="background:#e8ef2d; color:#1f5568; padding:12px 20px; border-radius:999px; text-decoration:none; font-weight:bold; display:inline-block;">
+          Ver mi valoración →
+        </a>
+      </p>
+      <p style="margin-top: 28px; font-size: 12px; color: #66756f;">Te escribimos porque dejaste este email al hacer tu valoración en Growwly. Es el único aviso que te enviaremos.</p>
+    </div>
+  `;
 }
 
 function construirHtmlEmail(datos: {
