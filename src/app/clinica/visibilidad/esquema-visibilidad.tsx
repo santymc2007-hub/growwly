@@ -8,7 +8,7 @@
 function Pantalla({ titulo, children }: { titulo: string; children: React.ReactNode }) {
   return (
     <figure className="flex min-w-0 flex-1 flex-col">
-      <div className="flex h-full flex-col overflow-hidden rounded-lg border border-line bg-white shadow-sm">
+      <div className="flex h-full flex-col overflow-hidden rounded-2xl bg-white shadow-[0_8px_28px_-14px_rgba(0,86,107,0.35)] ring-1 ring-line">
         <div className="flex items-center gap-1 border-b border-line bg-paper-dim px-2 py-1">
           <span className="h-1.5 w-1.5 rounded-full bg-line" />
           <span className="h-1.5 w-1.5 rounded-full bg-line" />

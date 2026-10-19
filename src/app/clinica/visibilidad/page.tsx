@@ -86,10 +86,16 @@ export default async function VisibilidadPage({
           </p>
         )}
 
-        <p className="mb-6 max-w-lg text-sm text-ink-soft">
-          Formas de que tu centro se vea más — cada una se solicita por
-          separado y queda pendiente de aprobación antes de activarse.
-        </p>
+        <div className="mb-8 mt-2 max-w-2xl">
+          <h1 className="font-display text-[28px] font-extrabold leading-tight text-teal-dark">
+            Haz que te vean más pacientes
+          </h1>
+          <p className="mt-2 text-base text-ink-soft">
+            Cada opción se solicita por separado y la activamos nosotros. Las
+            plazas de destacado son limitadas: cuando se llenan, no se pueden
+            pedir más hasta que se libere una.
+          </p>
+        </div>
 
         {(() => {
           const fechas =
@@ -103,7 +109,7 @@ export default async function VisibilidadPage({
               : {};
 
           return (
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
               <TarjetaVisibilidad
                 tipo="destacado"
                 icono={<Home className="h-5 w-5" strokeWidth={2.2} />}

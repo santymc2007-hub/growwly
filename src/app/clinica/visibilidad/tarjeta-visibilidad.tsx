@@ -67,42 +67,45 @@ export function TarjetaVisibilidad({
 
   return (
     <div
-      className={`relative flex flex-col rounded-2xl border p-5 transition ${
-        activo ? "border-teal/40 bg-teal/[0.04]" : "border-line bg-white"
+      className={`relative flex flex-col rounded-[28px] bg-white p-6 shadow-[0_24px_60px_-24px_rgba(0,86,107,0.35)] transition sm:p-7 ${
+        activo ? "ring-2 ring-teal/50" : "ring-1 ring-line"
       }`}
     >
-      <div className="flex items-start gap-3">
+      <div className="flex items-start gap-4">
         <span
-          className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${
-            activo ? "bg-teal text-paper" : "bg-sage/60 text-teal-dark"
+          className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl ${
+            activo ? "bg-teal text-paper" : "bg-sage text-teal-dark"
           }`}
         >
           {icono}
         </span>
         <div>
-          <p className="font-display text-base text-teal-dark">{titulo}</p>
-          <p className="text-sm font-semibold text-ink">
-            {PRECIO_MENSUAL[tipo]} €<span className="font-normal text-ink-soft"> / mes + IVA</span>
-          </p>
           {campana && (
-            <span className="mt-1.5 inline-block rounded-full bg-yellow/60 px-2 py-0.5 text-[11px] font-semibold text-teal-dark">
+            <span className="inline-block rounded-full bg-yellow px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-teal-dark">
               {campana}
             </span>
           )}
-          <p className="mt-1.5 text-sm text-ink-soft">{descripcion}</p>
+          <p className="mt-2 font-display text-xl font-extrabold leading-tight text-teal-dark">
+            {titulo}
+          </p>
+          <p className="mt-1 font-display text-2xl font-extrabold text-ink">
+            {PRECIO_MENSUAL[tipo]} €
+            <span className="font-sans text-sm font-medium text-ink-soft"> / mes + IVA</span>
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-ink-soft">{descripcion}</p>
         </div>
       </div>
 
-      {esquema && <div className="mt-4">{esquema}</div>}
+      {esquema && <div className="mt-5">{esquema}</div>}
 
-      <p className="mt-3 rounded-lg bg-sage/40 px-3 py-2 text-xs font-medium text-teal-dark">
+      <p className="mt-4 rounded-2xl bg-paper-dim px-4 py-3 text-sm text-teal-dark">
         <span className="font-bold">Lo que ganas: </span>
         {beneficio}
       </p>
 
       {activo ? (
-        <div className="mt-3">
-          <span className="inline-block rounded-full bg-teal px-3 py-1 text-xs font-medium text-paper">
+        <div className="mt-5">
+          <span className="inline-block rounded-full bg-teal px-4 py-1.5 text-sm font-bold text-paper">
             Activo
           </span>
           <p className="mt-1.5 text-xs text-ink-soft">
@@ -110,33 +113,33 @@ export function TarjetaVisibilidad({
           </p>
         </div>
       ) : pendiente ? (
-        <span className="mt-3 inline-block rounded-full bg-orange/15 px-3 py-1 text-xs font-medium text-orange">
+        <span className="mt-5 inline-block self-start rounded-full bg-orange/15 px-4 py-1.5 text-sm font-semibold text-[#8a5a00]">
           Pendiente de aprobación
         </span>
       ) : plazas && plazas.libres === 0 ? (
-        <span className="mt-3 inline-block self-start rounded-full bg-paper-dim px-3 py-1 text-xs font-medium text-ink-soft">
+        <span className="mt-5 inline-block self-start rounded-full bg-paper-dim px-4 py-1.5 text-sm font-medium text-ink-soft">
           Completo · {plazas.total} de {plazas.total} plazas ocupadas
         </span>
       ) : (
-        <div className="mt-3 flex flex-wrap items-center gap-3">
+        <div className="mt-5 flex flex-wrap items-center gap-4">
           <button
             type="button"
             disabled={pending}
             onClick={() => setEligiendoDuracion(true)}
-            className="press rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:opacity-60"
+            className="press rounded-full bg-yellow px-6 py-3 font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
           >
             Solicitar
           </button>
           {plazas && (
-            <span className="text-xs text-ink-soft">
-              Quedan {plazas.libres} de {plazas.total} plazas
+            <span className="text-sm font-medium text-ink-soft">
+              Quedan <strong className="text-teal-dark">{plazas.libres}</strong> de {plazas.total} plazas
             </span>
           )}
         </div>
       )}
 
       {eligiendoDuracion && (
-        <div className="popover-anim absolute left-5 top-full z-20 mt-1 w-44 rounded-xl border border-line bg-white p-2 shadow-lg">
+        <div className="popover-anim absolute bottom-6 left-6 z-20 w-52 rounded-2xl bg-white p-2 shadow-[0_24px_60px_-24px_rgba(0,86,107,0.45)] ring-1 ring-line">
           <p className="mb-1.5 px-1 text-[11px] font-medium text-ink-soft">
             ¿Durante cuánto lo quieres?
           </p>
@@ -145,11 +148,11 @@ export function TarjetaVisibilidad({
               key={d.etiqueta}
               type="button"
               onClick={() => elegirDuracion(d.meses)}
-              className="block w-full rounded-lg px-2 py-1.5 text-left text-sm text-ink hover:bg-sage/40"
+              className="block w-full rounded-xl px-3 py-2 text-left text-sm text-ink hover:bg-paper-dim"
             >
               {d.etiqueta}
               {d.meses && DESCUENTO_POR_MESES[d.meses] ? (
-                <span className="ml-1 text-xs font-medium text-teal">
+                <span className="ml-1.5 rounded-full bg-yellow px-1.5 text-[11px] font-bold text-teal-dark">
                   −{DESCUENTO_POR_MESES[d.meses]} %
                 </span>
               ) : null}
@@ -158,7 +161,7 @@ export function TarjetaVisibilidad({
           <button
             type="button"
             onClick={() => setEligiendoDuracion(false)}
-            className="mt-1 block w-full rounded-lg px-2 py-1.5 text-left text-xs text-ink-soft hover:bg-paper-dim"
+            className="mt-1 block w-full rounded-xl px-3 py-2 text-left text-xs text-ink-soft hover:bg-paper-dim"
           >
             Cancelar
           </button>
