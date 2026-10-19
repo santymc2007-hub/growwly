@@ -2,6 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   experimental: {
+    // CSS en línea en el <head> en vez de un <link> que bloquea el
+    // pintado: casi todo el tráfico (y todo el de pago) es de primera
+    // visita, sin la hoja en caché. PageSpeed oct 2026: 450–1050 ms de
+    // "solicitudes que bloquean el renderizado" en móvil.
+    inlineCss: true,
     serverActions: {
       // Por defecto Next.js limita el cuerpo de una Server Action a 1MB.
       // El formulario de alta/edición de clínica sube fotos (a veces

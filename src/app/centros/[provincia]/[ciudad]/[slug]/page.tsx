@@ -391,7 +391,10 @@ export default async function ClinicaPage({
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 pt-8">
-        <nav aria-label="Migas de pan" className="flex flex-wrap items-center gap-1.5 text-sm text-ink-soft">
+        {/* Una sola línea (el nombre se corta con "…" si no cabe): si
+            saltaba a dos líneas al cargar la tipografía, toda la ficha
+            bajaba de golpe (CLS 0,22 en móvil, PageSpeed oct 2026). */}
+        <nav aria-label="Migas de pan" className="flex items-center gap-1.5 overflow-hidden whitespace-nowrap text-sm text-ink-soft [&>*]:shrink-0">
           <Link href="/centros" className="hover:text-cyan">
             Centros
           </Link>
@@ -411,7 +414,7 @@ export default async function ClinicaPage({
             </>
           )}
           <span aria-hidden>/</span>
-          <span className="text-ink">{clinic.nombre}</span>
+          <span className="!shrink min-w-0 truncate text-ink">{clinic.nombre}</span>
         </nav>
       </div>
 
