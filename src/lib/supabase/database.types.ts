@@ -852,6 +852,57 @@ export type Database = {
         }
         Relationships: []
       }
+      pagespeed_mediciones: {
+        Row: {
+          campo: Json | null
+          cls: number | null
+          error: string | null
+          estrategia: string
+          fcp_ms: number | null
+          id: string
+          lcp_elemento: string | null
+          lcp_ms: number | null
+          medido_en: string
+          oportunidades: Json | null
+          puntuacion: number | null
+          speed_index_ms: number | null
+          tbt_ms: number | null
+          url: string
+        }
+        Insert: {
+          campo?: Json | null
+          cls?: number | null
+          error?: string | null
+          estrategia: string
+          fcp_ms?: number | null
+          id?: string
+          lcp_elemento?: string | null
+          lcp_ms?: number | null
+          medido_en?: string
+          oportunidades?: Json | null
+          puntuacion?: number | null
+          speed_index_ms?: number | null
+          tbt_ms?: number | null
+          url: string
+        }
+        Update: {
+          campo?: Json | null
+          cls?: number | null
+          error?: string | null
+          estrategia?: string
+          fcp_ms?: number | null
+          id?: string
+          lcp_elemento?: string | null
+          lcp_ms?: number | null
+          medido_en?: string
+          oportunidades?: Json | null
+          puntuacion?: number | null
+          speed_index_ms?: number | null
+          tbt_ms?: number | null
+          url?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           acepta_marketing_email: boolean

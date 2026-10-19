@@ -30,6 +30,10 @@
     {
       "path": "/api/cron/limpieza-datos",
       "schedule": "30 3 * * *"
+    },
+    {
+      "path": "/api/cron/pagespeed",
+      "schedule": "0 6 * * 1"
     }
   ]
 }
