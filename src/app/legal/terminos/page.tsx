@@ -11,7 +11,7 @@ export default function TerminosPage() {
     <LegalLayout activo="/legal/terminos">
       <h1>Términos y Condiciones</h1>
       <p>
-        <em>Última actualización: 15 de octubre de 2026.</em>
+        <em>Última actualización: 19 de octubre de 2026.</em>
       </p>
 
       <h2>1. Objeto</h2>
@@ -68,6 +68,12 @@ export default function TerminosPage() {
         puedan ofrecerle una valoración u oferta comercial. Growwly actúa
         como intermediario tecnológico y no es parte del contrato que, en
         su caso, se formalice entre el usuario y la clínica.
+      </p>
+      <p>
+        Los criterios con los que se ordenan los centros en los listados,
+        qué posiciones son de pago y a qué clínicas llega cada solicitud se
+        explican en{" "}
+        <a href="/como-ordenamos">Cómo ordenamos los centros</a>.
       </p>
 
       <h2 id="consentimientos-del-formulario">

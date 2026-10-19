@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import {
   Sparkles,
   Eye,
@@ -16,6 +17,10 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
+import {
+  clinicaAceptoCondicionesDatos,
+  rutaCondicionesDatos,
+} from "@/lib/clinica/condiciones-datos";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { ClinicaHeaderPerfil } from "@/components/clinica/clinica-header-perfil";
 import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
@@ -162,6 +167,15 @@ export default async function SolicitudesClinicaPage({
   const fotoPrincipal = clinic?.logo_url ?? clinic?.fotos?.[0] ?? null;
   const esPremium = clinic?.plan === "premium";
   const directas = solicitudesDirectas ?? [];
+
+  // Si esta clínica puede ver datos de pacientes (plan de pago o leads
+  // recibidos), antes tiene que aceptar las condiciones sobre esos datos.
+  if (
+    (esPremium || todos.length > 0) &&
+    !(await clinicaAceptoCondicionesDatos(admin, clinicId))
+  ) {
+    redirect(rutaCondicionesDatos(clinicId, "/clinica/solicitudes"));
+  }
 
   const leadsFiltrados =
     filtro && filtro !== "todos" ? todos.filter((l) => l.estado === filtro) : todos;

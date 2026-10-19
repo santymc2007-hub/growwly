@@ -6,4 +6,4 @@
  *
  * Cuando cambie cualquiera de esos textos, poner aquí la fecha nueva.
  */
-export const VERSION_TEXTOS_LEGALES = "2026-10-16";
+export const VERSION_TEXTOS_LEGALES = "2026-10-19";
