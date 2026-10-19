@@ -97,7 +97,7 @@ export function TarjetasPlanes({
           </span>
           <div className="flex items-baseline gap-2">
             <span className="font-display text-4xl font-extrabold text-white">
-              XX €
+              85 €
             </span>
             <span className="text-sm text-sage">/ mes</span>
           </div>
