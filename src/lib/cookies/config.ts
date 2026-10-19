@@ -15,11 +15,11 @@
 export const GA_MEASUREMENT_ID = "G-20S7PBB85Z";
 /**
  * Microsoft Clarity (grabaciones de sesión y mapas de calor), dentro de
- * las cookies analíticas. Se activa definiendo NEXT_PUBLIC_CLARITY_ID en
- * Vercel. Las zonas con datos de salud o personales van con
+ * las cookies analíticas (proyecto "Growwly" en clarity.microsoft.com;
+ * NEXT_PUBLIC_CLARITY_ID lo sustituye si hiciera falta). Las zonas con datos de salud o personales van con
  * data-clarity-mask (ver MascaraClarity).
  */
-export const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID ?? "";
+export const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID || "z036uebdv1";
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? "";
 export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
 /**
