@@ -43,6 +43,8 @@ import { TrackedNextLink } from "@/components/analytics/tracked-next-link";
 import { BotonContactoClinica } from "@/components/analytics/boton-contacto-clinica";
 import { numeroWhatsApp } from "@/lib/telefono";
 import { MapaFichaClinica } from "@/components/clinics/mapa-ficha-clinica";
+import { descripcionTextoPlano } from "@/lib/clinica/descripcion";
+import { DescripcionClinica } from "@/components/clinics/descripcion-clinica";
 
 type Params = { provincia: string; ciudad: string; slug: string };
 
@@ -88,7 +90,7 @@ export async function generateMetadata({
   if (!clinic) return {};
 
   const descripcion =
-    clinic.descripcion ??
+    descripcionTextoPlano(clinic.descripcion) ||
     `Información, técnicas, idiomas y contacto de ${clinic.nombre}${
       clinic.ciudad ? ` en ${clinic.ciudad}` : ""
     }.`;
@@ -239,7 +241,7 @@ export default async function ClinicaPage({
     // penalizan las guías de datos estructurados de Google.
     "@type": schemaTypeDeClinica(clinic.tipo_negocio),
     name: clinic.nombre,
-    description: clinic.descripcion ?? undefined,
+    description: descripcionTextoPlano(clinic.descripcion) || undefined,
     url: `${siteUrl}/centros/${provincia}/${ciudad}/${clinic.slug}`,
     image: clinic.fotos.length > 0 ? clinic.fotos : undefined,
     telephone: clinic.telefono ?? undefined,
@@ -509,7 +511,10 @@ export default async function ClinicaPage({
               )}
 
               {clinic.descripcion && (
-                <p className="mt-6 break-words text-ink-soft lg:order-40">{clinic.descripcion}</p>
+                <DescripcionClinica
+                  texto={clinic.descripcion}
+                  className="mt-6 text-ink-soft lg:order-40"
+                />
               )}
 
               {esPremium && clinic.descripcion_extendida && (

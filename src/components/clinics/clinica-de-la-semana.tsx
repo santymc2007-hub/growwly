@@ -4,6 +4,7 @@ import type { Clinic } from "@/lib/supabase/database.types";
 import { slugifyProvincia, slugifyCiudad } from "@/lib/clinic-options";
 import { ClinicBadges } from "./clinic-badges";
 import { RatingCompacto } from "./rating-stars";
+import { descripcionTextoPlano } from "@/lib/clinica/descripcion-texto";
 
 export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
   const foto = clinic.fotos[0];
@@ -75,7 +76,9 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
             </h3>
             {ubicacion && <p className="mt-1 text-ink-soft">{ubicacion}</p>}
             {clinic.descripcion && (
-              <p className="mt-3 max-w-xl text-ink-soft">{clinic.descripcion}</p>
+              <p className="mt-3 line-clamp-4 max-w-xl text-ink-soft">
+                {descripcionTextoPlano(clinic.descripcion)}
+              </p>
             )}
             {clinic.tecnicas.length > 0 && (
               <div className="mt-4 flex flex-wrap gap-2">

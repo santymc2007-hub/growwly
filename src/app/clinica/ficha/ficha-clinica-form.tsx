@@ -21,6 +21,7 @@ import { SeccionFicha } from "@/components/clinica/seccion-ficha";
 import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 import { EmailsLeadsField } from "@/components/clinica/emails-leads-field";
+import { EditorDescripcion } from "@/components/clinica/editor-descripcion";
 
 type Props = {
   clinic: Clinic;
@@ -121,16 +122,8 @@ export function FichaClinicaForm({
             </div>
           </div>
           <div>
-            <label className={labelClass} htmlFor="descripcion">
-              Descripción
-            </label>
-            <textarea
-              id="descripcion"
-              name="descripcion"
-              rows={3}
-              defaultValue={clinic.descripcion ?? undefined}
-              className={inputClass}
-            />
+            <p className={labelClass}>Descripción</p>
+            <EditorDescripcion name="descripcion" defaultValue={clinic.descripcion} />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <div>

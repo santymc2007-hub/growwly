@@ -8,6 +8,7 @@ import { slugify } from "@/lib/slugify";
 import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
 import type { Database, Json } from "@/lib/supabase/database.types";
 import { tipoNegocioValido } from "@/lib/clinic-options";
+import { limpiarDescripcion } from "@/lib/clinica/descripcion";
 
 // plan/destacado/destacado_home/destacado_ciudad se excluyen a propósito:
 // ahora se gestionan en exclusiva desde las acciones de Visibilidad
@@ -239,7 +240,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
 
   return {
     nombre: String(formData.get("nombre") ?? "").trim(),
-    descripcion: str("descripcion"),
+    descripcion: limpiarDescripcion(formData.get("descripcion")),
     comunidad_autonoma: str("comunidad_autonoma"),
     provincia: str("provincia") ?? "Illes Balears",
     ciudad: str("ciudad"),
