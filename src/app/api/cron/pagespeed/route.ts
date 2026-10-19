@@ -24,10 +24,35 @@ const ESTRATEGIAS = ["mobile", "desktop"] as const;
 
 type Auditoria = {
   title?: string;
+  score?: number | null;
   displayValue?: string;
   numericValue?: number;
-  details?: { type?: string; overallSavingsMs?: number; items?: { node?: { snippet?: string } }[] };
+  metricSavings?: Record<string, number>;
+  details?: { type?: string; overallSavingsMs?: number; items?: unknown[] };
 };
+
+/** Busca en los detalles de una auditoría los nodos HTML que señala (formato de Lighthouse 12). */
+function nodos(valor: unknown, max = 5): { snippet: string; selector?: string; score?: number }[] {
+  const out: { snippet: string; selector?: string; score?: number }[] = [];
+  const visitar = (v: unknown) => {
+    if (out.length >= max || !v || typeof v !== "object") return;
+    if (Array.isArray(v)) return v.forEach(visitar);
+    const o = v as Record<string, unknown>;
+    const n = o.node as { snippet?: string; selector?: string } | undefined;
+    if (n?.snippet) {
+      out.push({ snippet: n.snippet.slice(0, 300), selector: n.selector, score: typeof o.score === "number" ? o.score : undefined });
+    }
+    Object.values(o).forEach(visitar);
+  };
+  visitar(valor);
+  return out;
+}
+
+/** Ahorro estimado de una auditoría: el antiguo overallSavingsMs o el nuevo metricSavings. */
+function ahorro(a: Auditoria): number {
+  const m = a.metricSavings ?? {};
+  return Math.max(a.details?.overallSavingsMs ?? 0, m.LCP ?? 0, m.FCP ?? 0, m.TBT ?? 0);
+}
 type RespuestaPsi = {
   error?: { message?: string };
   loadingExperience?: { metrics?: Record<string, { percentile?: number; category?: string }> };
@@ -55,11 +80,19 @@ async function medir(url: string, estrategia: (typeof ESTRATEGIAS)[number], clav
     }
     const a = j.lighthouseResult?.audits ?? {};
     const score = j.lighthouseResult?.categories?.performance?.score;
-    const oportunidades = Object.values(a)
-      .filter((x) => (x.details?.overallSavingsMs ?? 0) >= 150)
-      .sort((x, y) => (y.details?.overallSavingsMs ?? 0) - (x.details?.overallSavingsMs ?? 0))
-      .slice(0, 6)
-      .map((x) => ({ titulo: x.title, ahorro_ms: Math.round(x.details?.overallSavingsMs ?? 0), valor: x.displayValue ?? null }));
+    const oportunidades = Object.entries(a)
+      .filter(([, x]) => (x.score ?? 1) < 0.9 && (ahorro(x) >= 150 || (x.metricSavings?.CLS ?? 0) >= 0.02))
+      .sort(([, x], [, y]) => ahorro(y) - ahorro(x))
+      .slice(0, 8)
+      .map(([id, x]) => ({
+        id,
+        titulo: x.title,
+        ahorro_ms: Math.round(ahorro(x)),
+        cls: x.metricSavings?.CLS ?? null,
+        valor: x.displayValue ?? null,
+      }));
+    // Qué elementos se mueven al cargar (CLS) y cuál es el bloque principal (LCP).
+    const causantesCls = nodos(a["layout-shifts"]?.details ?? a["cls-culprits-insight"]?.details);
     const campo = j.loadingExperience?.metrics
       ? Object.fromEntries(
           Object.entries(j.loadingExperience.metrics).map(([k, v]) => [k, { p75: v.percentile ?? null, categoria: v.category ?? null }]),
@@ -75,9 +108,10 @@ async function medir(url: string, estrategia: (typeof ESTRATEGIAS)[number], clav
       tbt_ms: ms(a["total-blocking-time"]),
       cls: a["cumulative-layout-shift"]?.numericValue ?? null,
       speed_index_ms: ms(a["speed-index"]),
-      lcp_elemento: a["largest-contentful-paint-element"]?.details?.items?.[0]?.node?.snippet?.slice(0, 500) ?? null,
+      lcp_elemento:
+        nodos(a["largest-contentful-paint-element"]?.details ?? a["lcp-breakdown-insight"]?.details, 1)[0]?.snippet ?? null,
       campo: campo as Json,
-      oportunidades: oportunidades as Json,
+      oportunidades: { mejoras: oportunidades, cls: causantesCls } as Json,
     };
   } catch (e) {
     return { url, estrategia, error: e instanceof Error ? e.message : "Error desconocido" };
