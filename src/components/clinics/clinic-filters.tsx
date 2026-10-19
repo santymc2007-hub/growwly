@@ -1,9 +1,12 @@
 "use client";
 
-import { useTransition } from "react";
+import { useTransition, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ClinicFiltersProps = {
+  /** Título del bloque ("29 centros encontrados"): en escritorio ancho va
+   *  en la columna izquierda, encima de los desplegables. */
+  cabecera?: ReactNode;
   provincias: string[];
   tecnicas: string[];
   tipos: string[];
@@ -19,7 +22,7 @@ const FIELDS = [
 // celda (w-full + truncate): un <select> nativo mide lo que su opción
 // más larga, y sin esto se salía de la tarjeta.
 const SELECT_CLASS =
-  "w-full min-w-0 truncate appearance-none rounded-full border border-line bg-white px-3 py-1.5 pr-7 text-xs text-ink sm:px-4 sm:py-2 sm:pr-9 sm:text-sm shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30 sm:w-auto";
+  "w-full min-w-0 truncate appearance-none rounded-full border border-line bg-white px-3 py-1.5 pr-7 text-xs text-ink sm:px-4 sm:py-2 sm:pr-9 sm:text-sm shadow-sm transition hover:border-teal/40 focus:outline-none focus:ring-2 focus:ring-teal/30 sm:w-auto xl:w-full";
 
 const RATING_OPCIONES = [
   { value: "4", label: "4+ estrellas Google" },
@@ -44,7 +47,7 @@ function Switch({
       role="switch"
       aria-checked={activo}
       onClick={onClick}
-      className={`press flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full border-2 border-yellow py-1 pl-1.5 pr-3 text-xs font-semibold text-teal-dark transition sm:gap-2 sm:py-1.5 sm:pl-2 sm:pr-4 sm:text-sm ${
+      className={`press flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full xl:w-full border-2 border-yellow py-1 pl-1.5 pr-3 text-xs font-semibold text-teal-dark transition sm:gap-2 sm:py-1.5 sm:pl-2 sm:pr-4 sm:text-sm ${
         activo ? "bg-yellow hover:opacity-90" : "hover:bg-yellow/10"
       }`}
     >
@@ -65,7 +68,7 @@ function Switch({
   );
 }
 
-export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProps) {
+export function ClinicFilters({ cabecera, provincias, tecnicas, tipos }: ClinicFiltersProps) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -123,13 +126,53 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
     ofertaActiva ||
     primeraConsultaActiva;
 
+  // "Quitar filtros" y "Buscando…": en móvil/tablet van al final de la
+  // fila de switches; en escritorio ancho, junto al título (la rejilla
+  // 2×2 de switches de la derecha queda solo para los 4 filtros).
+  const acciones = (
+    <>
+      {hasActiveFilters && (
+        <button
+          type="button"
+          onClick={() => navegar("")}
+          className="shrink-0 whitespace-nowrap text-xs font-medium text-cyan sm:text-sm hover:text-cyan-dark"
+        >
+          Quitar filtros
+        </button>
+      )}
+
+      {buscando && (
+        <span
+          className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm text-ink-soft"
+          aria-live="polite"
+        >
+          <span
+            className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-line border-t-teal"
+            aria-hidden
+          />
+          Buscando…
+        </span>
+      )}
+    </>
+  );
+
   return (
-    <div className="flex flex-col gap-2 sm:gap-3">
-      {/* Fila 1: desplegables. Fila 2 (siempre debajo, nunca mezclada
-          aquí aunque haya hueco de sobra): switches — así el bloque de
-          filtros tiene una forma predecible en vez de reordenarse según
-          el ancho disponible. */}
-      <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:items-center sm:gap-3">
+    // xl: dos columnas — título + desplegables a la izquierda y los 4
+    // switches en rejilla 2×2 a la derecha. Por debajo, como siempre:
+    // desplegables arriba y switches en una fila debajo.
+    <div className="flex flex-col gap-2 sm:gap-3 xl:flex-row xl:items-center xl:gap-6">
+      <div className="flex min-w-0 flex-1 flex-col gap-2 sm:gap-3">
+      {cabecera || hasActiveFilters || buscando ? (
+        <div className="flex items-center gap-4">
+          {cabecera}
+          <div className="hidden items-center gap-3 xl:flex">{acciones}</div>
+        </div>
+      ) : null}
+      {/* Desplegables. Hasta xl los switches van siempre en una fila
+          debajo (nunca mezclados aquí aunque haya hueco), para que el
+          bloque tenga una forma predecible; en xl, rejilla 2×2 a la
+          derecha. */}
+      <div className="grid grid-cols-2 gap-1.5 sm:flex sm:flex-wrap sm:items-center sm:gap-3 xl:grid xl:grid-cols-4 xl:gap-2.5">
         {FIELDS.map(({ key, label }) => (
           <div key={key} className="relative min-w-0">
             <select
@@ -177,9 +220,11 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
         </div>
       </div>
 
+      </div>
+
       {/* En móvil, los switches van en una fila con scroll horizontal
           (sin barra visible) en vez de apilarse en 3-4 líneas. */}
-      <div className="-mx-3 flex items-center gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0">
+      <div className="-mx-3 flex items-center gap-1.5 overflow-x-auto px-3 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:mx-0 sm:flex-wrap sm:gap-3 sm:overflow-visible sm:px-0 sm:pb-0 xl:grid xl:shrink-0 xl:grid-cols-2 xl:gap-2">
         <Switch
           activo={verificadoActivo}
           onClick={() => toggleBooleanFilter("verificado")}
@@ -205,28 +250,7 @@ export function ClinicFilters({ provincias, tecnicas, tipos }: ClinicFiltersProp
           1ª consulta gratuita
         </Switch>
 
-        {hasActiveFilters && (
-          <button
-            type="button"
-            onClick={() => navegar("")}
-            className="shrink-0 whitespace-nowrap text-xs font-medium text-cyan sm:text-sm hover:text-cyan-dark"
-          >
-            Quitar filtros
-          </button>
-        )}
-
-        {buscando && (
-          <span
-            className="flex shrink-0 items-center gap-1.5 whitespace-nowrap text-sm text-ink-soft"
-            aria-live="polite"
-          >
-            <span
-              className="h-3.5 w-3.5 animate-spin rounded-full border-2 border-line border-t-teal"
-              aria-hidden
-            />
-            Buscando…
-          </span>
-        )}
+        <div className="contents xl:hidden">{acciones}</div>
       </div>
     </div>
   );

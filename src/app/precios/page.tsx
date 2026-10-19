@@ -1,6 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
 // Caveat solo se usa en esta página (acento manuscrito puntual) — igual
 // que en el resto del sitio, cargarla desde el layout raíz la mandaría
 // a todo el sitio.
@@ -10,12 +8,11 @@ import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { TarjetasPlanes } from "@/components/precios/tarjetas-planes";
-import { PRECIO_MENSUAL } from "@/lib/visibilidad/tipos";
 
 export const metadata: Metadata = {
   title: "Planes y precios para centros",
   description:
-    "Publica tu centro gratis en el directorio de Growwly, o pasa a Premium para que te enviemos pacientes reales cada mes con un mínimo garantizado.",
+    "Publica tu centro gratis en el directorio de Growwly, o pasa a Premium para que te enviemos pacientes reales cada mes.",
   alternates: { canonical: "/precios" },
 };
 
@@ -41,44 +38,13 @@ export default function PreciosPage() {
             </h1>
             <p className="max-w-xl text-base text-ink-soft sm:text-lg">
               Tu centro ya aparece en el directorio con el plan Básico. Pasa
-              a Premium para que te enviemos pacientes reales que buscan tu
-              tratamiento, con un mínimo garantizado cada mes.
+              a Premium para que te enviemos pacientes reales cada mes.
             </p>
-            <span className="mt-1 inline-flex items-center gap-2 rounded-lg border border-orange/40 bg-orange/10 px-3.5 py-2 text-sm text-[#8a5a00]">
-              <AlertTriangle size={16} className="shrink-0" aria-hidden />
-              Precios de ejemplo — pendientes de confirmar antes de publicar
-            </span>
           </div>
 
           {/* Tarjetas */}
           <div className="-mt-8 px-6 pb-2 sm:px-10">
             <TarjetasPlanes hrefBasico="/clinica/registro" />
-          </div>
-
-          {/* Nota visibilidad */}
-          <div className="px-6 pt-10 sm:px-10">
-            <div className="mx-auto flex max-w-4xl flex-wrap items-center justify-between gap-4 rounded-2xl border border-dashed border-line px-6 py-6">
-              <div className="flex max-w-md flex-col gap-1">
-                <p className="font-display text-base font-bold text-teal-dark">
-                  ¿Y los extras de Visibilidad?
-                </p>
-                <p className="text-sm leading-relaxed text-ink-soft">
-                  <strong className="text-ink">Destacado general</strong>{" "}
-                  (portada y listado, 8 plazas en toda España):{" "}
-                  {PRECIO_MENSUAL.destacado} €/mes + IVA.{" "}
-                  <strong className="text-ink">Destacado de provincia</strong>{" "}
-                  (8 plazas por provincia): {PRECIO_MENSUAL.destacado_provincia} €/mes + IVA.
-                  Se activan aparte, por el tiempo que elijas, y están
-                  disponibles tanto en Básico como en Premium.
-                </p>
-              </div>
-              <Link
-                href="/clinica/login"
-                className="shrink-0 text-sm font-bold text-teal hover:text-cyan-dark"
-              >
-                Ver extras de Visibilidad →
-              </Link>
-            </div>
           </div>
 
           {/* CTA final */}
