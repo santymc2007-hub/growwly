@@ -13,6 +13,13 @@
  */
 
 export const GA_MEASUREMENT_ID = "G-20S7PBB85Z";
+/**
+ * Microsoft Clarity (grabaciones de sesión y mapas de calor), dentro de
+ * las cookies analíticas. Se activa definiendo NEXT_PUBLIC_CLARITY_ID en
+ * Vercel. Las zonas con datos de salud o personales van con
+ * data-clarity-mask (ver MascaraClarity).
+ */
+export const CLARITY_ID = process.env.NEXT_PUBLIC_CLARITY_ID ?? "";
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? "";
 export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
 /**
@@ -68,6 +75,25 @@ export const COOKIES_ANALITICAS: FilaCookie[] = [
     duracion: "2 años",
     transferencia: "EE. UU. (Marco de Privacidad de Datos UE-EE. UU.)",
   },
+  ...(CLARITY_ID
+    ? [
+        {
+          nombre: "_clck, _clsk",
+          proveedor: "Microsoft Clarity (Microsoft)",
+          finalidad:
+            "Ver de forma anónima cómo se navega por la web (clics, desplazamiento) para mejorarla. No guarda lo que escribes.",
+          duracion: "1 año (_clck) y 1 día (_clsk)",
+          transferencia: "EE. UU. (Marco de Privacidad de Datos UE-EE. UU.)",
+        },
+        {
+          nombre: "CLID, MUID, ANONCHK, SM, MR",
+          proveedor: "Microsoft Clarity (Microsoft)",
+          finalidad: "Identificar el navegador de forma anónima entre visitas para las estadísticas de Clarity.",
+          duracion: "Hasta 1 año",
+          transferencia: "EE. UU. (Marco de Privacidad de Datos UE-EE. UU.)",
+        },
+      ]
+    : []),
 ];
 
 export const COOKIES_PUBLICIDAD: FilaCookie[] = [
@@ -107,5 +133,5 @@ export const COOKIES_PUBLICIDAD: FilaCookie[] = [
 ];
 
 /** Prefijos de las cookies que hay que borrar al retirar cada consentimiento. */
-export const PREFIJOS_ANALITICA = ["_ga", "_gid", "_gat"];
+export const PREFIJOS_ANALITICA = ["_ga", "_gid", "_gat", "_clck", "_clsk"];
 export const PREFIJOS_PUBLICIDAD = ["_gcl", "_fbp", "_fbc"];

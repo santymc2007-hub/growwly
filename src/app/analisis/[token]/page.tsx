@@ -116,7 +116,7 @@ export default async function AnalisisPendientePage({
                   izquierda, formulario a la derecha. */}
               <div className="flex flex-col gap-6 px-6 pb-8 pt-4 sm:px-10 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-4 lg:pt-6">
                 {adelanto.length > 0 && (
-                  <div className="grid grid-cols-2 gap-2.5 lg:col-start-1 lg:row-start-1 lg:gap-3">
+                  <div data-clarity-mask="true" className="grid grid-cols-2 gap-2.5 lg:col-start-1 lg:row-start-1 lg:gap-3">
                     {adelanto.map((fila) => (
                       <div key={fila.etiqueta} className="flex flex-col gap-0.5 rounded-xl border border-line px-3.5 py-2.5 sm:px-4 sm:py-3">
                         <span className="text-xs text-ink-soft">{fila.etiqueta}</span>

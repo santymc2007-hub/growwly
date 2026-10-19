@@ -4,6 +4,7 @@ import Link from "next/link";
 import Script from "next/script";
 import { useEffect, useMemo, useState, useSyncExternalStore } from "react";
 import {
+  CLARITY_ID,
   GA_MEASUREMENT_ID,
   GOOGLE_ADS_ID,
   META_PIXEL_ID,
@@ -223,6 +224,18 @@ export function CookieConsent() {
         </>
       )}
 
+      {analitica && CLARITY_ID && (
+        <Script id="clarity" strategy="afterInteractive">
+          {`
+            (function(c,l,a,r,i,t,y){c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+            t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+            y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+            })(window, document, "clarity", "script", "${CLARITY_ID}");
+            window.clarity('consentv2', { ad_Storage: 'denied', analytics_Storage: 'granted' });
+          `}
+        </Script>
+      )}
+
       {publicidad && META_PIXEL_ID && (
         <Script id="meta-pixel" strategy="afterInteractive">
           {`
@@ -248,7 +261,7 @@ export function CookieConsent() {
               <p className="flex-1 text-sm text-ink-soft">
                 {PUBLICIDAD_ACTIVA
                   ? "Usamos cookies analíticas para entender cómo se usa Growwly y cookies de publicidad para medir nuestros anuncios. Solo las activamos si nos das tu consentimiento."
-                  : "Usamos cookies analíticas (Google Analytics) para entender cómo se usa Growwly y mejorar el sitio. Solo las activamos si nos das tu consentimiento."}{" "}
+                  : "Usamos cookies analíticas para entender cómo se usa Growwly y mejorar el sitio. Solo las activamos si nos das tu consentimiento."}{" "}
                 <Link href="/legal/cookies" className="font-medium text-cyan-dark hover:underline">
                   Más información
                 </Link>
@@ -297,7 +310,9 @@ export function CookieConsent() {
                     <span>
                       <span className="font-medium text-ink">Analíticas</span>
                       <span className="block text-xs text-ink-soft">
-                        Google Analytics: cuántas visitas hay y qué páginas se usan.
+                        {CLARITY_ID
+                          ? "Google Analytics y Microsoft Clarity: cuántas visitas hay, qué páginas se usan y cómo se navega por ellas (sin lo que escribes)."
+                          : "Google Analytics: cuántas visitas hay y qué páginas se usan."}
                       </span>
                     </span>
                     <input

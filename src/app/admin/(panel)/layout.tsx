@@ -46,7 +46,7 @@ export default async function PanelLayout({
     .eq("estado", "enviado");
 
   return (
-    <div className="min-h-screen bg-paper-dim">
+    <div data-clarity-mask="true" className="min-h-screen bg-paper-dim">
       <header className="relative border-b border-line bg-teal text-paper">
         <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4">
           <div className="flex items-center gap-5">

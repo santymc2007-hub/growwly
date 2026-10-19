@@ -304,7 +304,8 @@ export function AnalisisForm({
                   </span>
                 </div>
 
-                <div className="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
+                {/* Fotos del paciente: ocultas en Microsoft Clarity. */}
+                <div data-clarity-mask="true" className="mt-5 grid grid-cols-3 gap-4 sm:grid-cols-4 lg:grid-cols-6">
                   {fotos.map((foto) => (
                     <div
                       key={foto.id}

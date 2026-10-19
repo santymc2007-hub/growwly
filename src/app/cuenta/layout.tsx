@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { MascaraClarity } from "@/components/analytics/mascara-clarity";
 
 /**
  * Todo lo que cuelga de /cuenta es para pacientes. Si quien ha iniciado
@@ -34,5 +35,5 @@ export default async function CuentaLayout({
     }
   }
 
-  return <>{children}</>;
+  return <MascaraClarity>{children}</MascaraClarity>;
 }

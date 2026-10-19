@@ -145,6 +145,11 @@ export default function PrivacidadPage() {
           Google), Estados Unidos.
         </li>
         <li>
+          Microsoft (Clarity: cómo se navega por la web, si aceptas las
+          cookies analíticas), Estados Unidos. No registra lo que escribes y
+          las páginas con datos de salud o de tu cuenta se ocultan.
+        </li>
+        <li>
           OpenStreetMap Foundation (imágenes de los mapas de clínicas), Reino
           Unido: al cargar un mapa, tu navegador le pide las imágenes y recibe
           tu dirección IP.
