@@ -105,9 +105,10 @@ export function AuthCard({
             : "grid items-center lg:grid-cols-[0.9fr_1fr] lg:gap-12"
         }`}
       >
-        {/* ── Lado visual ── */}
+        {/* ── Lado visual ── (la foto solo se muestra en escritorio; en
+            móvil y tablet, solo la tarjeta) */}
         {v.imagen ? (
-          <div className="relative mx-auto w-full max-w-[240px] sm:max-w-[300px] lg:mx-0 lg:w-[560px] lg:max-w-none lg:shrink-0 xl:w-[676px]">
+          <div className="relative hidden lg:mx-0 lg:block lg:w-[560px] lg:max-w-none lg:shrink-0 xl:w-[676px]">
             <div className="entra relative aspect-[1000/1084]">
               <Image
                 src={v.imagen.src}
@@ -144,7 +145,7 @@ export function AuthCard({
         <div
           className={`relative mx-auto w-full max-w-md ${
             v.imagen
-              ? "z-10 -mt-14 sm:-mt-20 lg:mx-0 lg:-ml-32 lg:mt-0 lg:shrink-0"
+              ? "z-10 mt-4 sm:mt-8 lg:mx-0 lg:-ml-32 lg:mt-0 lg:shrink-0"
               : "mt-6 lg:mt-0"
           }`}
         >
