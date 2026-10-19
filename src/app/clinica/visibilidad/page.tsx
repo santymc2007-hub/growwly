@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { Home, MapPin, Gem } from "lucide-react";
 import {
   BENEFICIO_LABEL,
+  CAMPANA_LABEL,
   DESCRIPCION_LABEL,
   TIPO_LABEL,
   plazasDestacado,
@@ -11,6 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
 import { TarjetaVisibilidad } from "./tarjeta-visibilidad";
+import { EsquemaVisibilidad } from "./esquema-visibilidad";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { ClinicaHeaderPerfil } from "@/components/clinica/clinica-header-perfil";
@@ -112,6 +114,8 @@ export default async function VisibilidadPage({
                 pendiente={clinic.destacado_solicitado}
                 expiraEn={fechas.destacado?.expira_en}
                 plazas={plazasGeneral}
+                campana={CAMPANA_LABEL.destacado}
+                esquema={<EsquemaVisibilidad tipo="destacado" />}
               />
               <TarjetaVisibilidad
                 tipo="destacado_provincia"
@@ -123,6 +127,8 @@ export default async function VisibilidadPage({
                 pendiente={clinic.destacado_provincia_solicitado}
                 expiraEn={fechas.destacado_provincia?.expira_en}
                 plazas={plazasProvincia}
+                campana={CAMPANA_LABEL.destacado_provincia}
+                esquema={<EsquemaVisibilidad tipo="destacado_provincia" provincia={clinic.provincia} />}
               />
               <TarjetaVisibilidad
                 tipo="premium"
@@ -133,6 +139,7 @@ export default async function VisibilidadPage({
                 activo={clinic.plan === "premium"}
                 pendiente={clinic.plan_solicitado === "premium"}
                 expiraEn={fechas.premium?.expira_en}
+                campana={CAMPANA_LABEL.premium}
               />
             </div>
           );

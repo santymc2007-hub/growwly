@@ -100,7 +100,7 @@ export function TarjetasPlanes({
             <span className="font-display text-4xl font-extrabold text-white">
               {PRECIO_MENSUAL.premium} €
             </span>
-            <span className="text-sm text-sage">/ mes</span>
+            <span className="text-sm text-sage">/ mes + IVA</span>
           </div>
           <p className="text-sm leading-relaxed text-sage">
             Pensado para llenar agenda: mínimo de 2 pacientes nuevos

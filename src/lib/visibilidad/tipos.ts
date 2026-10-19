@@ -57,6 +57,13 @@ export const DESCRIPCION_LABEL: Record<TipoVisibilidad, string> = {
   premium: "Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha.",
 };
 
+/** Tipo de campaña: para que la clínica entienda qué compra. */
+export const CAMPANA_LABEL: Record<TipoVisibilidad, string> = {
+  destacado: "Campaña de marca · máximo alcance",
+  destacado_provincia: "Campaña de resultado · pacientes con intención",
+  premium: "Conversión · más pacientes por cada visita",
+};
+
 export const BENEFICIO_LABEL: Record<TipoVisibilidad, string> = {
   destacado: "Visibilidad de marca: es lo primero que ve cualquier visitante de Growwly.",
   destacado_provincia: "Más cerca de la decisión: te ven primero quienes buscan en tu zona.",

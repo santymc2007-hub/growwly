@@ -36,6 +36,10 @@ type Props = {
   expiraEn?: string | null;
   /** Solo destacados: plazas libres (si no queda ninguna, no se puede pedir). */
   plazas?: Plazas;
+  /** Tipo de campaña (marca, resultado…). */
+  campana?: string;
+  /** Dibujo de dónde sale la clínica (ver esquema-visibilidad.tsx). */
+  esquema?: ReactNode;
 };
 
 export function TarjetaVisibilidad({
@@ -48,6 +52,8 @@ export function TarjetaVisibilidad({
   pendiente,
   expiraEn,
   plazas,
+  campana,
+  esquema,
 }: Props) {
   const [pending, startTransition] = useTransition();
   const [eligiendoDuracion, setEligiendoDuracion] = useState(false);
@@ -76,13 +82,21 @@ export function TarjetaVisibilidad({
         <div>
           <p className="font-display text-base text-teal-dark">{titulo}</p>
           <p className="text-sm font-semibold text-ink">
-            {PRECIO_MENSUAL[tipo]} €<span className="font-normal text-ink-soft"> / mes</span>
+            {PRECIO_MENSUAL[tipo]} €<span className="font-normal text-ink-soft"> / mes + IVA</span>
           </p>
-          <p className="mt-1 text-sm text-ink-soft">{descripcion}</p>
+          {campana && (
+            <span className="mt-1.5 inline-block rounded-full bg-yellow/60 px-2 py-0.5 text-[11px] font-semibold text-teal-dark">
+              {campana}
+            </span>
+          )}
+          <p className="mt-1.5 text-sm text-ink-soft">{descripcion}</p>
         </div>
       </div>
 
+      {esquema && <div className="mt-4">{esquema}</div>}
+
       <p className="mt-3 rounded-lg bg-sage/40 px-3 py-2 text-xs font-medium text-teal-dark">
+        <span className="font-bold">Lo que ganas: </span>
         {beneficio}
       </p>
 

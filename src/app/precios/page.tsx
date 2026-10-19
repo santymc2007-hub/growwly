@@ -65,9 +65,9 @@ export default function PreciosPage() {
                 <p className="text-sm leading-relaxed text-ink-soft">
                   <strong className="text-ink">Destacado general</strong>{" "}
                   (portada y listado, 8 plazas en toda España):{" "}
-                  {PRECIO_MENSUAL.destacado} €/mes.{" "}
+                  {PRECIO_MENSUAL.destacado} €/mes + IVA.{" "}
                   <strong className="text-ink">Destacado de provincia</strong>{" "}
-                  (8 plazas por provincia): {PRECIO_MENSUAL.destacado_provincia} €/mes.
+                  (8 plazas por provincia): {PRECIO_MENSUAL.destacado_provincia} €/mes + IVA.
                   Se activan aparte, por el tiempo que elijas, y están
                   disponibles tanto en Básico como en Premium.
                 </p>
