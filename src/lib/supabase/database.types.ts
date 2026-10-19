@@ -512,6 +512,8 @@ export type Database = {
           claim_token: string
           consentimiento_en: string | null
           created_at: string
+          email_capturado_en: string | null
+          email_contacto: string | null
           error_detalle: string | null
           es_alopecia_tratable: boolean | null
           estado: string
@@ -523,6 +525,7 @@ export type Database = {
           foto_perfil_izquierdo: string | null
           fotos_adicionales: string[]
           id: string
+          nombre_contacto: string | null
           informe: Json | null
           ip_hash: string | null
           norwood_estimado: string | null
@@ -534,6 +537,8 @@ export type Database = {
           claim_token?: string
           consentimiento_en?: string | null
           created_at?: string
+          email_capturado_en?: string | null
+          email_contacto?: string | null
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
           estado?: string
@@ -545,6 +550,7 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
+          nombre_contacto?: string | null
           informe?: Json | null
           ip_hash?: string | null
           norwood_estimado?: string | null
@@ -556,6 +562,8 @@ export type Database = {
           claim_token?: string
           consentimiento_en?: string | null
           created_at?: string
+          email_capturado_en?: string | null
+          email_contacto?: string | null
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
           estado?: string
@@ -567,6 +575,7 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
+          nombre_contacto?: string | null
           informe?: Json | null
           ip_hash?: string | null
           norwood_estimado?: string | null
