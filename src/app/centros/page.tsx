@@ -155,19 +155,19 @@ export default async function CentrosPage({
           ven los resultados, no cuáles se muestran. */}
       <div className="relative z-20 mx-auto -mt-12 lg:sticky lg:top-0 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
         <div className="rounded-2xl bg-white p-3 shadow-lg sm:p-4 lg:p-5">
-            <p className="font-display text-sm font-bold text-ink sm:text-lg">
-              {filtrados.length}{" "}
-              {filtrados.length === 1
-                ? "centro encontrado"
-                : "centros encontrados"}
-            </p>
-            <div className="mt-2 sm:mt-3">
-              <ClinicFilters
-                provincias={provincias}
-                tecnicas={tecnicas}
-                tipos={tipos}
-              />
-            </div>
+          <ClinicFilters
+            cabecera={
+              <p className="font-display text-sm font-bold text-ink sm:text-lg">
+                {filtrados.length}{" "}
+                {filtrados.length === 1
+                  ? "centro encontrado"
+                  : "centros encontrados"}
+              </p>
+            }
+            provincias={provincias}
+            tecnicas={tecnicas}
+            tipos={tipos}
+          />
         </div>
       </div>
 
