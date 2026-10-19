@@ -62,9 +62,10 @@ export default function PreciosPage() {
                   ¿Y los extras de Visibilidad?
                 </p>
                 <p className="text-sm leading-relaxed text-ink-soft">
-                  Destacado en el listado, en la Home o en tu ciudad se
-                  activan aparte, por el tiempo que elijas, y están
-                  disponibles tanto en Básico como en Premium.
+                  El Destacado general (portada y listado, 8 plazas en toda
+                  España) y el Destacado de provincia (8 plazas por
+                  provincia) se activan aparte, por el tiempo que elijas, y
+                  están disponibles tanto en Básico como en Premium.
                 </p>
               </div>
               <Link

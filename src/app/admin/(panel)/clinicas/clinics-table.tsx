@@ -182,20 +182,12 @@ export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
                       ★ Solicita destacado
                     </Link>
                   )}
-                  {clinic.destacado_home_solicitado && (
+                  {clinic.destacado_provincia_solicitado && (
                     <Link
                       href={`/admin/clinicas/${clinic.id}/editar`}
                       className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
                     >
-                      🏠 Solicita Home
-                    </Link>
-                  )}
-                  {clinic.destacado_ciudad_solicitado && (
-                    <Link
-                      href={`/admin/clinicas/${clinic.id}/editar`}
-                      className="rounded-full bg-cyan/15 px-2.5 py-1 text-xs font-medium text-cyan-dark hover:bg-cyan/25"
-                    >
-                      📍 Solicita ciudad
+                      📍 Solicita provincia
                     </Link>
                   )}
                   {clinic.plan_solicitado && (

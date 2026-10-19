@@ -1,8 +1,8 @@
 /**
  * Etiqueta "Destacado" sobre la foto de las tarjetas que salen arriba
- * porque la clínica paga visibilidad (destacado, destacado_ciudad o
- * destacado_home). La exige la Directiva Ómnibus de consumo: el
- * paciente tiene que saber cuándo una posición está pagada.
+ * porque la clínica paga visibilidad (destacado general o de
+ * provincia). La exige la Directiva Ómnibus de consumo: el paciente
+ * tiene que saber cuándo una posición está pagada.
  * Explicación completa en /como-ordenamos.
  */
 export function EtiquetaDestacado() {

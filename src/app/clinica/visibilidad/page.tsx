@@ -1,5 +1,11 @@
 import { notFound } from "next/navigation";
-import { Star, Home, MapPin, Gem } from "lucide-react";
+import { Home, MapPin, Gem } from "lucide-react";
+import {
+  BENEFICIO_LABEL,
+  DESCRIPCION_LABEL,
+  TIPO_LABEL,
+  plazasDestacado,
+} from "@/lib/visibilidad/destacados";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
@@ -8,18 +14,17 @@ import { TarjetaVisibilidad } from "./tarjeta-visibilidad";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
 import { ClinicaHeaderPerfil } from "@/components/clinica/clinica-header-perfil";
-import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { contarSolicitudesPendientes } from "@/lib/clinica/solicitudes-pendientes";
 import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
 
-type SearchParams = { solicitud?: string };
+type SearchParams = { solicitud?: string; completo?: string };
 
 export default async function VisibilidadPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { solicitud } = await searchParams;
+  const { solicitud, completo } = await searchParams;
 
   const { clinicId, profileId, clinicas } = await requireClinicaActiva();
 
@@ -38,6 +43,11 @@ export default async function VisibilidadPage({
   if (!clinic) {
     notFound();
   }
+
+  const [plazasGeneral, plazasProvincia] = await Promise.all([
+    plazasDestacado(supabase, "destacado", null),
+    plazasDestacado(supabase, "destacado_provincia", clinic.provincia),
+  ]);
 
   const solicitudesPendientes = await contarSolicitudesPendientes(clinicId);
   const nombreGestor = await obtenerNombreGestor(profileId);
@@ -67,6 +77,12 @@ export default async function VisibilidadPage({
             Solicitud enviada — te avisaremos en cuanto se active.
           </p>
         )}
+        {completo && (
+          <p className="mb-4 rounded-lg bg-orange/15 px-4 py-3 text-sm text-ink">
+            Ya no quedan plazas libres para ese destacado. Escríbenos y te avisamos
+            en cuanto se libere una.
+          </p>
+        )}
 
         <p className="mb-6 max-w-lg text-sm text-ink-soft">
           Formas de que tu centro se vea más — cada una se solicita por
@@ -84,48 +100,36 @@ export default async function VisibilidadPage({
                 >)
               : {};
 
-          const rutaCiudad = clinic.ciudad
-            ? `/centros/${slugifyProvincia(clinic.provincia)}/${slugifyCiudad(clinic.ciudad)}`
-            : "tu ciudad";
-
           return (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <TarjetaVisibilidad
                 tipo="destacado"
-                icono={<Star className="h-5 w-5" strokeWidth={2.2} />}
-                titulo="Destacada en el listado"
-                descripcion="Tu ficha resalta con color y sube de posición en /centros."
-                beneficio="Más pacientes te ven primero al comparar centros de tu zona."
+                icono={<Home className="h-5 w-5" strokeWidth={2.2} />}
+                titulo={TIPO_LABEL.destacado}
+                descripcion={DESCRIPCION_LABEL.destacado}
+                beneficio={BENEFICIO_LABEL.destacado}
                 activo={clinic.destacado}
                 pendiente={clinic.destacado_solicitado}
                 expiraEn={fechas.destacado?.expira_en}
+                plazas={plazasGeneral}
               />
               <TarjetaVisibilidad
-                tipo="destacado_home"
-                icono={<Home className="h-5 w-5" strokeWidth={2.2} />}
-                titulo="Destacada en la Home"
-                descripcion='Apareces en la sección "Centros destacados" de la página principal.'
-                beneficio="Visibilidad máxima: es lo primero que ve cualquier visitante de Growwly."
-                activo={clinic.destacado_home}
-                pendiente={clinic.destacado_home_solicitado}
-                expiraEn={fechas.destacado_home?.expira_en}
-              />
-              <TarjetaVisibilidad
-                tipo="destacado_ciudad"
+                tipo="destacado_provincia"
                 icono={<MapPin className="h-5 w-5" strokeWidth={2.2} />}
-                titulo="Destacada en tu ciudad"
-                descripcion={`Resaltas al principio dentro de ${rutaCiudad}.`}
-                beneficio="Ganas a la competencia local cuando buscan centros cerca."
-                activo={clinic.destacado_ciudad}
-                pendiente={clinic.destacado_ciudad_solicitado}
-                expiraEn={fechas.destacado_ciudad?.expira_en}
+                titulo={TIPO_LABEL.destacado_provincia}
+                descripcion={`${DESCRIPCION_LABEL.destacado_provincia}${clinic.provincia ? ` Tu provincia: ${clinic.provincia}.` : ""}`}
+                beneficio={BENEFICIO_LABEL.destacado_provincia}
+                activo={clinic.destacado_provincia}
+                pendiente={clinic.destacado_provincia_solicitado}
+                expiraEn={fechas.destacado_provincia?.expira_en}
+                plazas={plazasProvincia}
               />
               <TarjetaVisibilidad
                 tipo="premium"
                 icono={<Gem className="h-5 w-5" strokeWidth={2.2} />}
-                titulo="Perfil ampliado"
-                descripcion="Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha."
-                beneficio="Ficha completa = más confianza del paciente = más leads convertidos."
+                titulo={TIPO_LABEL.premium}
+                descripcion={DESCRIPCION_LABEL.premium}
+                beneficio={BENEFICIO_LABEL.premium}
                 activo={clinic.plan === "premium"}
                 pendiente={clinic.plan_solicitado === "premium"}
                 expiraEn={fechas.premium?.expira_en}

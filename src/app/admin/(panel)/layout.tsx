@@ -22,22 +22,17 @@ export default async function PanelLayout({
     .from("clinics")
     .select("id", { count: "exact", head: true })
     .eq("destacado_solicitado", true);
-  const { count: solicitudesHome } = await supabase
+  const { count: solicitudesProvincia } = await supabase
     .from("clinics")
     .select("id", { count: "exact", head: true })
-    .eq("destacado_home_solicitado", true);
-  const { count: solicitudesCiudad } = await supabase
-    .from("clinics")
-    .select("id", { count: "exact", head: true })
-    .eq("destacado_ciudad_solicitado", true);
+    .eq("destacado_provincia_solicitado", true);
   const { count: solicitudesPremium } = await supabase
     .from("clinics")
     .select("id", { count: "exact", head: true })
     .not("plan_solicitado", "is", null);
   const totalSolicitudes =
     (solicitudesDestacado ?? 0) +
-    (solicitudesHome ?? 0) +
-    (solicitudesCiudad ?? 0) +
+    (solicitudesProvincia ?? 0) +
     (solicitudesPremium ?? 0);
 
   const { count: leadsNuevos } = await supabase

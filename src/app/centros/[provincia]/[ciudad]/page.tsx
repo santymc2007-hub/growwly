@@ -10,7 +10,7 @@ import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones
 import { VistaListaMapa, VistaToggle } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
-import { ordenarListado } from "@/lib/clinica/orden-listado";
+import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import {
   provinciaDesdeSlug,
   municipioDesdeSlugGenerico,
@@ -30,9 +30,6 @@ const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: stri
     .eq("provincia", provinciaReal)
     .eq("publicado", true)
     .eq("verificado_admin", true)
-    .order("destacado_ciudad", { ascending: false })
-    .order("destacado", { ascending: false })
-    .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
 
   const todas = data ?? [];
@@ -43,15 +40,16 @@ const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: stri
     new Set(todas.map((c) => c.ciudad).filter((c): c is string => Boolean(c))),
   );
   const ciudadReal = municipioDesdeSlugGenerico(ciudadSlug, ciudadesDeProvincia);
-  if (!ciudadReal) return { ciudadReal: null, clinicas: [] };
+  if (!ciudadReal) return { ciudadReal: null, clinicas: [], idsDestacados: [] as string[] };
 
-  // Destacados en esta ciudad, luego destacados generales (de pago), y
-  // el resto por Growwly Score.
-  const clinicas = await ordenarListado(
+  // La página de una ciudad es una búsqueda en su provincia: primero
+  // los destacados de la provincia que estén en esta ciudad, y el resto
+  // por Growwly Score (lib/visibilidad/destacados.ts).
+  const { clinicas, idsDestacados } = await ordenarConDestacados(
     todas.filter((c) => c.ciudad === ciudadReal),
-    (c) => (c.destacado_ciudad ? 0 : c.destacado ? 1 : 2),
+    provinciaReal,
   );
-  return { ciudadReal, clinicas };
+  return { ciudadReal, clinicas, idsDestacados };
 });
 
 export async function generateMetadata({
@@ -88,7 +86,7 @@ export default async function CiudadPage({
     notFound();
   }
 
-  const { ciudadReal, clinicas } = await getClinicasDeCiudad(provinciaReal, ciudad);
+  const { ciudadReal, clinicas, idsDestacados } = await getClinicasDeCiudad(provinciaReal, ciudad);
 
   if (!ciudadReal) {
     notFound();
@@ -198,9 +196,7 @@ export default async function CiudadPage({
             <VistaListaMapa
               clinicas={clinicas}
               vista={vista === "mapa" ? "mapa" : "lista"}
-              idsDestacados={clinicas
-                .filter((c) => c.destacado_ciudad || c.destacado)
-                .map((c) => c.id)}
+              idsDestacados={idsDestacados}
             />
             <p className="mt-6 text-xs text-ink-soft">
               <Link href="/como-ordenamos" className="underline hover:text-teal-dark">

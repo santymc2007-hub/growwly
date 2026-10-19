@@ -4,7 +4,7 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
-import { ordenarListado } from "@/lib/clinica/orden-listado";
+import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { VistaListaMapa, VistaToggle } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
@@ -61,8 +61,6 @@ export default async function CentrosPage({
     .select("*")
     .eq("publicado", true)
     .eq("verificado_admin", true)
-    .order("destacado", { ascending: false })
-    .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
   const centros = data ?? [];
 
@@ -87,8 +85,18 @@ export default async function CentrosPage({
     return true;
   });
 
-  // Destacados (de pago) arriba; el resto, por Growwly Score.
-  const ordenados = await ordenarListado(filtrados, (c) => (c.destacado ? 0 : 1));
+  // Provincia elegida (directamente, por una ciudad suya o por el filtro
+  // Palma/pueblos): decide qué destacados van primero. Sin provincia,
+  // los generales. Ver lib/visibilidad/destacados.ts.
+  const provinciaElegida =
+    provincia ||
+    (ciudad ? centros.find((c) => c.ciudad === ciudad)?.provincia : null) ||
+    (ubicacion ? centros.find((c) => c.ciudad === "Palma")?.provincia : null) ||
+    null;
+  const { clinicas: ordenados, idsDestacados } = await ordenarConDestacados(
+    filtrados,
+    provinciaElegida,
+  );
   filtrados.splice(0, filtrados.length, ...ordenados);
 
   // Registro propio de impresiones (para las estadísticas del centro)
@@ -188,7 +196,7 @@ export default async function CentrosPage({
                   <VistaListaMapa
                     clinicas={filtrados}
                     vista={vista === "mapa" ? "mapa" : "lista"}
-                    idsDestacados={filtrados.filter((c) => c.destacado).map((c) => c.id)}
+                    idsDestacados={idsDestacados}
                   />
                   <p className="mt-6 text-xs text-ink-soft">
                     <Link href="/como-ordenamos" className="underline hover:text-teal-dark">

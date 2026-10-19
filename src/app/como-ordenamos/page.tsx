@@ -46,11 +46,27 @@ export default function ComoOrdenamosPage() {
 
       <h2>Posiciones de pago: «Destacado»</h2>
       <p>
-        Un centro puede pagar para salir entre los primeros del listado
-        general, de su ciudad o en la sección «Centros destacados» de la
-        portada. Esos centros llevan siempre la etiqueta{" "}
-        <strong>«Destacado»</strong> en su tarjeta. Pagar no cambia lo que
-        dice la ficha ni las valoraciones.
+        Hay dos posiciones de pago. Los centros que las tienen llevan
+        siempre la etiqueta <strong>«Destacado»</strong> en su tarjeta.
+        Pagar no cambia lo que dice la ficha ni las valoraciones.
+      </p>
+      <ul>
+        <li>
+          <strong>Destacado general</strong> (como máximo 8 centros en toda
+          España): sale en la sección «Centros destacados» de la portada y
+          primero en el listado de centros mientras no elijas provincia.
+        </li>
+        <li>
+          <strong>Destacado de provincia</strong> (como máximo 8 centros por
+          provincia): sale primero cuando buscas en esa provincia o en una de
+          sus ciudades.
+        </li>
+      </ul>
+      <p>
+        Los demás filtros (tratamiento, tipo de centro, idioma…) solo dejan
+        fuera a los destacados que no los cumplen. Entre los destacados, el
+        orden cambia cada día, para que ninguno ocupe siempre el primer
+        puesto.
       </p>
       <p>
         Si no hay suficientes centros destacados para llenar esa sección de la

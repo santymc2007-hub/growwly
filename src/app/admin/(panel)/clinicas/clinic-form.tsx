@@ -23,7 +23,7 @@ import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 import { EditorDescripcion } from "@/components/clinica/editor-descripcion";
 
-// Las mismas 4 palancas que ve el admin en /admin/visibilidad — se
+// Las mismas 3 palancas que ve el admin en /admin/visibilidad — se
 // reutilizan aquí para que activar/desactivar desde la ficha de la
 // clínica sea literalmente la misma acción (mismo registro en el log,
 // mismo email a la clínica), nunca un campo aparte que pueda
@@ -35,14 +35,9 @@ const COLUMNAS_VISIBILIDAD: {
 }[] = [
   { tipo: "destacado", activo: (c) => c.destacado, solicitado: (c) => c.destacado_solicitado },
   {
-    tipo: "destacado_home",
-    activo: (c) => c.destacado_home,
-    solicitado: (c) => c.destacado_home_solicitado,
-  },
-  {
-    tipo: "destacado_ciudad",
-    activo: (c) => c.destacado_ciudad,
-    solicitado: (c) => c.destacado_ciudad_solicitado,
+    tipo: "destacado_provincia",
+    activo: (c) => c.destacado_provincia,
+    solicitado: (c) => c.destacado_provincia_solicitado,
   },
   {
     tipo: "premium",

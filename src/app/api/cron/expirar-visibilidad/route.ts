@@ -4,7 +4,9 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 import type { Database } from "@/lib/supabase/database.types";
 
-type Tipo = "destacado" | "destacado_home" | "destacado_ciudad" | "premium";
+// Los antiguos destacado_home/destacado_ciudad pueden seguir en
+// visibilidad_fechas de clínicas viejas: se limpian igual.
+type Tipo = "destacado" | "destacado_provincia" | "destacado_home" | "destacado_ciudad" | "premium";
 type FechasVisibilidad = Record<
   string,
   { activado_en: string; expira_en: string | null }
@@ -24,10 +26,8 @@ export async function GET(request: Request) {
   const supabase = createAdminClient();
   const { data: clinicas } = await supabase
     .from("clinics")
-    .select("id, plan, destacado, destacado_home, destacado_ciudad, visibilidad_fechas")
-    .or(
-      "destacado.eq.true,destacado_home.eq.true,destacado_ciudad.eq.true,plan.eq.premium",
-    );
+    .select("id, plan, destacado, destacado_provincia, visibilidad_fechas")
+    .or("destacado.eq.true,destacado_provincia.eq.true,plan.eq.premium");
 
   const ahora = new Date();
   let desactivadas = 0;
@@ -52,9 +52,11 @@ export async function GET(request: Request) {
           update.plan = "basico";
         } else if (tipo === "destacado") {
           update.destacado = false;
+        } else if (tipo === "destacado_provincia") {
+          update.destacado_provincia = false;
         } else if (tipo === "destacado_home") {
           update.destacado_home = false;
-        } else {
+        } else if (tipo === "destacado_ciudad") {
           update.destacado_ciudad = false;
         }
         cambios = true;

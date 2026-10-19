@@ -320,6 +320,8 @@ export type Database = {
           destacado_ciudad_solicitado: boolean
           destacado_home: boolean
           destacado_home_solicitado: boolean
+          destacado_provincia: boolean
+          destacado_provincia_solicitado: boolean
           destacado_solicitado: boolean
           detalle_oferta: string | null
           direccion: string | null
@@ -390,6 +392,8 @@ export type Database = {
           destacado_ciudad_solicitado?: boolean
           destacado_home?: boolean
           destacado_home_solicitado?: boolean
+          destacado_provincia?: boolean
+          destacado_provincia_solicitado?: boolean
           destacado_solicitado?: boolean
           detalle_oferta?: string | null
           direccion?: string | null
@@ -460,6 +464,8 @@ export type Database = {
           destacado_ciudad_solicitado?: boolean
           destacado_home?: boolean
           destacado_home_solicitado?: boolean
+          destacado_provincia?: boolean
+          destacado_provincia_solicitado?: boolean
           destacado_solicitado?: boolean
           detalle_oferta?: string | null
           direccion?: string | null

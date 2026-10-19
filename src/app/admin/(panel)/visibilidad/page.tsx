@@ -3,7 +3,11 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { InterruptorVisibilidad } from "./interruptor-visibilidad";
 import { FiltroCiudad } from "./filtro-ciudad";
 import { HistorialVisibilidad, type EntradaLogVisibilidad } from "./historial-visibilidad";
-import { TIPO_LABEL, type TipoVisibilidad } from "./tipos-visibilidad";
+import { TIPO_LABEL, TIPO_LABEL_HISTORIAL, type TipoVisibilidad } from "./tipos-visibilidad";
+import {
+  PLAZAS_DESTACADO_GENERAL,
+  PLAZAS_DESTACADO_PROVINCIA,
+} from "@/lib/visibilidad/tipos";
 import type { Clinic } from "@/lib/supabase/database.types";
 
 export const dynamic = "force-dynamic";
@@ -19,25 +23,19 @@ const COLUMNAS: {
 }[] = [
   {
     tipo: "destacado",
-    titulo: "Destacado provincia",
+    titulo: TIPO_LABEL.destacado,
     activo: (c) => c.destacado,
     solicitado: (c) => c.destacado_solicitado,
   },
   {
-    tipo: "destacado_home",
-    titulo: "Destacado Home",
-    activo: (c) => c.destacado_home,
-    solicitado: (c) => c.destacado_home_solicitado,
-  },
-  {
-    tipo: "destacado_ciudad",
-    titulo: "Destacado ciudad",
-    activo: (c) => c.destacado_ciudad,
-    solicitado: (c) => c.destacado_ciudad_solicitado,
+    tipo: "destacado_provincia",
+    titulo: "Destacado provincia",
+    activo: (c) => c.destacado_provincia,
+    solicitado: (c) => c.destacado_provincia_solicitado,
   },
   {
     tipo: "premium",
-    titulo: "Perfil ampliado",
+    titulo: TIPO_LABEL.premium,
     activo: (c) => c.plan === "premium",
     solicitado: (c) => Boolean(c.plan_solicitado),
   },
@@ -77,6 +75,14 @@ export default async function VisibilidadPage({
     return true;
   });
 
+  // Plazas ocupadas: 8 generales en total y 8 por provincia.
+  const todas = todasLasClinicas ?? [];
+  const ocupadasGeneral = todas.filter((c) => c.destacado).length;
+  const ocupadasPorProvincia = provincias.map((p) => ({
+    provincia: p,
+    ocupadas: todas.filter((c) => c.destacado_provincia && c.provincia === p).length,
+  }));
+
   const { data: logs } = await supabase
     .from("clinic_visibilidad_log")
     .select("clinic_id, tipo, accion, motivo, meses_duracion, expira_en, creado_en")
@@ -87,7 +93,7 @@ export default async function VisibilidadPage({
   for (const log of logs ?? []) {
     const lista = historialPorClinica.get(log.clinic_id) ?? [];
     lista.push({
-      tipo: log.tipo as TipoVisibilidad,
+      tipo: log.tipo,
       accion: log.accion as "alta" | "baja",
       motivo: log.motivo,
       meses_duracion: log.meses_duracion,
@@ -112,6 +118,14 @@ export default async function VisibilidadPage({
             <span className="inline-flex items-center gap-1.5">
               <span className="h-2.5 w-2.5 rounded-full bg-line" /> Inactivo
             </span>
+          </p>
+          <p className="mt-1 text-sm text-ink-soft">
+            Plazas: {TIPO_LABEL.destacado} {ocupadasGeneral}/{PLAZAS_DESTACADO_GENERAL}
+            {ocupadasPorProvincia.map((p) => (
+              <span key={p.provincia}>
+                {" · "}Provincia {p.provincia} {p.ocupadas}/{PLAZAS_DESTACADO_PROVINCIA}
+              </span>
+            ))}
           </p>
         </div>
 
@@ -185,7 +199,7 @@ export default async function VisibilidadPage({
                   <HistorialVisibilidad
                     nombreClinica={clinic.nombre}
                     entradas={historialPorClinica.get(clinic.id) ?? []}
-                    tipoLabel={TIPO_LABEL}
+                    tipoLabel={TIPO_LABEL_HISTORIAL}
                   />
                 </td>
               </tr>

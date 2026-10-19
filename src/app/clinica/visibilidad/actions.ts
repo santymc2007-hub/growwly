@@ -4,12 +4,11 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
-
-export type TipoVisibilidad =
-  | "destacado"
-  | "destacado_home"
-  | "destacado_ciudad"
-  | "premium";
+import {
+  camposDestacado,
+  plazasDestacado,
+  type TipoVisibilidad,
+} from "@/lib/visibilidad/destacados";
 
 type FechasVisibilidad = Record<
   string,
@@ -25,6 +24,9 @@ type FechasVisibilidad = Record<
  * gustaría tenerlo activo (o null = indefinido). Queda pendiente de que
  * el admin lo apruebe desde /admin/visibilidad, donde verá esta
  * duración como sugerencia (puede respetarla o cambiarla).
+ *
+ * Los destacados tienen plazas limitadas (8 generales, 8 por
+ * provincia): si no queda ninguna, no se puede pedir.
  */
 export async function solicitarVisibilidad(
   tipo: TipoVisibilidad,
@@ -35,9 +37,17 @@ export async function solicitarVisibilidad(
 
   const { data } = await supabase
     .from("clinics")
-    .select("visibilidad_fechas")
+    .select("visibilidad_fechas, provincia")
     .eq("id", clinicId)
     .maybeSingle();
+
+  if (tipo !== "premium") {
+    const plazas = await plazasDestacado(supabase, tipo, data?.provincia ?? null);
+    if (plazas.libres === 0) {
+      redirect("/clinica/visibilidad?completo=1");
+    }
+  }
+
   const fechas: FechasVisibilidad =
     data?.visibilidad_fechas &&
     typeof data.visibilidad_fechas === "object" &&
@@ -51,20 +61,10 @@ export async function solicitarVisibilidad(
       .from("clinics")
       .update({ plan_solicitado: "premium", visibilidad_fechas: fechas })
       .eq("id", clinicId);
-  } else if (tipo === "destacado") {
-    await supabase
-      .from("clinics")
-      .update({ destacado_solicitado: true, visibilidad_fechas: fechas })
-      .eq("id", clinicId);
-  } else if (tipo === "destacado_home") {
-    await supabase
-      .from("clinics")
-      .update({ destacado_home_solicitado: true, visibilidad_fechas: fechas })
-      .eq("id", clinicId);
   } else {
     await supabase
       .from("clinics")
-      .update({ destacado_ciudad_solicitado: true, visibilidad_fechas: fechas })
+      .update({ ...camposDestacado(tipo, { solicitado: true }), visibilidad_fechas: fechas })
       .eq("id", clinicId);
   }
 

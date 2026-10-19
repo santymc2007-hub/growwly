@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useTransition, type ReactNode } from "react";
-import { solicitarVisibilidad, type TipoVisibilidad } from "./actions";
+import { solicitarVisibilidad } from "./actions";
+import type { Plazas, TipoVisibilidad } from "@/lib/visibilidad/tipos";
 
 const DURACIONES: { meses: number | null; etiqueta: string }[] = [
   { meses: 1, etiqueta: "1 mes" },
@@ -28,6 +29,8 @@ type Props = {
   activo: boolean;
   pendiente: boolean;
   expiraEn?: string | null;
+  /** Solo destacados: plazas libres (si no queda ninguna, no se puede pedir). */
+  plazas?: Plazas;
 };
 
 export function TarjetaVisibilidad({
@@ -39,6 +42,7 @@ export function TarjetaVisibilidad({
   activo,
   pendiente,
   expiraEn,
+  plazas,
 }: Props) {
   const [pending, startTransition] = useTransition();
   const [eligiendoDuracion, setEligiendoDuracion] = useState(false);
@@ -87,15 +91,26 @@ export function TarjetaVisibilidad({
         <span className="mt-3 inline-block rounded-full bg-orange/15 px-3 py-1 text-xs font-medium text-orange">
           Pendiente de aprobación
         </span>
+      ) : plazas && plazas.libres === 0 ? (
+        <span className="mt-3 inline-block self-start rounded-full bg-paper-dim px-3 py-1 text-xs font-medium text-ink-soft">
+          Completo · {plazas.total} de {plazas.total} plazas ocupadas
+        </span>
       ) : (
-        <button
-          type="button"
-          disabled={pending}
-          onClick={() => setEligiendoDuracion(true)}
-          className="press mt-3 self-start rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:opacity-60"
-        >
-          Solicitar
-        </button>
+        <div className="mt-3 flex flex-wrap items-center gap-3">
+          <button
+            type="button"
+            disabled={pending}
+            onClick={() => setEligiendoDuracion(true)}
+            className="press rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-2 text-sm font-bold text-teal-dark transition hover:opacity-90 disabled:opacity-60"
+          >
+            Solicitar
+          </button>
+          {plazas && (
+            <span className="text-xs text-ink-soft">
+              Quedan {plazas.libres} de {plazas.total} plazas
+            </span>
+          )}
+        </div>
       )}
 
       {eligiendoDuracion && (
