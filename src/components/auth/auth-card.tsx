@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 
 type Variant = "clinica" | "paciente" | "admin";
@@ -15,6 +15,8 @@ type Config = {
   claim: string;
   /** Enlace al otro acceso, debajo de la tarjeta. */
   otroAcceso: { pregunta: string; texto: string; href: string } | null;
+  /** Mensaje de captación debajo de la tarjeta (en lugar del enlace). */
+  mensaje: string | null;
   /** Halo de color detrás de la foto. */
   halo: string;
 };
@@ -33,6 +35,7 @@ const VARIANTE: Record<Variant, Config> = {
       texto: "Acceso clínicas",
       href: "/clinica/login",
     },
+    mensaje: null,
     halo:
       "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-blue) 35%, transparent), transparent), radial-gradient(closest-side at 30% 30%, color-mix(in srgb, var(--color-brand-green) 45%, transparent), transparent)",
   },
@@ -44,11 +47,8 @@ const VARIANTE: Record<Variant, Config> = {
       alt: "Equipo médico con batas de Growwly",
     },
     claim: "Pacientes que ya te están buscando",
-    otroAcceso: {
-      pregunta: "¿Buscas tratamiento?",
-      texto: "Acceso clientes",
-      href: "/cuenta/login",
-    },
+    otroAcceso: null,
+    mensaje: "Gestiona tu ficha y atrae nuevos pacientes",
     halo:
       "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-green) 45%, transparent), transparent), radial-gradient(closest-side at 70% 70%, color-mix(in srgb, var(--color-brand-blue) 35%, transparent), transparent)",
   },
@@ -58,6 +58,7 @@ const VARIANTE: Record<Variant, Config> = {
     imagen: null,
     claim: "Panel de administración",
     otroAcceso: null,
+    mensaje: null,
     halo:
       "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-blue) 30%, transparent), transparent)",
   },
@@ -104,20 +105,24 @@ export function AuthCard({
         </Link>
       </header>
 
+      {/* Con foto: en escritorio la foto va grande y la tarjeta se monta
+          por encima de su lado derecho. Sin foto (admin): dos columnas. */}
       <div
-        className={`relative z-10 mx-auto grid max-w-[1200px] items-center px-6 pb-12 lg:min-h-[calc(100vh-88px)] lg:gap-12 ${
-          v.imagen ? "lg:grid-cols-[1.05fr_1fr]" : "lg:grid-cols-[0.9fr_1fr]"
+        className={`relative z-10 mx-auto max-w-[1200px] px-6 pb-12 lg:min-h-[calc(100vh-88px)] ${
+          v.imagen
+            ? "flex flex-col lg:flex-row lg:items-center lg:justify-center"
+            : "grid items-center lg:grid-cols-[0.9fr_1fr] lg:gap-12"
         }`}
       >
         {/* ── Lado visual ── */}
         {v.imagen ? (
-          <div className="relative mx-auto w-full max-w-[240px] sm:max-w-[300px] lg:max-w-[520px]">
+          <div className="relative mx-auto w-full max-w-[240px] sm:max-w-[300px] lg:mx-0 lg:w-[560px] lg:max-w-none lg:shrink-0 xl:w-[676px]">
             <div className="entra relative aspect-[1000/1084]">
               <Image
                 src={v.imagen.src}
                 alt={v.imagen.alt}
                 fill
-                sizes="(min-width: 1024px) 520px, 300px"
+                sizes="(min-width: 1024px) 676px, 300px"
                 className="object-contain"
                 priority
               />
@@ -147,7 +152,9 @@ export function AuthCard({
         {/* ── Tarjeta ── */}
         <div
           className={`relative mx-auto w-full max-w-md ${
-            v.imagen ? "-mt-14 sm:-mt-20 lg:mt-0" : "mt-6 lg:mt-0"
+            v.imagen
+              ? "z-10 -mt-14 sm:-mt-20 lg:mx-0 lg:-ml-32 lg:mt-0 lg:shrink-0"
+              : "mt-6 lg:mt-0"
           }`}
         >
           <div className="entra d1 rounded-[28px] bg-white p-6 shadow-[0_24px_60px_-24px_rgba(0,86,107,0.35)] ring-1 ring-line sm:p-9">
@@ -158,6 +165,13 @@ export function AuthCard({
             </span>
             {children}
           </div>
+
+          {v.mensaje && (
+            <p className="entra d2 mt-5 flex items-center justify-center gap-2 text-center text-sm font-semibold text-teal-dark">
+              <Sparkles className="h-4 w-4 shrink-0 text-cyan-dark" aria-hidden />
+              {v.mensaje}
+            </p>
+          )}
 
           {v.otroAcceso && (
             <p className="entra d2 mt-5 text-center text-sm text-ink-soft">
