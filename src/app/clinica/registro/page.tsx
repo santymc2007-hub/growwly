@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { AlertTriangle } from "lucide-react";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarClinica } from "./actions";
 import { RegistroClinicaForm } from "./registro-clinica-form";
@@ -93,10 +92,6 @@ export default async function RegistroClinicaPage({
           <h2 className="max-w-md font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
             Elige cómo quieres aparecer
           </h2>
-          <span className="mt-1 inline-flex items-center gap-2 rounded-lg border border-orange/40 bg-orange/10 px-3.5 py-2 text-sm text-[#8a5a00]">
-            <AlertTriangle size={16} className="shrink-0" aria-hidden />
-            Precios de ejemplo — pendientes de confirmar antes de publicar
-          </span>
         </div>
 
         <div className="mt-10">

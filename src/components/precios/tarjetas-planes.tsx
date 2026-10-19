@@ -15,7 +15,7 @@ const NO_INCLUYE_BASICO = [
 ];
 
 const INCLUYE_PREMIUM = [
-  "Reparto automático de pacientes, con mínimo garantizado",
+  "Reparto automático de pacientes",
   "Ficha completa: descripción, servicios, vídeo y fotos antes/después",
   "Equipo médico, certificados, redes sociales y reserva online",
   "Estadísticas de leads, tasa de elección y estado de cada paciente",
@@ -97,14 +97,12 @@ export function TarjetasPlanes({
           </span>
           <div className="flex items-baseline gap-2">
             <span className="font-display text-4xl font-extrabold text-white">
-              XX €
+              85 €
             </span>
             <span className="text-sm text-sage">/ mes</span>
           </div>
           <p className="text-sm leading-relaxed text-sage">
-            Pensado para llenar agenda: mínimo de 2 pacientes nuevos
-            garantizados cada mes, o seguimos trabajando tu ficha hasta
-            conseguirlo.
+            Pensado para llenar agenda.
           </p>
         </div>
 
