@@ -4,7 +4,16 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { reclamarEstudio } from "@/lib/estudios/reclamar-estudio";
 
-export async function registrarPaciente(formData: FormData) {
+export type EstadoRegistro = {
+  error?: string;
+  /** Lo que escribió (sin contraseñas), para no tener que repetirlo. */
+  valores?: { nombre: string; apellidos: string; email: string; telefono: string; edad: string };
+};
+
+export async function registrarPaciente(
+  _prev: EstadoRegistro,
+  formData: FormData,
+): Promise<EstadoRegistro> {
   const nombre = String(formData.get("nombre") ?? "").trim();
   const apellidos = String(formData.get("apellidos") ?? "").trim();
   const email = String(formData.get("email") ?? "").trim();
@@ -14,27 +23,25 @@ export async function registrarPaciente(formData: FormData) {
   const password2 = String(formData.get("password2") ?? "");
   const claim = String(formData.get("claim") ?? "").trim();
 
-  const volverConError = (msg: string) =>
-    redirect(
-      `/cuenta/registro?error=${encodeURIComponent(msg)}${
-        claim ? `&claim=${claim}` : ""
-      }`,
-    );
+  // Si algo falla, se devuelve el error con lo que había escrito: antes se
+  // redirigía y el formulario se vaciaba entero (oct 2026).
+  const valores = { nombre, apellidos, email, telefono, edad: edadRaw };
+  const conError = (msg: string): EstadoRegistro => ({ error: msg, valores });
 
   if (!nombre || !email || !password) {
-    volverConError("Nombre, email y contraseña son obligatorios.");
+    return conError("Nombre, email y contraseña son obligatorios.");
   }
 
   if (password !== password2) {
-    volverConError("Las contraseñas no coinciden.");
+    return conError("Las contraseñas no coinciden.");
   }
 
   // Growwly trata datos de salud: solo mayores de edad (auditoría oct 2026).
   if (formData.get("mayor_edad") !== "on") {
-    volverConError("Para registrarte tienes que ser mayor de 18 años.");
+    return conError("Para registrarte tienes que ser mayor de 18 años.");
   }
   if (edadRaw && (!/^\d{1,3}$/.test(edadRaw) || Number(edadRaw) < 18)) {
-    volverConError("Para registrarte tienes que ser mayor de 18 años.");
+    return conError("Para registrarte tienes que ser mayor de 18 años.");
   }
 
   const supabase = await createClient();
@@ -61,8 +68,11 @@ export async function registrarPaciente(formData: FormData) {
   });
 
   if (error) {
-    volverConError(error.message);
-    return;
+    return conError(
+      error.message.toLowerCase().includes("already registered")
+        ? "Ya hay una cuenta con este email. Inicia sesión con él."
+        : error.message,
+    );
   }
 
   // Si el proyecto tiene la confirmación por email activada (por defecto en
