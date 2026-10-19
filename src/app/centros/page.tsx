@@ -4,8 +4,7 @@ import { after } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
-import { calcularGrowwlyScore } from "@/lib/leads/growwly-score";
-import { calcularMetricasLeadsClinicas } from "@/lib/leads/metricas-clinica";
+import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import { ClinicFilters } from "@/components/clinics/clinic-filters";
 import { VistaListaMapa, VistaToggle } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
@@ -62,8 +61,6 @@ export default async function CentrosPage({
     .select("*")
     .eq("publicado", true)
     .eq("verificado_admin", true)
-    .order("destacado", { ascending: false })
-    .order("orden", { ascending: true })
     .order("nombre", { ascending: true });
   const centros = data ?? [];
 
@@ -88,28 +85,19 @@ export default async function CentrosPage({
     return true;
   });
 
-  // Mientras no haya ninguna clínica destacada (hueco premium todavía
-  // sin vender), el orden por defecto ("orden" a mano + nombre) no dice
-  // nada sobre calidad — se sustituye por el Growwly Score, que sí
-  // premia perfil completo, rapidez de respuesta y buena gestión de
-  // leads. En cuanto haya al menos una destacada, esa pasa a mandar y
-  // el resto mantiene el orden manual de siempre (no se recalcula el
-  // score de todo el listado en cada visita sin necesidad).
-  if (filtrados.length > 0 && !filtrados.some((c) => c.destacado)) {
-    const metricas = await calcularMetricasLeadsClinicas(
-      createAdminClient(),
-      filtrados.map((c) => c.id),
-    );
-    const metricasVacias = { tiempoRespuestaPromedioMinutos: null, tasaGestionLeads: null };
-    const puntuados = filtrados.map((c) => ({
-      clinic: c,
-      score: calcularGrowwlyScore(c, metricas.get(c.id) ?? metricasVacias).total,
-    }));
-    puntuados.sort(
-      (a, b) => b.score - a.score || a.clinic.nombre.localeCompare(b.clinic.nombre, "es"),
-    );
-    filtrados.splice(0, filtrados.length, ...puntuados.map((p) => p.clinic));
-  }
+  // Provincia elegida (directamente, por una ciudad suya o por el filtro
+  // Palma/pueblos): decide qué destacados van primero. Sin provincia,
+  // los generales. Ver lib/visibilidad/destacados.ts.
+  const provinciaElegida =
+    provincia ||
+    (ciudad ? centros.find((c) => c.ciudad === ciudad)?.provincia : null) ||
+    (ubicacion ? centros.find((c) => c.ciudad === "Palma")?.provincia : null) ||
+    null;
+  const { clinicas: ordenados, idsDestacados } = await ordenarConDestacados(
+    filtrados,
+    provinciaElegida,
+  );
+  filtrados.splice(0, filtrados.length, ...ordenados);
 
   // Registro propio de impresiones (para las estadísticas del centro)
   // — fuera del camino de renderizado para no retrasar la respuesta.
@@ -208,7 +196,7 @@ export default async function CentrosPage({
                   <VistaListaMapa
                     clinicas={filtrados}
                     vista={vista === "mapa" ? "mapa" : "lista"}
-                    idsDestacados={filtrados.filter((c) => c.destacado).map((c) => c.id)}
+                    idsDestacados={idsDestacados}
                   />
                   <p className="mt-6 text-xs text-ink-soft">
                     <Link href="/como-ordenamos" className="underline hover:text-teal-dark">

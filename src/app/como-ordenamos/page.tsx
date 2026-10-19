@@ -27,7 +27,7 @@ export default function ComoOrdenamosPage() {
     <LegalLayout activo="/como-ordenamos">
       <h1>Cómo ordenamos los centros</h1>
       <p>
-        <em>Última actualización: 15 de octubre de 2026.</em>
+        <em>Última actualización: 19 de octubre de 2026.</em>
       </p>
       <p>
         Growwly es gratuito para pacientes. Lo pagan los centros: algunos
@@ -46,11 +46,27 @@ export default function ComoOrdenamosPage() {
 
       <h2>Posiciones de pago: «Destacado»</h2>
       <p>
-        Un centro puede pagar para salir entre los primeros del listado
-        general, de su ciudad o en la sección «Centros destacados» de la
-        portada. Esos centros llevan siempre la etiqueta{" "}
-        <strong>«Destacado»</strong> en su tarjeta. Pagar no cambia lo que
-        dice la ficha ni las valoraciones.
+        Hay dos posiciones de pago. Los centros que las tienen llevan
+        siempre la etiqueta <strong>«Destacado»</strong> en su tarjeta.
+        Pagar no cambia lo que dice la ficha ni las valoraciones.
+      </p>
+      <ul>
+        <li>
+          <strong>Destacado general</strong> (como máximo 8 centros en toda
+          España): sale en la sección «Centros destacados» de la portada y
+          primero en el listado de centros mientras no elijas provincia.
+        </li>
+        <li>
+          <strong>Destacado de provincia</strong> (como máximo 8 centros por
+          provincia): sale primero cuando buscas en esa provincia o en una de
+          sus ciudades.
+        </li>
+      </ul>
+      <p>
+        Los demás filtros (tratamiento, tipo de centro, idioma…) solo dejan
+        fuera a los destacados que no los cumplen. Entre los destacados, el
+        orden cambia cada día, para que ninguno ocupe siempre el primer
+        puesto.
       </p>
       <p>
         Si no hay suficientes centros destacados para llenar esa sección de la
@@ -65,8 +81,9 @@ export default function ComoOrdenamosPage() {
 
       <h2>El resto del orden</h2>
       <p>
-        En el listado general, cuando no hay centros destacados, ordenamos
-        por la puntuación Growwly, que mide:
+        En todos los listados (el general, el de cada ciudad y el de cada
+        tratamiento), después de los centros destacados, ordenamos por la
+        puntuación Growwly, que mide:
       </p>
       <ul>
         <li>Ficha completa (fotos, horarios, equipo, información…): {pct(w.perfilCompleto)}.</li>
@@ -86,8 +103,7 @@ export default function ComoOrdenamosPage() {
         rapidez y gestión.
       </p>
       <p>
-        Cuando hay destacados, y en las páginas de cada ciudad, el resto de
-        centros sigue un orden fijado por Growwly. Los filtros (ciudad,
+        A igual puntuación, por orden alfabético. Los filtros (ciudad,
         técnica, idioma, financiación…) los eliges tú y solo dejan fuera los
         centros que no los cumplen.
       </p>

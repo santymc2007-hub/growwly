@@ -1,13 +1,19 @@
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  clinicaAceptoCondicionesDatos,
+  rutaCondicionesDatos,
+} from "@/lib/clinica/condiciones-datos";
 
 /**
  * Los datos de un lead (historial capilar, medicación, fotos…) son
  * datos de salud. Antes bastaba con tener el enlace del email
  * (/leads/<token>); desde oct 2026 (decisión de Santy, opción B de la
  * auditoría) además hay que haber iniciado sesión como gestor aprobado
- * de ESA clínica, o como admin.
+ * de ESA clínica, o como admin. La clínica, además, tiene que haber
+ * aceptado las condiciones sobre datos de pacientes
+ * (lib/clinica/condiciones-datos.ts).
  *
  * Va al principio de la página del lead, de la valoración y de cada
  * acción sobre el lead. Fuera de cualquier try/catch: redirect() y
@@ -48,7 +54,14 @@ export async function autorizarAccesoLead(token: string): Promise<{ clinicId: st
       .eq("profile_id", user.id)
       .eq("clinic_id", lead.clinic_id)
       .maybeSingle();
-    if (miembro) return { clinicId: lead.clinic_id };
+    if (miembro) {
+      // Antes de ver datos de pacientes, la clínica acepta ser
+      // responsable de ellos (consulta legal, oct 2026).
+      if (!(await clinicaAceptoCondicionesDatos(admin, lead.clinic_id))) {
+        redirect(rutaCondicionesDatos(lead.clinic_id, `/leads/${token}`));
+      }
+      return { clinicId: lead.clinic_id };
+    }
   }
 
   redirect(

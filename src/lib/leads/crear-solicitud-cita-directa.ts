@@ -5,6 +5,7 @@ import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { clinicaEstaRegistrada } from "@/lib/clinica/registrada";
 import { destinatariosLeads } from "@/lib/clinica/emails-leads";
+import { clinicaAceptoCondicionesDatos } from "@/lib/clinica/condiciones-datos";
 
 export type ResultadoSolicitudDirecta = { ok: true } | { ok: false; error: string };
 
@@ -83,8 +84,20 @@ export async function crearSolicitudCitaDirecta(
       const registrada = await clinicaEstaRegistrada(supabaseAdmin, clinicId);
       const esPremium = clinica.plan === "premium";
 
+      // Una clínica de pago que aún no ha aceptado las condiciones sobre
+      // datos de pacientes recibe el aviso sin datos: los verá en su
+      // panel después de aceptarlas.
+      const aceptoCondiciones =
+        esPremium && (await clinicaAceptoCondicionesDatos(supabaseAdmin, clinicId));
+
       try {
-        if (esPremium) {
+        if (esPremium && !aceptoCondiciones) {
+          await enviarEmail({
+            to: para,
+            subject: "Tienes una petición de cita en Growwly",
+            html: construirHtmlSinDatos({ clinicaNombre: clinica.nombre }),
+          });
+        } else if (esPremium) {
           await enviarEmail({
             to: para,
             subject: `Nueva petición de cita en Growwly — ${nombre}`,
@@ -165,6 +178,23 @@ function construirHtmlBloqueada(datos: { clinicaNombre: string }): string {
       </p>
       <p style="font-size: 12px; color: #66756f; margin-top: 24px;">
         Si no actualizas el plan no pasa nada — pero ni esta solicitud ni las que lleguen después las podrás ver mientras la ficha esté en el plan básico.
+      </p>
+    </div>
+  `;
+}
+
+function construirHtmlSinDatos(datos: { clinicaNombre: string }): string {
+  const enlace = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/clinica/solicitudes`;
+  return `
+    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
+      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
+      <h1 style="font-size: 20px; color: #00566b;">Tienes una petición de cita</h1>
+      <p>Hola ${esc(datos.clinicaNombre)},</p>
+      <p>Alguien ha pedido cita directamente desde tu ficha en Growwly. Para ver sus datos, entra en tu panel y acepta antes las condiciones sobre datos de pacientes (solo se piden una vez).</p>
+      <p style="margin-top: 24px;">
+        <a href="${enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
+          Ver la petición →
+        </a>
       </p>
     </div>
   `;

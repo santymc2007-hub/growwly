@@ -225,6 +225,9 @@ export type Database = {
         Row: {
           alta_email: string | null
           clinic_id: string
+          condiciones_datos_en: string | null
+          condiciones_datos_por: string | null
+          condiciones_datos_version: string | null
           datos_facturacion: Json | null
           emails_leads: string[]
           updated_at: string
@@ -232,6 +235,9 @@ export type Database = {
         Insert: {
           alta_email?: string | null
           clinic_id: string
+          condiciones_datos_en?: string | null
+          condiciones_datos_por?: string | null
+          condiciones_datos_version?: string | null
           datos_facturacion?: Json | null
           emails_leads?: string[]
           updated_at?: string
@@ -239,6 +245,9 @@ export type Database = {
         Update: {
           alta_email?: string | null
           clinic_id?: string
+          condiciones_datos_en?: string | null
+          condiciones_datos_por?: string | null
+          condiciones_datos_version?: string | null
           datos_facturacion?: Json | null
           emails_leads?: string[]
           updated_at?: string
@@ -311,6 +320,8 @@ export type Database = {
           destacado_ciudad_solicitado: boolean
           destacado_home: boolean
           destacado_home_solicitado: boolean
+          destacado_provincia: boolean
+          destacado_provincia_solicitado: boolean
           destacado_solicitado: boolean
           detalle_oferta: string | null
           direccion: string | null
@@ -381,6 +392,8 @@ export type Database = {
           destacado_ciudad_solicitado?: boolean
           destacado_home?: boolean
           destacado_home_solicitado?: boolean
+          destacado_provincia?: boolean
+          destacado_provincia_solicitado?: boolean
           destacado_solicitado?: boolean
           detalle_oferta?: string | null
           direccion?: string | null
@@ -451,6 +464,8 @@ export type Database = {
           destacado_ciudad_solicitado?: boolean
           destacado_home?: boolean
           destacado_home_solicitado?: boolean
+          destacado_provincia?: boolean
+          destacado_provincia_solicitado?: boolean
           destacado_solicitado?: boolean
           detalle_oferta?: string | null
           direccion?: string | null

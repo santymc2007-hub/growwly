@@ -15,6 +15,7 @@ import { ClinicCard } from "@/components/clinics/clinic-card";
 import { NavTratamientos } from "@/components/tratamientos/nav-tratamientos";
 import { ContenidoEnriquecido } from "@/components/contenido-enriquecido";
 import type { Clinic } from "@/lib/supabase/database.types";
+import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 
 type Params = { slug: string };
 
@@ -78,9 +79,6 @@ export default async function TratamientoPage({
           .select("*")
           .eq("publicado", true)
           .contains("tecnicas", [tratamiento.tecnica_relacionada])
-          .order("destacado", { ascending: false })
-          .order("orden", { ascending: true })
-          .limit(6)
       : Promise.resolve({ data: [] as Clinic[] }),
     // Para el nav de "todos los tratamientos" del sidebar.
     supabase
@@ -90,7 +88,13 @@ export default async function TratamientoPage({
       .order("nombre", { ascending: true }),
   ]);
 
-  const clinicasConTecnica = clinicasData ?? [];
+  // Sin provincia elegida: primero los destacados generales que
+  // ofrecen esta técnica, el resto por Growwly Score; se muestran 6.
+  const { clinicas: ordenadasTecnica, idsDestacados } = await ordenarConDestacados(
+    clinicasData ?? [],
+    null,
+  );
+  const clinicasConTecnica = ordenadasTecnica.slice(0, 6);
 
   after(async () => {
     await registrarImpresionesListado(
@@ -281,7 +285,7 @@ export default async function TratamientoPage({
                 </h2>
                 <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {clinicasConTecnica.map((c) => (
-                    <ClinicCard key={c.id} clinic={c} destacado={c.destacado} />
+                    <ClinicCard key={c.id} clinic={c} destacado={idsDestacados.includes(c.id)} />
                   ))}
                 </div>
                 {tratamiento.tecnica_relacionada && (

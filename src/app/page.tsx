@@ -8,7 +8,7 @@ import "@fontsource/caveat/700.css";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
-import { PLAZAS_PORTADA, seleccionarPortada } from "@/lib/clinica/seleccion-portada";
+import { seleccionarPortada } from "@/lib/clinica/seleccion-portada";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
@@ -59,11 +59,8 @@ export default async function HomePage() {
         .select("*")
         .eq("publicado", true)
         .eq("verificado_admin", true)
-        .or("destacado.eq.true,destacado_home.eq.true")
-        .order("destacado_home", { ascending: false })
-        .order("destacado", { ascending: false })
-        .order("orden", { ascending: true })
-        .limit(PLAZAS_PORTADA),
+        // Destacado general (8 plazas): ver lib/visibilidad/destacados.ts.
+        .eq("destacado", true),
       // Para rellenar la portada mientras no haya suficientes centros
       // de pago: se sortean por día entre todos los verificados.
       supabase

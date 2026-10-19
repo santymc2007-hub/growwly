@@ -1,10 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import type { TipoVisibilidad } from "./tipos-visibilidad";
-
 export type EntradaLogVisibilidad = {
-  tipo: TipoVisibilidad;
+  /** Incluye tipos antiguos (destacado_home, destacado_ciudad) del historial. */
+  tipo: string;
   accion: "alta" | "baja";
   motivo: string;
   meses_duracion: number | null;
@@ -49,7 +48,7 @@ export function HistorialVisibilidad({
 }: {
   nombreClinica: string;
   entradas: EntradaLogVisibilidad[];
-  tipoLabel: Record<TipoVisibilidad, string>;
+  tipoLabel: Record<string, string>;
 }) {
   const [abierto, setAbierto] = useState(false);
 
@@ -68,7 +67,7 @@ export function HistorialVisibilidad({
   // tipoLabel se construye desde TIPO_LABEL) para que el historial de
   // una clínica con varios destacados activados no mezcle las altas y
   // bajas de todos en una única lista — cada tipo con su propio bloque.
-  const tiposOrdenados = Object.keys(tipoLabel) as TipoVisibilidad[];
+  const tiposOrdenados = Object.keys(tipoLabel);
   const gruposPorTipo = tiposOrdenados
     .map((tipo) => ({
       tipo,

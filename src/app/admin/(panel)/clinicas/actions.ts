@@ -10,7 +10,8 @@ import type { Database, Json } from "@/lib/supabase/database.types";
 import { tipoNegocioValido } from "@/lib/clinic-options";
 import { limpiarDescripcion } from "@/lib/clinica/descripcion";
 
-// plan/destacado/destacado_home/destacado_ciudad se excluyen a propósito:
+// plan/destacado/destacado_provincia (y los antiguos destacado_home/
+// destacado_ciudad) se excluyen a propósito:
 // ahora se gestionan en exclusiva desde las acciones de Visibilidad
 // (activarVisibilidad/desactivarVisibilidad en ../visibilidad/actions),
 // nunca desde este formulario — si se incluyeran aquí, cada guardado de
@@ -29,6 +30,7 @@ type ClinicWrite = Omit<
   | "destacado"
   | "destacado_home"
   | "destacado_ciudad"
+  | "destacado_provincia"
   | "rating_google"
   | "resenas_google"
 >;

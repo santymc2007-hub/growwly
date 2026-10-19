@@ -5,7 +5,13 @@ import { revalidatePath } from "next/cache";
 import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
-import { TIPO_LABEL, BENEFICIO_LABEL, type TipoVisibilidad } from "./tipos-visibilidad";
+import {
+  TIPO_LABEL,
+  BENEFICIO_LABEL,
+  camposDestacado,
+  plazasDestacado,
+  type TipoVisibilidad,
+} from "@/lib/visibilidad/destacados";
 import { esc } from "@/lib/email/escapar";
 
 type FechasVisibilidad = Record<
@@ -178,24 +184,32 @@ export async function activarVisibilidad(
       .from("clinics")
       .update({ ...camposBase, plan: "premium", plan_solicitado: null })
       .eq("id", clinicId));
-  } else if (tipo === "destacado") {
-    ({ error: errorUpdate } = await supabase
-      .from("clinics")
-      .update({ ...camposBase, destacado: true, destacado_solicitado: false })
-      .eq("id", clinicId));
-  } else if (tipo === "destacado_home") {
-    ({ error: errorUpdate } = await supabase
-      .from("clinics")
-      .update({ ...camposBase, destacado_home: true, destacado_home_solicitado: false })
-      .eq("id", clinicId));
   } else {
+    // Plazas limitadas: 8 generales en total y 8 por provincia. Si ya
+    // están todas ocupadas, no se activa (ver lib/visibilidad/destacados.ts).
+    const { data: actual } = await supabase
+      .from("clinics")
+      .select("provincia, destacado, destacado_provincia")
+      .eq("id", clinicId)
+      .maybeSingle();
+    const yaActivo = actual
+      ? tipo === "destacado"
+        ? actual.destacado
+        : actual.destacado_provincia
+      : false;
+    if (!yaActivo) {
+      const plazas = await plazasDestacado(supabase, tipo, actual?.provincia ?? null);
+      if (plazas.libres === 0) {
+        throw new Error(
+          `No quedan plazas de "${TIPO_LABEL[tipo]}"${
+            tipo === "destacado_provincia" ? ` en ${actual?.provincia ?? "esta provincia"}` : ""
+          }: ${plazas.ocupadas} de ${plazas.total} ocupadas.`,
+        );
+      }
+    }
     ({ error: errorUpdate } = await supabase
       .from("clinics")
-      .update({
-        ...camposBase,
-        destacado_ciudad: true,
-        destacado_ciudad_solicitado: false,
-      })
+      .update({ ...camposBase, ...camposDestacado(tipo, { activo: true, solicitado: false }) })
       .eq("id", clinicId));
   }
   // Antes no se comprobaba el error de este update: si fallaba (p. ej.
@@ -269,24 +283,10 @@ export async function desactivarVisibilidad(
       .from("clinics")
       .update({ ...camposBase, plan: "basico", plan_solicitado: null })
       .eq("id", clinicId));
-  } else if (tipo === "destacado") {
-    ({ error: errorUpdate } = await supabase
-      .from("clinics")
-      .update({ ...camposBase, destacado: false, destacado_solicitado: false })
-      .eq("id", clinicId));
-  } else if (tipo === "destacado_home") {
-    ({ error: errorUpdate } = await supabase
-      .from("clinics")
-      .update({ ...camposBase, destacado_home: false, destacado_home_solicitado: false })
-      .eq("id", clinicId));
   } else {
     ({ error: errorUpdate } = await supabase
       .from("clinics")
-      .update({
-        ...camposBase,
-        destacado_ciudad: false,
-        destacado_ciudad_solicitado: false,
-      })
+      .update({ ...camposBase, ...camposDestacado(tipo, { activo: false, solicitado: false }) })
       .eq("id", clinicId));
   }
   if (errorUpdate) {
@@ -319,20 +319,10 @@ export async function rechazarVisibilidad(
       .from("clinics")
       .update({ plan_solicitado: null })
       .eq("id", clinicId));
-  } else if (tipo === "destacado") {
-    ({ error: errorUpdate } = await supabase
-      .from("clinics")
-      .update({ destacado_solicitado: false })
-      .eq("id", clinicId));
-  } else if (tipo === "destacado_home") {
-    ({ error: errorUpdate } = await supabase
-      .from("clinics")
-      .update({ destacado_home_solicitado: false })
-      .eq("id", clinicId));
   } else {
     ({ error: errorUpdate } = await supabase
       .from("clinics")
-      .update({ destacado_ciudad_solicitado: false })
+      .update(camposDestacado(tipo, { solicitado: false }))
       .eq("id", clinicId));
   }
   if (errorUpdate) {
