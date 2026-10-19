@@ -10,6 +10,7 @@ import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { TarjetasPlanes } from "@/components/precios/tarjetas-planes";
+import { PRECIO_MENSUAL } from "@/lib/visibilidad/tipos";
 
 export const metadata: Metadata = {
   title: "Planes y precios para centros",
@@ -62,10 +63,13 @@ export default function PreciosPage() {
                   ¿Y los extras de Visibilidad?
                 </p>
                 <p className="text-sm leading-relaxed text-ink-soft">
-                  El Destacado general (portada y listado, 8 plazas en toda
-                  España) y el Destacado de provincia (8 plazas por
-                  provincia) se activan aparte, por el tiempo que elijas, y
-                  están disponibles tanto en Básico como en Premium.
+                  <strong className="text-ink">Destacado general</strong>{" "}
+                  (portada y listado, 8 plazas en toda España):{" "}
+                  {PRECIO_MENSUAL.destacado} €/mes.{" "}
+                  <strong className="text-ink">Destacado de provincia</strong>{" "}
+                  (8 plazas por provincia): {PRECIO_MENSUAL.destacado_provincia} €/mes.
+                  Se activan aparte, por el tiempo que elijas, y están
+                  disponibles tanto en Básico como en Premium.
                 </p>
               </div>
               <Link

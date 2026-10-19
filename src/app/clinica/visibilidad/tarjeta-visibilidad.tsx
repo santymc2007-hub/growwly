@@ -2,7 +2,12 @@
 
 import { useState, useTransition, type ReactNode } from "react";
 import { solicitarVisibilidad } from "./actions";
-import type { Plazas, TipoVisibilidad } from "@/lib/visibilidad/tipos";
+import {
+  DESCUENTO_POR_MESES,
+  PRECIO_MENSUAL,
+  type Plazas,
+  type TipoVisibilidad,
+} from "@/lib/visibilidad/tipos";
 
 const DURACIONES: { meses: number | null; etiqueta: string }[] = [
   { meses: 1, etiqueta: "1 mes" },
@@ -70,6 +75,9 @@ export function TarjetaVisibilidad({
         </span>
         <div>
           <p className="font-display text-base text-teal-dark">{titulo}</p>
+          <p className="text-sm font-semibold text-ink">
+            {PRECIO_MENSUAL[tipo]} €<span className="font-normal text-ink-soft"> / mes</span>
+          </p>
           <p className="mt-1 text-sm text-ink-soft">{descripcion}</p>
         </div>
       </div>
@@ -126,6 +134,11 @@ export function TarjetaVisibilidad({
               className="block w-full rounded-lg px-2 py-1.5 text-left text-sm text-ink hover:bg-sage/40"
             >
               {d.etiqueta}
+              {d.meses && DESCUENTO_POR_MESES[d.meses] ? (
+                <span className="ml-1 text-xs font-medium text-teal">
+                  −{DESCUENTO_POR_MESES[d.meses]} %
+                </span>
+              ) : null}
             </button>
           ))}
           <button

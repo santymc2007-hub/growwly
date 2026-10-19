@@ -26,6 +26,16 @@ export type TipoDestacado = Exclude<TipoVisibilidad, "premium">;
 
 export type Plazas = { ocupadas: number; total: number; libres: number };
 
+/** Precio mensual (decisión de Santy, 19 oct 2026). */
+export const PRECIO_MENSUAL: Record<TipoVisibilidad, number> = {
+  destacado: 49,
+  destacado_provincia: 60,
+  premium: 85,
+};
+
+/** Descuento por contratar varios meses seguidos (modelo de precios v4). */
+export const DESCUENTO_POR_MESES: Record<number, number> = { 3: 5, 6: 15, 12: 20 };
+
 // Textos que ven la clínica (panel) y el admin, y que van en el email de
 // activación.
 export const TIPO_LABEL: Record<TipoVisibilidad, string> = {

@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Check, X } from "lucide-react";
+import { PRECIO_MENSUAL } from "@/lib/visibilidad/tipos";
 
 const INCLUYE_BASICO = [
   "Ficha en el directorio de Growwly",
@@ -97,7 +98,7 @@ export function TarjetasPlanes({
           </span>
           <div className="flex items-baseline gap-2">
             <span className="font-display text-4xl font-extrabold text-white">
-              85 €
+              {PRECIO_MENSUAL.premium} €
             </span>
             <span className="text-sm text-sage">/ mes</span>
           </div>
