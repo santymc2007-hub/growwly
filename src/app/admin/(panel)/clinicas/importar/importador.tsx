@@ -17,6 +17,7 @@ import type {
 } from "@/lib/importador/tipos";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 import { analizarClinica, guardarImportacion } from "./actions";
+import { descripcionTextoPlano } from "@/lib/clinica/descripcion-texto";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
@@ -351,14 +352,14 @@ function Revision({
           </Campo>
           <Campo
             etiqueta="Descripción"
-            actual={clinica?.descripcion}
+            actual={descripcionTextoPlano(clinica?.descripcion) || null}
             minLength={DESCRIPCION_MIN_CARACTERES}
             className="sm:col-span-2"
           >
             <textarea
               name="descripcion"
               rows={3}
-              defaultValue={web?.descripcion ?? clinica?.descripcion ?? ""}
+              defaultValue={web?.descripcion ?? descripcionTextoPlano(clinica?.descripcion)}
               className={inputClass}
             />
           </Campo>

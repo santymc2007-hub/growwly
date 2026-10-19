@@ -18,6 +18,7 @@ import type {
   ResultadoAnalisis,
 } from "@/lib/importador/tipos";
 import type { Database } from "@/lib/supabase/database.types";
+import { descripcionTextoPlano } from "@/lib/clinica/descripcion-texto";
 
 type ClinicUpdate = Database["public"]["Tables"]["clinics"]["Update"];
 
@@ -321,7 +322,7 @@ export async function guardarImportacion(
         // nunca se tocan.
         const yaCompleto =
           clave === "descripcion" && typeof valorActual === "string"
-            ? valorActual.trim().length >= DESCRIPCION_MIN_CARACTERES
+            ? descripcionTextoPlano(valorActual).length >= DESCRIPCION_MIN_CARACTERES
             : !vacio(valorActual);
         if (!yaCompleto) (cambios as Record<string, unknown>)[clave] = valor;
       }

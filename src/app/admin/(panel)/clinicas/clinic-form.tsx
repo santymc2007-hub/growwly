@@ -21,6 +21,7 @@ import { InterruptorVisibilidad } from "../visibilidad/interruptor-visibilidad";
 import { TIPO_LABEL, type TipoVisibilidad } from "../visibilidad/tipos-visibilidad";
 import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
+import { EditorDescripcion } from "@/components/clinica/editor-descripcion";
 
 // Las mismas 4 palancas que ve el admin en /admin/visibilidad — se
 // reutilizan aquí para que activar/desactivar desde la ficha de la
@@ -231,16 +232,8 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
           </div>
           <CampoSlug slugInicial={clinic?.slug} />
           <div>
-            <label className={labelClass} htmlFor="descripcion">
-              Descripción
-            </label>
-            <textarea
-              id="descripcion"
-              name="descripcion"
-              rows={3}
-              defaultValue={clinic?.descripcion ?? undefined}
-              className={inputClass}
-            />
+            <p className={labelClass}>Descripción</p>
+            <EditorDescripcion name="descripcion" defaultValue={clinic?.descripcion} />
           </div>
         </div>
       </section>
