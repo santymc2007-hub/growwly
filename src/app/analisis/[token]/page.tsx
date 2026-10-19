@@ -30,14 +30,21 @@ function adelantoDeInforme(informe: unknown): { etiqueta: string; valor: string 
 
 // Lo que queda desenfocado: solo los títulos de lo que trae la
 // valoración completa, sin valores (no se inventa nada que no sea suyo).
-const BLOQUEADO = [
-  "Unidades foliculares",
-  "Tratamiento que más encaja",
-  "Alternativas",
-  "Qué esperar",
-  "Sugerencias para ti",
-  "Próximos pasos",
-];
+// Growwly cubre cualquier problema capilar: las unidades foliculares solo
+// aparecen cuando el caso apunta a injerto.
+function bloqueadoDeInforme(informe: unknown): string[] {
+  const ia = informe as InformeCapilar | null;
+  const injerto =
+    ia?.flujo === "alopecia_androgenetica_masculina" && ia.candidato_injerto !== "no";
+  return [
+    "Qué significa en tu caso",
+    "Tratamientos que encajan contigo",
+    ...(injerto ? ["Unidades foliculares estimadas"] : []),
+    "Qué esperar",
+    "Sugerencias para ti",
+    "Próximos pasos",
+  ];
+}
 
 export default async function AnalisisPendientePage({
   params,
@@ -64,6 +71,7 @@ export default async function AnalisisPendientePage({
   }
 
   const adelanto = adelantoDeInforme(estudio.informe);
+  const bloqueado = bloqueadoDeInforme(estudio.informe);
 
   return (
     <main className="relative flex-1">
@@ -76,9 +84,9 @@ export default async function AnalisisPendientePage({
           {estudio.estado === "listo" ? (
             <>
               <div className="grid items-center md:grid-cols-[1fr_1.1fr]">
-                <div className="px-6 pb-2 pt-6 sm:px-10 sm:pt-12 md:py-14">
+                <div className="px-6 pb-2 pt-8 sm:px-10 sm:pt-12 md:py-14">
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-sage px-4 py-1.5 text-sm font-medium text-sage-ink">
-                    ✓ ¡Enhorabuena! Tu análisis está listo
+                    ✓ ¡Enhorabuena! Tu valoración está lista
                   </span>
                   <h1 className="mt-4 max-w-md font-display text-3xl font-extrabold text-teal-dark sm:text-4xl">
                     Crea una cuenta totalmente{" "}
@@ -91,7 +99,7 @@ export default async function AnalisisPendientePage({
                   </p>
                 </div>
 
-                <div className="relative order-first aspect-[917/608] w-full md:order-none">
+                <div className="relative hidden aspect-[917/608] w-full md:block">
                   <Image
                     src="/analisis/pareja-celebrando.webp"
                     alt=""
@@ -103,24 +111,41 @@ export default async function AnalisisPendientePage({
                 </div>
               </div>
 
-              <div className="flex flex-col gap-8 px-6 pb-8 pt-6 sm:px-10 lg:flex-row lg:items-start">
-                <section aria-label="Adelanto de tu valoración" className="flex min-w-0 flex-1 flex-col gap-4">
-                  {adelanto.length > 0 && (
-                    <div className="grid gap-3 sm:grid-cols-2">
-                      {adelanto.map((fila) => (
-                        <div key={fila.etiqueta} className="flex flex-col gap-1 rounded-2xl border border-line px-5 py-4">
-                          <span className="text-[13px] text-ink-soft">{fila.etiqueta}</span>
-                          <span className="font-display text-xl font-extrabold text-teal-dark sm:text-2xl">
-                            {fila.valor}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
+              {/* Móvil: adelanto → formulario → lo bloqueado (el formulario
+                  queda arriba). Escritorio: adelanto y bloqueado a la
+                  izquierda, formulario a la derecha. */}
+              <div className="flex flex-col gap-6 px-6 pb-8 pt-4 sm:px-10 lg:grid lg:grid-cols-[minmax(0,1fr)_400px] lg:grid-rows-[auto_1fr] lg:gap-x-8 lg:gap-y-4 lg:pt-6">
+                {adelanto.length > 0 && (
+                  <div className="grid grid-cols-2 gap-2.5 lg:col-start-1 lg:row-start-1 lg:gap-3">
+                    {adelanto.map((fila) => (
+                      <div key={fila.etiqueta} className="flex flex-col gap-0.5 rounded-xl border border-line px-3.5 py-2.5 sm:px-4 sm:py-3">
+                        <span className="text-xs text-ink-soft">{fila.etiqueta}</span>
+                        <span className="text-sm font-semibold leading-snug text-teal-dark sm:text-base">
+                          {fila.valor}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                )}
 
+                <section aria-label="Crea tu cuenta" className="rounded-3xl bg-paper-dim p-6 sm:p-7 lg:col-start-2 lg:row-span-2 lg:row-start-1 lg:self-start">
+                  <DesbloquearValoracion
+                    token={token}
+                    emailInicial={estudio.email_contacto}
+                    nombreInicial={estudio.nombre_contacto}
+                  />
+                  <p className="mt-4 text-center text-sm text-ink-soft">
+                    ¿Ya tienes cuenta?{" "}
+                    <Link href={`/cuenta/login?claim=${token}`} className="font-medium text-cyan-dark hover:text-teal-dark">
+                      Inicia sesión
+                    </Link>
+                  </p>
+                </section>
+
+                <section aria-label="Lo que incluye tu valoración completa" className="flex min-w-0 flex-col gap-3 lg:col-start-1 lg:row-start-2">
                   <div className="relative overflow-hidden rounded-2xl bg-paper-dim">
                     <div aria-hidden className="grid select-none gap-x-8 gap-y-4 p-5 blur-[5px] sm:grid-cols-2 sm:p-6">
-                      {BLOQUEADO.map((titulo) => (
+                      {bloqueado.map((titulo) => (
                         <div key={titulo} className="flex items-center justify-between gap-4">
                           <span className="text-sm">{titulo}</span>
                           <span className="h-3 w-20 rounded-full bg-teal-dark/40" />
@@ -133,27 +158,13 @@ export default async function AnalisisPendientePage({
                           <rect x="4" y="11" width="16" height="10" rx="2" />
                           <path d="M8 11V7a4 4 0 0 1 8 0v4" />
                         </svg>
-                        Unidades, tratamientos y sugerencias
+                        Tratamientos, qué esperar y sugerencias
                       </span>
                     </div>
                   </div>
 
                   <p className="text-xs leading-relaxed text-ink-soft sm:text-[13px]">
                     Valoración orientativa con IA a partir de tus fotos. No es un diagnóstico médico.
-                  </p>
-                </section>
-
-                <section aria-label="Crea tu cuenta" className="rounded-3xl bg-paper-dim p-6 sm:p-7 lg:w-[400px] lg:shrink-0">
-                  <DesbloquearValoracion
-                    token={token}
-                    emailInicial={estudio.email_contacto}
-                    nombreInicial={estudio.nombre_contacto}
-                  />
-                  <p className="mt-4 text-center text-sm text-ink-soft">
-                    ¿Ya tienes cuenta?{" "}
-                    <Link href={`/cuenta/login?claim=${token}`} className="font-medium text-cyan-dark hover:text-teal-dark">
-                      Inicia sesión
-                    </Link>
                   </p>
                 </section>
               </div>
