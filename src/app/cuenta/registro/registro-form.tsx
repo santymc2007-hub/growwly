@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from "react";
 import { registrarPaciente, type EstadoRegistro } from "./actions";
+import { authBoton, authInput, authLabel } from "@/components/auth/estilos";
 
 /**
  * Formulario de registro de pacientes. Si algo falla (p. ej. las
@@ -31,7 +32,7 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
           {claim && <input type="hidden" name="claim" value={claim} />}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label htmlFor="nombre" className="text-sm font-medium text-ink">
+              <label htmlFor="nombre" className={authLabel}>
                 Nombre
               </label>
               <input
@@ -39,13 +40,13 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
                 name="nombre"
                 defaultValue={v?.nombre}
                 required
-                className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+                className={authInput}
               />
             </div>
             <div>
               <label
                 htmlFor="apellidos"
-                className="text-sm font-medium text-ink"
+                className={authLabel}
               >
                 Apellidos
               </label>
@@ -53,13 +54,13 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
                 id="apellidos"
                 name="apellidos"
                 defaultValue={v?.apellidos}
-                className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+                className={authInput}
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="text-sm font-medium text-ink">
+            <label htmlFor="email" className={authLabel}>
               Email
             </label>
             <input
@@ -69,7 +70,7 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
               type="email"
               required
               autoComplete="email"
-              className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+              className={authInput}
             />
           </div>
 
@@ -77,7 +78,7 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
             <div>
               <label
                 htmlFor="telefono"
-                className="text-sm font-medium text-ink"
+                className={authLabel}
               >
                 Teléfono
               </label>
@@ -85,11 +86,11 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
                 id="telefono"
                 name="telefono"
                 defaultValue={v?.telefono}
-                className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+                className={authInput}
               />
             </div>
             <div>
-              <label htmlFor="edad" className="text-sm font-medium text-ink">
+              <label htmlFor="edad" className={authLabel}>
                 Edad
               </label>
               <input
@@ -99,13 +100,13 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
                 type="number"
                 min="18"
                 max="100"
-                className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+                className={authInput}
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="text-sm font-medium text-ink">
+            <label htmlFor="password" className={authLabel}>
               Contraseña
             </label>
             <input
@@ -114,12 +115,12 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
               type="password"
               required
               autoComplete="new-password"
-              className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+              className={authInput}
             />
           </div>
 
           <div>
-            <label htmlFor="password2" className="text-sm font-medium text-ink">
+            <label htmlFor="password2" className={authLabel}>
               Repite la contraseña
             </label>
             <input
@@ -128,7 +129,7 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
               type="password"
               required
               autoComplete="new-password"
-              className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+              className={authInput}
             />
           </div>
 
@@ -138,7 +139,7 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
               name="mayor_edad"
               defaultChecked={Boolean(v)}
               required
-              className="mt-0.5 h-4 w-4 shrink-0 accent-teal"
+              className="mt-0.5 h-5 w-5 shrink-0 accent-teal"
             />
             <span>Soy mayor de 18 años</span>
           </label>
@@ -152,7 +153,7 @@ export function RegistroForm({ claim, errorInicial }: { claim?: string; errorIni
           <button
             type="submit"
             disabled={pendiente}
-            className="mt-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper transition hover:bg-teal-dark disabled:opacity-60"
+            className={authBoton}
           >
             {pendiente ? "Creando cuenta…" : "Crear cuenta"}
           </button>

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { BotonGoogle } from "@/components/auth/boton-google";
 import { RegistroForm } from "./registro-form";
 import { AuthCard } from "@/components/auth/auth-card";
+import { authEnlace, authTitulo } from "@/components/auth/estilos";
 
 type SearchParams = { error?: string; claim?: string };
 
@@ -14,7 +15,7 @@ export default async function RegistroPage({
 
   return (
     <AuthCard variant="paciente">
-      <h1 className="mt-2 font-display text-2xl text-teal-dark">
+      <h1 className={authTitulo}>
         Crea tu cuenta
       </h1>
       <p className="mt-1 text-sm text-ink-soft">
@@ -31,7 +32,7 @@ export default async function RegistroPage({
         ¿Ya tienes cuenta?{" "}
         <Link
           href={claim ? `/cuenta/login?claim=${claim}` : "/cuenta/login"}
-          className="font-medium text-cyan hover:text-cyan-dark"
+          className={authEnlace}
         >
           Inicia sesión
         </Link>
