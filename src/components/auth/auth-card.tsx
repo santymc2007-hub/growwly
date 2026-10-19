@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Sparkles } from "lucide-react";
+import { ArrowLeft, Sparkles } from "lucide-react";
 import type { ReactNode } from "react";
 
 type Variant = "clinica" | "paciente" | "admin";
@@ -13,9 +13,7 @@ type Config = {
   imagen: { src: string; alt: string } | null;
   /** Rótulo que acompaña a la foto en escritorio. */
   claim: string;
-  /** Enlace al otro acceso, debajo de la tarjeta. */
-  otroAcceso: { pregunta: string; texto: string; href: string } | null;
-  /** Mensaje de captación debajo de la tarjeta (en lugar del enlace). */
+  /** Mensaje de captación debajo de la tarjeta. */
   mensaje: string | null;
   /** Halo de color detrás de la foto. */
   halo: string;
@@ -30,12 +28,7 @@ const VARIANTE: Record<Variant, Config> = {
       alt: "Chica sonriendo con el pelo rizado",
     },
     claim: "Tu pelo en buenas manos",
-    otroAcceso: {
-      pregunta: "¿Tienes una clínica?",
-      texto: "Acceso clínicas",
-      href: "/clinica/login",
-    },
-    mensaje: null,
+    mensaje: "Pide presupuesto a clínicas sin moverte de casa",
     halo:
       "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-blue) 35%, transparent), transparent), radial-gradient(closest-side at 30% 30%, color-mix(in srgb, var(--color-brand-green) 45%, transparent), transparent)",
   },
@@ -47,7 +40,6 @@ const VARIANTE: Record<Variant, Config> = {
       alt: "Equipo médico con batas de Growwly",
     },
     claim: "Pacientes que ya te están buscando",
-    otroAcceso: null,
     mensaje: "Gestiona tu ficha y atrae nuevos pacientes",
     halo:
       "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-green) 45%, transparent), transparent), radial-gradient(closest-side at 70% 70%, color-mix(in srgb, var(--color-brand-blue) 35%, transparent), transparent)",
@@ -57,7 +49,6 @@ const VARIANTE: Record<Variant, Config> = {
     chip: "bg-ink text-white",
     imagen: null,
     claim: "Panel de administración",
-    otroAcceso: null,
     mensaje: null,
     halo:
       "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-blue) 30%, transparent), transparent)",
@@ -170,19 +161,6 @@ export function AuthCard({
             <p className="entra d2 mt-5 flex items-center justify-center gap-2 text-center text-sm font-semibold text-teal-dark">
               <Sparkles className="h-4 w-4 shrink-0 text-cyan-dark" aria-hidden />
               {v.mensaje}
-            </p>
-          )}
-
-          {v.otroAcceso && (
-            <p className="entra d2 mt-5 text-center text-sm text-ink-soft">
-              {v.otroAcceso.pregunta}{" "}
-              <Link
-                href={v.otroAcceso.href}
-                className="inline-flex items-center gap-1 font-semibold text-teal-dark hover:underline"
-              >
-                {v.otroAcceso.texto}
-                <ArrowRight className="h-3.5 w-3.5" aria-hidden />
-              </Link>
             </p>
           )}
         </div>
