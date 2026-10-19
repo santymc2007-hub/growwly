@@ -71,45 +71,82 @@ export function provinciaDesdeSlug(slug: string): string | null {
   return PROVINCIAS_ESPANA.find((p) => slugifyProvincia(p) === slug) ?? null;
 }
 
-export const TIPOS_NEGOCIO = [
-  "Clínica capilar",
-  "Clínica de tricología",
-  "Clínica estética",
-  "Clínica médica / hospital",
-  "Centro de injertos capilares",
-  "Peluquería / centro de belleza con servicios capilares",
-  "Otro",
+// Categorías de centro, ordenadas de la más médica/restrictiva a la
+// menos. Selección única: es lo que el centro ES (su actividad
+// principal); lo que hace en concreto ya lo recoge el catálogo de
+// técnicas. La descripción se muestra junto a cada opción en el
+// selector de la ficha para que el centro elija sin dudas.
+export const CATEGORIAS_CENTRO = [
+  {
+    valor: "Hospital con unidad capilar",
+    descripcion:
+      "Hospital o policlínica con una unidad propia de tricología o trasplante capilar.",
+    schemaType: "Hospital",
+    palabraSeo: "unidad-capilar",
+  },
+  {
+    valor: "Clínica de trasplante capilar",
+    descripcion:
+      "Clínica médica cuya actividad principal es el injerto capilar: FUE, DHI o FUT.",
+    schemaType: "MedicalClinic",
+    palabraSeo: "injerto-capilar",
+  },
+  {
+    valor: "Clínica de tricología",
+    descripcion:
+      "Dermatólogos o tricólogos: diagnóstico médico de la caída y tratamiento, con o sin injerto.",
+    schemaType: "MedicalClinic",
+    palabraSeo: "clinica-tricologia",
+  },
+  {
+    valor: "Clínica estética con unidad capilar",
+    descripcion:
+      "Medicina estética general con tratamientos capilares médicos: mesoterapia, PRP o carboxiterapia.",
+    schemaType: "MedicalClinic",
+    palabraSeo: "clinica-estetica",
+  },
+  {
+    valor: "Centro capilar no médico",
+    descripcion:
+      "Sin personal médico: aparatología, láser, tratamientos tópicos, prótesis y cosmética capilar.",
+    schemaType: "HealthAndBeautyBusiness",
+    palabraSeo: "centro-capilar",
+  },
+  {
+    valor: "Micropigmentación capilar",
+    descripcion:
+      "Tatuaje estético que simula densidad o efecto rapado. No trata la caída.",
+    schemaType: "HealthAndBeautyBusiness",
+    palabraSeo: "micropigmentacion-capilar",
+  },
 ] as const;
 
-// Tipo de schema.org más preciso para cada tipo de negocio — importa
-// para el structured data de la ficha pública: usar "MedicalBusiness"
-// para un centro sin licencia médica (una peluquería, por ejemplo)
-// es justo el tipo de imprecisión que penalizan las guías de datos
-// estructurados de Google. En España, "clínica" implica un director
-// médico colegiado, así que todo lo que lleve esa palabra (o sea un
-// centro de injertos, que es cirugía) va como negocio médico.
-export const SCHEMA_TYPE_POR_TIPO_NEGOCIO: Record<
-  (typeof TIPOS_NEGOCIO)[number],
-  string
-> = {
-  "Clínica capilar": "MedicalBusiness",
-  "Clínica de tricología": "MedicalBusiness",
-  "Clínica estética": "MedicalBusiness",
-  "Clínica médica / hospital": "MedicalBusiness",
-  "Centro de injertos capilares": "MedicalBusiness",
-  "Peluquería / centro de belleza con servicios capilares": "HairSalon",
-  Otro: "LocalBusiness",
-};
+export const TIPOS_NEGOCIO = CATEGORIAS_CENTRO.map((c) => c.valor);
 
+export function categoriaCentro(valor: string | null | undefined) {
+  return CATEGORIAS_CENTRO.find((c) => c.valor === valor) ?? null;
+}
+
+/** Devuelve el valor solo si es una categoría válida (si no, null). */
+export function tipoNegocioValido(valor: string | null | undefined): string | null {
+  return categoriaCentro(valor)?.valor ?? null;
+}
+
+/** Ordena una lista de tipos según el orden de CATEGORIAS_CENTRO (desconocidos al final). */
+export function ordenarTiposNegocio(tipos: string[]): string[] {
+  const pos = (t: string) => {
+    const i = TIPOS_NEGOCIO.indexOf(t as (typeof TIPOS_NEGOCIO)[number]);
+    return i === -1 ? Number.MAX_SAFE_INTEGER : i;
+  };
+  return [...tipos].sort((a, b) => pos(a) - pos(b) || a.localeCompare(b, "es"));
+}
+
+// Tipo de schema.org más preciso para cada categoría — "clínica"
+// implica autorización sanitaria, así que solo las categorías médicas
+// van como MedicalClinic/Hospital; un centro no médico nunca.
 export function schemaTypeDeClinica(tipoNegocio: string | null): string {
-  if (tipoNegocio && tipoNegocio in SCHEMA_TYPE_POR_TIPO_NEGOCIO) {
-    return SCHEMA_TYPE_POR_TIPO_NEGOCIO[
-      tipoNegocio as (typeof TIPOS_NEGOCIO)[number]
-    ];
-  }
-  // Sin tipo asignado todavía (fichas antiguas, antes de este campo) —
-  // fallback seguro y genérico, nunca "MedicalBusiness" sin saberlo.
-  return "LocalBusiness";
+  // Sin categoría asignada: fallback genérico, nunca médico sin saberlo.
+  return categoriaCentro(tipoNegocio)?.schemaType ?? "LocalBusiness";
 }
 
 // Nombres de día en español (como se guardan en horarios_estructurados)

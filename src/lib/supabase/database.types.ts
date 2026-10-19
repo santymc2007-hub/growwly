@@ -106,6 +106,30 @@ export type Database = {
           },
         ]
       }
+      clinic_avisos_reclamo: {
+        Row: {
+          baja_en: string | null
+          clinic_id: string
+          enviado_a: string | null
+          enviado_en: string | null
+          veces: number
+        }
+        Insert: {
+          baja_en?: string | null
+          clinic_id: string
+          enviado_a?: string | null
+          enviado_en?: string | null
+          veces?: number
+        }
+        Update: {
+          baja_en?: string | null
+          clinic_id?: string
+          enviado_a?: string | null
+          enviado_en?: string | null
+          veces?: number
+        }
+        Relationships: []
+      }
       clinic_impresiones_listado: {
         Row: {
           clinic_id: string
@@ -202,18 +226,21 @@ export type Database = {
           alta_email: string | null
           clinic_id: string
           datos_facturacion: Json | null
+          emails_leads: string[]
           updated_at: string
         }
         Insert: {
           alta_email?: string | null
           clinic_id: string
           datos_facturacion?: Json | null
+          emails_leads?: string[]
           updated_at?: string
         }
         Update: {
           alta_email?: string | null
           clinic_id?: string
           datos_facturacion?: Json | null
+          emails_leads?: string[]
           updated_at?: string
         }
         Relationships: [
@@ -528,6 +555,8 @@ export type Database = {
           consentimiento_en: string | null
           consentimiento_version: string | null
           created_at: string
+          email_capturado_en: string | null
+          email_contacto: string | null
           error_detalle: string | null
           es_alopecia_tratable: boolean | null
           estado: string
@@ -539,6 +568,7 @@ export type Database = {
           foto_perfil_izquierdo: string | null
           fotos_adicionales: string[]
           id: string
+          nombre_contacto: string | null
           informe: Json | null
           ip_hash: string | null
           norwood_estimado: string | null
@@ -551,6 +581,8 @@ export type Database = {
           consentimiento_en?: string | null
           consentimiento_version?: string | null
           created_at?: string
+          email_capturado_en?: string | null
+          email_contacto?: string | null
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
           estado?: string
@@ -562,6 +594,7 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
+          nombre_contacto?: string | null
           informe?: Json | null
           ip_hash?: string | null
           norwood_estimado?: string | null
@@ -574,6 +607,8 @@ export type Database = {
           consentimiento_en?: string | null
           consentimiento_version?: string | null
           created_at?: string
+          email_capturado_en?: string | null
+          email_contacto?: string | null
           error_detalle?: string | null
           es_alopecia_tratable?: boolean | null
           estado?: string
@@ -585,6 +620,7 @@ export type Database = {
           foto_perfil_izquierdo?: string | null
           fotos_adicionales?: string[]
           id?: string
+          nombre_contacto?: string | null
           informe?: Json | null
           ip_hash?: string | null
           norwood_estimado?: string | null
@@ -942,6 +978,7 @@ export type Database = {
       }
       solicitudes_cita_directa: {
         Row: {
+          atribucion: Json | null
           alternativas_enviadas_en: string | null
           clinic_id: string
           consentimiento_en: string | null
@@ -956,6 +993,7 @@ export type Database = {
           telefono: string
         }
         Insert: {
+          atribucion?: Json | null
           alternativas_enviadas_en?: string | null
           clinic_id: string
           consentimiento_en?: string | null
@@ -970,6 +1008,7 @@ export type Database = {
           telefono: string
         }
         Update: {
+          atribucion?: Json | null
           alternativas_enviadas_en?: string | null
           clinic_id?: string
           consentimiento_en?: string | null
@@ -1037,6 +1076,7 @@ export type Database = {
       }
       solicitudes_presupuesto: {
         Row: {
+          atribucion: Json | null
           alergias: string | null
           antecedentes_familiares: string | null
           cambios_salud_recientes: string | null
@@ -1072,6 +1112,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          atribucion?: Json | null
           alergias?: string | null
           antecedentes_familiares?: string | null
           cambios_salud_recientes?: string | null
@@ -1107,6 +1148,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          atribucion?: Json | null
           alergias?: string | null
           antecedentes_familiares?: string | null
           cambios_salud_recientes?: string | null

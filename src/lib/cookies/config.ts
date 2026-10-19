@@ -15,6 +15,12 @@
 export const GA_MEASUREMENT_ID = "G-20S7PBB85Z";
 export const GOOGLE_ADS_ID = process.env.NEXT_PUBLIC_GOOGLE_ADS_ID ?? "";
 export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID ?? "";
+/**
+ * Etiqueta de la acción de conversión "Lead" de Google Ads (la parte de
+ * send_to que va tras la barra: AW-…/ESTA_PARTE). Sin ella no se manda
+ * conversión directa a Ads.
+ */
+export const GOOGLE_ADS_LEAD_LABEL = process.env.NEXT_PUBLIC_GOOGLE_ADS_LEAD_LABEL ?? "";
 export const PUBLICIDAD_ACTIVA = Boolean(GOOGLE_ADS_ID || META_PIXEL_ID);
 
 export type FilaCookie = {
@@ -84,6 +90,17 @@ export const COOKIES_PUBLICIDAD: FilaCookie[] = [
           finalidad: "Medir los resultados de los anuncios en Facebook e Instagram.",
           duracion: "90 días",
           transferencia: "EE. UU. (Marco de Privacidad de Datos UE-EE. UU.)",
+        },
+      ]
+    : []),
+  ...(PUBLICIDAD_ACTIVA
+    ? [
+        {
+          nombre: "growwly_atribucion (almacenamiento local)",
+          proveedor: "Growwly",
+          finalidad:
+            "Recordar desde qué anuncio o campaña llegaste, para saber qué anuncios traen solicitudes. No sale de Growwly.",
+          duracion: "90 días",
         },
       ]
     : []),

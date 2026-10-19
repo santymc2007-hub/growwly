@@ -12,7 +12,7 @@ import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
-import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
+import { ordenarTiposNegocio, slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
   title: "Centros capilares en España",
@@ -128,7 +128,7 @@ export default async function CentrosPage({
       .map((c) => c.ciudad),
   );
   const tecnicas = uniqueSorted(centros.flatMap((c) => c.tecnicas));
-  const tipos = uniqueSorted(centros.map((c) => c.tipo_negocio));
+  const tipos = ordenarTiposNegocio(uniqueSorted(centros.map((c) => c.tipo_negocio)));
 
   return (
     <main className="relative flex-1">
@@ -149,59 +149,60 @@ export default async function CentrosPage({
       </div>
 
       {/* Barra de filtros flotante: a caballo entre el fondo y el panel
-          blanco de más abajo, como dos tarjetas elevadas. Sticky para
-          que se pueda seguir filtrando/cambiando de vista sin tener que
-          volver arriba al bajar por el listado. El toggle Lista/Mapa va
-          en su propia tarjeta (mismo estilo que la de filtros) a
-          propósito: es un módulo hermano, no parte de los filtros. */}
-      <div className="sticky top-0 z-20 mx-auto -mt-12 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
-        <div className="flex flex-wrap items-stretch gap-3">
-          <div className="min-w-0 flex-1 rounded-2xl bg-white p-4 shadow-lg lg:p-5">
-            <p className="font-display text-base font-bold text-ink sm:text-lg">
+          blanco de más abajo. Sticky solo en escritorio (lg): en móvil
+          taparía el listado al hacer scroll. El toggle Lista/Mapa vive
+          en la cabecera del panel de resultados, no aquí: cambia cómo se
+          ven los resultados, no cuáles se muestran. */}
+      <div className="relative z-20 mx-auto -mt-12 lg:sticky lg:top-0 max-w-[1400px] px-3 pt-3 sm:-mt-14 sm:px-6 sm:pt-4">
+        <div className="rounded-2xl bg-white p-3 shadow-lg sm:p-4 lg:p-5">
+            <p className="font-display text-sm font-bold text-ink sm:text-lg">
               {filtrados.length}{" "}
               {filtrados.length === 1
                 ? "centro encontrado"
                 : "centros encontrados"}
             </p>
-            <div className="mt-3 flex flex-wrap items-center gap-3">
+            <div className="mt-2 sm:mt-3">
               <ClinicFilters
                 provincias={provincias}
                 tecnicas={tecnicas}
                 tipos={tipos}
               />
             </div>
-          </div>
-          <div className="flex items-center justify-center rounded-2xl bg-white p-4 shadow-lg lg:p-5">
-            <VistaToggle />
-          </div>
         </div>
       </div>
 
       <div className="mx-auto max-w-[1400px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           <div className="px-6 py-8 sm:px-10">
-            {ciudades.length > 1 && (
-              <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
-                <span>Explora por ciudad:</span>
-                {ciudades.map((c) => {
-                  const centroDeEstaCiudad = centros.find((cl) => cl.ciudad === c);
-                  const provinciaSlug = centroDeEstaCiudad
-                    ? slugifyProvincia(centroDeEstaCiudad.provincia)
-                    : slugifyProvincia("Illes Balears");
-                  return (
-                    <Link
-                      key={c}
-                      href={`/centros/${provinciaSlug}/${slugifyCiudad(c)}`}
-                      className="text-cyan hover:text-cyan-dark"
-                    >
-                      {c}
-                    </Link>
-                  );
-                })}
-              </p>
-            )}
+            {/* Cabecera del panel: ciudades a la izquierda, Lista/Mapa a
+                la derecha (en móvil, el toggle va arriba). */}
+            <div className="flex flex-col-reverse gap-4 sm:flex-row sm:items-center sm:justify-between">
+              {ciudades.length > 1 ? (
+                <p className="flex min-w-0 flex-wrap items-center gap-x-2 gap-y-1 text-sm text-ink-soft">
+                  <span>Explora por ciudad:</span>
+                  {ciudades.map((c) => {
+                    const centroDeEstaCiudad = centros.find((cl) => cl.ciudad === c);
+                    const provinciaSlug = centroDeEstaCiudad
+                      ? slugifyProvincia(centroDeEstaCiudad.provincia)
+                      : slugifyProvincia("Illes Balears");
+                    return (
+                      <Link
+                        key={c}
+                        href={`/centros/${provinciaSlug}/${slugifyCiudad(c)}`}
+                        className="text-cyan hover:text-cyan-dark"
+                      >
+                        {c}
+                      </Link>
+                    );
+                  })}
+                </p>
+              ) : (
+                <span className="hidden sm:block" />
+              )}
+              <VistaToggle />
+            </div>
 
-            <div className={ciudades.length > 1 ? "mt-8" : undefined}>
+            <div className="mt-6 sm:mt-8">
               {filtrados.length > 0 ? (
                 <>
                   <VistaListaMapa

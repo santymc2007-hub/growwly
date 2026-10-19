@@ -3,6 +3,7 @@
 import { useState, useTransition, type FormEvent } from "react";
 import { solicitarCitaDirecta } from "@/lib/leads/solicitar-cita-directa";
 import { trackEvent } from "@/lib/analytics/events";
+import { leerAtribucion } from "@/lib/analytics/atribucion";
 
 /**
  * Único punto de entrada a "pedir cita/presupuesto a esta clínica
@@ -17,9 +18,17 @@ import { trackEvent } from "@/lib/analytics/events";
 export function BotonPedirCita({
   clinicId,
   clinicNombre,
+  variante,
 }: {
   clinicId: string;
   clinicNombre: string;
+  /**
+   * "barra": la barra fija inferior de móvil. Va fuera de las pestañas
+   * de la ficha para que se vea tanto en Información como en Contacto
+   * (dentro de una pestaña oculta desaparecería con ella).
+   * "boton": el botón del aside de Contacto, solo en escritorio.
+   */
+  variante: "barra" | "boton";
 }) {
   const [abierto, setAbierto] = useState(false);
   const [estado, setEstado] = useState<"idle" | "ok" | "error">("idle");
@@ -42,6 +51,8 @@ export function BotonPedirCita({
     // cuando nosotros decidimos (al confirmar el envío).
     const formData = new FormData(e.currentTarget);
     formData.set("clinicId", clinicId);
+    const atribucion = leerAtribucion();
+    if (atribucion) formData.set("atribucion", JSON.stringify(atribucion));
     startTransition(async () => {
       const resultado = await solicitarCitaDirecta(formData);
       if (resultado.ok) {
@@ -68,6 +79,7 @@ export function BotonPedirCita({
 
   return (
     <>
+      {variante === "barra" && (
       <div
         className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-white/95 px-4 pt-3 backdrop-blur lg:hidden"
         style={{ paddingBottom: "calc(0.75rem + env(safe-area-inset-bottom, 0px))" }}
@@ -80,20 +92,23 @@ export function BotonPedirCita({
           }}
           className="press block w-full rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
         >
-          Pedir cita →
+          Contactar con este centro →
         </button>
       </div>
+      )}
 
+      {variante === "boton" && (
       <button
         type="button"
         onClick={() => {
           setAbierto(true);
           trackEvent("clic_pedir_cita_directa", { clinic_id: clinicId });
         }}
-        className="press mt-5 hidden w-full items-center justify-center rounded-full border-2 border-cyan px-5 py-3 text-center text-sm font-bold text-cyan-dark transition hover:bg-cyan/10 lg:flex"
+        className="press mt-5 hidden w-full items-center justify-center rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90 lg:flex"
       >
-        Pedir presupuesto a esta clínica →
+        Contactar con este centro →
       </button>
+      )}
 
       {abierto && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center sm:p-6">
@@ -131,10 +146,10 @@ export function BotonPedirCita({
             ) : (
               <>
                 <h2 className="pr-8 font-display text-xl text-teal-dark">
-                  Pedir cita en {clinicNombre}
+                  Contactar con {clinicNombre}
                 </h2>
                 <p className="mt-1 text-sm text-ink-soft">
-                  Déjanos tus datos y la clínica te contactará para concretar la cita.
+                  Déjanos tus datos y el centro se pondrá en contacto contigo.
                 </p>
 
                 <form onSubmit={onSubmit} className="mt-5 flex flex-col gap-3">

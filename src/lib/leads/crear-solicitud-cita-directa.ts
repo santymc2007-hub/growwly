@@ -1,8 +1,10 @@
+import type { Atribucion } from "@/lib/analytics/atribucion";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { clinicaEstaRegistrada } from "@/lib/clinica/registrada";
+import { destinatariosLeads } from "@/lib/clinica/emails-leads";
 
 export type ResultadoSolicitudDirecta = { ok: true } | { ok: false; error: string };
 
@@ -17,6 +19,8 @@ export type DatosSolicitudDirecta = {
   consentimientoVersion?: string | null;
   /** Huella de IP para limitar envíos (se borra a los 30 días). */
   ipHash?: string | null;
+  /** Campaña de la que viene (gclid, utm…), ya saneada. */
+  atribucion?: Atribucion | null;
 };
 
 /**
@@ -58,6 +62,7 @@ export async function crearSolicitudCitaDirecta(
       consentimiento_en: datos.consentimientoEn ?? null,
       consentimiento_version: datos.consentimientoVersion ?? null,
       ip_hash: datos.ipHash ?? null,
+      atribucion: datos.atribucion ?? null,
     });
 
     if (error) {
@@ -70,14 +75,18 @@ export async function crearSolicitudCitaDirecta(
       .eq("id", clinicId)
       .maybeSingle();
 
-    if (clinica?.email) {
+    const para = clinica
+      ? await destinatariosLeads(supabaseAdmin, { id: clinicId, email: clinica.email })
+      : [];
+
+    if (clinica && para.length > 0) {
       const registrada = await clinicaEstaRegistrada(supabaseAdmin, clinicId);
       const esPremium = clinica.plan === "premium";
 
       try {
         if (esPremium) {
           await enviarEmail({
-            to: clinica.email,
+            to: para,
             subject: `Nueva petición de cita en Growwly — ${nombre}`,
             html: construirHtmlCita({
               clinicaNombre: clinica.nombre,
@@ -89,7 +98,7 @@ export async function crearSolicitudCitaDirecta(
           });
         } else if (registrada) {
           await enviarEmail({
-            to: clinica.email,
+            to: para,
             subject: "Tienes una solicitud de presupuesto en Growwly",
             html: construirHtmlBloqueada({ clinicaNombre: clinica.nombre }),
           });

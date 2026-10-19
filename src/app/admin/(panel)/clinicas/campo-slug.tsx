@@ -2,22 +2,17 @@
 
 import { useEffect, useState } from "react";
 import { slugify } from "@/lib/slugify";
+import { CATEGORIAS_CENTRO } from "@/lib/clinic-options";
 
 const inputClass =
   "mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 const labelClass = "text-sm font-medium text-ink";
 
-// Palabra clave de SEO local por tipo de negocio — mismos valores que
-// TIPOS_NEGOCIO en @/lib/clinic-options, para construir slugs del tipo
-// "clinica-capilar-palma-nombre" en vez de solo "nombre".
-const PALABRA_SEO_POR_TIPO: Record<string, string> = {
-  "Clínica capilar": "clinica-capilar",
-  "Clínica de tricología": "clinica-tricologia",
-  "Clínica estética": "clinica-estetica",
-  "Clínica médica / hospital": "clinica-medica",
-  "Centro de injertos capilares": "injerto-capilar",
-  "Peluquería / centro de belleza con servicios capilares": "centro-capilar",
-};
+// Palabra clave de SEO local por categoría (ver CATEGORIAS_CENTRO), para
+// construir slugs del tipo "clinica-tricologia-palma-nombre".
+const PALABRA_SEO_POR_TIPO: Record<string, string> = Object.fromEntries(
+  CATEGORIAS_CENTRO.map((c) => [c.valor, c.palabraSeo]),
+);
 
 function leerValorCampo(id: string): string {
   const el = document.getElementById(id) as
@@ -33,7 +28,10 @@ function construirSugerencias(): string[] {
 
   const base = slugify(nombre);
   const ciudad = slugify(leerValorCampo("ciudad"));
-  const palabraSeo = PALABRA_SEO_POR_TIPO[leerValorCampo("tipo_negocio")] ?? "";
+  const tipoMarcado = document.querySelector<HTMLInputElement>(
+    'input[name="tipo_negocio"]:checked',
+  )?.value;
+  const palabraSeo = PALABRA_SEO_POR_TIPO[tipoMarcado ?? ""] ?? "";
 
   const opciones = new Set<string>();
   opciones.add(base);

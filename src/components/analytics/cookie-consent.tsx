@@ -11,6 +11,7 @@ import {
   PREFIJOS_PUBLICIDAD,
   PUBLICIDAD_ACTIVA,
 } from "@/lib/cookies/config";
+import { CLAVE_ATRIBUCION, capturarAtribucion } from "@/lib/analytics/atribucion";
 
 /**
  * Banner de cookies por categorías (auditoría oct 2026):
@@ -138,6 +139,9 @@ export function CookieConsent() {
 
   useEffect(() => {
     window.growwlyConsent = { analitica, publicidad };
+    // Quien llega de un anuncio suele aceptar el banner sin cambiar de
+    // página: guardar ya los parámetros de campaña de esta URL.
+    if (publicidad) capturarAtribucion();
   }, [analitica, publicidad]);
 
   // Hay que preguntar si no hay elección válida, o si ya hay anuncios y
@@ -173,7 +177,14 @@ export function CookieConsent() {
     const retiraPublicidad = publicidad && !nuevaPublicidad;
     if (retiraAnalitica || retiraPublicidad) {
       if (retiraAnalitica) borrarCookies(PREFIJOS_ANALITICA);
-      if (retiraPublicidad) borrarCookies(PREFIJOS_PUBLICIDAD);
+      if (retiraPublicidad) {
+        borrarCookies(PREFIJOS_PUBLICIDAD);
+        try {
+          localStorage.removeItem(CLAVE_ATRIBUCION);
+        } catch {
+          // Sin almacenamiento: no había nada guardado.
+        }
+      }
       window.location.reload();
       return;
     }

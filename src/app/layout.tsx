@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieConsent } from "@/components/analytics/cookie-consent";
+import { CapturaAtribucion } from "@/components/analytics/captura-atribucion";
 import "@fontsource/geist/400.css";
 import "@fontsource/geist/500.css";
 import "@fontsource/geist/600.css";
@@ -43,6 +44,13 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
   },
+  // Verificación del dominio en el porfolio empresarial de Meta (no quitar:
+  // Meta la revisa periódicamente y, si desaparece, el dominio deja de estar verificado).
+  verification: {
+    other: {
+      "facebook-domain-verification": "bdfnil6njyp1w67lkh1xvssh6c2854",
+    },
+  },
 };
 
 export default function RootLayout({
@@ -63,6 +71,7 @@ export default function RootLayout({
         {children}
         {ANIMACIONES_ACTIVAS && <RevealObserver />}
         <CookieConsent />
+        <CapturaAtribucion />
         <SpeedInsights />
       </body>
     </html>

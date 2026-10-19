@@ -3,6 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
 import { fechaCitaLarga, type OpcionCita } from "@/lib/leads/opciones-cita";
 import { esc } from "@/lib/email/escapar";
+import { destinatariosLeads } from "@/lib/clinica/emails-leads";
 
 /**
  * Emails del paso "cita" entre paciente y clínica. Un fallo al enviar
@@ -40,7 +41,9 @@ export async function notificarClinicaCita(
       admin.from("leads_clinica").select("token").eq("id", params.leadId).maybeSingle(),
       admin.from("clinics").select("nombre, email").eq("id", params.clinicId).maybeSingle(),
     ]);
-    if (!lead || !clinica?.email) return;
+    if (!lead || !clinica) return;
+    const para = await destinatariosLeads(admin, { id: params.clinicId, email: clinica.email });
+    if (para.length === 0) return;
 
     const enlace = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/leads/${lead.token}`;
     const confirmada = params.tipo === "confirmada" && params.opcion;
@@ -50,7 +53,7 @@ export async function notificarClinicaCita(
       : `<p>Ninguna de las fechas que propusisteis le va bien al paciente. Entrad en el lead y proponed otras.</p>`;
 
     await enviarEmail({
-      to: clinica.email,
+      to: para,
       subject: confirmada ? "Cita confirmada · Growwly" : "Proponed otras fechas · Growwly",
       html: plantilla(titulo, cuerpo, enlace, "Ver el lead →"),
     });

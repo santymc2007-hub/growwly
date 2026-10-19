@@ -7,8 +7,14 @@ import { OrderControls } from "./order-controls";
 import { DeleteClinicButton } from "./delete-button";
 import { setPublicadoBatch, deleteClinicsBatch } from "./actions";
 import type { Clinic } from "@/lib/supabase/database.types";
+import type { EstadoReclamo } from "@/lib/admin/email-reclamo";
+import { BotonEmailReclamo } from "./boton-email-reclamo";
 
-export type ClinicRow = Clinic & { isFirst: boolean; isLast: boolean };
+export type ClinicRow = Clinic & {
+  isFirst: boolean;
+  isLast: boolean;
+  reclamo: { estado: EstadoReclamo; enviadoEn: string | null };
+};
 
 export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
   const [seleccionadas, setSeleccionadas] = useState<Set<string>>(new Set());
@@ -61,7 +67,8 @@ export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
   }
 
   return (
-    <div className="mt-6 overflow-hidden rounded-2xl border border-line bg-white">
+    // Sin overflow-hidden: la confirmación del email se despliega sobre la tabla.
+    <div className="mt-6 rounded-2xl border border-line bg-white [&_thead_th:first-child]:rounded-tl-2xl [&_thead_th:last-child]:rounded-tr-2xl">
       {seleccionadas.size > 0 && (
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-line bg-cyan/10 px-4 py-2.5 text-sm">
           <span className="font-medium text-teal-dark">
@@ -205,7 +212,13 @@ export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
                 {new Date(clinic.updated_at).toLocaleDateString("es-ES")}
               </td>
               <td className="px-4 py-3 text-right">
-                <div className="flex justify-end gap-3">
+                <div className="flex items-center justify-end gap-3">
+                  <BotonEmailReclamo
+                    clinicId={clinic.id}
+                    email={clinic.email}
+                    estado={clinic.reclamo.estado}
+                    enviadoEn={clinic.reclamo.enviadoEn}
+                  />
                   <Link
                     href={`/admin/clinicas/${clinic.id}/editar`}
                     className="font-medium text-cyan hover:text-cyan-dark"

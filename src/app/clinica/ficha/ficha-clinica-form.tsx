@@ -1,5 +1,6 @@
 "use client";
 
+import { SelectorCategoriaCentro } from "@/components/clinics/selector-categoria-centro";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -9,7 +10,6 @@ import {
   IDIOMAS_DISPONIBLES,
   ACCESIBILIDAD_OPCIONES,
   PRECIO_OPCIONES,
-  TIPOS_NEGOCIO,
   formatearPrecio,
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
@@ -20,9 +20,12 @@ import { FotosClinicaField } from "@/components/clinica/fotos-clinica-field";
 import { SeccionFicha } from "@/components/clinica/seccion-ficha";
 import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
+import { EmailsLeadsField } from "@/components/clinica/emails-leads-field";
 
 type Props = {
   clinic: Clinic;
+  /** Emails que reciben los avisos de leads (clinic_privado). */
+  emailsLeads: string[];
   action: (formData: FormData) => void;
   municipios: { provincia: string; nombre: string }[];
   zonas: { municipio: string; nombre: string }[];
@@ -37,6 +40,7 @@ const MAX_OPINIONES = 10;
 
 export function FichaClinicaForm({
   clinic,
+  emailsLeads,
   action,
   municipios,
   zonas,
@@ -150,7 +154,7 @@ export function FichaClinicaForm({
             </div>
             <div>
               <label className={labelClass} htmlFor="email">
-                Email
+                Email de contacto
               </label>
               <input
                 id="email"
@@ -172,6 +176,10 @@ export function FichaClinicaForm({
               />
             </div>
           </div>
+          <p className="-mt-2 text-xs text-ink-soft">
+            El email de contacto se muestra en tu ficha pública.
+          </p>
+          <EmailsLeadsField iniciales={emailsLeads} emailFicha={clinic.email} />
           <div>
             <label className={labelClass} htmlFor="registro_sanitario">
               Nº de registro sanitario
@@ -305,24 +313,7 @@ export function FichaClinicaForm({
 
       <SeccionFicha titulo="Servicios y precios">
         <div className="grid gap-4">
-          <div>
-            <label className={labelClass} htmlFor="tipo_negocio">
-              Tipo de negocio
-            </label>
-            <select
-              id="tipo_negocio"
-              name="tipo_negocio"
-              defaultValue={clinic.tipo_negocio ?? ""}
-              className={inputClass}
-            >
-              <option value="">Selecciona un tipo</option>
-              {TIPOS_NEGOCIO.map((t) => (
-                <option key={t} value={t}>
-                  {t}
-                </option>
-              ))}
-            </select>
-          </div>
+          <SelectorCategoriaCentro valorInicial={clinic.tipo_negocio} />
           <div>
             <label className={labelClass} htmlFor="servicios_adicionales">
               Otros servicios (separados por coma)
@@ -394,7 +385,7 @@ export function FichaClinicaForm({
           </div>
           <div>
             <label className={labelClass}>Horario</label>
-            <div className="mt-2 rounded-xl border border-line bg-white p-4">
+            <div className="mt-2 rounded-xl border border-line bg-white p-3 sm:p-4">
               <HorarioSemanal valorInicial={clinic.horarios_estructurados} />
             </div>
           </div>

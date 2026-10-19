@@ -5,7 +5,7 @@ import Link from "next/link";
 import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
-  TIPOS_NEGOCIO,
+  CATEGORIAS_CENTRO,
   DESCRIPCION_MIN_CARACTERES,
 } from "@/lib/clinic-options";
 import { normalizarIdiomas, normalizarTecnicas } from "@/lib/importador/normalizar";
@@ -336,12 +336,12 @@ function Revision({
               />
             </Campo>
           )}
-          <Campo etiqueta="Tipo de negocio" actual={clinica?.tipo_negocio}>
+          <Campo etiqueta="Categoría del centro" actual={clinica?.tipo_negocio} className="sm:col-span-2">
             <select name="tipo_negocio" defaultValue="" className={inputClass}>
               <option value="">— Sin indicar —</option>
-              {TIPOS_NEGOCIO.map((t) => (
-                <option key={t} value={t}>
-                  {t}
+              {CATEGORIAS_CENTRO.map((c) => (
+                <option key={c.valor} value={c.valor}>
+                  {c.valor} — {c.descripcion}
                 </option>
               ))}
             </select>

@@ -6,7 +6,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadClinicPhotos } from "@/lib/supabase/storage";
 import { slugify } from "@/lib/slugify";
-import { TECNICAS_DISPONIBLES, IDIOMAS_DISPONIBLES, DESCRIPCION_MIN_CARACTERES } from "@/lib/clinic-options";
+import { TECNICAS_DISPONIBLES, IDIOMAS_DISPONIBLES, DESCRIPCION_MIN_CARACTERES, tipoNegocioValido } from "@/lib/clinic-options";
 import { extraerDatosWeb, normalizarUrlWeb } from "@/lib/importador/firecrawl";
 import { buscarEnGoogle, fichaDesdeEnlaceMaps } from "@/lib/importador/places";
 import { descargarImagen } from "@/lib/importador/descargar";
@@ -260,7 +260,7 @@ export async function guardarImportacion(
     // Todo lo que se propone para la ficha; en modo "completar" solo se
     // aplicará lo que esa ficha tenga vacío.
     const propuesta: ClinicUpdate = {
-      tipo_negocio: str(formData, "tipo_negocio"),
+      tipo_negocio: tipoNegocioValido(str(formData, "tipo_negocio")),
       descripcion: str(formData, "descripcion"),
       direccion: str(formData, "direccion"),
       ciudad: str(formData, "ciudad"),

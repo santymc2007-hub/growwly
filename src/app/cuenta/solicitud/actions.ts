@@ -1,5 +1,6 @@
 "use server";
 
+import { sanearAtribucion } from "@/lib/analytics/atribucion";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
@@ -12,6 +13,8 @@ import { notificarClinicaCita } from "@/lib/leads/notificar-cita";
 import { VERSION_TEXTOS_LEGALES } from "@/lib/legal/version";
 
 export type DatosSolicitud = {
+  /** Campaña de la que viene (gclid, utm…); se sanea aquí antes de guardarla. */
+  atribucion?: unknown;
   estudioId: string | null;
   sexo: string;
   tipoPerdidaCabello: string;
@@ -109,6 +112,7 @@ export async function crearSolicitud(
       consentimiento_info_medica_en: ahora,
       consentimiento_fotos_en: ahora,
       consentimiento_compartir_en: ahora,
+      atribucion: sanearAtribucion(datos.atribucion),
       consentimiento_terminos_en: ahora,
       consentimiento_version: VERSION_TEXTOS_LEGALES,
       estado: "pendiente",

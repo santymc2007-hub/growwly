@@ -7,6 +7,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slugify";
 import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
 import type { Database, Json } from "@/lib/supabase/database.types";
+import { tipoNegocioValido } from "@/lib/clinic-options";
 
 // plan/destacado/destacado_home/destacado_ciudad se excluyen a propósito:
 // ahora se gestionan en exclusiva desde las acciones de Visibilidad
@@ -275,7 +276,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     })(),
     rating_doctoralia: num("rating_doctoralia"),
     resenas_doctoralia: num("resenas_doctoralia"),
-    tipo_negocio: str("tipo_negocio"),
+    tipo_negocio: tipoNegocioValido(str("tipo_negocio")),
     servicios_adicionales: String(formData.get("servicios_adicionales") ?? "")
       .split(",")
       .map((s) => s.trim())

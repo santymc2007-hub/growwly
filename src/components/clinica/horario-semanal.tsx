@@ -34,7 +34,7 @@ function horarioPorDefecto(existente: DiaHorario[]): DiaHorario[] {
 }
 
 const inputClass =
-  "rounded-lg border border-line bg-white px-2 py-1.5 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
+  "w-full min-w-0 rounded-lg border border-line bg-white px-2 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30";
 
 export function HorarioSemanal({
   valorInicial,
@@ -52,47 +52,82 @@ export function HorarioSemanal({
     );
   }
 
+  // Copia el horario del primer día abierto al resto de días abiertos —
+  // lo normal es tener el mismo horario toda la semana.
+  const primerAbierto = dias.find((d) => d.abierto);
+  function copiarATodos() {
+    if (!primerAbierto) return;
+    setDias((prev) =>
+      prev.map((d) =>
+        d.abierto ? { ...d, desde: primerAbierto.desde, hasta: primerAbierto.hasta } : d,
+      ),
+    );
+  }
+
   return (
-    <div className="flex flex-col gap-2">
+    <div>
       {/* Se manda como un único campo JSON — más simple de leer en el
           servidor que 21 campos sueltos */}
       <input type="hidden" name="horarios_estructurados" value={JSON.stringify(dias)} />
 
-      {dias.map((d, i) => (
-        <div
-          key={d.dia}
-          className="grid grid-cols-[90px_auto_1fr_auto_1fr] items-center gap-2 text-sm"
+      <div className="divide-y divide-line">
+        {dias.map((d, i) => (
+          // Móvil: día + interruptor arriba y las horas debajo.
+          // Desde sm: todo en una fila.
+          <div
+            key={d.dia}
+            className="flex flex-col gap-2 py-2.5 first:pt-0 last:pb-0 sm:flex-row sm:items-center sm:gap-4"
+          >
+            <div className="flex items-center justify-between gap-3 sm:w-48 sm:shrink-0">
+              <span className="text-sm font-medium text-ink">{d.dia}</span>
+              <label className="flex cursor-pointer items-center gap-2 text-xs text-ink-soft">
+                <span className="w-12 text-right">{d.abierto ? "Abierto" : "Cerrado"}</span>
+                <input
+                  type="checkbox"
+                  role="switch"
+                  checked={d.abierto}
+                  onChange={(e) => actualizar(i, { abierto: e.target.checked })}
+                  aria-label={`${d.dia}: abierto`}
+                  className="peer sr-only"
+                />
+                <span
+                  aria-hidden
+                  className="relative h-5 w-9 shrink-0 rounded-full bg-line transition-colors peer-checked:bg-teal peer-focus-visible:ring-2 peer-focus-visible:ring-teal/40 after:absolute after:left-0.5 after:top-0.5 after:h-4 after:w-4 after:rounded-full after:bg-white after:shadow after:transition-transform peer-checked:after:translate-x-4"
+                />
+              </label>
+            </div>
+            {d.abierto && (
+              <div className="flex min-w-0 flex-1 items-center gap-2">
+                <input
+                  type="time"
+                  value={d.desde}
+                  onChange={(e) => actualizar(i, { desde: e.target.value })}
+                  aria-label={`${d.dia}: desde`}
+                  className={inputClass}
+                />
+                <span className="shrink-0 text-sm text-ink-soft">a</span>
+                <input
+                  type="time"
+                  value={d.hasta}
+                  onChange={(e) => actualizar(i, { hasta: e.target.value })}
+                  aria-label={`${d.dia}: hasta`}
+                  className={inputClass}
+                />
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+
+      {primerAbierto && (
+        <button
+          type="button"
+          onClick={copiarATodos}
+          className="press mt-3 text-left text-xs font-medium text-cyan-dark hover:underline"
         >
-          <span className="font-medium text-ink">{d.dia}</span>
-          <label className="flex items-center gap-1.5 text-xs text-ink-soft">
-            <input
-              type="checkbox"
-              checked={d.abierto}
-              onChange={(e) => actualizar(i, { abierto: e.target.checked })}
-            />
-            Abierto
-          </label>
-          {d.abierto ? (
-            <>
-              <input
-                type="time"
-                value={d.desde}
-                onChange={(e) => actualizar(i, { desde: e.target.value })}
-                className={inputClass}
-              />
-              <span className="text-center text-ink-soft">a</span>
-              <input
-                type="time"
-                value={d.hasta}
-                onChange={(e) => actualizar(i, { hasta: e.target.value })}
-                className={inputClass}
-              />
-            </>
-          ) : (
-            <span className="col-span-3 text-xs text-ink-soft">Cerrado</span>
-          )}
-        </div>
-      ))}
+          Copiar el horario del {primerAbierto.dia.toLowerCase()} a todos los días abiertos
+        </button>
+      )}
     </div>
   );
 }
