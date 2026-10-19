@@ -27,7 +27,7 @@ export default function ComoOrdenamosPage() {
     <LegalLayout activo="/como-ordenamos">
       <h1>Cómo ordenamos los centros</h1>
       <p>
-        <em>Última actualización: 15 de octubre de 2026.</em>
+        <em>Última actualización: 19 de octubre de 2026.</em>
       </p>
       <p>
         Growwly es gratuito para pacientes. Lo pagan los centros: algunos
@@ -65,8 +65,9 @@ export default function ComoOrdenamosPage() {
 
       <h2>El resto del orden</h2>
       <p>
-        En el listado general, cuando no hay centros destacados, ordenamos
-        por la puntuación Growwly, que mide:
+        En todos los listados (el general, el de cada ciudad y el de cada
+        tratamiento), después de los centros destacados, ordenamos por la
+        puntuación Growwly, que mide:
       </p>
       <ul>
         <li>Ficha completa (fotos, horarios, equipo, información…): {pct(w.perfilCompleto)}.</li>
@@ -86,8 +87,7 @@ export default function ComoOrdenamosPage() {
         rapidez y gestión.
       </p>
       <p>
-        Cuando hay destacados, y en las páginas de cada ciudad, el resto de
-        centros sigue un orden fijado por Growwly. Los filtros (ciudad,
+        A igual puntuación, por orden alfabético. Los filtros (ciudad,
         técnica, idioma, financiación…) los eliges tú y solo dejan fuera los
         centros que no los cumplen.
       </p>

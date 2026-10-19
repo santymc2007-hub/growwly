@@ -10,6 +10,7 @@ import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones
 import { VistaListaMapa, VistaToggle } from "@/components/clinics/vista-lista-mapa";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { ordenarListado } from "@/lib/clinica/orden-listado";
 import {
   provinciaDesdeSlug,
   municipioDesdeSlugGenerico,
@@ -44,7 +45,13 @@ const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: stri
   const ciudadReal = municipioDesdeSlugGenerico(ciudadSlug, ciudadesDeProvincia);
   if (!ciudadReal) return { ciudadReal: null, clinicas: [] };
 
-  return { ciudadReal, clinicas: todas.filter((c) => c.ciudad === ciudadReal) };
+  // Destacados en esta ciudad, luego destacados generales (de pago), y
+  // el resto por Growwly Score.
+  const clinicas = await ordenarListado(
+    todas.filter((c) => c.ciudad === ciudadReal),
+    (c) => (c.destacado_ciudad ? 0 : c.destacado ? 1 : 2),
+  );
+  return { ciudadReal, clinicas };
 });
 
 export async function generateMetadata({
