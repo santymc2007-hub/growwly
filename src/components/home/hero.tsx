@@ -1,12 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { Zap, Wallet, ShieldCheck } from "lucide-react";
-
-const BADGES = [
-  { icono: Zap, texto: "Rápido y fácil" },
-  { icono: Wallet, texto: "100% Gratuito" },
-  { icono: ShieldCheck, texto: "Centros verificados" },
-];
+import { CARACTERISTICAS } from "@/components/analisis/sellos-confianza";
 
 export function Hero() {
   return (
@@ -35,11 +29,19 @@ export function Hero() {
             Gratis · 2 minutos · No es un diagnóstico médico.
           </p>
 
-          <div className="entra d4 mt-8 flex justify-center gap-6 sm:gap-8 lg:justify-start">
-            {BADGES.map(({ icono: Icono, texto }) => (
+          {/* Mismos iconos que la página de valoración (sellos-confianza),
+              en versión compacta: icono encima y texto debajo. */}
+          <div className="entra d4 mx-auto mt-8 grid max-w-md grid-cols-4 gap-2 sm:gap-4 lg:mx-0">
+            {CARACTERISTICAS.map(({ icono, texto, w, h }) => (
               <div key={texto} className="flex flex-col items-center gap-2 text-center">
-                <Icono className="text-teal-dark" size={22} aria-hidden />
-                <span className="max-w-[7rem] text-xs font-semibold text-teal-dark">
+                <Image
+                  src={icono}
+                  alt=""
+                  width={w}
+                  height={h}
+                  className="h-7 w-auto shrink-0 sm:h-8"
+                />
+                <span className="text-[11px] font-semibold leading-tight text-teal-dark sm:text-xs">
                   {texto}
                 </span>
               </div>
