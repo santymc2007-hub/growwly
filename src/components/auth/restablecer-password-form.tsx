@@ -1,5 +1,6 @@
 import { AuthCard } from "./auth-card";
 import { actualizarPasswordRecuperada } from "@/lib/auth/actions-recuperacion";
+import { authBoton, authInput, authLabel, authTitulo } from "@/components/auth/estilos";
 
 type Seccion = "cuenta" | "clinica" | "admin";
 
@@ -20,13 +21,13 @@ export function RestablecerPasswordForm({
 
   return (
     <AuthCard variant={VARIANTE[seccion]}>
-      <h1 className="mt-2 font-display text-2xl text-teal-dark">
+      <h1 className={authTitulo}>
         Crea una nueva contraseña
       </h1>
 
-      <form action={action} className="mt-8 flex flex-col gap-4">
+      <form action={action} className="mt-6 flex flex-col gap-4">
         <div>
-          <label htmlFor="password" className="text-sm font-medium text-ink">
+          <label htmlFor="password" className={authLabel}>
             Nueva contraseña
           </label>
           <input
@@ -35,11 +36,11 @@ export function RestablecerPasswordForm({
             type="password"
             required
             autoComplete="new-password"
-            className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+            className={authInput}
           />
         </div>
         <div>
-          <label htmlFor="password2" className="text-sm font-medium text-ink">
+          <label htmlFor="password2" className={authLabel}>
             Repite la contraseña
           </label>
           <input
@@ -48,7 +49,7 @@ export function RestablecerPasswordForm({
             type="password"
             required
             autoComplete="new-password"
-            className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+            className={authInput}
           />
         </div>
 
@@ -58,7 +59,7 @@ export function RestablecerPasswordForm({
 
         <button
           type="submit"
-          className="mt-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper transition hover:bg-teal-dark"
+          className={authBoton}
         >
           Guardar contraseña
         </button>

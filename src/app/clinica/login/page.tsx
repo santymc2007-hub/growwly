@@ -2,6 +2,7 @@ import Link from "next/link";
 import { iniciarSesionClinica } from "./actions";
 import { AuthCard } from "@/components/auth/auth-card";
 import { BotonGoogle } from "@/components/auth/boton-google";
+import { authBoton, authEnlace, authInput, authLabel, authTitulo } from "@/components/auth/estilos";
 
 type SearchParams = { error?: string; next?: string };
 
@@ -14,7 +15,7 @@ export default async function LoginClinicaPage({
 
   return (
     <AuthCard variant="clinica">
-      <h1 className="mt-2 font-display text-2xl text-teal-dark">
+      <h1 className={authTitulo}>
         Inicia sesión
       </h1>
 
@@ -26,7 +27,7 @@ export default async function LoginClinicaPage({
       >
         {next && <input type="hidden" name="next" value={next} />}
         <div>
-          <label htmlFor="email" className="text-sm font-medium text-ink">
+          <label htmlFor="email" className={authLabel}>
             Email
           </label>
           <input
@@ -35,12 +36,12 @@ export default async function LoginClinicaPage({
             type="email"
             required
             autoComplete="email"
-            className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+            className={authInput}
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="text-sm font-medium text-ink">
+          <label htmlFor="password" className={authLabel}>
             Contraseña
           </label>
           <input
@@ -49,11 +50,11 @@ export default async function LoginClinicaPage({
             type="password"
             required
             autoComplete="current-password"
-            className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+            className={authInput}
           />
           <Link
             href="/clinica/olvide-password"
-            className="mt-1.5 inline-block text-xs font-medium text-cyan hover:text-cyan-dark"
+            className="mt-2 inline-block text-xs font-semibold text-cyan-dark hover:underline"
           >
             ¿Olvidaste tu contraseña?
           </Link>
@@ -65,7 +66,7 @@ export default async function LoginClinicaPage({
 
         <button
           type="submit"
-          className="press mt-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper transition hover:bg-teal-dark"
+          className={authBoton}
         >
           Entrar
         </button>
@@ -75,7 +76,7 @@ export default async function LoginClinicaPage({
         ¿Todavía no tienes cuenta?{" "}
         <Link
           href="/clinica/registro"
-          className="font-medium text-cyan hover:text-cyan-dark"
+          className={authEnlace}
         >
           Regístrate
         </Link>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AuthCard } from "./auth-card";
 import { solicitarRecuperacion } from "@/lib/auth/actions-recuperacion";
+import { authBoton, authEnlace, authInput, authLabel, authTitulo } from "@/components/auth/estilos";
 
 type Seccion = "cuenta" | "clinica" | "admin";
 
@@ -27,7 +28,7 @@ export function OlvidePasswordForm({
 }) {
   return (
     <AuthCard variant={VARIANTE[seccion]}>
-      <h1 className="mt-2 font-display text-2xl text-teal-dark">
+      <h1 className={authTitulo}>
         ¿Olvidaste tu contraseña?
       </h1>
       <p className="mt-1 text-sm text-ink-soft">
@@ -35,15 +36,15 @@ export function OlvidePasswordForm({
       </p>
 
       {enviado ? (
-        <p className="mt-6 rounded-lg bg-sage px-4 py-3 text-sm text-sage-ink">
+        <p className="mt-6 rounded-xl bg-sage px-4 py-3 text-sm text-sage-ink">
           Si ese email tiene una cuenta, te hemos mandado un enlace — revisa
           tu bandeja de entrada (y la carpeta de spam, por si acaso).
         </p>
       ) : (
-        <form action={solicitarRecuperacion} className="mt-8 flex flex-col gap-4">
+        <form action={solicitarRecuperacion} className="mt-6 flex flex-col gap-4">
           <input type="hidden" name="seccion" value={seccion} />
           <div>
-            <label htmlFor="email" className="text-sm font-medium text-ink">
+            <label htmlFor="email" className={authLabel}>
               Email
             </label>
             <input
@@ -52,7 +53,7 @@ export function OlvidePasswordForm({
               type="email"
               required
               autoComplete="email"
-              className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+              className={authInput}
             />
           </div>
 
@@ -62,7 +63,7 @@ export function OlvidePasswordForm({
 
           <button
             type="submit"
-            className="mt-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper transition hover:bg-teal-dark"
+            className={authBoton}
           >
             Enviar enlace
           </button>
@@ -72,7 +73,7 @@ export function OlvidePasswordForm({
       <p className="mt-6 text-center text-sm text-ink-soft">
         <Link
           href={LOGIN_HREF[seccion]}
-          className="font-medium text-cyan hover:text-cyan-dark"
+          className={authEnlace}
         >
           ← Volver a iniciar sesión
         </Link>

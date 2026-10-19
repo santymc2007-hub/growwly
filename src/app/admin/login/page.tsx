@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { login } from "./actions";
 import { AuthCard } from "@/components/auth/auth-card";
+import { authBoton, authInput, authLabel, authTitulo } from "@/components/auth/estilos";
 
 type SearchParams = { error?: string };
 
@@ -13,16 +14,16 @@ export default async function LoginPage({
 
   return (
     <AuthCard variant="admin">
-      <h1 className="mt-2 font-display text-2xl text-teal-dark">
+      <h1 className={authTitulo}>
         Acceso al panel
       </h1>
       <p className="mt-1 text-sm text-ink-soft">
         Solo para gestión interna de clínicas.
       </p>
 
-      <form action={login} className="mt-8 flex flex-col gap-4">
+      <form action={login} className="mt-6 flex flex-col gap-4">
         <div>
-          <label htmlFor="email" className="text-sm font-medium text-ink">
+          <label htmlFor="email" className={authLabel}>
             Email
           </label>
           <input
@@ -31,12 +32,12 @@ export default async function LoginPage({
             type="email"
             required
             autoComplete="email"
-            className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+            className={authInput}
           />
         </div>
 
         <div>
-          <label htmlFor="password" className="text-sm font-medium text-ink">
+          <label htmlFor="password" className={authLabel}>
             Contraseña
           </label>
           <input
@@ -45,11 +46,11 @@ export default async function LoginPage({
             type="password"
             required
             autoComplete="current-password"
-            className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
+            className={authInput}
           />
           <Link
             href="/admin/olvide-password"
-            className="mt-1.5 inline-block text-xs font-medium text-cyan hover:text-cyan-dark"
+            className="mt-2 inline-block text-xs font-semibold text-cyan-dark hover:underline"
           >
             ¿Olvidaste tu contraseña?
           </Link>
@@ -59,7 +60,7 @@ export default async function LoginPage({
 
         <button
           type="submit"
-          className="press mt-2 rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper transition hover:bg-teal-dark"
+          className={authBoton}
         >
           Entrar
         </button>

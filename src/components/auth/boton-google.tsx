@@ -16,14 +16,14 @@ export function BotonGoogle({
   area?: "paciente" | "clinica";
 }) {
   return (
-    <div className="mt-8 flex flex-col gap-6">
+    <div className="mt-6 flex flex-col gap-5">
       <form action={entrarConGoogle}>
         {claim && <input type="hidden" name="claim" value={claim} />}
         <input type="hidden" name="origen" value={origen} />
         <input type="hidden" name="area" value={area} />
         <button
           type="submit"
-          className="press flex w-full items-center justify-center gap-3 rounded-lg border border-[#dadce0] bg-white px-4 py-2.5 text-sm font-medium text-[#1f1f1f] transition hover:bg-[#f8f9fa]"
+          className="press flex w-full items-center justify-center gap-3 rounded-full border border-[#dadce0] bg-white px-4 py-3 text-[15px] font-medium text-[#1f1f1f] transition hover:bg-[#f8f9fa]"
         >
           <svg viewBox="0 0 48 48" className="h-5 w-5" aria-hidden>
             <path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z" />
