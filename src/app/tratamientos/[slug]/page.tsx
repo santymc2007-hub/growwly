@@ -241,22 +241,22 @@ export default async function TratamientoPage({
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           <div className="px-6 py-8 sm:px-10">
             <div className="lg:flex lg:items-start lg:gap-10">
-              <div className="lg:max-w-3xl lg:flex-1">
+              <div className="lg:min-w-0 lg:flex-1 lg:[&>*:not(:first-child)]:max-w-3xl">
                 {/* Foto: en móvil a sangre arriba de la tarjeta; en escritorio,
                     del mismo ancho que el texto. */}
               {tratamiento.imagen_portada ? (
-                <div className="relative -mx-6 -mt-8 mb-6 aspect-[11/5] bg-sage sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/8] lg:overflow-hidden lg:rounded-2xl">
+                <div className="relative -mx-6 -mt-8 mb-6 aspect-[2/1] bg-sage sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/9] lg:overflow-hidden lg:rounded-2xl">
                   <Image
                     src={tratamiento.imagen_portada}
                     alt={tratamiento.nombre}
                     fill
-                    sizes="(min-width: 1024px) 768px, 100vw"
+                    sizes="(min-width: 1024px) 900px, 100vw"
                     priority
                     className="object-cover"
                   />
                 </div>
               ) : (
-                <div className="-mx-6 -mt-8 mb-6 flex aspect-[11/5] items-center justify-center bg-gradient-to-br from-brand-green to-brand-blue sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/8] lg:rounded-2xl">
+                <div className="-mx-6 -mt-8 mb-6 flex aspect-[2/1] items-center justify-center bg-gradient-to-br from-brand-green to-brand-blue sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/9] lg:rounded-2xl">
                   <span className="font-display text-2xl font-bold text-white">
                     {tratamiento.nombre}
                   </span>
@@ -338,7 +338,7 @@ export default async function TratamientoPage({
                 {tratamiento.tecnica_relacionada && (
                   <Link
                     href={hrefCentros}
-                    className="press block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-3 text-center text-sm font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
+                    className="press block rounded-full bg-yellow px-5 py-3 text-center text-sm font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
                   >
                     Ver centros con esta técnica
                   </Link>
