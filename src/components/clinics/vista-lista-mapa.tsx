@@ -84,9 +84,11 @@ export function VistaListaMapa({
   clinicas,
   vista,
   idsDestacados = [],
+  resaltarTecnica,
 }: {
   clinicas: Clinic[];
   vista: "lista" | "mapa";
+  resaltarTecnica?: string;
   /** Clínicas que salen arriba por visibilidad pagada en este listado. */
   idsDestacados?: string[];
 }) {
@@ -96,7 +98,12 @@ export function VistaListaMapa({
       {vista === "lista" ? (
         <div data-reveal-grupo className="mt-6 grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-3 xl:grid-cols-4">
           {clinicas.map((clinic) => (
-            <ClinicCard key={clinic.id} clinic={clinic} destacado={destacados.has(clinic.id)} />
+            <ClinicCard
+              key={clinic.id}
+              clinic={clinic}
+              destacado={destacados.has(clinic.id)}
+              resaltarTecnica={resaltarTecnica}
+            />
           ))}
         </div>
       ) : (

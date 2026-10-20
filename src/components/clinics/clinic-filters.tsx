@@ -1,6 +1,6 @@
 "use client";
 
-import { useTransition, type ReactNode } from "react";
+import { useEffect, useTransition, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 type ClinicFiltersProps = {
@@ -73,6 +73,18 @@ export function ClinicFilters({ cabecera, provincias, tecnicas, tipos }: ClinicF
   const pathname = usePathname();
   const searchParams = useSearchParams();
   const [buscando, startTransition] = useTransition();
+
+  // Mientras carga el nuevo resultado, el listado se atenúa (ver
+  // [data-resultados] en globals.css): así se nota que el filtro actúa
+  // aunque el orden de arriba no cambie.
+  useEffect(() => {
+    const raiz = document.documentElement;
+    if (buscando) raiz.dataset.buscando = "1";
+    else delete raiz.dataset.buscando;
+    return () => {
+      delete raiz.dataset.buscando;
+    };
+  }, [buscando]);
 
   const options: Record<(typeof FIELDS)[number]["key"], string[]> = {
     provincia: provincias,
