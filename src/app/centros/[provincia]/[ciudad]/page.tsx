@@ -1,5 +1,3 @@
-import { serializarJsonLd } from "@/lib/json-ld";
-import Link from "next/link";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
@@ -7,14 +5,14 @@ import type { Metadata } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
-import { VistaListaMapa, VistaToggle } from "@/components/clinics/vista-lista-mapa";
-import { SiteHeader } from "@/components/site-header";
-import { SiteFooter } from "@/components/site-footer";
+import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
+import { EnlacesEnLinea, PaginaListado, SinCentros } from "@/components/clinics/pagina-listado";
 import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import {
   provinciaDesdeSlug,
   municipioDesdeSlugGenerico,
   formatearPrecio,
+  slugifyCiudad,
 } from "@/lib/clinic-options";
 import {
   nombreCiudadBuscable,
@@ -47,7 +45,8 @@ const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: stri
     new Set(todas.map((c) => c.ciudad).filter((c): c is string => Boolean(c))),
   );
   const ciudadReal = municipioDesdeSlugGenerico(ciudadSlug, ciudadesDeProvincia);
-  if (!ciudadReal) return { ciudadReal: null, clinicas: [], idsDestacados: [] as string[] };
+  if (!ciudadReal)
+    return { ciudadReal: null, clinicas: [], idsDestacados: [] as string[], otrasCiudades: [] };
 
   // La página de una ciudad es una búsqueda en su provincia: primero
   // los destacados de la provincia que estén en esta ciudad, y el resto
@@ -56,7 +55,10 @@ const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: stri
     todas.filter((c) => c.ciudad === ciudadReal),
     provinciaReal,
   );
-  return { ciudadReal, clinicas, idsDestacados };
+  const otrasCiudades = ciudadesDeProvincia
+    .filter((c) => c !== ciudadReal)
+    .sort((a, b) => a.localeCompare(b, "es"));
+  return { ciudadReal, clinicas, idsDestacados, otrasCiudades };
 });
 
 export async function generateMetadata({
@@ -103,7 +105,10 @@ export default async function CiudadPage({
     notFound();
   }
 
-  const { ciudadReal, clinicas, idsDestacados } = await getClinicasDeCiudad(provinciaReal, ciudad);
+  const { ciudadReal, clinicas, idsDestacados, otrasCiudades } = await getClinicasDeCiudad(
+    provinciaReal,
+    ciudad,
+  );
 
   if (!ciudadReal) {
     notFound();
@@ -132,9 +137,6 @@ export default async function CiudadPage({
     new Set(clinicas.map((c) => c.zona).filter((z): z is string => Boolean(z))),
   );
 
-  const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
-
   // Tratamientos con landing en esta ciudad (≥2 centros que lo ofrecen).
   const { data: tratamientosData } = await (await createClient())
     .from("tratamientos")
@@ -150,116 +152,65 @@ export default async function CiudadPage({
     }))
     .filter((t) => t.n >= MIN_CENTROS_LANDING);
 
-  const breadcrumbJsonLd = {
-    "@context": "https://schema.org",
-    "@type": "BreadcrumbList",
-    itemListElement: [
-      { "@type": "ListItem", position: 1, name: "Inicio", item: siteUrl },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "Centros",
-        item: `${siteUrl}/centros`,
-      },
-      {
-        "@type": "ListItem",
-        position: 3,
-        name: provinciaReal,
-        item: `${siteUrl}/centros/${provincia}`,
-      },
-      {
-        "@type": "ListItem",
-        position: 4,
-        name: ciudadReal,
-        item: `${siteUrl}/centros/${provincia}/${ciudad}`,
-      },
-    ],
-  };
+  const intro =
+    clinicas.length === 0
+      ? `Todavía no tenemos centros registrados en ${ciudadReal}. Echa un vistazo al resto del directorio mientras tanto.`
+      : `${clinicas.length === 1 ? "Encontrado" : "Encontrados"} ${clinicas.length} ${clinicas.length === 1 ? "centro" : "centros"} en ${ciudadReal}` +
+        (precioMin !== null || precioMax !== null
+          ? `, con precios ${
+              precioMin !== null && precioMax !== null
+                ? `entre ${formatearPrecio(precioMin)} y ${formatearPrecio(precioMax)}`
+                : precioMin !== null
+                  ? `desde ${formatearPrecio(precioMin)}`
+                  : `hasta ${formatearPrecio(precioMax!)}`
+            }`
+          : "") +
+        (zonas.length > 0 ? `. Zonas: ${zonas.join(", ")}.` : ".");
 
   return (
-    <main className="flex-1">
-      <script
-        type="application/ld+json"
-        // eslint-disable-next-line react/no-danger
-        dangerouslySetInnerHTML={{ __html: serializarJsonLd(breadcrumbJsonLd) }}
-      />
-      <SiteHeader />
-
-      <div className="mx-auto max-w-[1400px] px-6 pt-8">
-        <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
-          <Link href="/centros" className="hover:text-cyan">
-            Centros
-          </Link>
-          <span aria-hidden>/</span>
-          <Link href={`/centros/${provincia}`} className="hover:text-cyan">
-            {provinciaReal}
-          </Link>
-          <span aria-hidden>/</span>
-          <span className="text-ink">{ciudadReal}</span>
-        </nav>
-
-        <h1 className="mt-3 font-display text-3xl text-teal-dark">
-          Centros capilares en {ciudadReal}
-        </h1>
-
-        <p className="mt-3 max-w-2xl text-ink-soft">
-          {clinicas.length === 0
-            ? `Todavía no tenemos centros registrados en ${ciudadReal}. Echa un vistazo al resto del directorio mientras tanto.`
-            : `${clinicas.length === 1 ? "Encontrado" : "Encontrados"} ${clinicas.length} ${clinicas.length === 1 ? "centro" : "centros"} en ${ciudadReal}` +
-              (precioMin !== null || precioMax !== null
-                ? `, con precios ${
-                    precioMin !== null && precioMax !== null
-                      ? `entre ${formatearPrecio(precioMin)} y ${formatearPrecio(precioMax)}`
-                      : precioMin !== null
-                        ? `desde ${formatearPrecio(precioMin)}`
-                        : `hasta ${formatearPrecio(precioMax!)}`
-                  }`
-                : "") +
-              (zonas.length > 0 ? `. Zonas: ${zonas.join(", ")}.` : ".")}
-        </p>
-
-        {tratamientosCiudad.length > 0 && (
-          <nav aria-label="Tratamientos en esta ciudad" className="mt-5 flex flex-wrap gap-2">
-            {tratamientosCiudad.map((t) => (
-              <Link
-                key={t.slug}
-                href={`/tratamientos/${t.slug}/${provincia}/${ciudad}`}
-                className="rounded-full border border-line bg-white px-3 py-1 text-sm font-medium text-teal-dark hover:border-cyan hover:text-cyan"
-              >
-                {t.nombre} en {ciudadReal} ({t.n})
-              </Link>
-            ))}
-          </nav>
-        )}
-      </div>
-
-      <div className="mx-auto max-w-[1400px] px-6 py-10">
-        {clinicas.length > 0 ? (
-          <>
-            <div className="flex justify-end">
-              <VistaToggle />
-            </div>
-            <VistaListaMapa
-              clinicas={clinicas}
-              vista={vista === "mapa" ? "mapa" : "lista"}
-              idsDestacados={idsDestacados}
-            />
-            <p className="mt-6 text-xs text-ink-soft">
-              <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
-                Cómo ordenamos los centros
-              </Link>
-            </p>
-          </>
-        ) : (
-          <Link
-            href="/centros"
-            className="inline-block rounded-full bg-teal px-6 py-3 text-sm font-medium text-paper hover:bg-teal-dark"
-          >
-            Ver todos los centros →
-          </Link>
-        )}
-      </div>
-      <SiteFooter />
-    </main>
+    <PaginaListado
+      migas={[
+        { label: "Centros", href: "/centros" },
+        { label: provinciaReal, href: `/centros/${provincia}` },
+        { label: ciudadReal, href: `/centros/${provincia}/${ciudad}` },
+      ]}
+      titulo={
+        <>
+          Centros <span className="text-teal-dark">capilares</span> en {ciudadReal}
+        </>
+      }
+      intro={intro}
+      cabecera={
+        otrasCiudades.length > 0 ? (
+          <EnlacesEnLinea
+            titulo="Otras ciudades"
+            enlaces={otrasCiudades.map((c) => ({
+              href: `/centros/${provincia}/${slugifyCiudad(c)}`,
+              texto: c,
+            }))}
+          />
+        ) : undefined
+      }
+      conResultados={clinicas.length > 0}
+      relacionados={[
+        {
+          titulo: `Tratamientos en ${ciudadReal}`,
+          enlaces: tratamientosCiudad.map((t) => ({
+            href: `/tratamientos/${t.slug}/${provincia}/${ciudad}`,
+            texto: `${t.nombre} (${t.n})`,
+          })),
+        },
+      ]}
+    >
+      {clinicas.length > 0 ? (
+        <VistaListaMapa
+          clinicas={clinicas}
+          vista={vista === "mapa" ? "mapa" : "lista"}
+          idsDestacados={idsDestacados}
+        />
+      ) : (
+        <SinCentros />
+      )}
+    </PaginaListado>
   );
 }

@@ -4,6 +4,15 @@ import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { tratamientosMenu, ciudadesConClinicas } from "@/lib/nav-publica-cache";
 import { BotonPreferenciasCookies } from "@/components/analytics/boton-preferencias-cookies";
 
+const LEGAL = [
+  { href: "/legal/aviso-legal", texto: "Aviso legal" },
+  { href: "/legal/privacidad", texto: "Privacidad" },
+  { href: "/legal/cookies", texto: "Cookies" },
+  { href: "/legal/terminos", texto: "Términos" },
+  { href: "/como-ordenamos", texto: "Cómo ordenamos" },
+  { href: "/denunciar", texto: "Denunciar un contenido" },
+];
+
 export async function SiteFooter() {
   const [tratamientos, ciudades] = await Promise.all([
     tratamientosMenu(),
@@ -87,52 +96,29 @@ export async function SiteFooter() {
                 </ul>
               </div>
             )}
-
-            <div>
-              <p className="text-xs font-medium uppercase tracking-wide text-white">
-                Legal
-              </p>
-              <ul className="mt-3 flex flex-col gap-1.5 text-xs">
-                <li>
-                  <Link href="/legal/aviso-legal" className="hover:text-white">
-                    Aviso Legal
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/legal/privacidad" className="hover:text-white">
-                    Privacidad
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/legal/cookies" className="hover:text-white">
-                    Cookies
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/legal/terminos" className="hover:text-white">
-                    Términos y Condiciones
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/como-ordenamos" className="hover:text-white">
-                    Cómo ordenamos los centros
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/denunciar" className="hover:text-white" rel="nofollow">
-                    Denunciar un contenido
-                  </Link>
-                </li>
-                <li>
-                  <BotonPreferenciasCookies />
-                </li>
-              </ul>
-            </div>
           </div>
 
-          <p className="mt-8 border-t border-white/15 pt-6 text-xs">
-            © {new Date().getFullYear()} Growwly
-          </p>
+          {/* Textos legales en una línea, al pie: están en todas las
+              páginas sin ocupar una columna entera. */}
+          <div className="mt-8 flex flex-col gap-3 border-t border-white/15 pt-6 text-xs sm:flex-row sm:items-start sm:justify-between">
+            <p className="shrink-0">© {new Date().getFullYear()} Growwly</p>
+            <ul className="flex flex-wrap gap-x-4 gap-y-1.5 sm:justify-end">
+              {LEGAL.map((l) => (
+                <li key={l.href}>
+                  <Link
+                    href={l.href}
+                    className="hover:text-white"
+                    rel={l.href === "/denunciar" ? "nofollow" : undefined}
+                  >
+                    {l.texto}
+                  </Link>
+                </li>
+              ))}
+              <li>
+                <BotonPreferenciasCookies className="hover:text-white" />
+              </li>
+            </ul>
+          </div>
         </div>
       </footer>
     </div>
