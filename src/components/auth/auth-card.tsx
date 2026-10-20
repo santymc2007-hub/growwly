@@ -80,8 +80,8 @@ export function AuthCard({
           <Image
             src="/brand/growwly-logo-verde.png"
             alt="Growwly"
-            width={365}
-            height={130}
+            width={889}
+            height={303}
             className="h-10 w-auto sm:h-12"
             priority
           />
