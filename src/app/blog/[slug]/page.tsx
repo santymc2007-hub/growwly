@@ -166,22 +166,23 @@ export default async function BlogPostPage({
 
       <article className="mx-auto max-w-[1400px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
-          {post.imagen_portada && (
-            <div className="relative aspect-[16/6] w-full bg-sage sm:aspect-[21/6]">
-              <Image
-                src={post.imagen_portada}
-                alt={post.titulo}
-                fill
-                sizes="1600px"
-                priority
-                className="object-cover"
-              />
-            </div>
-          )}
-
           <div className="px-6 py-8 sm:px-10">
             <div className="lg:flex lg:items-start lg:gap-10">
               <div className="lg:max-w-3xl lg:flex-1">
+                {/* Foto: en móvil a sangre arriba de la tarjeta; en escritorio,
+                    del mismo ancho que el texto. */}
+              {post.imagen_portada && (
+                <div className="relative -mx-6 -mt-8 mb-6 aspect-[11/5] bg-sage sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/8] lg:overflow-hidden lg:rounded-2xl">
+                  <Image
+                    src={post.imagen_portada}
+                    alt={post.titulo}
+                    fill
+                    sizes="(min-width: 1024px) 768px, 100vw"
+                    priority
+                    className="object-cover"
+                  />
+                </div>
+              )}
                 <Breadcrumbs
                   items={[
                     { label: "Blog", href: "/blog" },
@@ -231,7 +232,7 @@ export default async function BlogPostPage({
                 )}
               </div>
 
-              <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:mt-0 lg:w-[300px] lg:shrink-0">
+              <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:ml-auto lg:mt-0 lg:w-[320px] lg:shrink-0 lg:rounded-3xl lg:bg-paper-dim lg:p-5">
                 {post.tags.length > 0 && (
                   <div className="rounded-2xl border border-line bg-white p-5">
                     <p className="font-display text-lg text-teal-dark">Etiquetas</p>

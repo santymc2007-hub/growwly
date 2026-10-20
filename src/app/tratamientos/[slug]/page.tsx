@@ -239,28 +239,29 @@ export default async function TratamientoPage({
 
       <article className="mx-auto max-w-[1400px] px-3 pb-8 pt-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
-          {tratamiento.imagen_portada ? (
-            <div className="relative aspect-[16/6] w-full bg-sage sm:aspect-[21/6]">
-              <Image
-                src={tratamiento.imagen_portada}
-                alt={tratamiento.nombre}
-                fill
-                sizes="1600px"
-                priority
-                className="object-cover"
-              />
-            </div>
-          ) : (
-            <div className="flex aspect-[16/6] w-full items-center justify-center bg-gradient-to-br from-brand-green to-brand-blue sm:aspect-[21/6]">
-              <span className="font-display text-2xl font-bold text-white">
-                {tratamiento.nombre}
-              </span>
-            </div>
-          )}
-
           <div className="px-6 py-8 sm:px-10">
             <div className="lg:flex lg:items-start lg:gap-10">
               <div className="lg:max-w-3xl lg:flex-1">
+                {/* Foto: en móvil a sangre arriba de la tarjeta; en escritorio,
+                    del mismo ancho que el texto. */}
+              {tratamiento.imagen_portada ? (
+                <div className="relative -mx-6 -mt-8 mb-6 aspect-[11/5] bg-sage sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/8] lg:overflow-hidden lg:rounded-2xl">
+                  <Image
+                    src={tratamiento.imagen_portada}
+                    alt={tratamiento.nombre}
+                    fill
+                    sizes="(min-width: 1024px) 768px, 100vw"
+                    priority
+                    className="object-cover"
+                  />
+                </div>
+              ) : (
+                <div className="-mx-6 -mt-8 mb-6 flex aspect-[11/5] items-center justify-center bg-gradient-to-br from-brand-green to-brand-blue sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/8] lg:rounded-2xl">
+                  <span className="font-display text-2xl font-bold text-white">
+                    {tratamiento.nombre}
+                  </span>
+                </div>
+              )}
                 <nav aria-label="Migas de pan" className="flex items-center gap-1.5 text-sm text-ink-soft">
                   <Link href="/tratamientos" className="hover:text-cyan">
                     Tratamientos
@@ -279,18 +280,18 @@ export default async function TratamientoPage({
                 {/* Datos clave: lo que más citan los buscadores con IA.
                     Solo datos reales; si no hay, no se muestra la casilla. */}
                 <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <div className="rounded-2xl border border-line bg-white p-4">
+                  <div className="rounded-2xl bg-paper-dim p-4">
                     <dt className="text-xs text-ink-soft">Centros verificados</dt>
                     <dd className="mt-1 font-display text-2xl text-teal-dark">{clinicasData.length}</dd>
                   </div>
                   {ciudadesConCentros > 0 && (
-                    <div className="rounded-2xl border border-line bg-white p-4">
+                    <div className="rounded-2xl bg-paper-dim p-4">
                       <dt className="text-xs text-ink-soft">Ciudades</dt>
                       <dd className="mt-1 font-display text-2xl text-teal-dark">{ciudadesConCentros}</dd>
                     </div>
                   )}
                   {tratamiento.duracion_orientativa && (
-                    <div className="rounded-2xl border border-line bg-white p-4">
+                    <div className="rounded-2xl bg-paper-dim p-4">
                       <dt className="text-xs text-ink-soft">Duración orientativa</dt>
                       <dd className="mt-1 text-sm font-semibold text-teal-dark">
                         {tratamiento.duracion_orientativa}
@@ -298,7 +299,7 @@ export default async function TratamientoPage({
                     </div>
                   )}
                   {precios && (
-                    <div className="rounded-2xl border border-line bg-white p-4">
+                    <div className="rounded-2xl bg-paper-dim p-4">
                       <dt className="text-xs text-ink-soft">Precios publicados</dt>
                       <dd className="mt-1 text-sm font-semibold text-teal-dark">{precios}</dd>
                     </div>
@@ -333,7 +334,7 @@ export default async function TratamientoPage({
                 )}
               </div>
 
-              <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:mt-0 lg:w-[360px] lg:shrink-0">
+              <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:ml-auto lg:mt-0 lg:w-[360px] lg:shrink-0 lg:rounded-3xl lg:bg-paper-dim lg:p-5">
                 {tratamiento.tecnica_relacionada && (
                   <Link
                     href={hrefCentros}
