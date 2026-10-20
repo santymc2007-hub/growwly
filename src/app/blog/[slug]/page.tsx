@@ -168,16 +168,16 @@ export default async function BlogPostPage({
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           <div className="px-6 py-8 sm:px-10">
             <div className="lg:flex lg:items-start lg:gap-10">
-              <div className="lg:max-w-3xl lg:flex-1">
+              <div className="lg:min-w-0 lg:flex-1 lg:[&>*:not(:first-child)]:max-w-3xl">
                 {/* Foto: en móvil a sangre arriba de la tarjeta; en escritorio,
                     del mismo ancho que el texto. */}
               {post.imagen_portada && (
-                <div className="relative -mx-6 -mt-8 mb-6 aspect-[11/5] bg-sage sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/8] lg:overflow-hidden lg:rounded-2xl">
+                <div className="relative -mx-6 -mt-8 mb-6 aspect-[2/1] bg-sage sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/9] lg:overflow-hidden lg:rounded-2xl">
                   <Image
                     src={post.imagen_portada}
                     alt={post.titulo}
                     fill
-                    sizes="(min-width: 1024px) 768px, 100vw"
+                    sizes="(min-width: 1024px) 900px, 100vw"
                     priority
                     className="object-cover"
                   />
