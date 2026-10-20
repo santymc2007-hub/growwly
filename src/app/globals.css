@@ -294,3 +294,20 @@ html.anim .rv-on {
 .rango-presupuesto:focus-visible::-webkit-slider-thumb {
   box-shadow: 0 0 0 6px color-mix(in srgb, var(--color-teal) 18%, transparent);
 }
+
+/* Listado de centros: feedback al filtrar (ver clinic-filters.tsx). */
+[data-resultados] {
+  transition: opacity 180ms var(--ease-out);
+}
+html[data-buscando] [data-resultados] {
+  opacity: 0.4;
+  pointer-events: none;
+}
+.resultados-entra {
+  animation: aparece 320ms var(--ease-out) backwards;
+}
+@media (prefers-reduced-motion: reduce) {
+  .resultados-entra {
+    animation: none;
+  }
+}

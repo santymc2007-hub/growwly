@@ -109,6 +109,37 @@ export default async function CentrosPage({
     );
   });
 
+  // Resumen de filtros activos: frase + chips que se quitan con un clic.
+  // Con filtros amplios (p. ej. FUE en Palma) casi todo sigue saliendo y
+  // en el mismo orden — sin esto parecía que el filtro no hacía nada.
+  const actuales: Record<string, string | undefined> = {
+    provincia, ciudad, tecnica, tipo, idioma, ubicacion, rating,
+    verificado, financiacion, oferta, primera_consulta, vista,
+  };
+  const sinFiltro = (clave: string) => {
+    const q = new URLSearchParams();
+    for (const [k, v] of Object.entries(actuales)) if (v && k !== clave) q.set(k, v);
+    const qs = q.toString();
+    return qs ? `/centros?${qs}` : "/centros";
+  };
+  const chips = [
+    tecnica && { clave: "tecnica", texto: `con ${tecnica}` },
+    ciudad && { clave: "ciudad", texto: `en ${ciudad}` },
+    !ciudad && provincia && { clave: "provincia", texto: `en ${provincia}` },
+    ubicacion === "palma" && { clave: "ubicacion", texto: "en Palma" },
+    ubicacion === "pueblo" && { clave: "ubicacion", texto: "fuera de Palma" },
+    tipo && { clave: "tipo", texto: tipo },
+    idioma && { clave: "idioma", texto: `en ${idioma.toLowerCase()}` },
+    ratingMinimo && { clave: "rating", texto: `${String(ratingMinimo).replace(".", ",")}★ o más` },
+    verificado === "1" && { clave: "verificado", texto: "verificados" },
+    financiacion === "1" && { clave: "financiacion", texto: "con financiación" },
+    oferta === "1" && { clave: "oferta", texto: "con oferta" },
+    primera_consulta === "1" && { clave: "primera_consulta", texto: "1ª consulta gratis" },
+  ].filter((c): c is { clave: string; texto: string } => Boolean(c));
+  // Cambia con cada combinación de filtros: remonta el listado y vuelve
+  // a lanzar la animación de entrada.
+  const claveResultados = chips.map((c) => `${c.clave}=${actuales[c.clave]}`).join("&") || "todos";
+
   const provincias = uniqueSorted(centros.map((c) => c.provincia));
   const ciudades = uniqueSorted(
     centros
@@ -146,10 +177,9 @@ export default async function CentrosPage({
           <ClinicFilters
             cabecera={
               <p className="font-display text-sm font-bold text-ink sm:text-lg">
-                {filtrados.length}{" "}
-                {filtrados.length === 1
-                  ? "centro encontrado"
-                  : "centros encontrados"}
+                {filtrados.length}
+                {chips.length > 0 && ` de ${centros.length}`}{" "}
+                {filtrados.length === 1 ? "centro encontrado" : "centros encontrados"}
               </p>
             }
             provincias={provincias}
@@ -190,13 +220,34 @@ export default async function CentrosPage({
               <VistaToggle />
             </div>
 
-            <div className="mt-6 sm:mt-8">
+            {chips.length > 0 && (
+              <div className="mt-5 flex flex-wrap items-center gap-2" aria-live="polite">
+                <span className="text-sm font-semibold text-teal-dark">
+                  {filtrados.length} {filtrados.length === 1 ? "centro" : "centros"}
+                </span>
+                {chips.map((c) => (
+                  <Link
+                    key={c.clave + c.texto}
+                    href={sinFiltro(c.clave)}
+                    scroll={false}
+                    className="press inline-flex items-center gap-1.5 rounded-full bg-teal-dark px-3 py-1 text-sm font-medium text-white hover:bg-teal"
+                    aria-label={`Quitar filtro: ${c.texto}`}
+                  >
+                    {c.texto}
+                    <span aria-hidden className="text-white/70">×</span>
+                  </Link>
+                ))}
+              </div>
+            )}
+
+            <div data-resultados key={claveResultados} className="resultados-entra mt-6 sm:mt-8">
               {filtrados.length > 0 ? (
                 <>
                   <VistaListaMapa
                     clinicas={filtrados}
                     vista={vista === "mapa" ? "mapa" : "lista"}
                     idsDestacados={idsDestacados}
+                    resaltarTecnica={tecnica}
                   />
                   <p className="mt-6 text-xs text-ink-soft">
                     <Link href="/como-ordenamos" className="underline hover:text-teal-dark">

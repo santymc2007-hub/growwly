@@ -10,11 +10,18 @@ import { RatingCompacto } from "./rating-stars";
 export function ClinicCard({
   clinic,
   destacado = false,
+  resaltarTecnica,
 }: {
   clinic: Clinic;
   /** Sale arriba por visibilidad pagada: muestra la etiqueta "Destacado". */
   destacado?: boolean;
+  /** Técnica filtrada: sale la primera y resaltada, para que se vea el filtro. */
+  resaltarTecnica?: string;
 }) {
+  const tecnicasOrdenadas =
+    resaltarTecnica && clinic.tecnicas.includes(resaltarTecnica)
+      ? [resaltarTecnica, ...clinic.tecnicas.filter((t) => t !== resaltarTecnica)]
+      : clinic.tecnicas;
   const ubicacion = [clinic.zona, clinic.ciudad].filter(Boolean).join(", ");
   const foto = clinic.fotos[0];
   const provinciaSlug = slugifyProvincia(clinic.provincia);
@@ -82,10 +89,14 @@ export function ClinicCard({
 
         {clinic.tecnicas.length > 0 && (
           <div className="hidden flex-wrap gap-1.5 sm:flex">
-            {clinic.tecnicas.slice(0, 3).map((tecnica) => (
+            {tecnicasOrdenadas.slice(0, 3).map((tecnica) => (
               <span
                 key={tecnica}
-                className="rounded-full bg-sage px-2.5 py-1 text-xs font-medium text-sage-ink"
+                className={
+                  tecnica === resaltarTecnica
+                    ? "rounded-full bg-teal-dark px-2.5 py-1 text-xs font-semibold text-white"
+                    : "rounded-full bg-sage px-2.5 py-1 text-xs font-medium text-sage-ink"
+                }
               >
                 {tecnica}
               </span>
