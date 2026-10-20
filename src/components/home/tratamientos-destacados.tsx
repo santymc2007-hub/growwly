@@ -46,7 +46,7 @@ export function TratamientosDestacados({
         </div>
         <Link
           href="/tratamientos"
-          className="press shrink-0 rounded-full bg-yellow px-5 py-2.5 text-sm font-bold text-teal-dark shadow-sm transition hover:opacity-90"
+          className="shrink-0 text-sm font-semibold text-cyan-dark underline-offset-4 hover:underline"
         >
           Ver todos los tratamientos →
         </Link>
@@ -88,9 +88,9 @@ export function TratamientosDestacados({
                 {t.resumen && (
                   <p className="mt-1 text-sm text-white/80">{t.resumen}</p>
                 )}
-                {/* Toda la tarjeta es el enlace; el "botón" lo hace visible
-                    con el amarillo de los CTA de la web. */}
-                <span className="mt-4 inline-block rounded-full bg-yellow px-4 py-1.5 text-sm font-bold text-teal-dark shadow-sm transition group-hover:opacity-90">
+                {/* Toda la tarjeta es el enlace; "Ver más" en el amarillo de
+                    los CTA de la web para que se vea que lleva a otra página. */}
+                <span className="mt-3 inline-block text-sm font-bold text-yellow underline-offset-4 group-hover:underline">
                   Ver más →
                 </span>
               </div>
