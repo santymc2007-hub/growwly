@@ -26,15 +26,35 @@ export type TipoDestacado = Exclude<TipoVisibilidad, "premium">;
 
 export type Plazas = { ocupadas: number; total: number; libres: number };
 
-/** Precio mensual (decisión de Santy, 19 oct 2026). */
+/**
+ * Precios con IVA incluido (decisión de Santy, 20 oct 2026). Dos formas
+ * de pago: mensual, sin permanencia, o anual (pago de 12 meses, con el
+ * precio por mes rebajado). Si cambian, cambiar también /precios.
+ */
 export const PRECIO_MENSUAL: Record<TipoVisibilidad, number> = {
   destacado: 49,
   destacado_provincia: 60,
   premium: 85,
 };
 
-/** Descuento por contratar varios meses seguidos (modelo de precios v4). */
-export const DESCUENTO_POR_MESES: Record<number, number> = { 3: 5, 6: 15, 12: 20 };
+/** Precio por mes en pago anual. */
+export const PRECIO_ANUAL_MES: Record<TipoVisibilidad, number> = {
+  destacado: 39,
+  destacado_provincia: 48,
+  premium: 69,
+};
+
+export type Periodo = "mensual" | "anual";
+
+/** Descuento del pago anual frente al mensual, en % redondeado. */
+export function descuentoAnual(tipo: TipoVisibilidad): number {
+  return Math.round((1 - PRECIO_ANUAL_MES[tipo] / PRECIO_MENSUAL[tipo]) * 100);
+}
+
+/** Lo que se ahorra en un año pagando el plan anual. */
+export function ahorroAnual(tipo: TipoVisibilidad): number {
+  return (PRECIO_MENSUAL[tipo] - PRECIO_ANUAL_MES[tipo]) * 12;
+}
 
 // Textos que ven la clínica (panel) y el admin, y que van en el email de
 // activación.
@@ -52,21 +72,21 @@ export const TIPO_LABEL_HISTORIAL: Record<string, string> = {
 };
 
 export const DESCRIPCION_LABEL: Record<TipoVisibilidad, string> = {
-  destacado: `En la portada y entre los primeros del listado de centros. ${PLAZAS_DESTACADO_GENERAL} plazas en toda España.`,
-  destacado_provincia: `Entre los primeros cuando el paciente busca centros en tu provincia o en tu ciudad. ${PLAZAS_DESTACADO_PROVINCIA} plazas por provincia.`,
+  destacado: `Tu centro aparecerá destacado en la home y en la sección de centros. Solo ${PLAZAS_DESTACADO_GENERAL} plazas para todos los centros de España.`,
+  destacado_provincia: `Aparecerás entre los primeros ${PLAZAS_DESTACADO_PROVINCIA} centros cuando el paciente busque por provincia o en los sucesivos filtros.`,
   premium: "Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha.",
 };
 
 /** Tipo de campaña: para que la clínica entienda qué compra. */
 export const CAMPANA_LABEL: Record<TipoVisibilidad, string> = {
   destacado: "Campaña de marca · máximo alcance",
-  destacado_provincia: "Campaña de resultado · pacientes con intención",
+  destacado_provincia: "Campaña de resultado · pacientes con máxima intención",
   premium: "Conversión · más pacientes por cada visita",
 };
 
 export const BENEFICIO_LABEL: Record<TipoVisibilidad, string> = {
   destacado: "Visibilidad de marca: es lo primero que ve cualquier visitante de Growwly.",
-  destacado_provincia: "Más cerca de la decisión: te ven primero quienes buscan en tu zona.",
+  destacado_provincia: "Usuarios que buscan directamente en tu zona.",
   premium: "Ficha completa = más confianza del paciente = más leads convertidos.",
 };
 

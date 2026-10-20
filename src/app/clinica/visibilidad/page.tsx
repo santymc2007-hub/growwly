@@ -11,7 +11,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { ClinicaNav } from "../clinica-nav";
-import { TarjetaVisibilidad } from "./tarjeta-visibilidad";
+import { SeccionVisibilidad } from "./seccion-visibilidad";
 import { EsquemaVisibilidad } from "./esquema-visibilidad";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
 import { SelectorClinica } from "@/components/clinica/selector-clinica";
@@ -109,45 +109,50 @@ export default async function VisibilidadPage({
               : {};
 
           return (
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-              <TarjetaVisibilidad
-                tipo="destacado"
-                icono={<Home className="h-5 w-5" strokeWidth={2.2} />}
-                titulo={TIPO_LABEL.destacado}
-                descripcion={DESCRIPCION_LABEL.destacado}
-                beneficio={BENEFICIO_LABEL.destacado}
-                activo={clinic.destacado}
-                pendiente={clinic.destacado_solicitado}
-                expiraEn={fechas.destacado?.expira_en}
-                plazas={plazasGeneral}
-                campana={CAMPANA_LABEL.destacado}
-                esquema={<EsquemaVisibilidad tipo="destacado" />}
-              />
-              <TarjetaVisibilidad
-                tipo="destacado_provincia"
-                icono={<MapPin className="h-5 w-5" strokeWidth={2.2} />}
-                titulo={TIPO_LABEL.destacado_provincia}
-                descripcion={`${DESCRIPCION_LABEL.destacado_provincia}${clinic.provincia ? ` Tu provincia: ${clinic.provincia}.` : ""}`}
-                beneficio={BENEFICIO_LABEL.destacado_provincia}
-                activo={clinic.destacado_provincia}
-                pendiente={clinic.destacado_provincia_solicitado}
-                expiraEn={fechas.destacado_provincia?.expira_en}
-                plazas={plazasProvincia}
-                campana={CAMPANA_LABEL.destacado_provincia}
-                esquema={<EsquemaVisibilidad tipo="destacado_provincia" provincia={clinic.provincia} />}
-              />
-              <TarjetaVisibilidad
-                tipo="premium"
-                icono={<Gem className="h-5 w-5" strokeWidth={2.2} />}
-                titulo={TIPO_LABEL.premium}
-                descripcion={DESCRIPCION_LABEL.premium}
-                beneficio={BENEFICIO_LABEL.premium}
-                activo={clinic.plan === "premium"}
-                pendiente={clinic.plan_solicitado === "premium"}
-                expiraEn={fechas.premium?.expira_en}
-                campana={CAMPANA_LABEL.premium}
-              />
-            </div>
+            <SeccionVisibilidad
+              premium={{
+                tipo: "premium",
+                icono: <Gem className="h-6 w-6" strokeWidth={2.2} />,
+                titulo: TIPO_LABEL.premium,
+                descripcion: DESCRIPCION_LABEL.premium,
+                beneficio: BENEFICIO_LABEL.premium,
+                activo: clinic.plan === "premium",
+                pendiente: clinic.plan_solicitado === "premium",
+                expiraEn: fechas.premium?.expira_en,
+                campana: CAMPANA_LABEL.premium,
+                esquema: <EsquemaVisibilidad tipo="premium" />,
+              }}
+              destacados={[
+                {
+                  tipo: "destacado",
+                  icono: <Home className="h-5 w-5" strokeWidth={2.2} />,
+                  titulo: TIPO_LABEL.destacado,
+                  descripcion: DESCRIPCION_LABEL.destacado,
+                  beneficio: BENEFICIO_LABEL.destacado,
+                  activo: clinic.destacado,
+                  pendiente: clinic.destacado_solicitado,
+                  expiraEn: fechas.destacado?.expira_en,
+                  plazas: plazasGeneral,
+                  campana: CAMPANA_LABEL.destacado,
+                  esquema: <EsquemaVisibilidad tipo="destacado" />,
+                },
+                {
+                  tipo: "destacado_provincia",
+                  icono: <MapPin className="h-5 w-5" strokeWidth={2.2} />,
+                  titulo: TIPO_LABEL.destacado_provincia,
+                  descripcion: DESCRIPCION_LABEL.destacado_provincia,
+                  beneficio: BENEFICIO_LABEL.destacado_provincia,
+                  activo: clinic.destacado_provincia,
+                  pendiente: clinic.destacado_provincia_solicitado,
+                  expiraEn: fechas.destacado_provincia?.expira_en,
+                  plazas: plazasProvincia,
+                  campana: CAMPANA_LABEL.destacado_provincia,
+                  esquema: (
+                    <EsquemaVisibilidad tipo="destacado_provincia" provincia={clinic.provincia} />
+                  ),
+                },
+              ]}
+            />
           );
         })()}
       </div>
