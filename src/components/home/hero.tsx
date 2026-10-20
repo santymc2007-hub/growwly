@@ -8,7 +8,7 @@ export function Hero() {
       <div className="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6">
         <div className="order-2 text-center lg:order-1 lg:text-left">
           <p className="entra text-xs font-bold uppercase tracking-widest text-teal">
-            Tu pelo en buenas manos
+            Tu salud capilar en buenas manos
           </p>
           <h1 className="entra d1 mt-3 font-display text-[32px] font-extrabold leading-[1.1] text-teal-dark sm:text-[44px] lg:text-[52px]">
             Tu valoración capilar gratis en 2&nbsp;minutos
