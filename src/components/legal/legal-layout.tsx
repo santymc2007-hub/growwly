@@ -1,15 +1,16 @@
-import Link from "next/link";
 import { SiteHeader } from "@/components/site-header";
 import { SiteFooter } from "@/components/site-footer";
+import { FondoTextura } from "@/components/fondo-textura";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 
-const PAGINAS = [
-  { href: "/legal/aviso-legal", label: "Aviso Legal" },
-  { href: "/legal/privacidad", label: "Privacidad" },
-  { href: "/legal/cookies", label: "Cookies" },
-  { href: "/legal/terminos", label: "Términos y Condiciones" },
-  { href: "/como-ordenamos", label: "Cómo ordenamos" },
-];
+// Los enlaces entre textos legales están en el pie de todas las páginas.
+const TITULOS: Record<string, string> = {
+  "/legal/aviso-legal": "Aviso Legal",
+  "/legal/privacidad": "Privacidad",
+  "/legal/cookies": "Cookies",
+  "/legal/terminos": "Términos y Condiciones",
+  "/como-ordenamos": "Cómo ordenamos",
+};
 
 export function LegalLayout({
   activo,
@@ -18,33 +19,19 @@ export function LegalLayout({
   activo: string;
   children: React.ReactNode;
 }) {
-  const pagina = PAGINAS.find((p) => p.href === activo);
-
   return (
-    <main className="flex-1">
+    <main className="relative flex-1">
+      <FondoTextura />
       <SiteHeader />
-      <div className="mx-auto max-w-3xl px-6 py-12">
-        <Breadcrumbs
-          items={[{ label: pagina?.label ?? "Legal", href: activo }]}
-        />
-        <nav className="mt-4 flex flex-wrap gap-x-5 gap-y-2 border-b border-line pb-4 text-sm">
-          {PAGINAS.map((p) => (
-            <Link
-              key={p.href}
-              href={p.href}
-              className={
-                p.href === activo
-                  ? "font-medium text-teal-dark"
-                  : "text-ink-soft hover:text-teal"
-              }
-            >
-              {p.label}
-            </Link>
-          ))}
-        </nav>
-        <article className="prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
-          {children}
-        </article>
+      <div className="mx-auto max-w-4xl px-6 pt-8">
+        <Breadcrumbs items={[{ label: TITULOS[activo] ?? "Legal", href: activo }]} />
+      </div>
+      <div className="mx-auto max-w-4xl px-3 pb-10 pt-4 sm:px-6">
+        <div className="rounded-3xl bg-white px-6 py-10 shadow-sm sm:px-12 sm:py-12">
+          <article className="prose prose-teal max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan">
+            {children}
+          </article>
+        </div>
       </div>
       <SiteFooter />
     </main>
