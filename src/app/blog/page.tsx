@@ -10,9 +10,9 @@ import { BuscadorBlog } from "@/components/blog/buscador-blog";
 import { EtiquetasBlog } from "@/components/blog/etiquetas-blog";
 
 export const metadata: Metadata = {
-  title: "Blog | Growwly",
+  title: "Blog de salud capilar: caída, tratamientos e injertos",
   description:
-    "Artículos sobre salud capilar, tratamientos e injertos, y todo lo que hay que saber antes de dar el paso.",
+    "Guías claras sobre caída del cabello, alopecia, injertos FUE y DHI, PRP, mesoterapia y más: qué funciona, cuánto cuesta y qué preguntar antes de dar el paso.",
   alternates: { canonical: "/blog" },
 };
 

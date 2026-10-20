@@ -16,6 +16,13 @@ import {
   municipioDesdeSlugGenerico,
   formatearPrecio,
 } from "@/lib/clinic-options";
+import {
+  nombreCiudadBuscable,
+  rangoPrecios,
+  recortar,
+  tecnicasMasComunes,
+  MIN_CENTROS_LANDING,
+} from "@/lib/seo/landings";
 
 type Params = { provincia: string; ciudad: string };
 
@@ -64,10 +71,20 @@ export async function generateMetadata({
   const { ciudadReal } = await getClinicasDeCiudad(provinciaReal, ciudad);
   if (!ciudadReal) return {};
 
+  const { clinicas } = await getClinicasDeCiudad(provinciaReal, ciudad);
+  const lugar = nombreCiudadBuscable(ciudadReal, provinciaReal);
+  const precios = rangoPrecios(clinicas);
+  const tecnicas = tecnicasMasComunes(clinicas).join(", ");
   return {
-    title: `Centros capilares en ${ciudadReal}`,
-    description: `Directorio de centros capilares en ${ciudadReal}: técnicas, precios, valoraciones e idiomas.`,
+    title:
+      clinicas.length > 1
+        ? `Clínicas capilares en ${ciudadReal}: ${clinicas.length} centros comparados`
+        : `Clínicas capilares en ${ciudadReal}`,
+    description: recortar(
+      `Compara ${clinicas.length} ${clinicas.length === 1 ? "centro capilar verificado" : "clínicas y centros capilares verificados"} en ${lugar}${tecnicas ? `: ${tecnicas}` : ""}${precios ? `. Precios ${precios}` : ""}. Opiniones, ubicación y presupuesto gratis.`,
+    ),
     alternates: { canonical: `/centros/${provincia}/${ciudad}` },
+    ...(clinicas.length === 0 && { robots: { index: false, follow: true } }),
   };
 }
 
@@ -116,7 +133,22 @@ export default async function CiudadPage({
   );
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
+
+  // Tratamientos con landing en esta ciudad (≥2 centros que lo ofrecen).
+  const { data: tratamientosData } = await (await createClient())
+    .from("tratamientos")
+    .select("slug, nombre, tecnica_relacionada")
+    .eq("publicado", true)
+    .not("tecnica_relacionada", "is", null)
+    .order("nombre");
+  const tratamientosCiudad = (tratamientosData ?? [])
+    .map((t) => ({
+      slug: t.slug,
+      nombre: t.nombre,
+      n: clinicas.filter((c) => c.tecnicas.includes(t.tecnica_relacionada as string)).length,
+    }))
+    .filter((t) => t.n >= MIN_CENTROS_LANDING);
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",
@@ -159,7 +191,7 @@ export default async function CiudadPage({
             Centros
           </Link>
           <span aria-hidden>/</span>
-          <Link href={`/centros?provincia=${encodeURIComponent(provinciaReal)}`} className="hover:text-cyan">
+          <Link href={`/centros/${provincia}`} className="hover:text-cyan">
             {provinciaReal}
           </Link>
           <span aria-hidden>/</span>
@@ -185,6 +217,20 @@ export default async function CiudadPage({
                 : "") +
               (zonas.length > 0 ? `. Zonas: ${zonas.join(", ")}.` : ".")}
         </p>
+
+        {tratamientosCiudad.length > 0 && (
+          <nav aria-label="Tratamientos en esta ciudad" className="mt-5 flex flex-wrap gap-2">
+            {tratamientosCiudad.map((t) => (
+              <Link
+                key={t.slug}
+                href={`/tratamientos/${t.slug}/${provincia}/${ciudad}`}
+                className="rounded-full border border-line bg-white px-3 py-1 text-sm font-medium text-teal-dark hover:border-cyan hover:text-cyan"
+              >
+                {t.nombre} en {ciudadReal} ({t.n})
+              </Link>
+            ))}
+          </nav>
+        )}
       </div>
 
       <div className="mx-auto max-w-[1400px] px-6 py-10">

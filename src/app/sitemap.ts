@@ -1,9 +1,10 @@
 import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
+import { todasLasLandings } from "@/lib/seo/landings";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const supabase = await createClient();
@@ -48,6 +49,21 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     };
   });
 
+  const paginasProvincia: MetadataRoute.Sitemap = Array.from(
+    new Set((clinicas ?? []).map((c) => c.provincia)),
+  ).map((provincia) => ({
+    url: `${siteUrl}/centros/${slugifyProvincia(provincia)}`,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
+
+  // Landings tratamiento × lugar: solo las que tienen ≥2 centros reales.
+  const paginasLanding: MetadataRoute.Sitemap = (await todasLasLandings()).map((ruta) => ({
+    url: `${siteUrl}${ruta}`,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
+
   const paginasClinicas: MetadataRoute.Sitemap = (clinicas ?? [])
     .filter((c) => c.ciudad)
     .map((c) => ({
@@ -73,7 +89,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   return [
     ...paginasEstaticas,
+    ...paginasProvincia,
     ...paginasCiudad,
+    ...paginasLanding,
     ...paginasClinicas,
     ...paginasBlog,
     ...paginasTratamientos,

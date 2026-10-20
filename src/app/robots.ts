@@ -1,7 +1,7 @@
 import type { MetadataRoute } from "next";
 
 const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+  process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
 
 export default function robots(): MetadataRoute.Robots {
   // ⚠️ NOINDEX TEMPORAL — bloqueado por completo mientras la web está en
