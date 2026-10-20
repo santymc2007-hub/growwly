@@ -12,7 +12,7 @@ import "./globals.css";
 import { RevealObserver } from "@/components/reveal-observer";
 import { ANIMACIONES_ACTIVAS, SCRIPT_ANIMACIONES } from "@/lib/animaciones";
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
 
 // Supabase vive en Frankfurt (eu-central-1). Sin esto, Vercel puede
 // ejecutar las funciones que renderizan las páginas en EEUU por

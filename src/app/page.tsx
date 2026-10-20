@@ -18,6 +18,35 @@ import { AnnouncementBar } from "@/components/home/announcement-bar";
 import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
 import { BlogDestacado } from "@/components/home/blog-destacado";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
+import { serializarJsonLd } from "@/lib/json-ld";
+import { SITE_URL } from "@/lib/site-url";
+
+// Organization + WebSite: identifican la marca como entidad para Google
+// y los buscadores con IA. sameAs: añadir las redes cuando existan.
+const ENTIDAD_JSON_LD = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${SITE_URL}/#organization`,
+      name: "Growwly",
+      url: SITE_URL,
+      logo: `${SITE_URL}/brand/logo-home.png`,
+      email: "hola@growwly.es",
+      description:
+        "Directorio y comparador de clínicas y centros capilares verificados en España.",
+      areaServed: "ES",
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${SITE_URL}/#website`,
+      url: SITE_URL,
+      name: "Growwly",
+      inLanguage: "es-ES",
+      publisher: { "@id": `${SITE_URL}/#organization` },
+    },
+  ],
+};
 
 export const metadata: Metadata = {
   alternates: { canonical: "/" },
@@ -113,6 +142,11 @@ export default async function HomePage() {
 
   return (
     <main className="relative flex-1">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: serializarJsonLd(ENTIDAD_JSON_LD) }}
+      />
       <FondoTextura />
       <AnnouncementBar />
       <SiteHeader />

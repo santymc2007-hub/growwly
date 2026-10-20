@@ -27,7 +27,7 @@ export async function solicitarRecuperacion(formData: FormData) {
   }
 
   const supabase = await createClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
   const next = `/${seccion}/restablecer-password`;
 
   // No comprobamos ni informamos si el email existe o no — mensaje

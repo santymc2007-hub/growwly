@@ -11,7 +11,7 @@ export type BreadcrumbItem = { label: string; href: string };
  */
 export function Breadcrumbs({ items }: { items: BreadcrumbItem[] }) {
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
 
   const breadcrumbJsonLd = {
     "@context": "https://schema.org",

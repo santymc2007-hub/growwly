@@ -10,7 +10,16 @@ import { SiteFooter } from "@/components/site-footer";
 import { Breadcrumbs } from "@/components/breadcrumbs";
 import { BuscadorBlog } from "@/components/blog/buscador-blog";
 import { EtiquetasBlog } from "@/components/blog/etiquetas-blog";
-import { ContenidoEnriquecido } from "@/components/contenido-enriquecido";
+import { ContenidoEnriquecido, esHtml } from "@/components/contenido-enriquecido";
+import Link from "next/link";
+import { ClinicCardCompact } from "@/components/clinics/clinic-card-compact";
+import {
+  getDestinosTratamiento,
+  getDestinosCiudad,
+  destinosMencionados,
+} from "@/lib/seo/enlaces-internos";
+import { getCentrosConTecnica, recortar } from "@/lib/seo/landings";
+import type { Clinic } from "@/lib/supabase/database.types";
 
 type Params = { slug: string };
 
@@ -35,13 +44,18 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await findPost(slug);
   if (!post) return {};
+  // Sin resumen, la meta description sale del principio del artículo.
+  const texto = (esHtml(post.contenido) ? post.contenido.replace(/<[^>]+>/g, " ") : post.contenido)
+    .replace(/[#*_>`\[\]]/g, "")
+    .trim();
+  const description = recortar(post.resumen || texto);
   return {
     title: post.titulo,
-    description: post.resumen ?? undefined,
+    description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
       title: post.titulo,
-      description: post.resumen ?? undefined,
+      description,
       type: "article",
       publishedTime: post.publicado_en ?? undefined,
       images: post.imagen_portada ? [post.imagen_portada] : undefined,
@@ -62,7 +76,41 @@ export default async function BlogPostPage({
   }
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
+
+  const [destinosTratamiento, destinosCiudad] = await Promise.all([
+    getDestinosTratamiento(),
+    getDestinosCiudad(),
+  ]);
+
+  // Tratamientos de los que habla el artículo (título y texto) y centros
+  // que los ofrecen: el post deja de ser una página sin salida.
+  const mencionados = destinosMencionados(
+    `${post.titulo} ${post.contenido}`,
+    destinosTratamiento,
+  ).slice(0, 4);
+  const centrosPorTecnica = await Promise.all(
+    mencionados.filter((d) => d.tecnica).map((d) => getCentrosConTecnica(d.tecnica!)),
+  );
+  const vistos = new Set<string>();
+  const centrosRelacionados: Clinic[] = [];
+  for (const lista of centrosPorTecnica) {
+    for (const c of lista) {
+      if (!vistos.has(c.id) && centrosRelacionados.length < 4) {
+        vistos.add(c.id);
+        centrosRelacionados.push(c);
+      }
+    }
+  }
+
+  const fechaLarga = (f: string) =>
+    new Date(f).toLocaleDateString("es-ES", { day: "numeric", month: "long", year: "numeric" });
+  // "Actualizado" solo si se tocó más de un día después de publicarse.
+  const actualizado =
+    post.publicado_en &&
+    new Date(post.updated_at).getTime() - new Date(post.publicado_en).getTime() > 86_400_000
+      ? fechaLarga(post.updated_at)
+      : null;
 
   const faqs = Array.isArray(post.preguntas_frecuentes)
     ? (post.preguntas_frecuentes as { pregunta: string; respuesta: string }[])
@@ -147,15 +195,19 @@ export default async function BlogPostPage({
                 <p className="mt-2 text-sm text-ink-soft">
                   {post.autor}
                   {post.autor_cargo && ` — ${post.autor_cargo}`}
-                  {post.publicado_en &&
-                    ` · ${new Date(post.publicado_en).toLocaleDateString("es-ES", {
-                      day: "numeric",
-                      month: "long",
-                      year: "numeric",
-                    })}`}
+                  {post.publicado_en && ` · ${fechaLarga(post.publicado_en)}`}
+                  {actualizado && (
+                    <>
+                      {" · Actualizado el "}
+                      <time dateTime={post.updated_at}>{actualizado}</time>
+                    </>
+                  )}
                 </p>
 
-                <ContenidoEnriquecido contenido={post.contenido} />
+                <ContenidoEnriquecido
+                  contenido={post.contenido}
+                  enlaces={[...destinosTratamiento, ...destinosCiudad]}
+                />
 
                 {faqs.length > 0 && (
                   <section className="mt-10">
@@ -189,6 +241,21 @@ export default async function BlogPostPage({
                   </div>
                 )}
 
+                {mencionados.length > 0 && (
+                  <div className="rounded-2xl border border-line bg-white p-5">
+                    <p className="font-display text-lg text-teal-dark">Tratamientos en este artículo</p>
+                    <ul className="mt-3 flex flex-col gap-2 text-sm">
+                      {mencionados.map((d) => (
+                        <li key={d.href}>
+                          <Link href={d.href} className="font-medium text-cyan hover:text-cyan-dark">
+                            {d.nombre} →
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
                 <div className="rounded-2xl border border-line bg-white p-5">
                   <p className="font-display text-lg text-teal-dark">Buscar en el blog</p>
                   <div className="mt-3">
@@ -197,6 +264,19 @@ export default async function BlogPostPage({
                 </div>
               </aside>
             </div>
+
+            {centrosRelacionados.length > 0 && (
+              <section className="mt-14">
+                <h2 className="font-display text-xl text-teal-dark">
+                  Centros que ofrecen {mencionados.map((d) => d.nombre).slice(0, 2).join(" o ")}
+                </h2>
+                <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+                  {centrosRelacionados.map((c) => (
+                    <ClinicCardCompact key={c.id} clinic={c} />
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         </div>
       </article>

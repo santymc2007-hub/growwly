@@ -1,5 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import sanitizeHtml from "sanitize-html";
+import { markdownAHtml } from "@/lib/markdown-a-html";
+import { autoenlazarHtml, type DestinoEnlace } from "@/lib/seo/enlaces-internos-html";
 // Lora solo se usa aquí, para el bloque "Comentado" del contenido — al
 // cargarla desde este componente (en vez del layout raíz) solo entra
 // en las páginas que de verdad renderizan blog/tratamiento detalle.
@@ -66,7 +68,32 @@ export function esHtml(contenido: string): boolean {
  * desplegar en funciones serverless de Vercel (archivos que su
  * empaquetado no traza correctamente, como xhr-sync-worker.js).
  */
-export function ContenidoEnriquecido({ contenido }: { contenido: string }) {
+export function ContenidoEnriquecido({
+  contenido,
+  enlaces,
+  excluirHref,
+}: {
+  contenido: string;
+  /** Si se pasa, enlaza automáticamente las menciones (ver lib/seo/enlaces-internos). */
+  enlaces?: DestinoEnlace[];
+  excluirHref?: string;
+}) {
+  if (enlaces && enlaces.length > 0) {
+    // El Markdown pasa por el mismo parser que ReactMarkdown (sin HTML
+    // crudo, así que es seguro); el HTML del editor se sanea como siempre.
+    const base = esHtml(contenido)
+      ? sanitizeHtml(contenido, SANITIZE_OPTIONS)
+      : markdownAHtml(contenido);
+    return (
+      <div
+        className={PROSE_CLASS}
+        dangerouslySetInnerHTML={{
+          __html: autoenlazarHtml(base, enlaces, { max: 5, excluirHref }),
+        }}
+      />
+    );
+  }
+
   if (esHtml(contenido)) {
     const limpio = sanitizeHtml(contenido, SANITIZE_OPTIONS);
     return (

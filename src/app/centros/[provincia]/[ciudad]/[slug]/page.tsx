@@ -45,6 +45,15 @@ import { numeroWhatsApp } from "@/lib/telefono";
 import { MapaFichaClinica } from "@/components/clinics/mapa-ficha-clinica";
 import { descripcionTextoPlano } from "@/lib/clinica/descripcion";
 import { DescripcionClinica } from "@/components/clinics/descripcion-clinica";
+import { ClinicCardCompact } from "@/components/clinics/clinic-card-compact";
+import { getDestinosTratamiento } from "@/lib/seo/enlaces-internos";
+import {
+  enFrase,
+  nombreCiudadBuscable,
+  rangoPrecios,
+  recortar,
+  MIN_CENTROS_LANDING,
+} from "@/lib/seo/landings";
 
 type Params = { provincia: string; ciudad: string; slug: string };
 
@@ -89,17 +98,33 @@ export async function generateMetadata({
   const clinic = await findClinic(slug);
   if (!clinic) return {};
 
-  const descripcion =
-    descripcionTextoPlano(clinic.descripcion) ||
-    `Información, técnicas, idiomas y contacto de ${clinic.nombre}${
-      clinic.ciudad ? ` en ${clinic.ciudad}` : ""
-    }.`;
+  // Meta description con datos de la ficha (no la descripción que escribe
+  // el centro): categoría, técnicas, precio y nota. Más relevante para la
+  // búsqueda y siempre del largo correcto.
+  const categoria = clinic.tipo_negocio ? enFrase(clinic.tipo_negocio) : "centro capilar";
+  const lugar = clinic.ciudad ? nombreCiudadBuscable(clinic.ciudad, clinic.provincia) : clinic.provincia;
+  const precio = rangoPrecios([clinic]);
+  const partes = [
+    `${clinic.nombre}, ${categoria} en ${lugar}.`,
+    clinic.tecnicas.length > 0 ? `${clinic.tecnicas.slice(0, 3).join(", ")}.` : "",
+    precio ? `Precios ${precio}.` : "",
+    clinic.rating_google != null
+      ? `${String(clinic.rating_google).replace(".", ",")}★ en Google${clinic.resenas_google ? ` (${clinic.resenas_google} reseñas)` : ""}.`
+      : "",
+    "Pide presupuesto gratis en Growwly.",
+  ];
+  const descripcion = recortar(partes.filter(Boolean).join(" "));
+  const title = clinic.ciudad
+    ? clinic.nombre.length <= 32
+      ? `${clinic.nombre} en ${clinic.ciudad}: opiniones y precios`
+      : `${clinic.nombre} en ${clinic.ciudad}`
+    : clinic.nombre;
 
   const ciudadSlug = clinic.ciudad ? slugifyCiudad(clinic.ciudad) : "clinica";
   const provinciaSlug = slugifyProvincia(clinic.provincia);
 
   return {
-    title: `${clinic.nombre}${clinic.ciudad ? ` en ${clinic.ciudad}` : ""}`,
+    title,
     description: descripcion,
     alternates: { canonical: `/centros/${provinciaSlug}/${ciudadSlug}/${clinic.slug}` },
     openGraph: {
@@ -202,14 +227,43 @@ export default async function ClinicaPage({
   });
 
   const supabase = await createClient();
-  const { data: tratamientosPublicados } = await supabase
-    .from("tratamientos")
-    .select("slug, tecnica_relacionada")
-    .eq("publicado", true)
-    .not("tecnica_relacionada", "is", null);
+  const destinosTratamiento = await getDestinosTratamiento();
   const tratamientoSlugPorTecnica = new Map(
-    (tratamientosPublicados ?? []).map((t) => [t.tecnica_relacionada as string, t.slug]),
+    destinosTratamiento
+      .filter((d) => d.tecnica)
+      .map((d) => [d.tecnica as string, d.href.replace("/tratamientos/", "")]),
   );
+
+  // Otros centros cercanos (misma ciudad; si hay pocos, misma provincia),
+  // primero los que comparten más técnicas: enlazado interno entre fichas
+  // y alternativa real para el paciente.
+  const { data: vecinosData } = await supabase
+    .from("clinics")
+    .select("*")
+    .eq("provincia", clinic.provincia)
+    .eq("publicado", true)
+    .eq("verificado_admin", true)
+    .neq("id", clinic.id);
+  const vecinos = vecinosData ?? [];
+  const comparten = (c: { tecnicas: string[] }) =>
+    c.tecnicas.filter((t) => clinic.tecnicas.includes(t)).length;
+  const mismaCiudad = vecinos.filter((c) => c.ciudad === clinic.ciudad);
+  const otrosCentros = (mismaCiudad.length >= 2 ? mismaCiudad : vecinos)
+    .sort((a, b) => comparten(b) - comparten(a))
+    .slice(0, 4);
+  const otrosEnCiudad = mismaCiudad.length >= 2;
+
+  // Landings "tratamiento en {ciudad}" de las técnicas de este centro.
+  const landingsCiudad = clinic.ciudad
+    ? clinic.tecnicas
+        .filter((t) => tratamientoSlugPorTecnica.has(t))
+        .map((t) => ({
+          tecnica: t,
+          slug: tratamientoSlugPorTecnica.get(t)!,
+          n: 1 + mismaCiudad.filter((c) => c.tecnicas.includes(t)).length,
+        }))
+        .filter((l) => l.n >= MIN_CENTROS_LANDING)
+    : [];
 
   // RLS de "profiles" solo deja ver el propio perfil a quien está
   // autenticado como ese usuario — un visitante anónimo no vería nada
@@ -230,7 +284,7 @@ export default async function ClinicaPage({
   });
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
 
   const horariosSchema = openingHoursSchema(clinic.horarios_estructurados);
 
@@ -263,31 +317,11 @@ export default async function ClinicaPage({
           longitude: clinic.lng,
         },
       }),
-    ...(clinic.rating_google != null &&
-      clinic.resenas_google != null && {
-        aggregateRating: {
-          "@type": "AggregateRating",
-          ratingValue: clinic.rating_google,
-          reviewCount: clinic.resenas_google,
-        },
-      }),
-    // Reseñas reales traídas de Google Maps (ver cron
-    // sync-google-places) — como mucho 5, es lo que da la API.
-    ...(Array.isArray(clinic.google_reviews) &&
-      clinic.google_reviews.length > 0 && {
-        review: (
-          clinic.google_reviews as {
-            autor: string;
-            texto: string;
-            puntuacion: number;
-          }[]
-        ).map((r) => ({
-          "@type": "Review",
-          author: { "@type": "Person", name: r.autor },
-          reviewRating: { "@type": "Rating", ratingValue: r.puntuacion },
-          reviewBody: r.texto,
-        })),
-      }),
+    // SIN aggregateRating ni review a propósito (auditoría SEO oct 2026):
+    // la nota y las reseñas vienen de Google Maps, y Google prohíbe marcar
+    // reseñas tomadas de otras webs (riesgo de acción manual). Se siguen
+    // MOSTRANDO en la ficha. Cuando Growwly recoja opiniones propias de
+    // pacientes, esas sí se podrán marcar aquí.
   };
 
   const breadcrumbJsonLd = {
@@ -305,7 +339,7 @@ export default async function ClinicaPage({
         "@type": "ListItem",
         position: 3,
         name: clinic.provincia,
-        item: `${siteUrl}/centros?provincia=${encodeURIComponent(clinic.provincia)}`,
+        item: `${siteUrl}/centros/${provincia}`,
       },
       ...(clinic.ciudad
         ? [
@@ -326,10 +360,6 @@ export default async function ClinicaPage({
     ],
   };
 
-  // Cada opinión escrita a mano por la clínica se marca como su propio
-  // Review — es independiente de rating_google/resenas_google (la nota
-  // agregada que se trae de la ficha de Google Maps), que ya alimenta el
-  // aggregateRating de arriba.
   const opiniones = Array.isArray(clinic.opiniones)
     ? (clinic.opiniones as { autor: string; texto: string; puntuacion?: number }[])
     : [];
@@ -402,7 +432,7 @@ export default async function ClinicaPage({
           </Link>
           <span aria-hidden>/</span>
           <Link
-            href={`/centros?provincia=${encodeURIComponent(clinic.provincia)}`}
+            href={`/centros/${provincia}`}
             className="hover:text-cyan"
           >
             {clinic.provincia}
@@ -513,6 +543,7 @@ export default async function ClinicaPage({
               {clinic.descripcion && (
                 <DescripcionClinica
                   texto={clinic.descripcion}
+                  enlaces={destinosTratamiento}
                   className="mt-6 text-ink-soft lg:order-40"
                 />
               )}
@@ -998,6 +1029,38 @@ export default async function ClinicaPage({
           />
         </div>
       </div>
+
+      {(otrosCentros.length > 0 || landingsCiudad.length > 0) && (
+        <section className="mx-auto max-w-[1400px] px-3 pb-10 sm:px-6">
+          {otrosCentros.length > 0 && (
+            <>
+              <h2 className="font-display text-xl text-teal-dark">
+                {otrosEnCiudad && clinic.ciudad
+                  ? `Otros centros capilares en ${clinic.ciudad}`
+                  : `Otros centros capilares cerca`}
+              </h2>
+              <div className="mt-4 grid grid-cols-2 gap-4 lg:grid-cols-4">
+                {otrosCentros.map((c) => (
+                  <ClinicCardCompact key={c.id} clinic={c} />
+                ))}
+              </div>
+            </>
+          )}
+          {landingsCiudad.length > 0 && clinic.ciudad && (
+            <nav aria-label="Tratamientos en esta ciudad" className="mt-6 flex flex-wrap gap-2">
+              {landingsCiudad.map((l) => (
+                <Link
+                  key={l.slug}
+                  href={`/tratamientos/${l.slug}/${provinciaSlugReal}/${ciudadSlugReal}`}
+                  className="rounded-full border border-line bg-white px-3 py-1 text-sm font-medium text-teal-dark hover:border-cyan hover:text-cyan"
+                >
+                  {l.tecnica} en {clinic.ciudad} ({l.n} centros)
+                </Link>
+              ))}
+            </nav>
+          )}
+        </section>
+      )}
 
       {/* Barra fija de "Contactar con este centro" en móvil: fuera de
           las pestañas para que salga en Información y en Contacto. */}

@@ -64,6 +64,14 @@ const nextConfig: NextConfig = {
     // no está indexado (noindex), pero por si alguien guardó un enlace
     // de una preview anterior, redirigimos en vez de dar un 404.
     return [
+      // capilia.es (y www) → growwly.es, 301 conservando la ruta. Va
+      // primero: requiere añadir ambos dominios al proyecto en Vercel.
+      ...["capilia.es", "www.capilia.es"].map((host) => ({
+        source: "/:path*",
+        has: [{ type: "host" as const, value: host }],
+        destination: "https://www.growwly.es/:path*",
+        permanent: true,
+      })),
       { source: "/clinicas", destination: "/centros", permanent: true },
       {
         source: "/clinicas/:path*",

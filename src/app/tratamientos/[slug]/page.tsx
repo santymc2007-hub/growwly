@@ -16,6 +16,16 @@ import { NavTratamientos } from "@/components/tratamientos/nav-tratamientos";
 import { ContenidoEnriquecido } from "@/components/contenido-enriquecido";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
+import { getDestinosTratamiento, getDestinosCiudad } from "@/lib/seo/enlaces-internos";
+import { postsSobreTratamiento } from "@/lib/seo/relacionados";
+import {
+  getCentrosConTecnica,
+  lugaresConLanding,
+  nombreProvinciaBuscable,
+  rangoPrecios,
+  recortar,
+  enFrase,
+} from "@/lib/seo/landings";
 
 type Params = { slug: string };
 
@@ -43,13 +53,24 @@ export async function generateMetadata({
   const { slug } = await params;
   const tratamiento = await findTratamiento(slug);
   if (!tratamiento) return {};
+  const centros = tratamiento.tecnica_relacionada
+    ? await getCentrosConTecnica(tratamiento.tecnica_relacionada)
+    : [];
+  const title = `${tratamiento.nombre}: guía completa y centros especializados`;
+  const cola =
+    centros.length > 0
+      ? ` Lo ofrecen ${centros.length} ${centros.length === 1 ? "centro verificado" : "centros verificados"} en Growwly.`
+      : "";
+  const description = recortar(
+    `${recortar(tratamiento.resumen ?? `Qué es ${enFrase(tratamiento.nombre)}, para quién, cómo es el proceso y la recuperación.`, 158 - cola.length)}${cola}`,
+  );
   return {
-    title: tratamiento.nombre,
-    description: tratamiento.resumen ?? undefined,
+    title,
+    description,
     alternates: { canonical: `/tratamientos/${tratamiento.slug}` },
     openGraph: {
-      title: tratamiento.nombre,
-      description: tratamiento.resumen ?? undefined,
+      title,
+      description,
       images: tratamiento.imagen_portada ? [tratamiento.imagen_portada] : undefined,
     },
   };
@@ -72,26 +93,45 @@ export default async function TratamientoPage({
   // Clínicas y precios reales que ofrecen esta técnica — nunca cifras
   // inventadas sobre el tratamiento. Independiente del nav de la
   // derecha, así que las dos consultas van en paralelo.
-  const [{ data: clinicasData }, { data: todosTratamientos }] = await Promise.all([
-    tratamiento.tecnica_relacionada
-      ? supabase
-          .from("clinics")
-          .select("*")
-          .eq("publicado", true)
-          .contains("tecnicas", [tratamiento.tecnica_relacionada])
-      : Promise.resolve({ data: [] as Clinic[] }),
-    // Para el nav de "todos los tratamientos" del sidebar.
-    supabase
-      .from("tratamientos")
-      .select("slug, nombre, categoria")
-      .eq("publicado", true)
-      .order("nombre", { ascending: true }),
-  ]);
+  const [clinicasData, { data: todosTratamientos }, destinosTratamiento, destinosCiudad] =
+    await Promise.all([
+      tratamiento.tecnica_relacionada
+        ? getCentrosConTecnica(tratamiento.tecnica_relacionada)
+        : Promise.resolve([] as Clinic[]),
+      // Para el nav de "todos los tratamientos" del sidebar.
+      supabase
+        .from("tratamientos")
+        .select("slug, nombre, categoria")
+        .eq("publicado", true)
+        .order("nombre", { ascending: true }),
+      getDestinosTratamiento(),
+      getDestinosCiudad(),
+    ]);
+
+  const hrefPropio = `/tratamientos/${tratamiento.slug}`;
+  const destinoPropio = destinosTratamiento.find((d) => d.href === hrefPropio);
+  const guias = destinoPropio ? await postsSobreTratamiento(destinoPropio) : [];
+  const lugares = lugaresConLanding(clinicasData);
+  const ciudadesConCentros = new Set(clinicasData.map((c) => c.ciudad).filter(Boolean)).size;
+  const precios = rangoPrecios(clinicasData);
+  const actualizado = new Date(tratamiento.updated_at).toLocaleDateString("es-ES", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+  // A dónde lleva "Ver centros": la landing de la provincia si existe
+  // (URL indexable), si no el listado filtrado.
+  const hrefCentros =
+    lugares.length === 1
+      ? `/tratamientos/${tratamiento.slug}/${lugares[0].provinciaSlug}`
+      : tratamiento.tecnica_relacionada
+        ? `/centros?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`
+        : "/centros";
 
   // Sin provincia elegida: primero los destacados generales que
   // ofrecen esta técnica, el resto por Growwly Score; se muestran 6.
   const { clinicas: ordenadasTecnica, idsDestacados } = await ordenarConDestacados(
-    clinicasData ?? [],
+    clinicasData,
     null,
   );
   const clinicasConTecnica = ordenadasTecnica.slice(0, 6);
@@ -113,7 +153,7 @@ export default async function TratamientoPage({
   const precioMax = hasta.length > 0 ? Math.max(...hasta) : null;
 
   const siteUrl =
-    process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app";
+    process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
 
   const faqs = Array.isArray(tratamiento.preguntas_frecuentes)
     ? (tratamiento.preguntas_frecuentes as { pregunta: string; respuesta: string }[])
@@ -232,13 +272,44 @@ export default async function TratamientoPage({
                 <h1 className="mt-3 font-display text-3xl text-teal-dark sm:text-4xl">
                   {tratamiento.nombre}
                 </h1>
-                {tratamiento.duracion_orientativa && (
-                  <p className="mt-2 text-sm text-ink-soft">
-                    Duración orientativa: {tratamiento.duracion_orientativa}
-                  </p>
-                )}
+                <p className="mt-2 text-sm text-ink-soft">
+                  Actualizado el <time dateTime={tratamiento.updated_at}>{actualizado}</time>
+                </p>
 
-                <ContenidoEnriquecido contenido={tratamiento.contenido} />
+                {/* Datos clave: lo que más citan los buscadores con IA.
+                    Solo datos reales; si no hay, no se muestra la casilla. */}
+                <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+                  <div className="rounded-2xl border border-line bg-white p-4">
+                    <dt className="text-xs text-ink-soft">Centros verificados</dt>
+                    <dd className="mt-1 font-display text-2xl text-teal-dark">{clinicasData.length}</dd>
+                  </div>
+                  {ciudadesConCentros > 0 && (
+                    <div className="rounded-2xl border border-line bg-white p-4">
+                      <dt className="text-xs text-ink-soft">Ciudades</dt>
+                      <dd className="mt-1 font-display text-2xl text-teal-dark">{ciudadesConCentros}</dd>
+                    </div>
+                  )}
+                  {tratamiento.duracion_orientativa && (
+                    <div className="rounded-2xl border border-line bg-white p-4">
+                      <dt className="text-xs text-ink-soft">Duración orientativa</dt>
+                      <dd className="mt-1 text-sm font-semibold text-teal-dark">
+                        {tratamiento.duracion_orientativa}
+                      </dd>
+                    </div>
+                  )}
+                  {precios && (
+                    <div className="rounded-2xl border border-line bg-white p-4">
+                      <dt className="text-xs text-ink-soft">Precios publicados</dt>
+                      <dd className="mt-1 text-sm font-semibold text-teal-dark">{precios}</dd>
+                    </div>
+                  )}
+                </dl>
+
+                <ContenidoEnriquecido
+                  contenido={tratamiento.contenido}
+                  enlaces={[...destinosTratamiento, ...destinosCiudad]}
+                  excluirHref={hrefPropio}
+                />
 
                 {faqs.length > 0 && (
                   <section className="mt-10">
@@ -265,11 +336,44 @@ export default async function TratamientoPage({
               <aside className="mt-8 flex flex-col gap-4 lg:sticky lg:top-8 lg:mt-0 lg:w-[360px] lg:shrink-0">
                 {tratamiento.tecnica_relacionada && (
                   <Link
-                    href={`/centros?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
+                    href={hrefCentros}
                     className="press block rounded-full bg-gradient-to-r from-yellow to-orange px-5 py-3 text-center text-sm font-bold text-teal-dark shadow-lg shadow-orange/20 transition hover:opacity-90"
                   >
                     Ver centros con esta técnica
                   </Link>
+                )}
+                {lugares.length > 0 && (
+                  <div className="rounded-2xl border border-line bg-white p-5">
+                    <p className="font-display text-lg text-teal-dark">
+                      Dónde hacerte {enFrase(tratamiento.nombre)}
+                    </p>
+                    <ul className="mt-3 flex flex-col gap-2 text-sm">
+                      {lugares.map((l) => (
+                        <li key={l.provinciaSlug}>
+                          <Link
+                            href={`/tratamientos/${tratamiento.slug}/${l.provinciaSlug}`}
+                            className="font-medium text-cyan hover:text-cyan-dark"
+                          >
+                            {tratamiento.nombre} en {nombreProvinciaBuscable(l.provincia, clinicasData.filter((c) => c.provincia === l.provincia))} ({l.n})
+                          </Link>
+                          {l.ciudades.length > 0 && (
+                            <ul className="mt-1 flex flex-col gap-1 pl-3">
+                              {l.ciudades.map((c) => (
+                                <li key={c.ciudadSlug}>
+                                  <Link
+                                    href={`/tratamientos/${tratamiento.slug}/${l.provinciaSlug}/${c.ciudadSlug}`}
+                                    className="text-ink-soft hover:text-cyan"
+                                  >
+                                    {c.ciudad} ({c.n})
+                                  </Link>
+                                </li>
+                              ))}
+                            </ul>
+                          )}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 )}
                 <NavTratamientos
                   tratamientos={todosTratamientos ?? []}
@@ -281,7 +385,7 @@ export default async function TratamientoPage({
             {clinicasConTecnica.length > 0 && (
               <section className="mt-14">
                 <h2 className="font-display text-xl text-teal-dark">
-                  Centros que ofrecen {tratamiento.nombre.toLowerCase()}
+                  Centros que ofrecen {enFrase(tratamiento.nombre)}
                 </h2>
                 <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {clinicasConTecnica.map((c) => (
@@ -290,12 +394,47 @@ export default async function TratamientoPage({
                 </div>
                 {tratamiento.tecnica_relacionada && (
                   <Link
-                    href={`/centros?tecnica=${encodeURIComponent(tratamiento.tecnica_relacionada)}`}
+                    href={hrefCentros}
                     className="mt-4 inline-block text-sm font-medium text-cyan hover:text-cyan-dark"
                   >
                     Ver todos los centros con esta técnica →
                   </Link>
                 )}
+              </section>
+            )}
+
+            {guias.length > 0 && (
+              <section className="mt-14">
+                <h2 className="font-display text-xl text-teal-dark">Guías relacionadas</h2>
+                <div className="mt-4 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+                  {guias.map((g) => (
+                    <Link
+                      key={g.slug}
+                      href={`/blog/${g.slug}`}
+                      className="group overflow-hidden rounded-2xl border border-line bg-white transition hover:border-teal/40 hover:shadow-md"
+                    >
+                      {g.imagen_portada && (
+                        <div className="relative aspect-[16/9] w-full bg-sage">
+                          <Image
+                            src={g.imagen_portada}
+                            alt=""
+                            fill
+                            sizes="(min-width: 1024px) 33vw, 100vw"
+                            className="object-cover"
+                          />
+                        </div>
+                      )}
+                      <div className="p-4">
+                        <p className="font-display text-base text-teal-dark group-hover:text-cyan">
+                          {g.titulo}
+                        </p>
+                        {g.resumen && (
+                          <p className="mt-1 line-clamp-2 text-sm text-ink-soft">{g.resumen}</p>
+                        )}
+                      </div>
+                    </Link>
+                  ))}
+                </div>
               </section>
             )}
           </div>

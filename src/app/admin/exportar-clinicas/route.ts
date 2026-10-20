@@ -113,7 +113,7 @@ export async function GET() {
     .order("nombre");
   if (error) return new Response(`Error al leer las clínicas: ${error.message}`, { status: 500 });
 
-  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://growwly-theta.vercel.app").replace(/\/$/, "");
+  const base = (process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es").replace(/\/$/, "");
   const filas = [
     COLUMNAS.map(([titulo]) => celda(titulo)).join(";"),
     ...(data ?? []).map((c) => COLUMNAS.map(([, valor]) => celda(valor(c, base))).join(";")),
