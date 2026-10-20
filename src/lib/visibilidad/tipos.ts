@@ -74,8 +74,26 @@ export const TIPO_LABEL_HISTORIAL: Record<string, string> = {
 export const DESCRIPCION_LABEL: Record<TipoVisibilidad, string> = {
   destacado: `Tu centro aparecerá destacado en la home y en la sección de centros. Solo ${PLAZAS_DESTACADO_GENERAL} plazas para todos los centros de España.`,
   destacado_provincia: `Aparecerás entre los primeros ${PLAZAS_DESTACADO_PROVINCIA} centros cuando el paciente busque por provincia o en los sucesivos filtros.`,
-  premium: "Fotos antes/después, opiniones, certificados, contacto directo y más en tu ficha.",
+  premium: "Cuanto más completa tu ficha, más tranquilo decide el paciente.",
 };
+
+/**
+ * Lo que añade el Perfil ampliado a la ficha (panel de la clínica). Debe
+ * coincidir con lo que la ficha pública enseña solo si el plan es
+ * premium (centros/[provincia]/[ciudad]/[slug]/page.tsx).
+ */
+export const MEJORAS_PERFIL_AMPLIADO = [
+  "Fotos antes/después de tus casos",
+  "Opiniones de tus pacientes",
+  "Equipo médico, con especialidad y nº de colegiado",
+  "Diplomas y certificados",
+  "Vídeo de tu clínica",
+  "Especialidades y servicios explicados",
+  "Precios orientativos y ofertas",
+  "Reserva online y redes sociales",
+  "Insignia «Perfil detallado» en el listado",
+  "Además, te enviamos pacientes: reparto automático de solicitudes",
+];
 
 /** Tipo de campaña: para que la clínica entienda qué compra. */
 export const CAMPANA_LABEL: Record<TipoVisibilidad, string> = {

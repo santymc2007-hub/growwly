@@ -1,9 +1,8 @@
 /**
- * Esquema dibujado (sin imágenes) de lo que se consigue con cada opción:
- * para los destacados, miniaturas de la portada y de /centros con su
- * posición resaltada; para el Perfil ampliado, la ficha básica frente a
- * la ampliada. Si cambian las reglas de lib/visibilidad/tipos.ts o lo
- * que incluye la ficha ampliada, cambiar también estos dibujos.
+ * Esquema dibujado (sin imágenes) de dónde sale la clínica con cada
+ * destacado: miniaturas de la portada y de /centros con su posición
+ * resaltada. Si cambian las reglas de lib/visibilidad/tipos.ts, cambiar
+ * también estos dibujos.
  */
 
 function Pantalla({ titulo, children }: { titulo: string; children: React.ReactNode }) {
@@ -74,95 +73,13 @@ function Filtro({ texto, activo }: { texto: string; activo?: boolean }) {
   );
 }
 
-/** Bloque de la ficha ampliada con su etiqueta. */
-function Bloque({ texto, children }: { texto: string; children: React.ReactNode }) {
-  return (
-    <div className="rounded-md border border-teal/30 bg-sage/30 p-1">
-      <p className="mb-0.5 text-[7px] font-bold uppercase tracking-wide text-teal-dark">{texto}</p>
-      {children}
-    </div>
-  );
-}
-
-function Lineas({ n = 2 }: { n?: number }) {
-  return (
-    <div className="flex flex-col gap-0.5">
-      {Array.from({ length: n }, (_, i) => (
-        <div key={i} className={`h-1 rounded-full bg-line ${i === n - 1 ? "w-2/3" : "w-full"}`} />
-      ))}
-    </div>
-  );
-}
-
-function EsquemaFicha() {
-  return (
-    <div className="flex items-stretch gap-2">
-      <Pantalla titulo="/centros/…/tu-clinica">
-        <div className="h-8 rounded-md bg-paper-dim" />
-        <div className="h-1.5 w-2/3 rounded-full bg-line" />
-        <Lineas n={2} />
-        <div className="mt-1 flex flex-col items-center justify-center gap-1 rounded-md border border-dashed border-line py-3">
-          <div className="h-1 w-1/2 rounded-full bg-paper-dim" />
-          <div className="h-1 w-1/3 rounded-full bg-paper-dim" />
-        </div>
-        <figcaption className="mt-auto pt-1 text-center text-[9px] text-ink-soft">Ficha básica</figcaption>
-      </Pantalla>
-      <span aria-hidden className="self-center font-display text-lg font-extrabold text-mint">
-        →
-      </span>
-      <Pantalla titulo="/centros/…/tu-clinica">
-        <div className="grid grid-cols-3 gap-0.5">
-          <div className="h-8 rounded-sm bg-teal/30" />
-          <div className="h-8 rounded-sm bg-teal/20" />
-          <div className="h-8 rounded-sm bg-teal/30" />
-        </div>
-        <div className="flex items-center gap-1">
-          <div className="h-1.5 w-1/2 rounded-full bg-teal/60" />
-          <span className="rounded-full bg-teal px-1 text-[7px] font-bold leading-3 text-paper">✓ Detallado</span>
-        </div>
-        <div className="grid grid-cols-2 gap-1">
-          <Bloque texto="Antes / después">
-            <div className="grid grid-cols-2 gap-0.5">
-              <div className="h-3 rounded-sm bg-paper-dim" />
-              <div className="h-3 rounded-sm bg-teal/30" />
-            </div>
-          </Bloque>
-          <Bloque texto="Opiniones">
-            <p className="text-[8px] leading-3 text-orange">★★★★★</p>
-            <Lineas n={1} />
-          </Bloque>
-          <Bloque texto="Equipo médico">
-            <div className="flex gap-0.5">
-              <span className="h-3 w-3 rounded-full bg-teal/30" />
-              <span className="h-3 w-3 rounded-full bg-teal/20" />
-              <span className="h-3 w-3 rounded-full bg-teal/30" />
-            </div>
-          </Bloque>
-          <Bloque texto="Certificados">
-            <div className="flex gap-0.5">
-              <span className="h-3 w-4 rounded-sm bg-yellow/60" />
-              <span className="h-3 w-4 rounded-sm bg-yellow/60" />
-            </div>
-          </Bloque>
-        </div>
-        <div className="rounded-full bg-yellow py-0.5 text-center text-[8px] font-bold text-teal-dark">
-          Pedir cita
-        </div>
-        <figcaption className="mt-auto pt-1 text-center text-[9px] text-ink-soft">Ficha ampliada</figcaption>
-      </Pantalla>
-    </div>
-  );
-}
-
 export function EsquemaVisibilidad({
   tipo,
   provincia,
 }: {
-  tipo: "destacado" | "destacado_provincia" | "premium";
+  tipo: "destacado" | "destacado_provincia";
   provincia?: string | null;
 }) {
-  if (tipo === "premium") return <EsquemaFicha />;
-
   if (tipo === "destacado") {
     return (
       <div className="flex gap-2">

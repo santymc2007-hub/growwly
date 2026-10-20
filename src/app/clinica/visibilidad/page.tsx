@@ -4,6 +4,7 @@ import {
   BENEFICIO_LABEL,
   CAMPANA_LABEL,
   DESCRIPCION_LABEL,
+  MEJORAS_PERFIL_AMPLIADO,
   TIPO_LABEL,
   plazasDestacado,
 } from "@/lib/visibilidad/destacados";
@@ -120,7 +121,7 @@ export default async function VisibilidadPage({
                 pendiente: clinic.plan_solicitado === "premium",
                 expiraEn: fechas.premium?.expira_en,
                 campana: CAMPANA_LABEL.premium,
-                esquema: <EsquemaVisibilidad tipo="premium" />,
+                mejoras: MEJORAS_PERFIL_AMPLIADO,
               }}
               destacados={[
                 {

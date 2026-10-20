@@ -51,13 +51,8 @@ function Selector({ periodo, onChange }: { periodo: Periodo; onChange: (p: Perio
   );
 }
 
-function Grupo({ titulo, texto }: { titulo: string; texto: string }) {
-  return (
-    <div className="mb-5">
-      <p className="text-xs font-bold uppercase tracking-wide text-teal">{titulo}</p>
-      <p className="mt-1 text-sm text-ink-soft">{texto}</p>
-    </div>
-  );
+function Grupo({ titulo }: { titulo: string }) {
+  return <p className="mb-5 text-xs font-bold uppercase tracking-wide text-teal">{titulo}</p>;
 }
 
 /**
@@ -85,17 +80,11 @@ export function SeccionVisibilidad({
         </p>
       </div>
 
-      <Grupo
-        titulo="Confianza · convierte visitas en pacientes"
-        texto="Cuanto más completa tu ficha, más tranquilo decide el paciente."
-      />
+      <Grupo titulo="Confianza · convierte visitas en pacientes" />
       <TarjetaVisibilidad {...premium} periodo={periodo} variante="principal" />
 
       <div className="mt-12">
-        <Grupo
-          titulo="Visibilidad · que te vean más pacientes"
-          texto="Aparece primero, en toda España o en tu provincia."
-        />
+        <Grupo titulo="Visibilidad · que te vean más pacientes" />
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
           {destacados.map((d) => (
             <TarjetaVisibilidad key={d.tipo} {...d} periodo={periodo} />
