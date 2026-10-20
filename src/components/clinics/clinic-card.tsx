@@ -34,7 +34,7 @@ export function ClinicCard({
       href={href}
       className="group flex flex-col overflow-hidden rounded-2xl border border-line bg-white/60 transition hover:border-teal/40 hover:shadow-[0_8px_28px_-12px_rgba(31,58,46,0.25)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-teal"
     >
-      <div className="relative aspect-[4/3] w-full overflow-hidden bg-sage lg:aspect-auto lg:h-[200px]">
+      <div className="relative aspect-[3/2] w-full overflow-hidden bg-sage lg:aspect-auto lg:h-[170px]">
         {foto ? (
           <Image
             src={foto}
