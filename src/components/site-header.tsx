@@ -47,13 +47,14 @@ export async function SiteHeader() {
           <Image
             src="/brand/growwly-logo-verde.png"
             alt="Growwly"
-            width={365}
-            height={130}
-            className="h-12 w-auto sm:h-[54px]"
+            width={889}
+            height={303}
+            className="h-11 w-auto sm:h-[50px]"
             priority
           />
-          <span className="h-7 w-px bg-line sm:h-9" aria-hidden />
-          <span className="font-display text-sm font-semibold text-teal-dark sm:text-[21px]">
+          {/* Separador y "Hair we go!" con los colores del logo */}
+          <span className="h-7 w-[2px] rounded-full bg-logo sm:h-9" aria-hidden />
+          <span className="font-sans text-sm font-medium text-lima sm:text-[22px]">
             Hair we go!
           </span>
         </Link>
