@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal/legal-layout";
 
 export const metadata: Metadata = {
-  title: "Aviso Legal",
+  title: "Aviso legal",
+  description:
+    "Aviso legal de Growwly: titular del sitio web, condiciones de uso, propiedad intelectual y responsabilidad sobre la información del directorio capilar.",
   alternates: { canonical: "/legal/aviso-legal" },
 };
 

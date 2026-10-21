@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal/legal-layout";
 
 export const metadata: Metadata = {
-  title: "Términos y Condiciones",
+  title: "Términos y condiciones",
+  description:
+    "Condiciones de uso de Growwly para pacientes y clínicas: cómo funciona el directorio, la valoración con IA, las solicitudes de presupuesto y los planes.",
   alternates: { canonical: "/legal/terminos" },
 };
 

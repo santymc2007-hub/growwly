@@ -9,9 +9,9 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
-  title: "Tratamientos capilares: injertos, PRP, mesoterapia y más",
+  title: "Tratamientos capilares: injertos, PRP y más",
   description:
-    "Guía de tratamientos capilares: injerto FUE, DHI y FUT, PRP, mesoterapia, micropigmentación y más. Qué son, para quién, cómo es el proceso y centros que los ofrecen.",
+    "Guía de tratamientos capilares: injerto FUE, DHI y FUT, PRP, mesoterapia, micropigmentación y más. Qué son, para quién y dónde hacértelos.",
   alternates: { canonical: "/tratamientos" },
 };
 

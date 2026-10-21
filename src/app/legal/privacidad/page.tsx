@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import { LegalLayout } from "@/components/legal/legal-layout";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidad",
+  title: "Política de privacidad",
+  description:
+    "Cómo trata Growwly tus datos personales y de salud: qué recogemos, para qué, con quién se comparten, cuánto tiempo se guardan y cómo ejercer tus derechos.",
   alternates: { canonical: "/legal/privacidad" },
 };
 

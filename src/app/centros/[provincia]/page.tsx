@@ -2,6 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
@@ -41,8 +42,15 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const precios = rangoPrecios(centros);
   const tecnicas = tecnicasMasComunes(centros).join(", ");
   return {
-    title: `Clínicas capilares en ${lugar}: ${centros.length} centros comparados`,
-    description: `Compara ${centros.length} clínicas y centros capilares verificados en ${lugar}${tecnicas ? `: ${tecnicas}` : ""}${precios ? `. Precios ${precios}` : ""}. Opiniones y presupuesto gratis.`,
+    title: tituloSeo(
+      `Clínicas capilares en ${lugar}: ${centros.length} centros`,
+      `Clínicas capilares en ${lugar}`,
+    ),
+    description: metaSeo(
+      `Compara ${centros.length} clínicas y centros capilares verificados en ${lugar}.`,
+      [tecnicas ? `${tecnicas}.` : null, precios ? `Precios ${precios}.` : null, "Opiniones y ubicación."],
+      "Pide presupuesto gratis.",
+    ),
     alternates: { canonical: `/centros/${provincia}` },
   };
 }

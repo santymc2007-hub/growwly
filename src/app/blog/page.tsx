@@ -10,7 +10,7 @@ import { BuscadorBlog } from "@/components/blog/buscador-blog";
 import { EtiquetasBlog } from "@/components/blog/etiquetas-blog";
 
 export const metadata: Metadata = {
-  title: "Blog de salud capilar: caída, tratamientos e injertos",
+  title: "Blog de salud capilar: caída y tratamientos",
   description:
     "Guías claras sobre caída del cabello, alopecia, injertos FUE y DHI, PRP, mesoterapia y más: qué funciona, cuánto cuesta y qué preguntar antes de dar el paso.",
   alternates: { canonical: "/blog" },

@@ -2,6 +2,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
@@ -78,12 +79,16 @@ export async function generateMetadata({
   const precios = rangoPrecios(clinicas);
   const tecnicas = tecnicasMasComunes(clinicas).join(", ");
   return {
-    title:
-      clinicas.length > 1
-        ? `Clínicas capilares en ${ciudadReal}: ${clinicas.length} centros comparados`
-        : `Clínicas capilares en ${ciudadReal}`,
-    description: recortar(
-      `Compara ${clinicas.length} ${clinicas.length === 1 ? "centro capilar verificado" : "clínicas y centros capilares verificados"} en ${lugar}${tecnicas ? `: ${tecnicas}` : ""}${precios ? `. Precios ${precios}` : ""}. Opiniones, ubicación y presupuesto gratis.`,
+    title: tituloSeo(
+      clinicas.length > 1 && `Clínicas capilares en ${ciudadReal}: ${clinicas.length} centros`,
+      `Clínicas capilares en ${ciudadReal}`,
+    ),
+    description: metaSeo(
+      clinicas.length === 1
+        ? `Centro capilar verificado en ${lugar}: técnicas, precios y opiniones.`
+        : `Compara ${clinicas.length} clínicas y centros capilares verificados en ${lugar}.`,
+      [tecnicas ? `${tecnicas}.` : null, precios ? `Precios ${precios}.` : null, "Opiniones y ubicación."],
+      "Pide presupuesto gratis.",
     ),
     alternates: { canonical: `/centros/${provincia}/${ciudad}` },
     ...(clinicas.length === 0 && { robots: { index: false, follow: true } }),

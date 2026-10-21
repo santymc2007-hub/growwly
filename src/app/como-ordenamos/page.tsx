@@ -4,9 +4,9 @@ import { LegalLayout } from "@/components/legal/legal-layout";
 import { GROWWLY_SCORE_WEIGHTS } from "@/lib/leads/growwly-score";
 
 export const metadata: Metadata = {
-  title: "Cómo ordenamos los centros",
+  title: "Cómo ordenamos los centros capilares",
   description:
-    "Qué decide el orden de los centros en Growwly, qué posiciones son de pago y a qué clínicas llega tu solicitud de presupuesto.",
+    "Qué decide el orden de los centros en Growwly, qué posiciones son de pago y cómo se reparte tu solicitud de presupuesto entre clínicas verificadas.",
   alternates: { canonical: "/como-ordenamos" },
 };
 

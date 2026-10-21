@@ -9,9 +9,9 @@ import { SiteFooter } from "@/components/site-footer";
 import { TarjetasPlanes } from "@/components/precios/tarjetas-planes";
 
 export const metadata: Metadata = {
-  title: "Únete a Growwly",
+  title: "Da de alta tu clínica capilar gratis",
   description:
-    "Publica tu centro capilar gratis en el directorio de Growwly, o pasa a Premium para recibir pacientes reales cada mes.",
+    "Da de alta o reclama la ficha de tu clínica capilar en Growwly. Gratis, en pocos minutos, y con la opción de recibir solicitudes de pacientes de tu zona.",
   alternates: { canonical: "/clinica/registro" },
 };
 

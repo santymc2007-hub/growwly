@@ -10,9 +10,9 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { TarjetasPlanes } from "@/components/precios/tarjetas-planes";
 
 export const metadata: Metadata = {
-  title: "Planes y precios para centros",
+  title: "Planes para clínicas capilares: precios",
   description:
-    "Publica tu centro gratis en el directorio de Growwly, o pasa a Premium para que te enviemos pacientes reales cada mes.",
+    "Publica tu clínica capilar gratis en Growwly o pasa a Perfil detallado para destacar y recibir solicitudes de pacientes reales de tu zona. Sin permanencia.",
   alternates: { canonical: "/precios" },
 };
 

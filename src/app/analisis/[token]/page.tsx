@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
@@ -46,6 +47,12 @@ function bloqueadoDeInforme(informe: unknown): string[] {
     "Próximos pasos",
   ];
 }
+
+// Página privada con token: nunca se indexa.
+export const metadata: Metadata = {
+  title: "Tu valoración capilar",
+  robots: { index: false, follow: false },
+};
 
 export default async function AnalisisPendientePage({
   params,
