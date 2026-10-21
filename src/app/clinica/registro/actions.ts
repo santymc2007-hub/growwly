@@ -5,6 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { slugify } from "@/lib/slugify";
 import { vincularClinica } from "@/lib/clinica/vincular-clinica";
+import { clinicaReclamable } from "@/lib/clinica/reclamables";
 
 export async function registrarClinica(formData: FormData) {
   const modo = String(formData.get("modo") ?? "existente");
@@ -56,6 +57,15 @@ export async function registrarClinica(formData: FormData) {
       redirect(
         `/clinica/registro?modo=existente&error=${encodeURIComponent(
           "Selecciona tu clínica.",
+        )}`,
+      );
+    }
+    // Solo se pueden reclamar fichas publicadas y sin gestor aprobado
+    // (el buscador ya solo ofrece esas, pero el id llega del navegador).
+    if (!(await clinicaReclamable(clinicId))) {
+      redirect(
+        `/clinica/registro?modo=existente&error=${encodeURIComponent(
+          "Esa clínica no se puede reclamar. Si es la tuya, escríbenos a hola@growwly.es.",
         )}`,
       );
     }

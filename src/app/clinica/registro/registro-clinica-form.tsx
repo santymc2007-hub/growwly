@@ -2,23 +2,25 @@
 
 import { useState } from "react";
 
+import { BuscadorClinica } from "./buscador-clinica";
+
 type ClinicaDisponible = { id: string; nombre: string; ciudad: string | null };
 type Modo = "existente" | "nueva";
 
 export function RegistroClinicaForm({
   action,
-  clinicasDisponibles,
   clinicPreseleccionada,
   modoInicial,
   error,
 }: {
   action: (formData: FormData) => void;
-  clinicasDisponibles: ClinicaDisponible[];
-  clinicPreseleccionada: string;
+  /** Ficha ya elegida al llegar (desde "Reclama este centro"), si se puede reclamar. */
+  clinicPreseleccionada: ClinicaDisponible | null;
   modoInicial: Modo;
   error: string | null;
 }) {
   const [modo, setModo] = useState<Modo>(modoInicial);
+  const [nombreNueva, setNombreNueva] = useState("");
 
   return (
     <>
@@ -52,27 +54,19 @@ export function RegistroClinicaForm({
 
         {modo === "existente" ? (
           <div>
-            <label htmlFor="clinic_id" className="text-sm font-medium text-ink">
+            <label htmlFor="buscar_clinica" className="text-sm font-medium text-ink">
               Tu clínica
             </label>
-            <select
-              id="clinic_id"
-              name="clinic_id"
-              required
-              defaultValue={clinicPreseleccionada}
-              className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
-            >
-              <option value="" disabled>
-                Selecciona tu clínica
-              </option>
-              {clinicasDisponibles.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.nombre} {c.ciudad ? `(${c.ciudad})` : ""}
-                </option>
-              ))}
-            </select>
+            <BuscadorClinica
+              inicial={clinicPreseleccionada}
+              onNoAparece={(textoEscrito) => {
+                setNombreNueva(textoEscrito);
+                setModo("nueva");
+              }}
+            />
             <p className="mt-1 text-xs text-ink-soft">
-              ¿No aparece tu clínica en la lista? Pulsa &quot;Clínica
+              Solo aparecen las clínicas publicadas en Growwly que todavía
+              no tienen gestor. ¿No está la tuya? Pulsa &quot;Clínica
               nueva&quot; arriba.
             </p>
           </div>
@@ -84,6 +78,7 @@ export function RegistroClinicaForm({
             <input
               id="nombre_clinica"
               name="nombre_clinica"
+              defaultValue={nombreNueva}
               placeholder="Ej. Clínica Capilar Mediterráneo"
               required
               className="mt-1 w-full rounded-lg border border-line bg-white px-3 py-2 text-sm text-ink focus:outline-none focus:ring-2 focus:ring-teal/30"
