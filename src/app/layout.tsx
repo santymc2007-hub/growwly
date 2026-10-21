@@ -27,10 +27,9 @@ export const preferredRegion = "fra1";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   robots: {
-    index: false,
-    follow: false,
-    // Al lanzar: index/follow a true y se mantiene esto (miniaturas
-    // grandes y fragmentos completos en Google y Discover).
+    index: true,
+    follow: true,
+    // Miniaturas grandes y fragmentos completos en Google y Discover.
     googleBot: { "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
   title: {
