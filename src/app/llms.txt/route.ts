@@ -49,7 +49,7 @@ export async function GET() {
     "",
     "## Para pacientes",
     "",
-    `- [Valoración capilar gratuita con IA](${siteUrl}/analisis/nuevo): sube fotos de tu cabeza y recibe una valoración orientativa en unos 2 minutos.`,
+    `- [Valoración capilar gratuita con IA](${siteUrl}/analisis/nuevo): sube fotos de tu cabeza y recibe una valoración orientativa en segundos.`,
     `- [Directorio de centros capilares](${siteUrl}/centros): todos los centros publicados, con filtros por ciudad y tratamiento.`,
     `- [Tratamientos capilares](${siteUrl}/tratamientos): qué es cada tratamiento, para quién está indicado y qué esperar.`,
     "",

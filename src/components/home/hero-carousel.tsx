@@ -86,7 +86,7 @@ export function HeroCarousel({
                   {slide.texto_boton}
                 </Link>
                 <p className="mt-4 text-base text-white/70">
-                  Gratis · 2 minutos · No es un diagnóstico médico.
+                  Gratis · En segundos · No es un diagnóstico médico.
                 </p>
               </div>
             </div>
@@ -112,7 +112,7 @@ export function HeroCarousel({
                 {slide.texto_boton}
               </Link>
               <p className="mt-3 text-xs text-white/70">
-                Gratis · 2 minutos · No es un diagnóstico médico.
+                Gratis · En segundos · No es un diagnóstico médico.
               </p>
             </div>
           </div>

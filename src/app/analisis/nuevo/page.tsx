@@ -13,9 +13,9 @@ export const maxDuration = 60;
 type SearchParams = { error?: string };
 
 export const metadata: Metadata = {
-  title: "Valoración capilar gratis con IA en 2 minutos",
+  title: "Valoración capilar gratis con IA en segundos",
   description:
-    "Sube unas fotos y recibe una valoración capilar orientativa con IA en 2 minutos. Gratis y sin compromiso, con presupuesto de clínicas si lo quieres.",
+    "Sube unas fotos y recibe una valoración capilar orientativa con IA en segundos. Gratis y sin compromiso, con presupuesto de clínicas si lo quieres.",
   alternates: { canonical: "/analisis/nuevo" },
 };
 
