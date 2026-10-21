@@ -1,6 +1,51 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Logo de carga (components/ui/logo-cargando.tsx): la copia de color se
+   descubre de izquierda a derecha, aguanta un momento llena y se funde
+   para volver a empezar. Con "reducir movimiento", solo late. */
+.logo-cargando-base {
+  filter: grayscale(1);
+  opacity: 0.18;
+}
+.logo-cargando-relleno {
+  clip-path: inset(0 100% 0 0);
+  animation: logo-relleno 2s cubic-bezier(0.77, 0, 0.175, 1) infinite;
+}
+@keyframes logo-relleno {
+  0% {
+    clip-path: inset(0 100% 0 0);
+    opacity: 1;
+  }
+  60% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  85% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+    opacity: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .logo-cargando-relleno {
+    clip-path: none;
+    animation: logo-latido 1.6s ease-in-out infinite;
+  }
+}
+@keyframes logo-latido {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
 :root {
   /* Superficie */
   --color-paper: #ffffff;
