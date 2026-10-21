@@ -37,15 +37,16 @@ export default async function RegistroClinicaPage({
 
       {/* Hero */}
       <div className="mx-auto max-w-[1400px] px-3 pt-3 sm:px-6">
-        <div className="overflow-hidden rounded-3xl bg-gradient-to-br from-teal-dark to-cyan-dark px-6 py-16 text-center text-white sm:px-10 sm:py-20">
+        {/* Sin caja de fondo: textos y botones sobre el fondo de la página. */}
+        <div className="px-6 py-12 text-center text-teal-dark sm:px-10 sm:py-16">
           <div className="mx-auto flex max-w-xl flex-col items-center gap-4">
-            <span className="inline-flex items-center gap-2 rounded-full border border-white/30 bg-white/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide">
+            <span className="inline-flex items-center gap-2 rounded-full border border-line bg-white px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-teal-dark shadow-sm">
               ¿Tienes un centro capilar?
             </span>
             <h1 className="font-display text-4xl font-extrabold leading-tight sm:text-5xl">
               Únete a Growwly, gratis
             </h1>
-            <p className="text-base leading-relaxed text-white/85 sm:text-lg">
+            <p className="text-base leading-relaxed text-ink-soft sm:text-lg">
               Llega a miles de personas que buscan el mejor tratamiento
               capilar. Publica tu ficha sin coste y, cuando quieras, pasa a
               Premium para recibir pacientes reales cada mes.
@@ -59,7 +60,7 @@ export default async function RegistroClinicaPage({
               </a>
               <a
                 href="#planes"
-                className="press inline-flex items-center gap-1.5 rounded-full border-2 border-white/50 px-6 py-3 text-base font-bold text-white transition hover:bg-white/10"
+                className="press inline-flex items-center gap-1.5 rounded-full border-2 border-yellow bg-white/60 px-6 py-3 text-base font-bold text-teal-dark transition hover:bg-yellow/10"
               >
                 Ver planes y precios ↓
               </a>
