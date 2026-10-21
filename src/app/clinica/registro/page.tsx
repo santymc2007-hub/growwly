@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { createAdminClient } from "@/lib/supabase/admin";
+import { clinicaReclamable } from "@/lib/clinica/reclamables";
 import { registrarClinica } from "./actions";
 import { RegistroClinicaForm } from "./registro-clinica-form";
 import { SiteHeader } from "@/components/site-header";
@@ -24,26 +24,11 @@ export default async function RegistroClinicaPage({
 }) {
   const { error, clinic, modo } = await searchParams;
 
-  // Con la clave secreta: la lista de fichas que se pueden reclamar
-  // incluye las no publicadas, que la clave pública ya no ve, y para
-  // saber cuáles están ya reclamadas hay que leer perfiles de clínica.
-  // Solo se pasan a la página id, nombre y ciudad.
-  const supabase = createAdminClient();
-  const { data: todasLasClinicas } = await supabase
-    .from("clinics")
-    .select("id, nombre, ciudad")
-    .order("nombre", { ascending: true });
-
-  const { data: aprobadas } = await supabase
-    .from("profiles")
-    .select("clinic_id")
-    .eq("role", "clinic")
-    .eq("clinic_status", "aprobado");
-
-  const idsReclamados = new Set((aprobadas ?? []).map((p) => p.clinic_id));
-  const clinicasDisponibles = (todasLasClinicas ?? []).filter(
-    (c) => !idsReclamados.has(c.id),
-  );
+  // Ya no se carga la lista entera de fichas: el campo "Tu clínica" busca
+  // mientras se escribe (ver buscador-clinica.tsx). Solo hace falta la
+  // ficha preseleccionada cuando se llega desde "Reclama este centro", y
+  // únicamente si de verdad se puede reclamar (publicada y sin gestor).
+  const preseleccionada = clinic ? await clinicaReclamable(clinic) : null;
 
   return (
     <main className="relative flex-1">
@@ -127,8 +112,7 @@ export default async function RegistroClinicaPage({
             <div className="mt-8 w-full max-w-sm rounded-2xl border border-line bg-paper-dim/40 p-8 text-left">
               <RegistroClinicaForm
                 action={registrarClinica}
-                clinicasDisponibles={clinicasDisponibles}
-                clinicPreseleccionada={clinic ?? ""}
+                clinicPreseleccionada={preseleccionada}
                 modoInicial={modo === "nueva" ? "nueva" : "existente"}
                 error={error ? decodeURIComponent(error) : null}
               />
