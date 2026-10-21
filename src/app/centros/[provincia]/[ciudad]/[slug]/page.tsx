@@ -294,6 +294,10 @@ export default async function ClinicaPage({
   const yaReclamada = Boolean(perfilAprobado);
 
   const socialLinks = getSocialLinks(clinic.redes_sociales);
+  const tecnicasMin = new Set(clinic.tecnicas.map((t) => t.toLowerCase()));
+  const serviciosVisibles = clinic.servicios_adicionales.filter(
+    (s) => !tecnicasMin.has(s.toLowerCase()),
+  );
   const actualizado = new Date(clinic.updated_at).toLocaleDateString("es-ES", {
     year: "numeric",
     month: "long",
@@ -605,21 +609,21 @@ export default async function ClinicaPage({
                 </section>
               )}
 
-              {esPremium && clinic.servicios_adicionales.length > 0 && (
+              {/* Visible en todos los planes: es contenido propio de la ficha
+                  (búsquedas long-tail). Se omite lo que ya sale en Técnicas. */}
+              {serviciosVisibles.length > 0 && (
                 <section className="mt-8 lg:order-70">
                   <h2 className="font-display text-lg text-teal-dark">
-                    Otros servicios
+                    Servicios de {clinic.nombre}
                   </h2>
-                  <div className="mt-3 flex flex-wrap gap-2">
-                    {clinic.servicios_adicionales.map((servicio) => (
-                      <span
-                        key={servicio}
-                        className="break-words rounded-full border border-line px-3 py-1 text-sm text-ink-soft"
-                      >
-                        {servicio}
-                      </span>
+                  <ul className="mt-3 grid gap-x-8 gap-y-2 sm:grid-cols-2">
+                    {serviciosVisibles.map((servicio) => (
+                      <li key={servicio} className="flex items-start gap-2 text-sm text-ink">
+                        <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-teal" aria-hidden />
+                        <span className="break-words">{servicio}</span>
+                      </li>
                     ))}
-                  </div>
+                  </ul>
                 </section>
               )}
 

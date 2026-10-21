@@ -1,5 +1,6 @@
 "use server";
 
+import { parsearServicios } from "@/lib/clinica/servicios";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -280,10 +281,7 @@ function readClinicFields(formData: FormData): ClinicWrite {
     rating_doctoralia: num("rating_doctoralia"),
     resenas_doctoralia: num("resenas_doctoralia"),
     tipo_negocio: tipoNegocioValido(str("tipo_negocio")),
-    servicios_adicionales: String(formData.get("servicios_adicionales") ?? "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean),
+    servicios_adicionales: parsearServicios(formData.get("servicios_adicionales")),
     tiene_oferta: Boolean(str("detalle_oferta")),
     detalle_oferta: str("detalle_oferta"),
     descripcion_extendida: str("descripcion_extendida"),
