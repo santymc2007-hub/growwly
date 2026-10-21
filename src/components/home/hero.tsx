@@ -11,7 +11,7 @@ export function Hero() {
             Tu salud capilar en buenas manos
           </p>
           <h1 className="entra d1 mt-3 font-display text-[32px] font-extrabold leading-[1.1] text-teal-dark sm:text-[44px] lg:text-[52px]">
-            Tu valoración capilar gratis en 2&nbsp;minutos
+            Tu valoración capilar gratis en&nbsp;segundos
           </h1>
           <p className="entra d2 mx-auto mt-4 max-w-md text-base text-ink-soft sm:text-lg lg:mx-0">
             Sube tus fotos, recibe una <strong className="text-ink">valoración con IA</strong>{" "}
@@ -26,7 +26,7 @@ export function Hero() {
             Haz tu valoración gratuita →
           </Link>
           <p className="entra d3 mt-3 text-sm text-ink-soft">
-            Gratis · 2 minutos · No es un diagnóstico médico.
+            Gratis · En segundos · No es un diagnóstico médico.
           </p>
 
           {/* Mismos iconos que la página de valoración (sellos-confianza),
