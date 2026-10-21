@@ -469,14 +469,20 @@ export function ClinicForm({ action, clinic, error, guardado, municipios, zonas 
           <SelectorCategoriaCentro valorInicial={clinic?.tipo_negocio} />
           <div>
             <label className={labelClass} htmlFor="servicios_adicionales">
-              Otros servicios (separados por coma)
+              Otros servicios (uno por línea)
             </label>
-            <input
+            <p className="mt-0.5 text-xs text-ink-soft">
+              Lo que hacéis además de las técnicas, como lo buscaría un paciente. Ej.: Injerto
+              sin rasurado completo · Reparación de cicatrices · Corrección de injertos previos.
+              No repitas las técnicas.
+            </p>
+            <textarea
               id="servicios_adicionales"
               name="servicios_adicionales"
-              placeholder="Ej. Medicina estética facial, Cirugía plástica"
-              defaultValue={clinic?.servicios_adicionales?.join(", ") ?? undefined}
-              className={inputClass}
+              rows={6}
+              placeholder={"Injerto sin rasurado completo\nReparación de cicatrices\nCorrección de injertos previos"}
+              defaultValue={clinic?.servicios_adicionales?.join("\n") ?? undefined}
+              className={`${inputClass} mt-1`}
             />
           </div>
           <div>

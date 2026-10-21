@@ -1,5 +1,6 @@
 "use server";
 
+import { parsearServicios } from "@/lib/clinica/servicios";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -36,10 +37,7 @@ export async function actualizarMiFicha(formData: FormData) {
     }
   }
 
-  const servicios = String(formData.get("servicios_adicionales") ?? "")
-    .split(",")
-    .map((s) => s.trim())
-    .filter(Boolean);
+  const servicios = parsearServicios(formData.get("servicios_adicionales"));
 
   const detalleOferta = str("detalle_oferta");
 
