@@ -20,6 +20,7 @@ import {
 } from "@/lib/seo/enlaces-internos";
 import { getCentrosConTecnica, recortar } from "@/lib/seo/landings";
 import type { Clinic } from "@/lib/supabase/database.types";
+import { BotonCompartir } from "@/components/ui/boton-compartir";
 
 type Params = { slug: string };
 
@@ -193,17 +194,20 @@ export default async function BlogPostPage({
                 <h1 className="mt-4 font-display text-3xl text-teal-dark sm:text-4xl">
                   {post.titulo}
                 </h1>
-                <p className="mt-2 text-sm text-ink-soft">
-                  {post.autor}
-                  {post.autor_cargo && ` — ${post.autor_cargo}`}
-                  {post.publicado_en && ` · ${fechaLarga(post.publicado_en)}`}
-                  {actualizado && (
-                    <>
-                      {" · Actualizado el "}
-                      <time dateTime={post.updated_at}>{actualizado}</time>
-                    </>
-                  )}
-                </p>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-ink-soft">
+                    {post.autor}
+                    {post.autor_cargo && ` — ${post.autor_cargo}`}
+                    {post.publicado_en && ` · ${fechaLarga(post.publicado_en)}`}
+                    {actualizado && (
+                      <>
+                        {" · Actualizado el "}
+                        <time dateTime={post.updated_at}>{actualizado}</time>
+                      </>
+                    )}
+                  </p>
+                  <BotonCompartir titulo={post.titulo} tipo="post" />
+                </div>
 
                 <ContenidoEnriquecido
                   contenido={post.contenido}

@@ -26,6 +26,7 @@ import {
   recortar,
   enFrase,
 } from "@/lib/seo/landings";
+import { BotonCompartir } from "@/components/ui/boton-compartir";
 
 type Params = { slug: string };
 
@@ -273,9 +274,12 @@ export default async function TratamientoPage({
                 <h1 className="mt-3 font-display text-3xl text-teal-dark sm:text-4xl">
                   {tratamiento.nombre}
                 </h1>
-                <p className="mt-2 text-sm text-ink-soft">
-                  Actualizado el <time dateTime={tratamiento.updated_at}>{actualizado}</time>
-                </p>
+                <div className="mt-2 flex flex-wrap items-center justify-between gap-3">
+                  <p className="text-sm text-ink-soft">
+                    Actualizado el <time dateTime={tratamiento.updated_at}>{actualizado}</time>
+                  </p>
+                  <BotonCompartir titulo={`${tratamiento.nombre}: qué es, precios y centros`} tipo="tratamiento" />
+                </div>
 
                 {/* Datos clave: lo que más citan los buscadores con IA.
                     Solo datos reales; si no hay, no se muestra la casilla. */}
