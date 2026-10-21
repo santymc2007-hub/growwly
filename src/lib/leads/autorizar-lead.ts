@@ -74,5 +74,6 @@ export async function autorizarAccesoLead(token: string): Promise<{ clinicId: st
 /** Solo rutas internas de leads: evita redirecciones abiertas tras el login. */
 export function destinoTrasLogin(next: string | null | undefined): string | null {
   if (!next) return null;
+  if (next === "/clinica/visibilidad") return next;
   return /^\/leads\/[0-9a-f-]{36}(\/valoracion)?$/i.test(next) ? next : null;
 }
