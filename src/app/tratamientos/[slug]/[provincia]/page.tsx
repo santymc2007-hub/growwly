@@ -1,5 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { tituloSeo, textoTitle, metaSeo } from "@/lib/seo/meta";
 import { getLanding } from "@/lib/seo/landing-datos";
 import { LandingTratamiento } from "@/components/tratamientos/landing-tratamiento";
 import { nombreProvinciaBuscable, rangoPrecios, enFrase } from "@/lib/seo/landings";
@@ -13,9 +14,24 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const lugar = nombreProvinciaBuscable(d.provinciaReal, d.centros);
   const precios = rangoPrecios(d.centros);
   const url = `/tratamientos/${slug}/${provincia}`;
-  const title = `${d.tratamiento.nombre} en ${lugar}: ${d.centros.length} centros y precios`;
-  const description = `Compara ${d.centros.length} centros verificados que ofrecen ${enFrase(d.tratamiento.nombre)} en ${lugar}${precios ? `, precios ${precios}` : ""}. Opiniones, técnicas y contacto. Pide presupuesto gratis.`;
-  return { title, description, alternates: { canonical: url }, openGraph: { title, description } };
+  const sitio = lugar;
+  const n = d.centros.length;
+  const title = tituloSeo(
+    `${d.tratamiento.nombre} en ${sitio}: ${n} centros y precios`,
+    `${d.tratamiento.nombre} en ${sitio}: precios`,
+    `${d.tratamiento.nombre} en ${sitio}`,
+  );
+  const description = metaSeo(
+    `Compara ${n} centros verificados que ofrecen ${enFrase(d.tratamiento.nombre)} en ${lugar}.`,
+    [precios ? `Precios publicados ${precios}.` : null, "Opiniones, técnicas y ubicación."],
+    "Pide presupuesto gratis.",
+  );
+  return {
+    title,
+    description,
+    alternates: { canonical: url },
+    openGraph: { title: textoTitle(title), description },
+  };
 }
 
 export default async function LandingProvinciaPage({

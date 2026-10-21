@@ -49,6 +49,9 @@ const ENTIDAD_JSON_LD = {
 };
 
 export const metadata: Metadata = {
+  title: { absolute: "Growwly: compara clínicas capilares verificadas" },
+  description:
+    "Compara clínicas capilares verificadas: injerto FUE y DHI, PRP, mesoterapia y más. Precios, opiniones reales y valoración capilar gratis con IA en 2 minutos.",
   alternates: { canonical: "/" },
 };
 

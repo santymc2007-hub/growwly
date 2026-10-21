@@ -5,6 +5,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
@@ -57,20 +58,31 @@ export async function generateMetadata({
   const centros = tratamiento.tecnica_relacionada
     ? await getCentrosConTecnica(tratamiento.tecnica_relacionada)
     : [];
-  const title = `${tratamiento.nombre}: guía completa y centros especializados`;
-  const cola =
-    centros.length > 0
-      ? ` Lo ofrecen ${centros.length} ${centros.length === 1 ? "centro verificado" : "centros verificados"} en Growwly.`
-      : "";
-  const description = recortar(
-    `${recortar(tratamiento.resumen ?? `Qué es ${enFrase(tratamiento.nombre)}, para quién, cómo es el proceso y la recuperación.`, 158 - cola.length)}${cola}`,
+  const n = centros.length;
+  const lugar = centros.length > 0 ? nombreProvinciaBuscable(centros[0].provincia, centros) : null;
+  const title = tituloSeo(
+    `${tratamiento.nombre}: qué es, precio y clínicas`,
+    `${tratamiento.nombre}: guía y clínicas`,
+    `${tratamiento.nombre}: guía completa`,
+    tratamiento.nombre,
+  );
+  const description = metaSeo(
+    tratamiento.resumen
+      ? primerasFrases(tratamiento.resumen, 120)
+      : `Qué es ${enFrase(tratamiento.nombre)}, para quién está indicado, cómo es el proceso y la recuperación.`,
+    [
+      n > 0 && lugar
+        ? `${n} ${n === 1 ? "centro verificado lo ofrece" : "centros verificados lo ofrecen"} en ${lugar}.`
+        : null,
+    ],
+    "Guía clara y sin letra pequeña.",
   );
   return {
     title,
     description,
     alternates: { canonical: `/tratamientos/${tratamiento.slug}` },
     openGraph: {
-      title,
+      title: textoTitle(title),
       description,
       images: tratamiento.imagen_portada ? [tratamiento.imagen_portada] : undefined,
     },

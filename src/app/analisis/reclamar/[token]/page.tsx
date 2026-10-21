@@ -1,8 +1,15 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { reclamarEstudio } from "@/lib/estudios/reclamar-estudio";
 
 type Params = { token: string };
+
+// Página privada con token: nunca se indexa.
+export const metadata: Metadata = {
+  title: "Tu valoración capilar",
+  robots: { index: false, follow: false },
+};
 
 export default async function ReclamarEstudioPage({
   params,

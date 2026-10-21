@@ -14,9 +14,9 @@ import { Breadcrumbs } from "@/components/breadcrumbs";
 import { ordenarTiposNegocio, slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 
 export const metadata: Metadata = {
-  title: "Clínicas capilares en España: compara centros verificados",
+  title: "Compara clínicas capilares en España",
   description:
-    "Compara clínicas de injerto capilar, tricología y centros capilares verificados por técnica, precio, opiniones e idiomas. Pide presupuesto gratis a varios a la vez.",
+    "Compara clínicas de injerto capilar, tricología y centros capilares verificados por técnica, precio, opiniones e idiomas. Pide presupuesto gratis.",
   alternates: { canonical: "/centros" },
 };
 

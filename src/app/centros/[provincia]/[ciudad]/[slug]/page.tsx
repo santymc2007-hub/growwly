@@ -5,6 +5,7 @@ import { cache } from "react";
 import { notFound, redirect, permanentRedirect } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
 import {
   Phone,
   Mail,
@@ -113,26 +114,26 @@ export async function generateMetadata({
     : "centro capilar";
   const lugar = clinic.ciudad ? nombreCiudadBuscable(clinic.ciudad, clinic.provincia) : clinic.provincia;
   const precio = rangoPrecios([clinic]);
-  // Se van añadiendo datos mientras quepan, sin cortar nunca a mitad de
-  // frase; el cierre ("Pide presupuesto…") siempre entra.
-  const cierre = "Pide presupuesto gratis.";
-  const opcionales = [
+  const nota =
     clinic.rating_google != null
       ? `${String(clinic.rating_google).replace(".", ",")}★ en Google${clinic.resenas_google ? ` (${clinic.resenas_google} reseñas)` : ""}.`
-      : "",
-    clinic.tecnicas.length > 0 ? `${clinic.tecnicas.slice(0, 3).join(", ")}.` : "",
-    precio ? `Precios ${precio}.` : "",
-  ].filter(Boolean);
-  let descripcion = `${clinic.nombre}, ${categoria} en ${lugar}.`;
-  for (const parte of opcionales) {
-    if (`${descripcion} ${parte} ${cierre}`.length <= 158) descripcion += ` ${parte}`;
-  }
-  descripcion = recortar(`${descripcion} ${cierre}`);
-  const title = clinic.ciudad
-    ? clinic.nombre.length <= 32
-      ? `${clinic.nombre} en ${clinic.ciudad}: opiniones y precios`
-      : `${clinic.nombre} en ${clinic.ciudad}`
-    : clinic.nombre;
+      : null;
+  const descripcion = metaSeo(
+    `${clinic.nombre}, ${categoria} en ${lugar}.`,
+    [
+      nota,
+      clinic.tecnicas.length > 0 ? `${clinic.tecnicas.slice(0, 3).join(", ")}.` : null,
+      precio ? `Precios ${precio}.` : null,
+      clinic.idiomas.length > 1 ? `Atención en ${clinic.idiomas.slice(0, 3).join(", ").toLowerCase()}.` : null,
+    ],
+    "Compara y pide presupuesto gratis.",
+  );
+  const title = tituloSeo(
+    clinic.ciudad && `${clinic.nombre} en ${clinic.ciudad}: opiniones y precios`,
+    clinic.ciudad && `${clinic.nombre} en ${clinic.ciudad}: opiniones`,
+    clinic.ciudad && `${clinic.nombre} en ${clinic.ciudad}`,
+    clinic.nombre,
+  );
 
   const ciudadSlug = clinic.ciudad ? slugifyCiudad(clinic.ciudad) : "clinica";
   const provinciaSlug = slugifyProvincia(clinic.provincia);
@@ -142,7 +143,7 @@ export async function generateMetadata({
     description: descripcion,
     alternates: { canonical: `/centros/${provinciaSlug}/${ciudadSlug}/${clinic.slug}` },
     openGraph: {
-      title,
+      title: textoTitle(title),
       description: descripcion,
       images: clinic.fotos.length > 0 ? [clinic.fotos[0]] : undefined,
     },

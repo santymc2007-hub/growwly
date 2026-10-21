@@ -10,7 +10,9 @@ import {
 } from "@/lib/cookies/config";
 
 export const metadata: Metadata = {
-  title: "Política de Cookies",
+  title: "Política de cookies",
+  description:
+    "Qué cookies usa Growwly (técnicas, analíticas y de publicidad), para qué sirve cada una, cuánto duran y cómo cambiar tu consentimiento cuando quieras.",
   alternates: { canonical: "/legal/cookies" },
 };
 

@@ -3,6 +3,7 @@ import Image from "next/image";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
@@ -45,17 +46,16 @@ export async function generateMetadata({
   const { slug } = await params;
   const post = await findPost(slug);
   if (!post) return {};
-  // Sin resumen, la meta description sale del principio del artículo.
-  const texto = (esHtml(post.contenido) ? post.contenido.replace(/<[^>]+>/g, " ") : post.contenido)
-    .replace(/[#*_>`\[\]]/g, "")
-    .trim();
-  const description = recortar(post.resumen || texto);
+  // Meta: el resumen del post (o, sin resumen, las primeras frases del
+  // artículo), solo frases completas que quepan.
+  const description = metaSeo(primerasFrases(post.resumen || post.contenido, 158));
+  const title = tituloSeo(post.titulo);
   return {
-    title: post.titulo,
+    title,
     description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
-      title: post.titulo,
+      title: textoTitle(title),
       description,
       type: "article",
       publishedTime: post.publicado_en ?? undefined,
