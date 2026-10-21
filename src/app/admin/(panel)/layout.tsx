@@ -97,6 +97,9 @@ export default async function PanelLayout({
               <Link href="/admin/geografia" className="hover:text-cyan">
                 Geografía
               </Link>
+              <Link href="/admin/seo" className="hover:text-cyan">
+                SEO
+              </Link>
               <Link
                 href="/admin/clinicas-cuentas"
                 className="flex items-center gap-1.5 hover:text-cyan"

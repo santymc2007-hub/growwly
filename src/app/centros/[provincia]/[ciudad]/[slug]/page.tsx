@@ -101,19 +101,32 @@ export async function generateMetadata({
   // Meta description con datos de la ficha (no la descripción que escribe
   // el centro): categoría, técnicas, precio y nota. Más relevante para la
   // búsqueda y siempre del largo correcto.
-  const categoria = clinic.tipo_negocio ? enFrase(clinic.tipo_negocio) : "centro capilar";
+  // Cómo se nombra cada categoría en la meta: en positivo y como lo
+  // buscaría el paciente ("no médico" es útil en el filtro, no aquí).
+  const CATEGORIA_META: Record<string, string> = {
+    "Centro capilar no médico": "centro capilar",
+    "Micropigmentación capilar": "centro de micropigmentación capilar",
+  };
+  const categoria = clinic.tipo_negocio
+    ? (CATEGORIA_META[clinic.tipo_negocio] ?? enFrase(clinic.tipo_negocio))
+    : "centro capilar";
   const lugar = clinic.ciudad ? nombreCiudadBuscable(clinic.ciudad, clinic.provincia) : clinic.provincia;
   const precio = rangoPrecios([clinic]);
-  const partes = [
-    `${clinic.nombre}, ${categoria} en ${lugar}.`,
-    clinic.tecnicas.length > 0 ? `${clinic.tecnicas.slice(0, 3).join(", ")}.` : "",
-    precio ? `Precios ${precio}.` : "",
+  // Se van añadiendo datos mientras quepan, sin cortar nunca a mitad de
+  // frase; el cierre ("Pide presupuesto…") siempre entra.
+  const cierre = "Pide presupuesto gratis.";
+  const opcionales = [
     clinic.rating_google != null
       ? `${String(clinic.rating_google).replace(".", ",")}★ en Google${clinic.resenas_google ? ` (${clinic.resenas_google} reseñas)` : ""}.`
       : "",
-    "Pide presupuesto gratis en Growwly.",
-  ];
-  const descripcion = recortar(partes.filter(Boolean).join(" "));
+    clinic.tecnicas.length > 0 ? `${clinic.tecnicas.slice(0, 3).join(", ")}.` : "",
+    precio ? `Precios ${precio}.` : "",
+  ].filter(Boolean);
+  let descripcion = `${clinic.nombre}, ${categoria} en ${lugar}.`;
+  for (const parte of opcionales) {
+    if (`${descripcion} ${parte} ${cierre}`.length <= 158) descripcion += ` ${parte}`;
+  }
+  descripcion = recortar(`${descripcion} ${cierre}`);
   const title = clinic.ciudad
     ? clinic.nombre.length <= 32
       ? `${clinic.nombre} en ${clinic.ciudad}: opiniones y precios`
@@ -128,7 +141,7 @@ export async function generateMetadata({
     description: descripcion,
     alternates: { canonical: `/centros/${provinciaSlug}/${ciudadSlug}/${clinic.slug}` },
     openGraph: {
-      title: clinic.nombre,
+      title,
       description: descripcion,
       images: clinic.fotos.length > 0 ? [clinic.fotos[0]] : undefined,
     },
