@@ -54,6 +54,7 @@ import {
   recortar,
   MIN_CENTROS_LANDING,
 } from "@/lib/seo/landings";
+import { BotonCompartir } from "@/components/ui/boton-compartir";
 
 type Params = { provincia: string; ciudad: string; slug: string };
 
@@ -502,14 +503,17 @@ export default async function ClinicaPage({
                     )}
                   </div>
                 </div>
-                {clinic.verificado && (
-                  <div className="flex flex-col items-end gap-1">
-                    <VerifiedBadge />
-                    <p className="max-w-[13rem] text-right text-[11px] leading-snug text-ink-soft">
-                      Hemos comprobado que existe y que sus datos de contacto son correctos.
-                    </p>
-                  </div>
-                )}
+                <div className="flex flex-col items-end gap-2">
+                  <BotonCompartir titulo={`${clinic.nombre} en Growwly`} tipo="centro" />
+                  {clinic.verificado && (
+                    <div className="flex flex-col items-end gap-1">
+                      <VerifiedBadge />
+                      <p className="max-w-[13rem] text-right text-[11px] leading-snug text-ink-soft">
+                        Hemos comprobado que existe y que sus datos de contacto son correctos.
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {clinic.fotos.length > 0 ? (
