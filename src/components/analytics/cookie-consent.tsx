@@ -251,48 +251,62 @@ export function CookieConsent() {
       )}
 
       {visible && (
+        // Franja a todo el ancho con el verde de la marca al 80 %: se ve,
+        // pero deja intuir la página. Rechazar y Aceptar con el mismo peso
+        // visual (criterio AEPD).
         <div
           role="dialog"
           aria-label="Preferencias de cookies"
-          className="fixed inset-x-4 bottom-4 z-[100] mx-auto max-w-2xl rounded-2xl border border-line bg-white p-5 shadow-xl"
+          className="fixed inset-x-0 bottom-0 z-[100] bg-logo/80 text-white shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md"
         >
+          <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 sm:py-4">
           {!configurando ? (
-            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-              <p className="flex-1 text-sm text-ink-soft">
+            <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+              <div className="flex flex-1 items-center gap-3 sm:gap-4">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src="/brand/icono-cookie.png"
+                  alt=""
+                  width={48}
+                  height={48}
+                  className="h-10 w-10 shrink-0 sm:h-12 sm:w-12"
+                />
+              <p className="flex-1 text-[13px] leading-snug text-white sm:text-sm">
                 {PUBLICIDAD_ACTIVA
                   ? "Usamos cookies analíticas para entender cómo se usa Growwly y cookies de publicidad para medir nuestros anuncios. Solo las activamos si nos das tu consentimiento."
                   : "Usamos cookies analíticas para entender cómo se usa Growwly y mejorar el sitio. Solo las activamos si nos das tu consentimiento."}{" "}
-                <Link href="/legal/cookies" className="font-medium text-cyan-dark hover:underline">
+                <Link href="/legal/cookies" className="font-semibold text-lima underline-offset-2 hover:underline">
                   Más información
                 </Link>
               </p>
-              <div className="flex shrink-0 flex-wrap gap-2">
+              </div>
+              <div className="flex shrink-0 items-center gap-2">
                 <button
                   type="button"
                   onClick={abrirConfiguracion}
-                  className="press rounded-lg px-3 py-2 text-sm font-medium text-ink-soft underline hover:text-ink"
+                  className="press mr-1 px-2 py-2 text-sm font-medium text-white/90 underline underline-offset-2 hover:text-white"
                 >
                   Configurar
                 </button>
                 <button
                   type="button"
                   onClick={() => guardar(false, false)}
-                  className="press rounded-lg border border-line px-4 py-2 text-sm font-medium text-ink hover:border-ink/40"
+                  className="press flex-1 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-logo transition hover:bg-yellow md:flex-none"
                 >
                   Rechazar
                 </button>
                 <button
                   type="button"
                   onClick={() => guardar(true, true)}
-                  className="press rounded-lg bg-teal-dark px-4 py-2 text-sm font-medium text-white hover:bg-teal"
+                  className="press flex-1 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-logo transition hover:bg-yellow md:flex-none"
                 >
                   Aceptar
                 </button>
               </div>
             </div>
           ) : (
-            <div>
-              <p className="font-display text-base font-bold text-teal-dark">
+            <div className="mx-auto max-h-[80vh] max-w-2xl overflow-y-auto rounded-2xl bg-white p-5 text-ink shadow-xl">
+              <p className="flex items-center gap-2 font-display text-base font-bold text-teal-dark">
                 Preferencias de cookies
               </p>
               <ul className="mt-3 flex flex-col gap-3 text-sm">
@@ -365,6 +379,7 @@ export function CookieConsent() {
               </div>
             </div>
           )}
+          </div>
         </div>
       )}
     </>
