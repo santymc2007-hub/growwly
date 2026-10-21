@@ -5,7 +5,7 @@ import { cache } from "react";
 import { notFound, redirect, permanentRedirect } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
-import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases, OG_BASE } from "@/lib/seo/meta";
 import {
   Phone,
   Mail,
@@ -143,6 +143,8 @@ export async function generateMetadata({
     description: descripcion,
     alternates: { canonical: `/centros/${provinciaSlug}/${ciudadSlug}/${clinic.slug}` },
     openGraph: {
+      ...OG_BASE,
+      url: `/centros/${provinciaSlug}/${ciudadSlug}/${clinic.slug}`,
       title: textoTitle(title),
       description: descripcion,
       images: clinic.fotos.length > 0 ? [clinic.fotos[0]] : undefined,

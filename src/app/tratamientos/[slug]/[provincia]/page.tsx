@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { tituloSeo, textoTitle, metaSeo } from "@/lib/seo/meta";
+import { tituloSeo, textoTitle, metaSeo, OG_BASE } from "@/lib/seo/meta";
 import { getLanding } from "@/lib/seo/landing-datos";
 import { LandingTratamiento } from "@/components/tratamientos/landing-tratamiento";
 import { nombreProvinciaBuscable, rangoPrecios, enFrase } from "@/lib/seo/landings";
@@ -30,7 +30,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title,
     description,
     alternates: { canonical: url },
-    openGraph: { title: textoTitle(title), description },
+    openGraph: {
+      ...OG_BASE,
+      url: url, title: textoTitle(title), description },
   };
 }
 
