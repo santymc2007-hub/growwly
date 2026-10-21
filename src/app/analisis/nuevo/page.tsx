@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
@@ -10,6 +11,13 @@ import { AnalisisForm } from "./analisis-form";
 export const maxDuration = 60;
 
 type SearchParams = { error?: string };
+
+export const metadata: Metadata = {
+  title: "Valoración capilar gratis con IA en 2 minutos",
+  description:
+    "Sube unas fotos de tu cabeza y recibe una valoración capilar orientativa con IA en 2 minutos. Gratis y sin compromiso. Después, si quieres, presupuesto de clínicas verificadas.",
+  alternates: { canonical: "/analisis/nuevo" },
+};
 
 export default async function NuevoAnalisisPage({
   searchParams,
