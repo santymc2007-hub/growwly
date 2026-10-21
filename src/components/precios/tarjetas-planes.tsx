@@ -1,11 +1,6 @@
 import Link from "next/link";
 import { Check, X } from "lucide-react";
-import {
-  PRECIO_ANUAL_MES,
-  PRECIO_MENSUAL,
-  ahorroAnual,
-  descuentoAnual,
-} from "@/lib/visibilidad/tipos";
+import { PRECIO_ANUAL_MES } from "@/lib/visibilidad/tipos";
 
 const INCLUYE_BASICO = [
   "Ficha en el directorio de Growwly",
@@ -114,8 +109,8 @@ export function TarjetasPlanes({
             <span className="text-xs font-bold uppercase tracking-wide text-mint">
               Premium · Perfil ampliado
             </span>
-            {/* Siempre el precio más bajo como principal ("desde"),
-                aclarando justo debajo a qué forma de pago corresponde. */}
+            {/* Siempre el precio más bajo como principal ("desde"); el
+                detalle mensual/anual se ve ya en Visibilidad. */}
             <div className="flex items-baseline gap-2">
               <span className="text-sm text-sage">Desde</span>
               <span className="font-display text-4xl font-extrabold text-white">
@@ -123,13 +118,6 @@ export function TarjetasPlanes({
               </span>
               <span className="text-sm text-sage">/ mes</span>
             </div>
-            <p className="text-xs leading-relaxed text-sage">
-              <span className="mr-1.5 inline-block rounded-full bg-mint px-2 py-0.5 font-bold text-teal-dark">
-                −{descuentoAnual("premium")} %
-              </span>
-              en pago anual ({PRECIO_ANUAL_MES.premium * 12} € al año, ahorras{" "}
-              {ahorroAnual("premium")} €) · o {PRECIO_MENSUAL.premium} €/mes sin permanencia
-            </p>
             <p className="text-sm leading-relaxed text-sage">
               Pensado para llenar agenda.
             </p>
