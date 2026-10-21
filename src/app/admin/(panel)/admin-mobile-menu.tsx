@@ -55,6 +55,7 @@ export function AdminMobileMenu({
             {enlace("/admin/leads", "Leads", leadsNuevos)}
             {enlace("/admin/hero-slides", "Hero")}
             {enlace("/admin/blog", "Blog")}
+            {enlace("/admin/seo", "SEO")}
             {enlace("/admin/tratamientos", "Tratamientos")}
             {enlace("/admin/geografia", "Geografía")}
             {enlace("/admin/clinicas-cuentas", "Cuentas de clínica", pendientes)}
