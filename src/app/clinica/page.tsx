@@ -83,6 +83,38 @@ export default async function ClinicaPanelPage({
     );
   }
 
+  // Cuenta aprobada pero sin ninguna clínica asociada (clinic_members
+  // vacío): requireClinicaActiva redirigiría a /clinica otra vez y el
+  // navegador se quedaría en blanco por el bucle. Se avisa aquí.
+  const { count: numClinicas } = await createAdminClient()
+    .from("clinic_members")
+    .select("id", { count: "exact", head: true })
+    .eq("profile_id", user.id);
+
+  if (!numClinicas) {
+    return (
+      <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
+        <SiteHeader />
+        <div className="mx-auto max-w-lg px-6 py-12">
+          <h1 className="font-display text-2xl text-teal-dark">Panel de clínica</h1>
+          <p className="mt-0.5 text-sm text-ink-soft">{user.email}</p>
+          <div className="mt-8 rounded-2xl border border-dashed border-line bg-white p-6 text-center">
+            <p className="font-display text-lg text-teal-dark">
+              Tu cuenta no tiene ninguna clínica asociada
+            </p>
+            <p className="mt-2 text-sm text-ink-soft">
+              Escríbenos a{" "}
+              <a href="mailto:hola@growwly.es" className="font-medium text-cyan-dark hover:underline">
+                hola@growwly.es
+              </a>{" "}
+              y la vinculamos enseguida.
+            </p>
+          </div>
+        </div>
+      </main>
+    );
+  }
+
   const { clinicId, profileId, clinicas } = await requireClinicaActiva();
 
   const admin = createAdminClient();
