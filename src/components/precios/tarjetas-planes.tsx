@@ -114,30 +114,35 @@ export function TarjetasPlanes({
             <span className="text-xs font-bold uppercase tracking-wide text-mint">
               Premium · Perfil ampliado
             </span>
+            {/* Siempre el precio más bajo como principal ("desde"),
+                aclarando justo debajo a qué forma de pago corresponde. */}
             <div className="flex items-baseline gap-2">
+              <span className="text-sm text-sage">Desde</span>
               <span className="font-display text-4xl font-extrabold text-white">
-                {PRECIO_MENSUAL.premium} €
+                {PRECIO_ANUAL_MES.premium} €
               </span>
               <span className="text-sm text-sage">/ mes</span>
             </div>
-            <p className="flex flex-wrap items-center gap-2 text-xs text-sage">
-              <span className="rounded-full bg-mint px-2 py-0.5 font-bold text-teal-dark">
+            <p className="text-xs leading-relaxed text-sage">
+              <span className="mr-1.5 inline-block rounded-full bg-mint px-2 py-0.5 font-bold text-teal-dark">
                 −{descuentoAnual("premium")} %
               </span>
-              o {PRECIO_ANUAL_MES.premium} €/mes en pago anual: ahorras{" "}
-              {ahorroAnual("premium")} € al año
+              en pago anual ({PRECIO_ANUAL_MES.premium * 12} € al año, ahorras{" "}
+              {ahorroAnual("premium")} €) · o {PRECIO_MENSUAL.premium} €/mes sin permanencia
             </p>
             <p className="text-sm leading-relaxed text-sage">
               Pensado para llenar agenda.
             </p>
           </div>
 
-          <a
-            href="mailto:hola@growwly.es?subject=Quiero%20pasar%20a%20Premium"
+          {/* Lleva a Visibilidad del panel; sin sesión, pasa antes por el
+              login de clínicas y vuelve allí. */}
+          <Link
+            href="/clinica/visibilidad"
             className="press block rounded-full bg-orange px-5 py-3 text-center text-sm font-extrabold text-teal-dark shadow-[0_10px_24px_-8px_rgba(255,186,31,0.5)] transition hover:opacity-90"
           >
             Pasar a Premium
-          </a>
+          </Link>
 
           <div className="h-px bg-white/15" />
 

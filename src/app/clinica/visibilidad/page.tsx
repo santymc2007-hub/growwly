@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { Home, MapPin, Gem } from "lucide-react";
 import {
   BENEFICIO_LABEL,
@@ -28,6 +28,13 @@ export default async function VisibilidadPage({
   searchParams: Promise<SearchParams>;
 }) {
   const { solicitud, completo } = await searchParams;
+
+  // Sin sesión (p. ej. desde "Pasar a Premium" de /precios): al login de
+  // clínicas y, tras entrar, de vuelta aquí.
+  const {
+    data: { user: usuario },
+  } = await (await createClient()).auth.getUser();
+  if (!usuario) redirect("/clinica/login?next=/clinica/visibilidad");
 
   const { clinicId, profileId, clinicas } = await requireClinicaActiva();
 
