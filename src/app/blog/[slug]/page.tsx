@@ -3,7 +3,7 @@ import Image from "next/image";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases, OG_BASE } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
 import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
@@ -55,6 +55,8 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `/blog/${post.slug}` },
     openGraph: {
+      ...OG_BASE,
+      url: `/blog/${post.slug}`,
       title: textoTitle(title),
       description,
       type: "article",

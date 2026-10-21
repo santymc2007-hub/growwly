@@ -29,6 +29,9 @@ export const metadata: Metadata = {
   robots: {
     index: false,
     follow: false,
+    // Al lanzar: index/follow a true y se mantiene esto (miniaturas
+    // grandes y fragmentos completos en Google y Discover).
+    googleBot: { "max-image-preview": "large", "max-snippet": -1, "max-video-preview": -1 },
   },
   title: {
     default: "Growwly — Directorio de clínicas capilares en España",

@@ -82,3 +82,14 @@ export function primerasFrases(texto: string, max = MAX_META): string {
   }
   return out || cortarEnPalabra(textoPlano(texto), max);
 }
+
+/**
+ * Campos de Open Graph que toda página debe llevar. Una página que define
+ * su propio `openGraph` REEMPLAZA el del layout (Next no los fusiona), así
+ * que siteName/locale/type se perdían en fichas, landings y posts.
+ */
+export const OG_BASE = {
+  siteName: "Growwly",
+  locale: "es_ES",
+  type: "website" as const,
+};

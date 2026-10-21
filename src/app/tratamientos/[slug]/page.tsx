@@ -5,7 +5,7 @@ import { cache } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
-import { tituloSeo, textoTitle, metaSeo, primerasFrases } from "@/lib/seo/meta";
+import { tituloSeo, textoTitle, metaSeo, primerasFrases, OG_BASE } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
@@ -82,6 +82,8 @@ export async function generateMetadata({
     description,
     alternates: { canonical: `/tratamientos/${tratamiento.slug}` },
     openGraph: {
+      ...OG_BASE,
+      url: `/tratamientos/${tratamiento.slug}`,
       title: textoTitle(title),
       description,
       images: tratamiento.imagen_portada ? [tratamiento.imagen_portada] : undefined,
