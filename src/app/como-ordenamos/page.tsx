@@ -27,7 +27,7 @@ export default function ComoOrdenamosPage() {
     <LegalLayout activo="/como-ordenamos">
       <h1>Cómo ordenamos los centros</h1>
       <p>
-        <em>Última actualización: 19 de octubre de 2026.</em>
+        <em>Última actualización: 21 de octubre de 2026.</em>
       </p>
       <p>
         Growwly es gratuito para pacientes. Lo pagan los centros: algunos
@@ -135,7 +135,7 @@ export default function ComoOrdenamosPage() {
 
       <p>
         ¿Dudas o algo que no cuadra? Escríbenos a{" "}
-        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>. Más
+        <a href="mailto:hola@growwly.es">hola@growwly.es</a>. Más
         información en los <Link href="/legal/terminos">Términos</Link>.
       </p>
     </LegalLayout>

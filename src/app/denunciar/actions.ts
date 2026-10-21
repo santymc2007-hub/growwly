@@ -7,7 +7,8 @@ import { esc } from "@/lib/email/escapar";
 import { huellaIp } from "@/lib/seguridad/huella-ip";
 import { MOTIVOS_DENUNCIA, esMotivo } from "./motivos";
 
-const EMAIL_DENUNCIAS = process.env.EMAIL_DENUNCIAS || "direccion@growwly.es";
+// Un solo email de contacto por ahora (decisión de Santy, 21 oct 2026).
+const EMAIL_DENUNCIAS = "hola@growwly.es";
 const MAX_POR_IP_HORA = 5;
 const MAX_GLOBAL_HORA = 100;
 

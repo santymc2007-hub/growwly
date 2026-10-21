@@ -141,7 +141,7 @@ export async function eliminarCuenta() {
   if (perfil && perfil.role !== "patient") {
     redirect(
       `/cuenta?error=${encodeURIComponent(
-        "Las cuentas de clínica se dan de baja escribiendo a direccion@growwly.es.",
+        "Las cuentas de clínica se dan de baja escribiendo a hola@growwly.es.",
       )}`,
     );
   }
@@ -170,7 +170,7 @@ export async function eliminarCuenta() {
   if (error) {
     redirect(
       `/cuenta?error=${encodeURIComponent(
-        "No se ha podido eliminar la cuenta. Inténtalo de nuevo o escríbenos a direccion@growwly.es.",
+        "No se ha podido eliminar la cuenta. Inténtalo de nuevo o escríbenos a hola@growwly.es.",
       )}`,
     );
   }

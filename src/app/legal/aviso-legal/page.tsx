@@ -20,7 +20,7 @@ export default function AvisoLegalPage() {
         accesible en growwly.es, es titularidad de Santiago Mulet Cortés,
         con NIF 43139455B y domicilio en calle Joan Sastre Prevere, 6, bajos,
         07015 Palma (Illes Balears). Email de contacto:{" "}
-        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>.
+        <a href="mailto:hola@growwly.es">hola@growwly.es</a>.
       </p>
 
       <h2>2. Objeto</h2>
@@ -71,7 +71,7 @@ export default function AvisoLegalPage() {
       <p>
         A efectos del Reglamento (UE) 2022/2065 de Servicios Digitales, el
         punto de contacto único para autoridades y usuarios es{" "}
-        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>, en
+        <a href="mailto:hola@growwly.es">hola@growwly.es</a>, en
         español. Si crees que un contenido de Growwly (una ficha, una reseña,
         una foto o un texto) es falso o ilegal, puedes denunciarlo desde{" "}
         <a href="/denunciar">este formulario</a>, también enlazado en el pie de
