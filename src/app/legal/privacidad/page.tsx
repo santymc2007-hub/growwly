@@ -13,7 +13,7 @@ export default function PrivacidadPage() {
     <LegalLayout activo="/legal/privacidad">
       <h1>Política de Privacidad</h1>
       <p>
-        <em>Última actualización: 16 de octubre de 2026.</em>
+        <em>Última actualización: 21 de octubre de 2026.</em>
       </p>
 
       <h2>1. Responsable del tratamiento</h2>
@@ -23,7 +23,7 @@ export default function PrivacidadPage() {
         Growwly, es el responsable del tratamiento de los datos personales que
         se recogen a través de este sitio web. Para cualquier cuestión sobre
         privacidad puedes escribir a{" "}
-        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>.
+        <a href="mailto:hola@growwly.es">hola@growwly.es</a>.
       </p>
 
       <h2>2. Qué datos tratamos, para qué y con qué base legal</h2>
@@ -185,7 +185,7 @@ export default function PrivacidadPage() {
         Framework), cuando el proveedor está adherido, o en las cláusulas
         contractuales tipo aprobadas por la Comisión Europea. Puedes pedirnos
         más información sobre estas garantías en{" "}
-        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>.
+        <a href="mailto:hola@growwly.es">hola@growwly.es</a>.
       </p>
 
       <h2>7. Cuánto tiempo conservamos tus datos</h2>
@@ -229,7 +229,7 @@ export default function PrivacidadPage() {
       <p>
         Puedes ejercer tus derechos de acceso, rectificación, supresión,
         oposición, limitación y portabilidad escribiendo a{" "}
-        <a href="mailto:direccion@growwly.es">direccion@growwly.es</a>.
+        <a href="mailto:hola@growwly.es">hola@growwly.es</a>.
         También puedes retirar en cualquier momento los consentimientos que
         hayas dado, sin que eso afecte a lo tratado antes de retirarlos: por
         ejemplo, borrando tu valoración y sus fotos desde{" "}
