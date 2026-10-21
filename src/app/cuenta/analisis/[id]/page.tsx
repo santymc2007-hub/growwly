@@ -6,6 +6,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { urlFirmadaFoto } from "@/lib/supabase/estudios-storage";
 import { rangoUfsPorNorwood } from "@/lib/ai/rango-ufs";
 import { SiteHeader } from "@/components/site-header";
+import { LogoCargando } from "@/components/ui/logo-cargando";
 import { CabeceraCuenta } from "@/components/cuenta/cabecera-cuenta";
 import { InformeCapilarVista } from "@/components/informe/informe-capilar";
 import { leerInforme } from "@/lib/informe/sanear";
@@ -120,6 +121,7 @@ export default async function ResultadoAnalisisPage({
 
         {estudio.estado === "procesando" && (
           <div className="mt-6 rounded-xl border border-line bg-white p-6 text-center">
+            <LogoCargando ancho={150} etiqueta="Procesando tu análisis" className="mb-4" />
             <p className="text-sm text-ink-soft">
               Todavía se está procesando. Recarga la página en unos segundos.
             </p>

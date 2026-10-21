@@ -7,6 +7,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { FondoTextura } from "@/components/fondo-textura";
 import { TrackOnceParam } from "@/components/analytics/track-once-param";
 import { SellosConfianza } from "@/components/analisis/sellos-confianza";
+import { LogoCargando } from "@/components/ui/logo-cargando";
 import { CONTENIDO_FLUJOS } from "@/lib/informe/flujos";
 import { FLUJOS, type InformeCapilar } from "@/lib/informe/tipos";
 import { DesbloquearValoracion } from "./desbloquear-valoracion";
@@ -177,6 +178,7 @@ export default async function AnalisisPendientePage({
             <div className="mx-auto max-w-md px-6 py-16 text-center">
               {estudio.estado === "procesando" && (
                 <>
+                  <LogoCargando ancho={200} etiqueta="Analizando tus fotos" className="mb-8" />
                   <h1 className="font-display text-3xl font-extrabold text-teal-dark">
                     Estamos analizando tus fotos…
                   </h1>
