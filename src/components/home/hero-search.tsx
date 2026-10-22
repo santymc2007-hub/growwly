@@ -1,5 +1,7 @@
 "use client";
 
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
+
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
 
@@ -43,7 +45,7 @@ export function HeroSearch({ ciudades, tecnicas }: HeroSearchProps) {
           <option value="">Cualquier tratamiento</option>
           {tecnicas.map((t) => (
             <option key={t} value={t}>
-              {t}
+              {nombreVisibleTecnica(t)}
             </option>
           ))}
         </select>

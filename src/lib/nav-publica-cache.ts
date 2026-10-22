@@ -1,3 +1,4 @@
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import { unstable_cache } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
 
@@ -17,7 +18,9 @@ export const tratamientosMenu = unstable_cache(
       .select("slug, nombre, categoria")
       .eq("publicado", true)
       .order("nombre", { ascending: true });
-    return data ?? [];
+    // Nombre visible (sin medicamentos con receta): menú y pie salen en
+    // todas las páginas, también en las de destino de los anuncios.
+    return (data ?? []).map((t) => ({ ...t, nombre: nombreVisibleTecnica(t.nombre) }));
   },
   ["tratamientos-menu"],
   { revalidate: 300 },

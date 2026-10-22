@@ -1,3 +1,4 @@
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import Image from "next/image";
 import Link from "next/link";
 import { Gift, Wallet } from "lucide-react";
@@ -98,7 +99,7 @@ export function ClinicCard({
                     : "rounded-full bg-sage px-2.5 py-1 text-xs font-medium text-sage-ink"
                 }
               >
-                {tecnica}
+                {nombreVisibleTecnica(tecnica)}
               </span>
             ))}
           </div>

@@ -1,5 +1,7 @@
 "use client";
 
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
+
 import { useEffect, useTransition, type ReactNode } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
@@ -196,7 +198,7 @@ export function ClinicFilters({ cabecera, provincias, tecnicas, tipos }: ClinicF
               <option value="">{label}</option>
               {options[key].map((value) => (
                 <option key={value} value={value}>
-                  {value}
+                  {key === "tecnica" ? nombreVisibleTecnica(value) : value}
                 </option>
               ))}
             </select>
