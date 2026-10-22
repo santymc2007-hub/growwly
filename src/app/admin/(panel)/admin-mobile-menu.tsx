@@ -53,7 +53,7 @@ export function AdminMobileMenu({
             {enlace("/admin/clinicas", "Clínicas")}
             {enlace("/admin/visibilidad", "Visibilidad", totalSolicitudes)}
             {enlace("/admin/leads", "Leads", leadsNuevos)}
-            {enlace("/admin/hero-slides", "Hero")}
+            {enlace("/admin/personalizar", "Personalizar")}
             {enlace("/admin/blog", "Blog")}
             {enlace("/admin/seo", "SEO")}
             {enlace("/admin/tratamientos", "Tratamientos")}

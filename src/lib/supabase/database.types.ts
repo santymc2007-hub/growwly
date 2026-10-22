@@ -23,6 +23,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      ajustes_web: {
+        Row: {
+          clave: string
+          updated_at: string
+          valor: Json
+        }
+        Insert: {
+          clave: string
+          updated_at?: string
+          valor?: Json
+        }
+        Update: {
+          clave?: string
+          updated_at?: string
+          valor?: Json
+        }
+        Relationships: []
+      }
       blog_posts: {
         Row: {
           autor: string
