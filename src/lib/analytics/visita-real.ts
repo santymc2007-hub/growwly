@@ -42,7 +42,7 @@ export async function esVisitaInterna(
 ): Promise<boolean> {
   if (!userId) return false;
   const [{ data: perfil }, { data: miembro }] = await Promise.all([
-    admin.from("profiles").select("role").eq("id", userId).maybeSingle(),
+    admin.from("profiles").select("role, clinic_id").eq("id", userId).maybeSingle(),
     admin
       .from("clinic_members")
       .select("id")
@@ -50,5 +50,5 @@ export async function esVisitaInterna(
       .eq("clinic_id", clinicId)
       .maybeSingle(),
   ]);
-  return perfil?.role === "admin" || Boolean(miembro);
+  return perfil?.role === "admin" || perfil?.clinic_id === clinicId || Boolean(miembro);
 }
