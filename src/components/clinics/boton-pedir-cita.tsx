@@ -33,6 +33,7 @@ export function BotonPedirCita({
   const [abierto, setAbierto] = useState(false);
   const [estado, setEstado] = useState<"idle" | "ok" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [clinicaConCuenta, setClinicaConCuenta] = useState(true);
   const [pending, startTransition] = useTransition();
 
   function cerrar() {
@@ -56,6 +57,7 @@ export function BotonPedirCita({
     startTransition(async () => {
       const resultado = await solicitarCitaDirecta(formData);
       if (resultado.ok) {
+        setClinicaConCuenta(resultado.clinicaConCuenta);
         setEstado("ok");
         trackEvent("generate_lead", {
           tipo_lead: "cita_directa",
@@ -131,9 +133,12 @@ export function BotonPedirCita({
             {estado === "ok" ? (
               <div className="py-6 text-center">
                 <p className="font-display text-xl text-teal-dark">¡Solicitud enviada!</p>
+                {/* Mensaje honesto: a una clínica sin cuenta no le llega nada
+                    directamente; la contacta Growwly. */}
                 <p className="mt-2 text-sm text-ink-soft">
-                  {clinicNombre} ha recibido tu petición y se pondrá en contacto contigo
-                  pronto.
+                  {clinicaConCuenta
+                    ? `Tu solicitud ha llegado a ${clinicNombre}. Suelen responder en 24-48 h. Si no te contestan, te escribiremos con otras clínicas similares de tu zona.`
+                    : `Hemos recibido tu solicitud. Nos ponemos en contacto con ${clinicNombre} y te respondemos en 24-48 h. Si no puede atenderte, te propondremos otras clínicas similares de tu zona.`}
                 </p>
                 <button
                   type="button"
