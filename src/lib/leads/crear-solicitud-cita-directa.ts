@@ -7,6 +7,7 @@ import { clinicaEstaRegistrada } from "@/lib/clinica/registrada";
 import { destinatariosLeads } from "@/lib/clinica/emails-leads";
 import { avisarAdminNuevoLead } from "@/lib/email/aviso-admin-lead";
 import { clinicaAceptoCondicionesDatos } from "@/lib/clinica/condiciones-datos";
+import { envolverEmail, boton, ESTILO, filaDato, tablaDatos } from "@/lib/email/layout";
 
 export type ResultadoSolicitudDirecta =
   /** clinicaConCuenta: si la clínica tiene cuenta (le llega algo) o no. Decide el mensaje al paciente. */
@@ -157,63 +158,52 @@ function construirHtmlCita(datos: {
   email: string;
   mensaje: string;
 }): string {
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">Nueva petición de cita</h1>
+  return envolverEmail({
+    audiencia: "clinica",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">Nueva petición de cita</h1>
       <p>Hola ${esc(datos.clinicaNombre)},</p>
       <p>Alguien ha pedido cita directamente desde tu ficha en Growwly:</p>
-      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
-        <tr><td style="padding:4px 0; color:#66756f;">Nombre</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(datos.nombre)}</td></tr>
-        <tr><td style="padding:4px 0; color:#66756f;">Teléfono</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(datos.telefono)}</td></tr>
-        ${datos.email ? `<tr><td style="padding:4px 0; color:#66756f;">Email</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(datos.email)}</td></tr>` : ""}
-      </table>
+      ${tablaDatos(
+          filaDato("Nombre", esc(datos.nombre)) +
+          filaDato("Teléfono", esc(datos.telefono)) +
+          (datos.email ? filaDato("Email", esc(datos.email)) : ""),
+        )}
       ${
         datos.mensaje
-          ? `<p style="background:#eef6f1; padding:12px; border-radius:8px; font-size:13px;"><strong>Mensaje:</strong> ${esc(datos.mensaje)}</p>`
+          ? `<p style="${ESTILO.caja} font-size:14px;"><strong>Mensaje:</strong> ${esc(datos.mensaje)}</p>`
           : ""
       }
-      <p style="font-size: 12px; color: #66756f; margin-top: 24px;">
-        Este email lo has recibido porque tu clínica está en el directorio de Growwly.
-      </p>
-    </div>
-  `;
+    `,
+  });
 }
 
 function construirHtmlBloqueada(datos: { clinicaNombre: string }): string {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "";
   const enlace = `${siteUrl}/clinica/visibilidad`;
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">Tienes una solicitud de presupuesto</h1>
+  return envolverEmail({
+    audiencia: "clinica",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">Tienes una solicitud de presupuesto</h1>
       <p>Hola ${esc(datos.clinicaNombre)},</p>
       <p>Un paciente ha pedido cita directamente desde tu ficha en Growwly. Tu plan actual no incluye ver los datos del paciente ni responder a sus solicitudes — eso forma parte del plan PREMIUM.</p>
-      <p style="margin-top: 24px;">
-        <a href="${enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Pasa a PREMIUM para verla y responder →
-        </a>
-      </p>
-      <p style="font-size: 12px; color: #66756f; margin-top: 24px;">
+      ${boton(`${enlace}`, `Pasa a PREMIUM para verla y responder →`)}
+      <p style="${ESTILO.nota} margin-top:20px;">
         Si no actualizas el plan no pasa nada — pero ni esta solicitud ni las que lleguen después las podrás ver mientras la ficha esté en el plan básico.
       </p>
-    </div>
-  `;
+    `,
+  });
 }
 
 function construirHtmlSinDatos(datos: { clinicaNombre: string }): string {
   const enlace = `${process.env.NEXT_PUBLIC_SITE_URL ?? ""}/clinica/solicitudes`;
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">Tienes una petición de cita</h1>
+  return envolverEmail({
+    audiencia: "clinica",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">Tienes una petición de cita</h1>
       <p>Hola ${esc(datos.clinicaNombre)},</p>
       <p>Alguien ha pedido cita directamente desde tu ficha en Growwly. Para ver sus datos, entra en tu panel y acepta antes las condiciones sobre datos de pacientes (solo se piden una vez).</p>
-      <p style="margin-top: 24px;">
-        <a href="${enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Ver la petición →
-        </a>
-      </p>
-    </div>
-  `;
+      ${boton(`${enlace}`, `Ver la petición →`)}
+    `,
+  });
 }

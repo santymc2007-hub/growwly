@@ -8,6 +8,7 @@ import { calcularMatchScore } from "@/lib/leads/match-score";
 import { CUANDO_LABEL, labelPresupuesto } from "@/lib/solicitud-labels";
 import { esc } from "@/lib/email/escapar";
 import { mapaDestinatariosLeads } from "@/lib/clinica/emails-leads";
+import { envolverEmail, boton, ESTILO, filaDato } from "@/lib/email/layout";
 
 /**
  * Tope de clínicas que reciben un mismo lead. Repartir un lead entre
@@ -223,31 +224,24 @@ function construirHtmlEmail(datos: {
   presupuesto: string | null;
   enlace: string;
 }): string {
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">Nueva solicitud de presupuesto</h1>
+  return envolverEmail({
+    audiencia: "clinica",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">Nueva solicitud de presupuesto</h1>
       <p>Hola ${esc(datos.clinicaNombre)},</p>
       <p>Un paciente ha pedido presupuesto a través de Growwly y tu clínica encaja con lo que busca:</p>
-      <table style="width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 14px;">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:16px 0;">
         ${datos.ciudad ? fila("Ciudad", datos.ciudad) : ""}
         ${fila("Tratamientos de interés", datos.tratamientos)}
         ${datos.cuando ? fila("Cuándo quiere el tratamiento", datos.cuando) : ""}
         ${datos.presupuesto ? fila("Presupuesto aproximado", datos.presupuesto) : ""}
       </table>
-      <p style="font-size: 13px; color: #66756f;">La progresión de la pérdida, la primera impresión orientativa y los datos de contacto los verás al abrir la solicitud con tu cuenta.</p>
-      <p style="margin-top: 24px;">
-        <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Ver solicitud →
-        </a>
-      </p>
-      <p style="font-size: 12px; color: #66756f; margin-top: 24px;">
-        Este email lo has recibido porque tu clínica está en el directorio de Growwly.
-      </p>
-    </div>
-  `;
+      <p style="${ESTILO.nota}">La progresión de la pérdida, la primera impresión orientativa y los datos de contacto los verás al abrir la solicitud con tu cuenta.</p>
+      ${boton(`${datos.enlace}`, `Ver solicitud →`)}
+    `,
+  });
 }
 
 function fila(label: string, valor: string): string {
-  return `<tr><td style="padding:4px 0; color:#66756f;">${label}</td><td style="padding:4px 0; text-align:right; font-weight:bold;">${esc(valor)}</td></tr>`;
+  return filaDato(label, esc(valor));
 }

@@ -5,6 +5,7 @@ import { enviarEmail } from "@/lib/email/resend";
 import { ESTADOS_FINALES } from "@/lib/leads/estados-lead";
 import { esc } from "@/lib/email/escapar";
 import { destinatariosLeads } from "@/lib/clinica/emails-leads";
+import { envolverEmail, boton, ESTILO } from "@/lib/email/layout";
 
 /**
  * Vercel Cron llama a esta ruta una vez al día (ver vercel.json). La
@@ -78,17 +79,13 @@ function construirHtmlEmail(datos: {
   enlace: string;
 }): string {
   const plural = datos.cantidad === 1 ? "lead" : "leads";
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">${datos.cantidad} ${plural} esperando tu respuesta</h1>
+  return envolverEmail({
+    audiencia: "clinica",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">${datos.cantidad} ${plural} esperando tu respuesta</h1>
       <p>Hola ${esc(datos.nombreClinica)},</p>
       <p>Tienes <strong>${datos.cantidad} ${plural}</strong> todavía sin propuesta enviada. Cuanto antes respondas, más opciones tienes de que el paciente te elija.</p>
-      <p style="margin-top: 24px;">
-        <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Ver mis leads →
-        </a>
-      </p>
-    </div>
-  `;
+      ${boton(`${datos.enlace}`, `Ver mis leads →`)}
+    `,
+  });
 }

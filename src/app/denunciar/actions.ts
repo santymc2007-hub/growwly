@@ -6,6 +6,7 @@ import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { huellaIp } from "@/lib/seguridad/huella-ip";
 import { MOTIVOS_DENUNCIA, esMotivo } from "./motivos";
+import { envolverEmail, ESTILO } from "@/lib/email/layout";
 
 // Un solo email de contacto por ahora (decisión de Santy, 21 oct 2026).
 const EMAIL_DENUNCIAS = "hola@growwly.es";
@@ -83,27 +84,31 @@ export async function enviarDenuncia(formData: FormData) {
     enviarEmail({
       to: EMAIL_DENUNCIAS,
       subject: `Denuncia de contenido ${referencia}: ${motivoTexto}`,
-      html: `
-        <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 560px;">
-          <h1 style="font-size: 18px;">Nueva denuncia de contenido (${referencia})</h1>
+      html: envolverEmail({
+        audiencia: "interno",
+        cuerpo: `
+          <h1 style="${ESTILO.h1}">Nueva denuncia de contenido (${referencia})</h1>
           <p><strong>Contenido:</strong> ${esc(url)}</p>
           <p><strong>Motivo:</strong> ${esc(motivoTexto)}</p>
           <p><strong>Explicación:</strong><br>${esc(explicacion).replace(/\n/g, "<br>")}</p>
           <p><strong>Denuncia:</strong> ${esc(nombre)} &lt;${esc(email)}&gt;</p>
-          <p style="font-size: 12px; color: #66756f;">Hay que revisarla y responder a quien denuncia con la decisión y el motivo. Queda guardada en la tabla denuncias_contenido de Supabase.</p>
-        </div>`,
+          <p style="${ESTILO.nota}">Hay que revisarla y responder a quien denuncia con la decisión y el motivo. Queda guardada en la tabla denuncias_contenido de Supabase.</p>
+        `,
+      }),
     }),
     enviarEmail({
       to: email,
       subject: `Hemos recibido tu denuncia (${referencia})`,
-      html: `
-        <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 560px;">
-          <h1 style="font-size: 18px; color: #00566b;">Hemos recibido tu denuncia</h1>
+      html: envolverEmail({
+        audiencia: "paciente",
+        cuerpo: `
+          <h1 style="${ESTILO.h1}">Hemos recibido tu denuncia</h1>
           <p>Hola ${esc(nombre)},</p>
           <p>Gracias por avisarnos. Vamos a revisar el contenido que nos indicas y te escribiremos con lo que decidamos y por qué.</p>
           <p><strong>Contenido:</strong> ${esc(url)}<br><strong>Motivo:</strong> ${esc(motivoTexto)}<br><strong>Referencia:</strong> ${referencia}</p>
-          <p style="font-size: 12px; color: #66756f;">Growwly · Si necesitas añadir algo, responde a ${esc(EMAIL_DENUNCIAS)} indicando la referencia.</p>
-        </div>`,
+          <p style="${ESTILO.nota}">Si necesitas añadir algo, responde a ${esc(EMAIL_DENUNCIAS)} indicando la referencia.</p>
+        `,
+      }),
     }),
   ]);
 

@@ -4,6 +4,7 @@ import { enviarEmail } from "@/lib/email/resend";
 import { fechaCitaLarga, type OpcionCita } from "@/lib/leads/opciones-cita";
 import { esc } from "@/lib/email/escapar";
 import { destinatariosLeads } from "@/lib/clinica/emails-leads";
+import { envolverEmail, boton, ESTILO, type Audiencia } from "@/lib/email/layout";
 
 /**
  * Emails del paso "cita" entre paciente y clínica. Un fallo al enviar
@@ -11,19 +12,17 @@ import { destinatariosLeads } from "@/lib/clinica/emails-leads";
  * atrapa su propio error.
  */
 
-function plantilla(titulo: string, cuerpo: string, enlace: string, boton: string) {
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #1f5568;">${titulo}</h1>
-      ${cuerpo}
-      <p style="margin-top: 24px;">
-        <a href="${enlace}" style="background:#e8ef2d; color:#1f5568; padding:12px 22px; border-radius:999px; text-decoration:none; font-weight:bold; display:inline-block;">
-          ${boton}
-        </a>
-      </p>
-    </div>
-  `;
+function plantilla(
+  titulo: string,
+  cuerpo: string,
+  enlace: string,
+  textoBoton: string,
+  audiencia: Audiencia,
+) {
+  return envolverEmail({
+    audiencia,
+    cuerpo: `<h1 style="${ESTILO.h1}">${titulo}</h1>${cuerpo}${boton(enlace, textoBoton)}`,
+  });
 }
 
 /** A la clínica: el paciente confirmó una fecha o pidió otras. */
@@ -55,7 +54,7 @@ export async function notificarClinicaCita(
     await enviarEmail({
       to: para,
       subject: confirmada ? "Cita confirmada · Growwly" : "Proponed otras fechas · Growwly",
-      html: plantilla(titulo, cuerpo, enlace, "Ver el lead →"),
+      html: plantilla(titulo, cuerpo, enlace, "Ver el lead →", "clinica"),
     });
   } catch (e) {
     console.error("No se pudo avisar a la clínica de la cita:", e);
@@ -90,6 +89,7 @@ export async function notificarPacienteFechas(
         `<p>Hola${perfil.nombre ? ` ${esc(perfil.nombre)}` : ""},</p><p><strong>${esc(clinica?.nombre ?? "La clínica")}</strong> te propone varias fechas. Solo tienes que confirmar la que mejor te venga.</p>`,
         enlace,
         "Elegir fecha →",
+        "paciente",
       ),
     });
   } catch (e) {

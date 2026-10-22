@@ -1,5 +1,6 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { esc } from "@/lib/email/escapar";
+import { cabeceraEmail, pieEmail } from "@/lib/email/layout";
 
 /**
  * Email informativo a un centro que está en el directorio pero no ha
@@ -146,13 +147,7 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%; max-width:600px; background:#ffffff; border-radius:14px; overflow:hidden;">
 
   <!-- Cabecera -->
-  <tr><td style="padding:18px 28px;">
-    <table role="presentation" cellpadding="0" cellspacing="0"><tr>
-      <td valign="middle"><img src="${img("/brand/growwly-logo-verde.png")}" width="99" height="34" alt="Growwly" style="display:block; border:0;"></td>
-      <td valign="middle" style="padding:0 14px;"><div style="width:2px; height:30px; background:${C.salviaBorde};"></div></td>
-      <td valign="middle" style="font-family:${TITULAR}; font-weight:700; font-size:19px; color:${C.tealClaro};">Hair we Go!</td>
-    </tr></table>
-  </td></tr>
+  ${cabeceraEmail()}
   <tr><td><img src="${img("/email/reclamo-cabecera.jpg")}" width="600" alt="Especialista explicando un tratamiento capilar a una paciente" style="display:block; width:100%; height:auto; border:0;"></td></tr>
 
   <!-- 1. Ficha en el directorio -->
@@ -217,12 +212,10 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
   </td></tr>
 
   <!-- Pie -->
-  <tr><td style="background:${C.teal}; padding:22px 28px 24px; font-family:${FUENTE}; font-size:11.5px; line-height:18px; color:${C.pieTexto};">
-    <img src="${img("/brand/growwly-logo-white.png")}" width="82" height="28" alt="Growwly" style="display:block; border:0; margin-bottom:10px;">
-    <strong style="color:#ffffff;">¿Por qué recibís este email?</strong> Vuestros datos de contacto son públicos y los usamos solo para informaros de vuestra ficha en Growwly. Más información en nuestra <a href="${d.siteUrl}/legal/privacidad" style="color:#ffffff;">política de privacidad</a>.<br><br>
-    ¿Preferís no aparecer en Growwly o no recibir más emails? <a href="${d.urlBaja}" style="color:#ffffff;">Pulsad aquí</a> o responded con «BAJA» y lo hacemos.<br><br>
-    growwly.es · hola@growwly.es
-  </td></tr>
+  ${pieEmail(
+    "clinica",
+    `<strong style="color:#ffffff;">¿Por qué recibís este email?</strong> Vuestros datos de contacto son públicos y los usamos solo para informaros de vuestra ficha en Growwly.<br><br>¿Preferís no aparecer en Growwly o no recibir más emails? <a href="${d.urlBaja}" style="color:#ffffff;">Pulsad aquí</a> o responded con «BAJA» y lo hacemos.`,
+  )}
 
 </table>
 </td></tr>

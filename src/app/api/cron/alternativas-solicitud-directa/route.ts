@@ -5,6 +5,7 @@ import { buscarClinicasAlternativas, type ClinicaAlternativa } from "@/lib/leads
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { randomUUID } from "crypto";
+import { envolverEmail, ESTILO } from "@/lib/email/layout";
 
 const HORAS_ESPERA = 48;
 
@@ -98,8 +99,6 @@ function construirHtmlAviso(datos: {
   alternativas: (ClinicaAlternativa & { token: string })[];
   siteUrl: string;
 }): string {
-  const logoUrl = `${datos.siteUrl}/brand/growwly-logo-white.png`;
-
   const filas = datos.alternativas
     .map((alt) => {
       const enlace = `${datos.siteUrl}/solicitudes/reenviar/${alt.token}`;
@@ -129,17 +128,13 @@ function construirHtmlAviso(datos: {
     })
     .join("");
 
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 560px; margin: 0 auto;">
-      <div style="background:#1f5568;padding:20px 28px;border-radius:12px 12px 0 0;">
-        <img src="${logoUrl}" alt="Growwly" height="24" style="height:24px;display:block;" />
-      </div>
-      <div style="border:1px solid #e1e8e6;border-top:none;border-radius:0 0 12px 12px;padding:28px;">
-        <h1 style="font-size:20px;color:#00566b;margin-top:0;">Esta clínica todavía no ha respondido</h1>
+  return envolverEmail({
+    audiencia: "paciente",
+    cuerpo: `
+        <h1 style="${ESTILO.h1}">Esta clínica todavía no ha respondido</h1>
         <p>Han pasado más de 48 horas desde que enviamos tu solicitud a <strong>${esc(datos.clinicaOriginalNombre)}</strong> y todavía no ha contestado. Mientras esperas, aquí tienes otras clínicas de tu zona que suelen responder rápido — puedes enviarles tu solicitud sin volver a rellenar nada.</p>
         ${filas}
-        <p style="font-size:13px;color:#66756f;margin-top:16px;">Tu solicitud original sigue activa — si ${esc(datos.clinicaOriginalNombre)} responde más tarde, también lo sabrás.</p>
-      </div>
-    </div>
-  `;
+        <p style="${ESTILO.nota} margin-top:16px;">Tu solicitud original sigue activa — si ${esc(datos.clinicaOriginalNombre)} responde más tarde, también lo sabrás.</p>
+    `,
+  });
 }
