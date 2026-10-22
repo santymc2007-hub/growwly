@@ -32,11 +32,14 @@ export type Database = {
           destacado_home: boolean
           id: string
           imagen_portada: string | null
+          meta_description: string | null
+          meta_title: string | null
           preguntas_frecuentes: Json
           publicado: boolean
           publicado_en: string | null
           resumen: string | null
           slug: string
+          slugs_anteriores: string[]
           tags: string[]
           titulo: string
           updated_at: string
@@ -49,11 +52,14 @@ export type Database = {
           destacado_home?: boolean
           id?: string
           imagen_portada?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           preguntas_frecuentes?: Json
           publicado?: boolean
           publicado_en?: string | null
           resumen?: string | null
           slug: string
+          slugs_anteriores?: string[]
           tags?: string[]
           titulo: string
           updated_at?: string
@@ -66,11 +72,14 @@ export type Database = {
           destacado_home?: boolean
           id?: string
           imagen_portada?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           preguntas_frecuentes?: Json
           publicado?: boolean
           publicado_en?: string | null
           resumen?: string | null
           slug?: string
+          slugs_anteriores?: string[]
           tags?: string[]
           titulo?: string
           updated_at?: string
@@ -1275,11 +1284,14 @@ export type Database = {
           duracion_orientativa: string | null
           id: string
           imagen_portada: string | null
+          meta_description: string | null
+          meta_title: string | null
           nombre: string
           preguntas_frecuentes: Json
           publicado: boolean
           resumen: string | null
           slug: string
+          slugs_anteriores: string[]
           tecnica_relacionada: string | null
           updated_at: string
         }
@@ -1291,11 +1303,14 @@ export type Database = {
           duracion_orientativa?: string | null
           id?: string
           imagen_portada?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           nombre: string
           preguntas_frecuentes?: Json
           publicado?: boolean
           resumen?: string | null
           slug: string
+          slugs_anteriores?: string[]
           tecnica_relacionada?: string | null
           updated_at?: string
         }
@@ -1307,11 +1322,14 @@ export type Database = {
           duracion_orientativa?: string | null
           id?: string
           imagen_portada?: string | null
+          meta_description?: string | null
+          meta_title?: string | null
           nombre?: string
           preguntas_frecuentes?: Json
           publicado?: boolean
           resumen?: string | null
           slug?: string
+          slugs_anteriores?: string[]
           tecnica_relacionada?: string | null
           updated_at?: string
         }

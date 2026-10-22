@@ -2,6 +2,7 @@ import Image from "next/image";
 import type { BlogPost } from "@/lib/supabase/database.types";
 import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
 import { EditorContenido } from "@/components/admin/editor-contenido";
+import { CamposSeo } from "@/components/admin/campos-seo";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -30,7 +31,7 @@ export function BlogForm({ action, post, error }: Props) {
       <div className="flex flex-col gap-4">
         <div>
           <label className={labelClass} htmlFor="titulo">
-            Título <span className="text-xs text-ink-soft">(H1 de la página y título en buscadores)</span>
+            Título <span className="text-xs text-ink-soft">(H1 de la página; título en buscadores si no rellenas el meta title)</span>
           </label>
           <input
             id="titulo"
@@ -39,18 +40,21 @@ export function BlogForm({ action, post, error }: Props) {
             defaultValue={post?.titulo ?? undefined}
             className={inputClass}
           />
-          {post?.slug && (
-            <p className="mt-1 text-xs text-ink-soft">
-              URL: /blog/{post.slug} (no cambia aunque edites el título)
-            </p>
-          )}
         </div>
 
         <CampoMetaDescripcion
           id="resumen"
           name="resumen"
-          label="Resumen (meta description — aparece en el listado y en buscadores)"
+          label="Resumen (aparece en el listado; también en buscadores si no rellenas la meta description)"
           defaultValue={post?.resumen}
+        />
+
+        <CamposSeo
+          basePath="/blog"
+          slug={post?.slug}
+          metaTitle={post?.meta_title}
+          metaDescription={post?.meta_description}
+          publicado={post?.publicado}
         />
 
         <div>

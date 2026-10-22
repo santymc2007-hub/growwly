@@ -3,6 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { cache } from "react";
 import { notFound } from "next/navigation";
+import { redirigirSlugAntiguo } from "@/lib/seo/redirigir-slug-antiguo";
 import { after } from "next/server";
 import type { Metadata } from "next";
 import { tituloSeo, textoTitle, metaSeo, primerasFrases, OG_BASE } from "@/lib/seo/meta";
@@ -60,13 +61,18 @@ export async function generateMetadata({
     : [];
   const n = centros.length;
   const lugar = centros.length > 0 ? nombreProvinciaBuscable(centros[0].provincia, centros) : null;
-  const title = tituloSeo(
+  // El meta title escrito a mano manda; sin él, versiones automáticas.
+  const title = tratamiento.meta_title?.trim()
+    ? tituloSeo(tratamiento.meta_title.trim())
+    : tituloSeo(
     `${tratamiento.nombre}: qué es, precio y clínicas`,
     `${tratamiento.nombre}: guía y clínicas`,
     `${tratamiento.nombre}: guía completa`,
     tratamiento.nombre,
   );
-  const description = metaSeo(
+  const description = tratamiento.meta_description?.trim()
+    ? tratamiento.meta_description.trim()
+    : metaSeo(
     tratamiento.resumen
       ? primerasFrases(tratamiento.resumen, 120)
       : `Qué es ${enFrase(tratamiento.nombre)}, para quién está indicado, cómo es el proceso y la recuperación.`,
@@ -100,6 +106,7 @@ export default async function TratamientoPage({
   const tratamiento = await findTratamiento(slug);
 
   if (!tratamiento) {
+    await redirigirSlugAntiguo("tratamientos", slug, (s) => `/tratamientos/${s}`);
     notFound();
   }
 

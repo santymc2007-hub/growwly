@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { slugify } from "@/lib/slugify";
+import { resolverSlug, actualizarSlugsAnteriores } from "@/lib/seo/slug-editable";
 import { uploadBlogPhoto, deleteBlogPhoto } from "@/lib/supabase/blog-storage";
 
 const MAX_FAQS = 6;
@@ -51,6 +51,9 @@ function readFields(formData: FormData) {
     publicado: formData.get("publicado") === "on",
     preguntas_frecuentes: faqs,
     destacado_home: formData.get("destacado_home") === "on",
+    slug: str("slug"),
+    meta_title: str("meta_title"),
+    meta_description: str("meta_description"),
   };
 }
 
@@ -73,7 +76,11 @@ export async function createTratamiento(formData: FormData) {
     );
   }
 
-  const slug = slugify(fields.nombre);
+  const resultadoSlug = await resolverSlug(supabase, "tratamientos", fields.slug, fields.nombre);
+  if (resultadoSlug.error) {
+    redirect(`/admin/tratamientos/nuevo?error=${encodeURIComponent(resultadoSlug.error)}`);
+  }
+  const slug = resultadoSlug.slug!;
 
   let imagenPortada: string | null = null;
   const foto = formData.get("imagen_portada");
@@ -91,6 +98,8 @@ export async function createTratamiento(formData: FormData) {
 
   const { error } = await supabase.from("tratamientos").insert({
     slug,
+    meta_title: fields.meta_title,
+    meta_description: fields.meta_description,
     nombre: fields.nombre,
     tecnica_relacionada: fields.tecnica_relacionada,
     categoria: fields.categoria,
@@ -136,7 +145,7 @@ export async function updateTratamiento(id: string, formData: FormData) {
 
   const { data: actual } = await supabase
     .from("tratamientos")
-    .select("imagen_portada")
+    .select("imagen_portada, slug, slugs_anteriores")
     .eq("id", id)
     .maybeSingle();
 
@@ -155,9 +164,20 @@ export async function updateTratamiento(id: string, formData: FormData) {
     }
   }
 
+  const resultadoSlug = await resolverSlug(supabase, "tratamientos", fields.slug, fields.nombre, id);
+  if (resultadoSlug.error) {
+    redirect(`/admin/tratamientos/${id}/editar?error=${encodeURIComponent(resultadoSlug.error)}`);
+  }
+  const slug = resultadoSlug.slug!;
+  const slugsAnteriores = actualizarSlugsAnteriores(actual?.slugs_anteriores, actual?.slug, slug);
+
   const { error } = await supabase
     .from("tratamientos")
     .update({
+      slug,
+      slugs_anteriores: slugsAnteriores,
+      meta_title: fields.meta_title,
+      meta_description: fields.meta_description,
       nombre: fields.nombre,
       tecnica_relacionada: fields.tecnica_relacionada,
     categoria: fields.categoria,
@@ -177,6 +197,8 @@ export async function updateTratamiento(id: string, formData: FormData) {
 
   revalidatePath("/admin/tratamientos");
   revalidatePath("/tratamientos");
+  revalidatePath(`/tratamientos/${slug}`);
+  if (actual?.slug && actual.slug !== slug) revalidatePath(`/tratamientos/${actual.slug}`);
   redirect("/admin/tratamientos");
 }
 
