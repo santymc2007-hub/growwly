@@ -1,3 +1,4 @@
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import Image from "next/image";
 import Link from "next/link";
 import type { Clinic } from "@/lib/supabase/database.types";
@@ -85,7 +86,7 @@ export function ClinicCardCompact({
                 key={tecnica}
                 className="rounded-full bg-sage px-2 py-0.5 text-[11px] font-medium text-sage-ink"
               >
-                {tecnica}
+                {nombreVisibleTecnica(tecnica)}
               </span>
             ))}
           </div>

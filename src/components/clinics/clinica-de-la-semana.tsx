@@ -1,3 +1,4 @@
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import Image from "next/image";
 import Link from "next/link";
 import type { Clinic } from "@/lib/supabase/database.types";
@@ -87,7 +88,7 @@ export function ClinicaDeLaSemana({ clinic }: { clinic: Clinic }) {
                     key={t}
                     className="rounded-full bg-sage px-3 py-1 text-xs font-medium text-sage-ink"
                   >
-                    {t}
+                    {nombreVisibleTecnica(t)}
                   </span>
                 ))}
               </div>

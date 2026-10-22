@@ -1,3 +1,4 @@
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { after } from "next/server";
@@ -123,7 +124,7 @@ export default async function CentrosPage({
     return qs ? `/centros?${qs}` : "/centros";
   };
   const chips = [
-    tecnica && { clave: "tecnica", texto: `con ${tecnica}` },
+    tecnica && { clave: "tecnica", texto: `con ${nombreVisibleTecnica(tecnica)}` },
     ciudad && { clave: "ciudad", texto: `en ${ciudad}` },
     !ciudad && provincia && { clave: "provincia", texto: `en ${provincia}` },
     ubicacion === "palma" && { clave: "ubicacion", texto: "en Palma" },
