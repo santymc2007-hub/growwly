@@ -2,6 +2,7 @@ import { serializarJsonLd } from "@/lib/json-ld";
 import Image from "next/image";
 import { cache } from "react";
 import { notFound } from "next/navigation";
+import { redirigirSlugAntiguo } from "@/lib/seo/redirigir-slug-antiguo";
 import type { Metadata } from "next";
 import { tituloSeo, textoTitle, metaSeo, primerasFrases, OG_BASE } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
@@ -48,8 +49,11 @@ export async function generateMetadata({
   if (!post) return {};
   // Meta: el resumen del post (o, sin resumen, las primeras frases del
   // artículo), solo frases completas que quepan.
-  const description = metaSeo(primerasFrases(post.resumen || post.contenido, 158));
-  const title = tituloSeo(post.titulo);
+  const description = post.meta_description?.trim()
+    ? post.meta_description.trim()
+    : metaSeo(primerasFrases(post.resumen || post.contenido, 158));
+  // El meta title escrito a mano manda: sin él, se usa el título del post.
+  const title = tituloSeo(post.meta_title?.trim() || post.titulo);
   return {
     title,
     description,
@@ -75,6 +79,7 @@ export default async function BlogPostPage({
   const post = await findPost(slug);
 
   if (!post) {
+    await redirigirSlugAntiguo("blog_posts", slug, (s) => `/blog/${s}`);
     notFound();
   }
 

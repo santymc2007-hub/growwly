@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { slugify } from "@/lib/slugify";
+import { resolverSlug, actualizarSlugsAnteriores } from "@/lib/seo/slug-editable";
 import { uploadBlogPhoto, deleteBlogPhoto } from "@/lib/supabase/blog-storage";
 
 const MAX_FAQS = 6;
@@ -56,6 +56,9 @@ function readPostFields(formData: FormData) {
     preguntas_frecuentes: faqs,
     tags,
     destacado_home: formData.get("destacado_home") === "on",
+    slug: str("slug"),
+    meta_title: str("meta_title"),
+    meta_description: str("meta_description"),
   };
 }
 
@@ -78,7 +81,11 @@ export async function createPost(formData: FormData) {
     );
   }
 
-  const slug = slugify(fields.titulo);
+  const resultadoSlug = await resolverSlug(supabase, "blog_posts", fields.slug, fields.titulo);
+  if (resultadoSlug.error) {
+    redirect(`/admin/blog/nuevo?error=${encodeURIComponent(resultadoSlug.error)}`);
+  }
+  const slug = resultadoSlug.slug!;
 
   let imagenPortada: string | null = null;
   const foto = formData.get("imagen_portada");
@@ -96,6 +103,8 @@ export async function createPost(formData: FormData) {
 
   const { error } = await supabase.from("blog_posts").insert({
     slug,
+    meta_title: fields.meta_title,
+    meta_description: fields.meta_description,
     titulo: fields.titulo,
     resumen: fields.resumen,
     contenido: fields.contenido,
@@ -142,7 +151,7 @@ export async function updatePost(id: string, formData: FormData) {
 
   const { data: actual } = await supabase
     .from("blog_posts")
-    .select("imagen_portada, publicado, publicado_en")
+    .select("imagen_portada, publicado, publicado_en, slug, slugs_anteriores")
     .eq("id", id)
     .maybeSingle();
 
@@ -164,9 +173,20 @@ export async function updatePost(id: string, formData: FormData) {
   // Si se publica por primera vez ahora, fijamos la fecha de publicación.
   const sePublicaPorPrimeraVez = fields.publicado && !actual?.publicado_en;
 
+  const resultadoSlug = await resolverSlug(supabase, "blog_posts", fields.slug, fields.titulo, id);
+  if (resultadoSlug.error) {
+    redirect(`/admin/blog/${id}/editar?error=${encodeURIComponent(resultadoSlug.error)}`);
+  }
+  const slug = resultadoSlug.slug!;
+  const slugsAnteriores = actualizarSlugsAnteriores(actual?.slugs_anteriores, actual?.slug, slug);
+
   const { error } = await supabase
     .from("blog_posts")
     .update({
+      slug,
+      slugs_anteriores: slugsAnteriores,
+      meta_title: fields.meta_title,
+      meta_description: fields.meta_description,
       titulo: fields.titulo,
       resumen: fields.resumen,
       contenido: fields.contenido,
@@ -189,6 +209,8 @@ export async function updatePost(id: string, formData: FormData) {
 
   revalidatePath("/admin/blog");
   revalidatePath("/blog");
+  revalidatePath(`/blog/${slug}`);
+  if (actual?.slug && actual.slug !== slug) revalidatePath(`/blog/${actual.slug}`);
   redirect("/admin/blog");
 }
 

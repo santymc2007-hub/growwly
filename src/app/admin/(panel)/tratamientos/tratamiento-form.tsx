@@ -3,6 +3,7 @@ import type { Tratamiento } from "@/lib/supabase/database.types";
 import { TECNICAS_DISPONIBLES, CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
 import { EditorContenido } from "@/components/admin/editor-contenido";
+import { CamposSeo } from "@/components/admin/campos-seo";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -31,7 +32,7 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
       <div className="flex flex-col gap-4">
         <div>
           <label className={labelClass} htmlFor="nombre">
-            Nombre <span className="text-xs text-ink-soft">(H1 de la página y título en buscadores)</span>
+            Nombre <span className="text-xs text-ink-soft">(H1 de la página; título en buscadores si no rellenas el meta title)</span>
           </label>
           <input
             id="nombre"
@@ -40,11 +41,6 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
             defaultValue={tratamiento?.nombre ?? undefined}
             className={inputClass}
           />
-          {tratamiento?.slug && (
-            <p className="mt-1 text-xs text-ink-soft">
-              URL: /tratamientos/{tratamiento.slug}
-            </p>
-          )}
         </div>
 
         <div>
@@ -92,8 +88,16 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
         <CampoMetaDescripcion
           id="resumen"
           name="resumen"
-          label="Resumen (meta description — aparece en el listado y en buscadores)"
+          label="Resumen (aparece en el listado; también en buscadores si no rellenas la meta description)"
           defaultValue={tratamiento?.resumen}
+        />
+
+        <CamposSeo
+          basePath="/tratamientos"
+          slug={tratamiento?.slug}
+          metaTitle={tratamiento?.meta_title}
+          metaDescription={tratamiento?.meta_description}
+          publicado={tratamiento?.publicado}
         />
 
         <div>
