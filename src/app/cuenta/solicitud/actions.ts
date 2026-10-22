@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { notificarClinicasDeSolicitud } from "@/lib/leads/notificar-clinicas";
+import { avisarAdminNuevoLead } from "@/lib/email/aviso-admin-lead";
 import { registrarEventoLead } from "@/lib/leads/lead-events";
 import { transicionValida, type EstadoLead } from "@/lib/leads/estados-lead";
 import { leerOpcionesCita } from "@/lib/leads/opciones-cita";
@@ -130,9 +131,11 @@ export async function crearSolicitud(
     solicitudId: solicitud.id,
   });
 
+  let clinicasAvisadas = 0;
   try {
     const { candidatas, notificadas, ultimoError, matchScorePaciente } =
       await notificarClinicasDeSolicitud(supabaseAdmin, solicitud.id);
+    clinicasAvisadas = notificadas;
     await supabaseAdmin
       .from("solicitudes_presupuesto")
       .update({
@@ -157,6 +160,21 @@ export async function crearSolicitud(
         notificacion_error: e instanceof Error ? e.message : String(e),
       })
       .eq("id", solicitud.id);
+  }
+
+  // Aviso interno a Growwly (sin datos de salud): con pocas clínicas
+  // recibiendo leads, alguien tiene que buscarle clínica a esta persona.
+  try {
+    await avisarAdminNuevoLead(supabaseAdmin, {
+      tipo: "presupuesto",
+      solicitudId: solicitud.id,
+      userId: user.id,
+      ciudad: solicitud.ciudad,
+      tratamientos: solicitud.tratamientos_interes,
+      clinicasNotificadas: clinicasAvisadas,
+    });
+  } catch {
+    // La solicitud ya está guardada; un fallo del aviso no la bloquea.
   }
 
   return { id: solicitud.id };

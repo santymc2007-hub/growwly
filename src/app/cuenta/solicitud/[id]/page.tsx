@@ -252,9 +252,10 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
     texto =
       "Las hemos elegido porque son las que mejor encajan con lo que pediste. Te avisaremos por email en cuanto llegue la primera propuesta.";
   } else {
-    titulo = "Todavía no hay clínicas para tu solicitud";
+    // Growwly recibe un aviso por cada solicitud y busca clínica a mano.
+    titulo = "Hemos recibido tu solicitud";
     texto =
-      "No hemos encontrado clínicas que encajen exactamente con esa ciudad o técnica. Puedes retirar esta solicitud y probar ampliando tus preferencias.";
+      "Estamos buscando las clínicas que mejor encajan con tu caso. En 24-48 h te escribimos con su respuesta.";
   }
 
   // ===== Recorrido =====
@@ -439,7 +440,9 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
 
               {!leadElegido && totalClinicas === 0 && notificadas !== null && (
                 <section className="rounded-3xl border border-dashed border-line p-6 text-sm leading-relaxed text-ink-soft sm:p-8">
-                  {solicitud.notificacion_error ?? "No hay clínicas asignadas a esta solicitud."}
+                  {/* notificacion_error es un diagnóstico interno: no se enseña al paciente. */}
+                  Te escribiremos a tu email en cuanto tengamos la respuesta de una clínica. No hace
+                  falta que hagas nada más.
                 </section>
               )}
 

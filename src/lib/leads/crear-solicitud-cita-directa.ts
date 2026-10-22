@@ -5,9 +5,13 @@ import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { clinicaEstaRegistrada } from "@/lib/clinica/registrada";
 import { destinatariosLeads } from "@/lib/clinica/emails-leads";
+import { avisarAdminNuevoLead } from "@/lib/email/aviso-admin-lead";
 import { clinicaAceptoCondicionesDatos } from "@/lib/clinica/condiciones-datos";
 
-export type ResultadoSolicitudDirecta = { ok: true } | { ok: false; error: string };
+export type ResultadoSolicitudDirecta =
+  /** clinicaConCuenta: si la clínica tiene cuenta (le llega algo) o no. Decide el mensaje al paciente. */
+  | { ok: true; clinicaConCuenta: boolean }
+  | { ok: false; error: string };
 
 export type DatosSolicitudDirecta = {
   clinicId: string;
@@ -80,8 +84,22 @@ export async function crearSolicitudCitaDirecta(
       ? await destinatariosLeads(supabaseAdmin, { id: clinicId, email: clinica.email })
       : [];
 
+    const registrada = await clinicaEstaRegistrada(supabaseAdmin, clinicId);
+    const clinicaConCuenta = registrada || clinica?.plan === "premium";
+
+    // Aviso interno a Growwly: con pocas clínicas recibiendo leads,
+    // nadie más respondería a esta persona.
+    try {
+      await avisarAdminNuevoLead(supabaseAdmin, {
+        tipo: "cita_directa",
+        clinicId,
+        paciente: { nombre, telefono, email: email || null },
+      });
+    } catch {
+      // Si falla el aviso interno, la solicitud ya está guardada.
+    }
+
     if (clinica && para.length > 0) {
-      const registrada = await clinicaEstaRegistrada(supabaseAdmin, clinicId);
       const esPremium = clinica.plan === "premium";
 
       // Una clínica de pago que aún no ha aceptado las condiciones sobre
@@ -124,7 +142,7 @@ export async function crearSolicitudCitaDirecta(
       }
     }
 
-    return { ok: true };
+    return { ok: true, clinicaConCuenta };
   } catch {
     // Cualquier fallo inesperado (red, timeout...) llega aquí en vez
     // de tumbar el flujo sin control.
