@@ -13,7 +13,7 @@ import {
   type TipoVisibilidad,
 } from "@/lib/visibilidad/destacados";
 import { esc } from "@/lib/email/escapar";
-import { envolverEmail, boton, ESTILO } from "@/lib/email/layout";
+import { envolverEmail, boton, ESTILO, COLOR } from "@/lib/email/layout";
 
 type FechasVisibilidad = Record<
   string,
@@ -99,7 +99,7 @@ function construirHtmlEmailActivacion(datos: {
       </p>
       <p>${datos.beneficio}</p>
       <div style="${ESTILO.caja} margin:24px 0;">
-        <p style="margin: 0 0 8px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.04em; color: #1f5568;">
+        <p style="margin: 0 0 8px; font-size: 12px; font-weight: bold; text-transform: uppercase; letter-spacing: 0.04em; color: ${COLOR.bosque};">
           Así de visible eres ahora mismo en Growwly
         </p>
         <p style="margin: 0; font-size: 14px;">

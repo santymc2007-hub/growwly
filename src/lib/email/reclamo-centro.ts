@@ -1,6 +1,13 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { esc } from "@/lib/email/escapar";
-import { cabeceraEmail, pieEmail } from "@/lib/email/layout";
+import {
+  cabeceraEmail,
+  pieEmail,
+  boton,
+  COLOR,
+  FUENTE as FUENTE_BASE,
+  TITULAR as TITULAR_BASE,
+} from "@/lib/email/layout";
 
 /**
  * Email informativo a un centro que está en el directorio pero no ha
@@ -55,20 +62,21 @@ export function verificarBajaReclamo(clinicId: string, t: string): boolean {
 
 // --- Plantilla ---
 
+// Misma paleta que el resto de emails (src/lib/email/layout.ts).
 const C = {
-  teal: "#1f5568",
-  tealClaro: "#00768f",
-  tinta: "#33403f",
-  suave: "#66756f",
-  salvia: "#eef6f1",
-  salviaBorde: "#cfebdc",
-  amarillo: "#e8ef2d",
-  linea: "#dbe5df",
-  pieTexto: "#cfe3e8",
+  teal: COLOR.bosque,
+  tealClaro: COLOR.bosqueClaro,
+  tinta: COLOR.tinta,
+  suave: COLOR.suave,
+  salvia: COLOR.menta,
+  salviaBorde: COLOR.mentaBorde,
+  amarillo: COLOR.lima,
+  linea: COLOR.linea,
+  pieTexto: COLOR.pieTexto,
 };
 
-const FUENTE = "'Nunito Sans', Arial, Helvetica, sans-serif";
-const TITULAR = "'Nunito', 'Trebuchet MS', Arial, sans-serif";
+const FUENTE = FUENTE_BASE;
+const TITULAR = TITULAR_BASE;
 
 function numero(n: number): string {
   return n.toLocaleString("es-ES");
@@ -95,12 +103,12 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
     .join(" · ");
 
   const etiquetaSeccion = (texto: string) =>
-    `<span style="display:inline-block; font-family:${FUENTE}; font-size:11px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:${C.tealClaro}; border-bottom:2px solid ${C.amarillo}; padding-bottom:3px;">${texto}</span>`;
+    `<span style="display:inline-block; font-family:${FUENTE}; font-size:11px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:${C.tealClaro}; border-bottom:2px solid ${C.amarillo}; padding-bottom:3px;">${texto}</span>`;
 
   const check = (titulo: string, resto: string) => `
     <tr>
       <td width="30" valign="top" style="padding:0 0 10px 0;">
-        <div style="width:22px; height:22px; line-height:22px; border-radius:11px; background:${C.salviaBorde}; color:#1f6b43; font-weight:800; font-size:13px; text-align:center;">&#10003;</div>
+        <div style="width:22px; height:22px; line-height:22px; border-radius:11px; background:${C.salviaBorde}; color:${C.teal}; font-weight:700; font-size:13px; text-align:center;">&#10003;</div>
       </td>
       <td valign="top" style="padding:1px 0 10px 0; font-family:${FUENTE}; font-size:15px; line-height:22px; color:${C.tinta};">
         <strong style="color:${C.teal};">${titulo}</strong>${resto}
@@ -117,13 +125,13 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
           <tr>
             <td width="50%" valign="top" style="padding-right:5px;">
               <div style="border:1px solid ${C.linea}; border-radius:10px; padding:12px 14px;">
-                <div style="font-family:${TITULAR}; font-weight:800; font-size:26px; line-height:30px; color:${C.teal};">${numero(d.trafico.impresiones)}</div>
+                <div style="font-family:${TITULAR}; font-weight:700; font-size:26px; line-height:30px; color:${C.teal};">${numero(d.trafico.impresiones)}</div>
                 <div style="font-family:${FUENTE}; font-size:12.5px; line-height:17px; color:${C.suave};">veces ha aparecido vuestro centro en los listados de Growwly</div>
               </div>
             </td>
             <td width="50%" valign="top" style="padding-left:5px;">
               <div style="border:1px solid ${C.linea}; border-radius:10px; padding:12px 14px;">
-                <div style="font-family:${TITULAR}; font-weight:800; font-size:26px; line-height:30px; color:${C.teal};">${numero(d.trafico.visitas)}</div>
+                <div style="font-family:${TITULAR}; font-weight:700; font-size:26px; line-height:30px; color:${C.teal};">${numero(d.trafico.visitas)}</div>
                 <div style="font-family:${FUENTE}; font-size:12.5px; line-height:17px; color:${C.suave};">personas han entrado a ver vuestra ficha</div>
               </div>
             </td>
@@ -140,11 +148,11 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>${asuntoEmailReclamo(nombre)}</title>
 </head>
-<body style="margin:0; padding:0; background:#e7efea;">
+<body style="margin:0; padding:0; background:${COLOR.fondo};">
 <div style="display:none; max-height:0; overflow:hidden; opacity:0;">Os contamos qué es Growwly y cómo podéis gestionar vuestra ficha.</div>
-<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#e7efea;">
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:${COLOR.fondo};">
 <tr><td align="center" style="padding:24px 12px;">
-<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%; max-width:600px; background:#ffffff; border-radius:14px; overflow:hidden;">
+<table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%; max-width:600px; background:#ffffff; border-radius:24px; overflow:hidden;">
 
   <!-- Cabecera -->
   ${cabeceraEmail()}
@@ -152,7 +160,7 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
 
   <!-- 1. Ficha en el directorio -->
   <tr><td style="padding:28px 28px 0;">${etiquetaSeccion("Vuestra ficha en el directorio")}</td></tr>
-  <tr><td style="padding:12px 28px 0; font-family:${TITULAR}; font-weight:800; font-size:25px; line-height:31px; color:${C.teal};">Vuestro centro ya tiene su ficha en Growwly</td></tr>
+  <tr><td style="padding:12px 28px 0; font-family:${TITULAR}; font-weight:700; font-size:25px; line-height:31px; color:${C.teal};">Vuestro centro ya tiene su ficha en Growwly</td></tr>
   <tr><td style="padding:16px 28px 0; font-family:${FUENTE}; font-size:15px; line-height:24px; color:${C.tinta};">
     Hola, equipo de ${nombre}:<br><br>
     Os escribimos desde Growwly para contaros que vuestro centro ya aparece en nuestro directorio. Hemos creado la ficha con la información pública de vuestra web y de Google, para que las personas que buscan tratamiento capilar puedan encontraros.
@@ -160,17 +168,17 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
   <tr><td style="padding:18px 28px 14px;">
     <div style="border:1px solid ${C.salviaBorde}; background:${C.salvia}; border-radius:12px; padding:16px 18px;">
       <div style="font-family:${FUENTE}; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:${C.suave}; font-weight:700;">Vuestra ficha en Growwly</div>
-      <div style="font-family:${TITULAR}; font-weight:800; font-size:19px; color:${C.teal}; padding-top:4px;">${nombre}</div>
+      <div style="font-family:${TITULAR}; font-weight:700; font-size:19px; color:${C.teal}; padding-top:4px;">${nombre}</div>
       ${datosFicha ? `<div style="font-family:${FUENTE}; font-size:13px; color:${C.suave}; padding-top:2px;">${datosFicha}</div>` : ""}
       <a href="${d.urlFicha}" style="display:inline-block; padding-top:8px; font-family:${FUENTE}; font-size:13px; color:${C.tealClaro}; font-weight:700; text-decoration:none;">Ver la ficha tal como la ven los pacientes &rarr;</a>
     </div>
   </td></tr>
   ${bloqueTrafico}
   <tr><td align="center" style="padding:18px 28px 0;">
-    <a href="${d.urlReclamar}" style="display:inline-block; background:${C.amarillo}; color:${C.teal}; font-family:${TITULAR}; font-weight:800; font-size:16px; padding:14px 30px; border-radius:999px; text-decoration:none;">Reclamar nuestra ficha</a>
+    <div style="display:inline-block;">${boton(d.urlReclamar, "Reclamar nuestra ficha")}</div>
     <div style="font-family:${FUENTE}; font-size:12px; color:${C.suave}; padding-top:8px;">Es gratis y lleva un par de minutos.</div>
   </td></tr>
-  <tr><td style="padding:26px 28px 6px; font-family:${TITULAR}; font-weight:800; font-size:18px; color:${C.teal};">Qué podéis hacer con vuestra ficha una vez reclamada</td></tr>
+  <tr><td style="padding:26px 28px 6px; font-family:${TITULAR}; font-weight:700; font-size:18px; color:${C.teal};">Qué podéis hacer con vuestra ficha una vez reclamada</td></tr>
   <tr><td style="padding:8px 28px 28px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
       ${check("Corregirla y completarla", ": horarios, tratamientos, fotos, equipo e idiomas.")}
@@ -182,7 +190,7 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
   <!-- 2. Plataforma de marketing -->
   <tr><td style="background:${C.salvia}; padding:28px 28px 30px;">
     ${etiquetaSeccion("Plataforma de marketing")}
-    <div style="font-family:${TITULAR}; font-weight:800; font-size:23px; line-height:29px; color:${C.teal}; padding-top:12px;">Qué es Growwly</div>
+    <div style="font-family:${TITULAR}; font-weight:700; font-size:23px; line-height:29px; color:${C.teal}; padding-top:12px;">Qué es Growwly</div>
     <div style="font-family:${FUENTE}; font-size:15px; line-height:24px; color:${C.tinta}; padding-top:12px;">
       Growwly es una plataforma especializada en salud capilar: un espacio donde cada centro tiene su sitio, y donde las personas que se preocupan por su cabello encuentran rápido a quién acudir en su ciudad.<br><br>
       Pero no somos solo un directorio ni un comparador. <strong>Growwly es una plataforma de marketing que os ayuda a atraer pacientes</strong>: nosotros nos encargamos de atraer a las personas interesadas, y vosotros, de que vuestra ficha las convenza.
@@ -192,13 +200,13 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
     </div>
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:10px; background:${C.teal}; border-radius:14px; overflow:hidden;">
       <tr><td><img src="${img("/email/reclamo-valoracion-ia.jpg")}" width="544" alt="Persona haciéndose una foto del cuero cabelludo con el móvil" style="display:block; width:100%; height:auto; border:0;"></td></tr>
-      <tr><td style="padding:20px 22px 22px; font-family:${FUENTE}; color:#e3f1f4;">
-        <div style="font-family:${TITULAR}; font-weight:800; font-size:21px; line-height:27px; color:#ffffff;">Pacientes que llegan <span style="background:rgba(232,239,45,0.45);">con los deberes hechos</span></div>
+      <tr><td style="padding:20px 22px 22px; font-family:${FUENTE}; color:${C.pieTexto};">
+        <div style="font-family:${TITULAR}; font-weight:700; font-size:21px; line-height:27px; color:#ffffff;">Pacientes que llegan <span style="background:rgba(232,239,45,0.45);">con los deberes hechos</span></div>
         <div style="font-size:14px; line-height:22px; padding:8px 0 12px;">Nuestra valoración capilar con IA convierte cada visita en un contacto de alto valor. Antes de llegar a vosotros, el paciente ya ha subido sus fotos y nos ha contado su caso.</div>
         <div style="font-size:13.5px; line-height:24px;">
-          <span style="color:${C.amarillo}; font-weight:800;">&#10003;</span>&nbsp; Fotos de la zona que le preocupa<br>
-          <span style="color:${C.amarillo}; font-weight:800;">&#10003;</span>&nbsp; Una valoración capilar orientativa<br>
-          <span style="color:${C.amarillo}; font-weight:800;">&#10003;</span>&nbsp; La información médica necesaria para decidir
+          <span style="color:${C.amarillo}; font-weight:700;">&#10003;</span>&nbsp; Fotos de la zona que le preocupa<br>
+          <span style="color:${C.amarillo}; font-weight:700;">&#10003;</span>&nbsp; Una valoración capilar orientativa<br>
+          <span style="color:${C.amarillo}; font-weight:700;">&#10003;</span>&nbsp; La información médica necesaria para decidir
         </div>
         <div style="font-size:14px; font-weight:700; color:#ffffff; padding-top:12px;">Vosotros solo tenéis que responder con un presupuesto aproximado.</div>
       </td></tr>

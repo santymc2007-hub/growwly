@@ -5,7 +5,7 @@ import { buscarClinicasAlternativas, type ClinicaAlternativa } from "@/lib/leads
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { randomUUID } from "crypto";
-import { envolverEmail, ESTILO } from "@/lib/email/layout";
+import { envolverEmail, ESTILO, COLOR } from "@/lib/email/layout";
 
 const HORAS_ESPERA = 48;
 
@@ -108,20 +108,20 @@ function construirHtmlAviso(datos: {
           : "";
       const tiempo =
         alt.tiempoRespuestaPromedioMinutos != null
-          ? `<div style="font-size: 11px; color: #1f6b43; background: #cfebdc; display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px;">Responde en ~${Math.max(1, Math.round(alt.tiempoRespuestaPromedioMinutos / 60))} h</div>`
+          ? `<div style="font-size: 11px; color: ${COLOR.bosque}; background: ${COLOR.lima}; display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px;">Responde en ~${Math.max(1, Math.round(alt.tiempoRespuestaPromedioMinutos / 60))} h</div>`
           : "";
       const foto = alt.fotoUrl
         ? `<img src="${esc(alt.fotoUrl)}" alt="" width="56" height="56" style="width:56px;height:56px;border-radius:12px;object-fit:cover;flex-shrink:0;" />`
-        : `<div style="width:56px;height:56px;border-radius:12px;background:#cfebdc;flex-shrink:0;"></div>`;
+        : `<div style="width:56px;height:56px;border-radius:12px;background:${COLOR.menta};flex-shrink:0;"></div>`;
       return `
-        <a href="${enlace}" style="display:flex;align-items:center;gap:14px;text-decoration:none;border:1px solid #e1e8e6;border-radius:16px;padding:14px 18px;margin-bottom:14px;">
+        <a href="${enlace}" style="display:flex;align-items:center;gap:14px;text-decoration:none;border:1px solid ${COLOR.linea};border-radius:16px;padding:14px 18px;margin-bottom:14px;">
           ${foto}
           <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:600;color:#33403f;">${esc(alt.nombre)}</div>
-            <div style="font-size:12px;color:#66756f;margin-top:2px;">${esc(alt.ciudad ?? "")}${rating ? ` · ${rating}` : ""}</div>
+            <div style="font-size:14px;font-weight:600;color:${COLOR.tinta};">${esc(alt.nombre)}</div>
+            <div style="font-size:12px;color:${COLOR.suave};margin-top:2px;">${esc(alt.ciudad ?? "")}${rating ? ` · ${rating}` : ""}</div>
             ${tiempo}
           </div>
-          <div style="flex-shrink:0;background:#e8ef2d;color:#1f5568;font-weight:700;font-size:13px;padding:10px 16px;border-radius:999px;white-space:nowrap;">
+          <div style="flex-shrink:0;background:${COLOR.bosque};color:#ffffff;font-weight:600;font-size:13px;padding:10px 16px;border-radius:12px;white-space:nowrap;">
             Enviarles mi solicitud →
           </div>
         </a>`;

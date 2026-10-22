@@ -37,9 +37,9 @@ export function verificarBaja(userId: string, tipo: string, t: string): tipo is 
 /** Pie común de los emails de recordatorio, con el enlace de baja. */
 export function pieRecordatorio(siteUrl: string, userId: string): string {
   const enlace = enlaceBaja(siteUrl, userId, "recordatorios");
-  return `<p style="font-size: 12px; color: #66756f; margin-top: 24px;">
+  return `<p style="font-size: 12px; color: #5E6B66; margin-top: 24px;">
         Te escribimos porque tienes una cuenta en Growwly. Si no quieres más recordatorios,
-        <a href="${enlace}" style="color: #66756f;">date de baja aquí</a> o cámbialo en Mi cuenta.
+        <a href="${enlace}" style="color: #5E6B66;">date de baja aquí</a> o cámbialo en Mi cuenta.
         Los avisos sobre tus solicitudes (propuestas y citas) te seguirán llegando.
       </p>`;
 }
