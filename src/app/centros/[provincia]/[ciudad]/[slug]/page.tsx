@@ -40,6 +40,7 @@ import { SiteHeader } from "@/components/site-header";
 import { FondoTextura } from "@/components/fondo-textura";
 import { SiteFooter } from "@/components/site-footer";
 import { TrackFichaClinica } from "@/components/analytics/track-ficha-clinica";
+import { esVisitaDePersona, esVisitaInterna } from "@/lib/analytics/visita-real";
 import { TrackedNextLink } from "@/components/analytics/tracked-next-link";
 import { BotonContactoClinica } from "@/components/analytics/boton-contacto-clinica";
 import { numeroWhatsApp } from "@/lib/telefono";
@@ -239,11 +240,20 @@ export default async function ClinicaPage({
   // Registro propio de vistas de ficha (para las estadísticas de la
   // clínica), a mayores del evento de Google Analytics — fuera del
   // camino de renderizado (after()) para no retrasar la respuesta.
-  after(async () => {
-    await createAdminClient().from("clinic_page_views").insert({ clinic_id: clinic.id });
-  });
-
+  // Solo cuentan personas de fuera: ni bots ni prefetch (se miran las
+  // cabeceras aquí, antes de after()), ni admins ni la propia clínica.
   const supabase = await createClient();
+  const esPersona = await esVisitaDePersona();
+  const { data: claims } = esPersona ? await supabase.auth.getClaims() : { data: null };
+  const userId = typeof claims?.claims?.sub === "string" ? claims.claims.sub : null;
+  if (esPersona) {
+    after(async () => {
+      const admin = createAdminClient();
+      if (await esVisitaInterna(admin, userId, clinic.id)) return;
+      await admin.from("clinic_page_views").insert({ clinic_id: clinic.id });
+    });
+  }
+
   const destinosTratamiento = await getDestinosTratamiento();
   const tratamientoSlugPorTecnica = new Map(
     destinosTratamiento
