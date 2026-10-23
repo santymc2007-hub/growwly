@@ -272,7 +272,7 @@ export function BuscadorIA() {
                   <textarea
                     id="buscador-ia-texto"
                     ref={campo}
-                    rows={3}
+                    rows={5}
                     value={texto}
                     maxLength={600}
                     onChange={(e) => setTexto(e.target.value)}
@@ -284,7 +284,7 @@ export function BuscadorIA() {
                     }}
                     disabled={fase === "cargando"}
                     placeholder="Ej.: Busco hacerme un injerto en Palma, que no supere los 4.000 € y con las técnicas más avanzadas"
-                    className="w-full resize-none border-0 bg-transparent text-lg font-medium leading-relaxed text-ink outline-none placeholder:text-ink-soft/60 sm:text-[21px]"
+                    className="min-h-[150px] w-full resize-none border-0 bg-transparent text-[17px] font-medium leading-relaxed text-ink outline-none placeholder:text-[15px] placeholder:font-normal placeholder:text-ink-soft/45 sm:min-h-0 sm:text-[21px] sm:placeholder:text-[19px]"
                   />
 
                   <div className="mt-2 border-t border-line/70 pt-3">
@@ -298,12 +298,12 @@ export function BuscadorIA() {
                         </span>
                       )}
                     </div>
-                    <div className="mt-2.5 flex flex-wrap gap-2">
+                    <div className="mt-2.5 flex flex-wrap gap-1.5 sm:gap-2">
                       {palabras.map((p) =>
                         p.activa ? (
                           <span
                             key={p.id}
-                            className="ia-entra inline-flex min-h-9 items-center gap-1.5 rounded-full border-[1.5px] border-lima bg-[#eef6d0] px-3 text-sm font-semibold text-ink"
+                            className="ia-entra inline-flex min-h-8 items-center gap-1 rounded-full border-[1.5px] border-lima bg-[#eef6d0] px-2.5 text-[13px] font-semibold text-ink sm:min-h-9 sm:gap-1.5 sm:px-3 sm:text-sm"
                           >
                             <Check className="h-3.5 w-3.5 text-logo" strokeWidth={3.2} aria-hidden />
                             {textoPalabra(p, deteccion)}
@@ -313,7 +313,7 @@ export function BuscadorIA() {
                             key={p.id}
                             type="button"
                             onClick={() => tocarPalabra(p.id, p.activa)}
-                            className="inline-flex min-h-9 items-center rounded-full border-[1.5px] border-dashed border-[#c5cfcc] px-3 text-sm text-[#66746f] transition hover:border-logo hover:text-logo"
+                            className="inline-flex min-h-8 items-center rounded-full border-[1.5px] border-dashed border-[#c5cfcc] px-2.5 text-[13px] text-[#66746f] transition hover:border-logo hover:text-logo sm:min-h-9 sm:px-3 sm:text-sm"
                           >
                             {p.texto}
                           </button>
@@ -323,7 +323,7 @@ export function BuscadorIA() {
                         type="button"
                         onClick={() => setVerMas((v) => !v)}
                         aria-expanded={verMas}
-                        className="min-h-9 px-2 text-sm font-semibold text-teal-dark underline underline-offset-4"
+                        className="min-h-8 px-2 text-[13px] font-semibold text-teal-dark underline underline-offset-4 sm:min-h-9 sm:text-sm"
                       >
                         {verMas ? "Ver menos" : `Ver más (${ocultas})`}
                       </button>

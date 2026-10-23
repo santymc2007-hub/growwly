@@ -2,7 +2,8 @@
 
 /** La W de Growwly con las tres estrellas encima, latiendo. */
 export function MarcaIA({ tamano = 37 }: { tamano?: number }) {
-  const estrellas = Math.round(tamano * 0.8);
+  // Estrellas un 15 % más grandes y algo más arriba que la W.
+  const estrellas = Math.round(tamano * 0.92);
   return (
     <span
       aria-hidden
@@ -21,8 +22,8 @@ export function MarcaIA({ tamano = 37 }: { tamano?: number }) {
         width={estrellas}
         height={Math.round(estrellas * 0.9)}
         viewBox="0 0 58 52"
-        className="absolute top-0"
-        style={{ left: Math.round(tamano * 0.19) }}
+        className="absolute"
+        style={{ left: Math.round(tamano * 0.15), top: -Math.round(estrellas * 0.2) }}
       >
         <path className="ia-ch1" fill="#b0cf0c" d="M34 2c1.6 9.4 5.8 13.6 15 15.2-9.2 1.6-13.4 5.8-15 15.2-1.6-9.4-5.8-13.6-15-15.2 9.2-1.6 13.4-5.8 15-15.2z" />
         <path className="ia-ch2" fill="#b0cf0c" d="M10 24c.8 4.6 2.8 6.6 7.2 7.4-4.4.8-6.4 2.8-7.2 7.4-.8-4.6-2.8-6.6-7.2-7.4 4.4-.8 6.4-2.8 7.2-7.4z" />
