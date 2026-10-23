@@ -12,7 +12,6 @@ import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import { provinciaDesdeSlug, slugifyCiudad } from "@/lib/clinic-options";
 import {
   nombreProvinciaBuscable,
-  rangoPrecios,
   tecnicasMasComunes,
   lugaresConLanding,
 } from "@/lib/seo/landings";
@@ -39,7 +38,6 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   if (centros.length === 0) return { robots: { index: false, follow: true } };
 
   const lugar = nombreProvinciaBuscable(provinciaReal, centros);
-  const precios = rangoPrecios(centros);
   const tecnicas = tecnicasMasComunes(centros).join(", ");
   return {
     title: tituloSeo(
@@ -48,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     ),
     description: metaSeo(
       `Compara ${centros.length} clínicas y centros capilares verificados en ${lugar}.`,
-      [tecnicas ? `${tecnicas}.` : null, precios ? `Precios ${precios}.` : null, "Opiniones y ubicación."],
+      [tecnicas ? `${tecnicas}.` : null, "Opiniones y ubicación."],
       "Pide presupuesto gratis.",
     ),
     alternates: { canonical: `/centros/${provincia}` },
@@ -79,7 +77,6 @@ export default async function ProvinciaPage({
   });
 
   const lugar = nombreProvinciaBuscable(provinciaReal, clinicas);
-  const precios = rangoPrecios(clinicas);
 
   const ciudades = [...new Set(clinicas.map((c) => c.ciudad).filter((c): c is string => Boolean(c)))]
     .map((ciudad) => ({ ciudad, n: clinicas.filter((c) => c.ciudad === ciudad).length }))
@@ -117,9 +114,7 @@ export default async function ProvinciaPage({
       intro={
         clinicas.length === 0
           ? `Todavía no tenemos centros registrados en ${lugar}.`
-          : `${clinicas.length} centros capilares verificados en ${lugar}${
-              precios ? `, con precios publicados ${precios}` : ""
-            }.`
+          : `${clinicas.length} centros capilares verificados en ${lugar}.`
       }
       cabecera={
         ciudades.length > 0 ? (

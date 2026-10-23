@@ -12,12 +12,10 @@ import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import {
   provinciaDesdeSlug,
   municipioDesdeSlugGenerico,
-  formatearPrecio,
   slugifyCiudad,
 } from "@/lib/clinic-options";
 import {
   nombreCiudadBuscable,
-  rangoPrecios,
   recortar,
   tecnicasMasComunes,
   MIN_CENTROS_LANDING,
@@ -76,7 +74,6 @@ export async function generateMetadata({
 
   const { clinicas } = await getClinicasDeCiudad(provinciaReal, ciudad);
   const lugar = nombreCiudadBuscable(ciudadReal, provinciaReal);
-  const precios = rangoPrecios(clinicas);
   const tecnicas = tecnicasMasComunes(clinicas).join(", ");
   return {
     title: tituloSeo(
@@ -87,7 +84,7 @@ export async function generateMetadata({
       clinicas.length === 1
         ? `Centro capilar verificado en ${lugar}: técnicas, precios y opiniones.`
         : `Compara ${clinicas.length} clínicas y centros capilares verificados en ${lugar}.`,
-      [tecnicas ? `${tecnicas}.` : null, precios ? `Precios ${precios}.` : null, "Opiniones y ubicación."],
+      [tecnicas ? `${tecnicas}.` : null, "Opiniones y ubicación."],
       "Pide presupuesto gratis.",
     ),
     alternates: { canonical: `/centros/${provincia}/${ciudad}` },
@@ -129,14 +126,6 @@ export default async function CiudadPage({
 
   // Estadísticas reales calculadas a partir de los datos — nunca texto
   // inventado sobre la zona.
-  const preciosDesde = clinicas
-    .map((c) => c.precio_desde)
-    .filter((p): p is number => p !== null);
-  const preciosHasta = clinicas
-    .map((c) => c.precio_hasta)
-    .filter((p): p is number => p !== null);
-  const precioMin = preciosDesde.length > 0 ? Math.min(...preciosDesde) : null;
-  const precioMax = preciosHasta.length > 0 ? Math.max(...preciosHasta) : null;
 
   const zonas = Array.from(
     new Set(clinicas.map((c) => c.zona).filter((z): z is string => Boolean(z))),
@@ -161,15 +150,6 @@ export default async function CiudadPage({
     clinicas.length === 0
       ? `Todavía no tenemos centros registrados en ${ciudadReal}. Echa un vistazo al resto del directorio mientras tanto.`
       : `${clinicas.length === 1 ? "Encontrado" : "Encontrados"} ${clinicas.length} ${clinicas.length === 1 ? "centro" : "centros"} en ${ciudadReal}` +
-        (precioMin !== null || precioMax !== null
-          ? `, con precios ${
-              precioMin !== null && precioMax !== null
-                ? `entre ${formatearPrecio(precioMin)} y ${formatearPrecio(precioMax)}`
-                : precioMin !== null
-                  ? `desde ${formatearPrecio(precioMin)}`
-                  : `hasta ${formatearPrecio(precioMax!)}`
-            }`
-          : "") +
         (zonas.length > 0 ? `. Zonas: ${zonas.join(", ")}.` : ".");
 
   return (
