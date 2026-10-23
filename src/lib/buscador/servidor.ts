@@ -273,7 +273,7 @@ Reglas:
 
 Responde SOLO con este JSON (sin backticks):
 {"titulo": "una frase corta, p. ej. 'Te encajan 2 clínicas en Palma'",
- "texto": "2 a 4 frases con el porqué, nombrando las clínicas en **negrita**",
+ "texto": "2 o 3 frases con el porqué, nombrando las clínicas en **negrita** (máx. 60 palabras)",
  "nota": "una frase de consejo práctico o null",
  "recomendadas": [{"id": "id exacto de la candidata", "encaja": ["frases muy cortas de lo que cumple"], "dudas": ["frases muy cortas de lo que no indica o no cumple"]}],
  "descartadas": [{"nombre": "nombre", "motivo": "frase corta"}]}`;
@@ -292,8 +292,9 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
     tambien_le_importa: d.activas,
   })}\n\nClínicas candidatas:\n${JSON.stringify(candidatas.map((c) => resumenParaIA(c, d)))}`;
 
-  // Modelo rápido primero (la respuesta es corta); si falla, el de la valoración.
-  for (const modelo of ["claude-haiku-5-5", "claude-sonnet-5"]) {
+  // Mismo modelo que la valoración. Tarda ~15–20 s: margen hasta 26 s
+  // (la ruta tiene 30 s); si no llega, explicación básica.
+  for (const modelo of ["claude-sonnet-5"]) {
     try {
       const r = await fetch("https://api.anthropic.com/v1/messages", {
         method: "POST",
@@ -308,7 +309,7 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
           system: SISTEMA,
           messages: [{ role: "user", content: usuario }],
         }),
-        signal: AbortSignal.timeout(modelo.includes("haiku") ? 12000 : 15000),
+        signal: AbortSignal.timeout(26000),
       });
       if (!r.ok) {
         console.error(`[buscador] IA ${modelo} respondió ${r.status}: ${(await r.text()).slice(0, 300)}`);
