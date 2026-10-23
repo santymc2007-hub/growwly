@@ -32,5 +32,4 @@ export type RespuestaBuscador = {
   /** "basica" si la IA no respondió y se usó la explicación por reglas. */
   fuente: "ia" | "basica";
   modelo?: string | null;
-  motivo?: string | null;
 };
