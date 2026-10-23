@@ -17,7 +17,7 @@ const PROSE_CLASS = [
   "prose mt-8 max-w-none text-base leading-normal text-ink-soft",
   // Párrafos y listas: compactos, como la ficha.
   "prose-p:my-0 prose-p:leading-normal [&_p+p]:mt-3",
-  "prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-li:leading-normal",
+  "prose-ul:my-3 prose-ol:my-3 prose-li:my-0.5 prose-li:leading-normal",
   "[&_p+ul]:mt-3 [&_p+ol]:mt-3 [&_ul+p]:mt-3 [&_ol+p]:mt-3",
   // Títulos: marca, con aire justo antes y poco después.
   "prose-headings:font-display prose-headings:text-teal-dark prose-headings:mb-2 prose-h2:mt-8 prose-h3:mt-6",
