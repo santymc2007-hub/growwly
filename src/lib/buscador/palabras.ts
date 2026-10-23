@@ -17,7 +17,7 @@ export type PalabraClave = {
 };
 
 export const PALABRAS_CLAVE: PalabraClave[] = [
-  { id: "precio", texto: "Precio", re: /precio|barat|economic|presupuesto|€|euros|\d{3,}\s*e\b/, frase: " que no sea muy caro", principal: true },
+  { id: "precio", texto: "Precio", re: /precio|barat|economic|presupuesto|€|euros|\d{3,}\s*e\b/, frase: ", con buen precio", principal: true },
   { id: "financiacion", texto: "Financiación", re: /financ|plazos|cuotas|a meses/, frase: ", que se pueda financiar", principal: true },
   { id: "ubicacion", texto: "Cerca de mí", re: /palma|mallorca|inca|manacor|alcudia|llucmajor|calvia|marratxi|felanitx|soller|pollensa|cerca/, frase: ", cerca de mí", principal: true },
   { id: "parking", texto: "Parking", re: /parking|aparca/, frase: ", con parking", principal: true },
