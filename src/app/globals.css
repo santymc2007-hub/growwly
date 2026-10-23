@@ -390,7 +390,11 @@ html[data-buscando] [data-resultados] {
 }
 /* Con la franja de cookies visible, el botón flotante sube por encima. */
 .lanzador-ia { transition: bottom 0.25s ease; }
-html[data-cookie-banner="1"] .lanzador-ia { bottom: 190px; }
+html[data-cookie-banner="1"] .lanzador-ia { bottom: 200px; }
+/* Con el buscador abierto la franja de cookies sigue encima: se deja
+   hueco abajo para que no tape el final del contenido. */
+html[data-cookie-banner="1"] .capa-ia-contenido { padding-bottom: 210px; }
 @media (min-width: 768px) {
-  html[data-cookie-banner="1"] .lanzador-ia { bottom: 112px; }
+  html[data-cookie-banner="1"] .lanzador-ia { bottom: 120px; }
+  html[data-cookie-banner="1"] .capa-ia-contenido { padding-bottom: 130px; }
 }

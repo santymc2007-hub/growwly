@@ -269,7 +269,7 @@ export function CookieConsent() {
         <div
           role="dialog"
           aria-label="Preferencias de cookies"
-          className="fixed inset-x-0 bottom-0 z-[100] bg-logo/80 text-white shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md"
+          className="fixed inset-x-0 bottom-0 z-[110] bg-logo/80 text-white shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md"
         >
           <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 sm:py-4">
           {!configurando ? (
