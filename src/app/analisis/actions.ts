@@ -1,5 +1,7 @@
 "use server";
 
+import { avisarNuevaValoracion } from "@/lib/email/aviso-santy";
+import { after } from "next/server";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -216,6 +218,18 @@ export async function crearEstudio(formData: FormData) {
         error_detalle: e instanceof Error ? e.message : String(e),
       })
       .eq("id", estudio.id);
+  }
+
+  {
+    const { data: final } = await admin
+      .from("estudios_capilares")
+      .select("estado")
+      .eq("id", estudio.id)
+      .maybeSingle();
+    const conCuenta = Boolean(user);
+    after(() =>
+      avisarNuevaValoracion({ estado: final?.estado === "listo" ? "listo" : "error", conCuenta }),
+    );
   }
 
   // Ya logueado: directo al resultado. Anónimo: pantalla de "date de

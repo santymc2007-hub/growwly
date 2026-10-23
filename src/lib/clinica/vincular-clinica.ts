@@ -1,4 +1,6 @@
+import { after } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { avisarAltaClinica } from "@/lib/email/aviso-santy";
 
 /**
  * Vincula un perfil a una clínica del directorio, con estado
@@ -27,7 +29,7 @@ export async function vincularClinica(
 
   const { data: perfil } = await supabase
     .from("profiles")
-    .select("role")
+    .select("role, clinic_id, clinic_status, email")
     .eq("id", userId)
     .maybeSingle();
 
@@ -69,6 +71,19 @@ export async function vincularClinica(
   await supabase
     .from("clinic_members")
     .upsert({ profile_id: userId, clinic_id: clinicId }, { onConflict: "profile_id,clinic_id" });
+
+  // Aviso a Santy, solo la primera vez (abrir el enlace otra vez no
+  // vuelve a avisar).
+  if (perfil.clinic_id !== clinicId) {
+    after(() =>
+      avisarAltaClinica({
+        clinicId,
+        autoaprobada: autoAprobar,
+        gestor: nombreGestor ?? null,
+        email: opciones?.emailUsuario ?? perfil.email ?? null,
+      }),
+    );
+  }
 
   return true;
 }
