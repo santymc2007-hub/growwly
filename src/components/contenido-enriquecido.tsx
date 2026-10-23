@@ -9,8 +9,23 @@ import "@fontsource/lora/400.css";
 import "@fontsource/lora/400-italic.css";
 import "@fontsource/lora/600.css";
 
-const PROSE_CLASS =
-  "prose prose-teal mt-8 max-w-none prose-headings:font-display prose-headings:text-teal-dark prose-a:text-cyan prose-blockquote:font-serif prose-blockquote:text-lg prose-blockquote:not-italic prose-blockquote:text-ink";
+// Mismo estilo de texto que la descripción de la ficha de clínica
+// (DescripcionClinica): interlineado normal, párrafos a 12 px, gris de
+// marca, negritas en ink y enlaces cian con subrayado suave. Se parte de
+// "prose" solo para títulos, listas y citas, y se compacta su espaciado.
+const PROSE_CLASS = [
+  "prose mt-8 max-w-none text-base leading-normal text-ink-soft",
+  // Párrafos y listas: compactos, como la ficha.
+  "prose-p:my-0 prose-p:leading-normal [&_p+p]:mt-3",
+  "prose-ul:my-3 prose-ol:my-3 prose-li:my-1 prose-li:leading-normal",
+  "[&_p+ul]:mt-3 [&_p+ol]:mt-3 [&_ul+p]:mt-3 [&_ol+p]:mt-3",
+  // Títulos: marca, con aire justo antes y poco después.
+  "prose-headings:font-display prose-headings:text-teal-dark prose-headings:mb-2 prose-h2:mt-8 prose-h3:mt-6",
+  // Texto y énfasis en los colores de la ficha.
+  "prose-p:text-ink-soft prose-li:text-ink-soft prose-strong:font-semibold prose-strong:text-ink",
+  "prose-a:font-medium prose-a:text-cyan prose-a:underline prose-a:decoration-cyan/30 prose-a:underline-offset-2 hover:prose-a:text-cyan-dark",
+  "prose-blockquote:my-4 prose-blockquote:font-serif prose-blockquote:text-lg prose-blockquote:not-italic prose-blockquote:text-ink",
+].join(" ");
 
 const ALLOWED_TAGS = [
   "p",
