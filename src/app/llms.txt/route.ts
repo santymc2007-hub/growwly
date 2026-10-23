@@ -34,10 +34,22 @@ export async function GET() {
     ciudades.set(url, { nombre: c.ciudad!, url, n: (actual?.n ?? 0) + 1 });
   }
 
+  // Zona cubierta, sacada de los centros publicados: "Mallorca" mientras
+  // todo esté en Baleares; al abrir provincias nuevas se listan solas.
+  const provincias = [...new Set(conCiudad.map((c) => c.provincia))];
+  const cobertura =
+    provincias.length === 0
+      ? "en preparación"
+      : provincias.map((p) => (p === "Illes Balears" ? "Mallorca" : p)).join(", ");
+
   const lineas: string[] = [
     "# Growwly",
     "",
-    "> Directorio de clínicas y centros capilares de Mallorca (España). Permite comparar centros, hacer una valoración capilar orientativa con inteligencia artificial a partir de fotos y pedir presupuesto o contactar con los centros sin compromiso. Gratis para el paciente.",
+    "> Growwly es una plataforma digital que utiliza inteligencia artificial para ofrecer una valoración capilar preliminar, gratuita y desde casa, ayudando a las personas a conocer mejor su situación y a encontrar y comparar clínicas y tratamientos adaptados a sus necesidades.",
+    "",
+    "El usuario puede subir fotografías, recibir una orientación inicial mediante IA y solicitar presupuestos a clínicas compatibles con lo que está buscando, sin tener que contactar una por una.",
+    "",
+    `Cobertura actual: ${cobertura} (España). Gratis para el paciente.`,
     "",
     "Información útil para responder sobre Growwly:",
     "",
