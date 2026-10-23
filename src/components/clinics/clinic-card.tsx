@@ -2,7 +2,7 @@ import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import Image from "next/image";
 import Link from "next/link";
 import { Gift, Wallet } from "lucide-react";
-import type { Clinic } from "@/lib/supabase/database.types";
+import type { ClinicListado } from "@/lib/clinica/para-listado";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { ClinicBadges } from "./clinic-badges";
 import { EtiquetaDestacado } from "./etiqueta-destacado";
@@ -13,7 +13,7 @@ export function ClinicCard({
   destacado = false,
   resaltarTecnica,
 }: {
-  clinic: Clinic;
+  clinic: ClinicListado;
   /** Sale arriba por visibilidad pagada: muestra la etiqueta "Destacado". */
   destacado?: boolean;
   /** Técnica filtrada: sale la primera y resaltada, para que se vea el filtro. */

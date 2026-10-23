@@ -1,5 +1,7 @@
 "use client";
 
+import type { ClinicListado } from "@/lib/clinica/para-listado";
+
 import { useTransition } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import dynamic from "next/dynamic";
@@ -86,7 +88,7 @@ export function VistaListaMapa({
   idsDestacados = [],
   resaltarTecnica,
 }: {
-  clinicas: Clinic[];
+  clinicas: ClinicListado[];
   vista: "lista" | "mapa";
   resaltarTecnica?: string;
   /** Clínicas que salen arriba por visibilidad pagada en este listado. */

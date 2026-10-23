@@ -1,3 +1,4 @@
+import { paraListado } from "@/lib/clinica/para-listado";
 import Link from "next/link";
 import { after } from "next/server";
 import { serializarJsonLd } from "@/lib/json-ld";
@@ -104,7 +105,7 @@ export async function LandingTratamiento({
         conResultados
       >
         <VistaListaMapa
-          clinicas={clinicas}
+          clinicas={clinicas.map(paraListado)}
           vista={vista === "mapa" ? "mapa" : "lista"}
           idsDestacados={idsDestacados}
         />

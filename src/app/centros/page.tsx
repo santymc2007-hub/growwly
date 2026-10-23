@@ -1,3 +1,4 @@
+import { paraListado } from "@/lib/clinica/para-listado";
 import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -245,7 +246,7 @@ export default async function CentrosPage({
               {filtrados.length > 0 ? (
                 <>
                   <VistaListaMapa
-                    clinicas={filtrados}
+                    clinicas={filtrados.map(paraListado)}
                     vista={vista === "mapa" ? "mapa" : "lista"}
                     idsDestacados={idsDestacados}
                     resaltarTecnica={tecnica}
