@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Check, Columns2, HelpCircle, ShieldCheck, Star, X } from "lucide-react";
+import { ArrowLeft, Check, Columns2, HelpCircle, RotateCcw, ShieldCheck, Star, X } from "lucide-react";
 import { trackEvent } from "@/lib/analytics/events";
 import {
   EJEMPLOS_BUSQUEDA,
@@ -62,6 +62,8 @@ export function BuscadorIA() {
 
   const [abierto, setAbierto] = useState(false);
   const [burbuja, setBurbuja] = useState(false);
+  // Al pasar el ratón por el botón también se enseña la burbuja.
+  const [encima, setEncima] = useState(false);
   const [fase, setFase] = useState<Fase>("escribir");
   const [texto, setTexto] = useState("");
   const [verMas, setVerMas] = useState(false);
@@ -112,11 +114,22 @@ export function BuscadorIA() {
 
   function cerrarBurbuja() {
     setBurbuja(false);
+    setEncima(false);
     try {
       sessionStorage.setItem(CLAVE_BURBUJA, "1");
     } catch {
       // nada
     }
+  }
+
+  function nuevaBusqueda() {
+    setTexto("");
+    setRespuesta(null);
+    setError(null);
+    setVerMas(false);
+    setFase("escribir");
+    trackEvent("buscador_ia_nueva_busqueda");
+    setTimeout(() => campo.current?.focus(), 50);
   }
 
   function abrir(origen: string) {
@@ -172,8 +185,12 @@ export function BuscadorIA() {
   return (
     <>
       {!abierto && (
-        <div className="lanzador-ia fixed bottom-4 right-4 z-[90] flex items-end gap-3 sm:bottom-6 sm:right-6">
-          {burbuja && (
+        <div
+          className="lanzador-ia fixed bottom-4 right-4 z-[90] flex items-end gap-3 sm:bottom-6 sm:right-6"
+          onMouseEnter={() => setEncima(true)}
+          onMouseLeave={() => setEncima(false)}
+        >
+          {(burbuja || encima) && (
             <div className="ia-entra relative max-w-[250px] rounded-[20px] rounded-br-md bg-white py-3 pl-4 pr-9 shadow-[0_12px_34px_rgba(16,58,58,0.22)] sm:max-w-[280px]">
               <button
                 type="button"
@@ -185,6 +202,9 @@ export function BuscadorIA() {
                 </span>
                 <span className="mt-1 block text-xs text-ink-soft sm:text-[13px]">
                   Dime qué buscas y comparo los centros por ti.
+                </span>
+                <span className="mt-2.5 inline-flex min-h-9 items-center rounded-full bg-yellow px-4 text-sm font-bold text-logo">
+                  Empezar →
                 </span>
               </button>
               <button
@@ -310,6 +330,17 @@ export function BuscadorIA() {
                     </div>
                   </div>
 
+                  {texto && fase === "escribir" && (
+                    <button
+                      type="button"
+                      onClick={nuevaBusqueda}
+                      className="mt-3 inline-flex min-h-9 items-center gap-1.5 text-sm font-semibold text-teal-dark hover:underline"
+                    >
+                      <RotateCcw className="h-4 w-4" aria-hidden />
+                      Borrar y empezar de nuevo
+                    </button>
+                  )}
+
                   {error && <p className="mt-3 text-sm font-medium text-red-700">{error}</p>}
 
                   <div className="mt-4 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -350,14 +381,24 @@ export function BuscadorIA() {
 
             {fase === "respuesta" && respuesta && (
               <>
-                <button
-                  type="button"
-                  onClick={() => setFase("escribir")}
-                  className="inline-flex min-h-11 items-center gap-1.5 self-start text-sm font-semibold text-yellow"
-                >
-                  <ArrowLeft className="h-4 w-4" aria-hidden />
-                  Cambiar búsqueda
-                </button>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+                  <button
+                    type="button"
+                    onClick={() => setFase("escribir")}
+                    className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-yellow"
+                  >
+                    <ArrowLeft className="h-4 w-4" aria-hidden />
+                    Cambiar búsqueda
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nuevaBusqueda}
+                    className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white"
+                  >
+                    <RotateCcw className="h-4 w-4" aria-hidden />
+                    Nueva búsqueda
+                  </button>
+                </div>
 
                 <div className="ia-entra flex flex-col gap-5 rounded-[26px] bg-white p-5 shadow-[0_24px_60px_rgba(0,0,0,0.25)] sm:p-7">
                   <div>
@@ -486,14 +527,24 @@ export function BuscadorIA() {
 
             {fase === "comparar" && respuesta && (
               <>
-                <button
-                  type="button"
-                  onClick={() => setFase("respuesta")}
-                  className="inline-flex min-h-11 items-center gap-1.5 self-start text-sm font-semibold text-yellow"
-                >
-                  <ArrowLeft className="h-4 w-4" aria-hidden />
-                  Volver a la respuesta
-                </button>
+                <div className="flex flex-wrap items-center gap-x-6 gap-y-1">
+                  <button
+                    type="button"
+                    onClick={() => setFase("respuesta")}
+                    className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-yellow"
+                  >
+                    <ArrowLeft className="h-4 w-4" aria-hidden />
+                    Volver a la respuesta
+                  </button>
+                  <button
+                    type="button"
+                    onClick={nuevaBusqueda}
+                    className="inline-flex min-h-11 items-center gap-1.5 text-sm font-semibold text-white"
+                  >
+                    <RotateCcw className="h-4 w-4" aria-hidden />
+                    Nueva búsqueda
+                  </button>
+                </div>
                 <div className="ia-entra overflow-x-auto rounded-[26px] bg-white p-4 shadow-[0_24px_60px_rgba(0,0,0,0.25)] sm:p-6">
                   <table className="w-full min-w-[560px] border-separate border-spacing-0 text-left text-sm">
                     <thead>
