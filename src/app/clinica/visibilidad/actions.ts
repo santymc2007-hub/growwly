@@ -1,6 +1,8 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { after } from "next/server";
+import { avisarSolicitudVisibilidad } from "@/lib/email/aviso-santy";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { requireClinicaActiva } from "@/lib/clinica/contexto-activo";
@@ -67,6 +69,8 @@ export async function solicitarVisibilidad(
       .update({ ...camposDestacado(tipo, { solicitado: true }), visibilidad_fechas: fechas })
       .eq("id", clinicId);
   }
+
+  after(() => avisarSolicitudVisibilidad({ clinicId, tipo, meses }));
 
   revalidatePath("/clinica/visibilidad");
   redirect("/clinica/visibilidad?solicitud=1");
