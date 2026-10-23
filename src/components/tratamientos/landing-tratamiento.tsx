@@ -7,7 +7,7 @@ import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import type { BreadcrumbItem } from "@/components/breadcrumbs";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { EnlacesEnLinea, PaginaListado } from "@/components/clinics/pagina-listado";
-import { rangoPrecios, hrefFicha, enFrase, type LugarLanding } from "@/lib/seo/landings";
+import { hrefFicha, enFrase, type LugarLanding } from "@/lib/seo/landings";
 import { SITE_URL } from "@/lib/site-url";
 import type { Clinic } from "@/lib/supabase/database.types";
 
@@ -47,7 +47,6 @@ export async function LandingTratamiento({
     );
   });
 
-  const precios = rangoPrecios(clinicas);
   const nombreMin = enFrase(tratamiento.nombre);
 
   const itemListJsonLd = {
@@ -81,7 +80,7 @@ export async function LandingTratamiento({
         intro={
           <>
             {`En Growwly hay ${clinicas.length} centros verificados que ofrecen ${nombreMin} en ${lugarNombre}`}
-            {precios ? `, con precios publicados ${precios}` : ""}.{" "}
+            {"."}{" "}
             {tratamiento.resumen}{" "}
             <Link
               href={`/tratamientos/${tratamiento.slug}`}

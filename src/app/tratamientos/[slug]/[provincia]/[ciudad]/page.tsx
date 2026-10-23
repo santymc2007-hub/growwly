@@ -6,7 +6,6 @@ import { LandingTratamiento } from "@/components/tratamientos/landing-tratamient
 import {
   nombreCiudadBuscable,
   nombreProvinciaBuscable,
-  rangoPrecios,
   enFrase,
 } from "@/lib/seo/landings";
 
@@ -17,18 +16,17 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const d = await getLanding(slug, provincia, ciudad);
   if (!d) return {};
   const lugar = nombreCiudadBuscable(d.ciudadReal!, d.provinciaReal);
-  const precios = rangoPrecios(d.centros);
   const url = `/tratamientos/${slug}/${provincia}/${ciudad}`;
   const sitio = d.ciudadReal!;
   const n = d.centros.length;
   const title = tituloSeo(
-    `${d.tratamiento.nombre} en ${sitio}: ${n} centros y precios`,
-    `${d.tratamiento.nombre} en ${sitio}: precios`,
+    `${d.tratamiento.nombre} en ${sitio}: ${n} centros verificados`,
+    `${d.tratamiento.nombre} en ${sitio}: centros`,
     `${d.tratamiento.nombre} en ${sitio}`,
   );
   const description = metaSeo(
     `Compara ${n} centros verificados que ofrecen ${enFrase(d.tratamiento.nombre)} en ${lugar}.`,
-    [precios ? `Precios publicados ${precios}.` : null, "Opiniones, técnicas y ubicación."],
+    ["Opiniones, técnicas y ubicación."],
     "Pide presupuesto gratis.",
   );
   return {

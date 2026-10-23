@@ -99,7 +99,13 @@ export async function todasLasLandings(): Promise<string[]> {
   return urls;
 }
 
-/** "entre 1.500 € y 4.000 €" a partir de los precios publicados por los centros. */
+/**
+ * "entre 1.500 € y 4.000 €" a partir de los precios publicados por los
+ * centros. Ojo: precio_desde/precio_hasta son el rango GENERAL de cada
+ * clínica, no el de un tratamiento. Por eso solo se usa en la ficha de una
+ * clínica, nunca agregado en landings de tratamiento, provincia o ciudad
+ * (salía "entre 2.000 € y 3.500 €" en la de PRP, que no cuadra).
+ */
 export function rangoPrecios(centros: Clinic[]): string | null {
   const desde = centros.map((c) => c.precio_desde).filter((p): p is number => p !== null);
   const hasta = centros.map((c) => c.precio_hasta).filter((p): p is number => p !== null);
@@ -154,10 +160,12 @@ export function hrefFicha(c: Pick<Clinic, "provincia" | "ciudad" | "slug">): str
   return `/centros/${slugifyProvincia(c.provincia)}/${c.ciudad ? slugifyCiudad(c.ciudad) : "sin-ciudad"}/${c.slug}`;
 }
 
-/** "Injerto FUE" → "injerto FUE"; "PRP" se queda igual (no "prp"). */
+/**
+ * Nombre de tratamiento dentro de una frase: "Injerto Capilar FUE" →
+ * "injerto capilar FUE", "Finasteride / Dutasteride" → "finasteride /
+ * dutasteride". Solo pasa a minúscula las palabras con mayúscula inicial;
+ * las siglas ("FUE", "PRP", "DHI") se quedan igual.
+ */
 export function enFrase(nombre: string): string {
-  if (nombre.length > 1 && nombre[1] === nombre[1].toLowerCase()) {
-    return nombre[0].toLowerCase() + nombre.slice(1);
-  }
-  return nombre;
+  return nombre.replace(/\p{Lu}\p{Ll}+/gu, (palabra) => palabra.toLowerCase());
 }

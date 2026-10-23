@@ -23,7 +23,6 @@ import {
   getCentrosConTecnica,
   lugaresConLanding,
   nombreProvinciaBuscable,
-  rangoPrecios,
   recortar,
   enFrase,
 } from "@/lib/seo/landings";
@@ -128,7 +127,6 @@ export default async function TratamientoPage({
   const guias = destinoPropio ? await postsSobreTratamiento(destinoPropio) : [];
   const lugares = lugaresConLanding(clinicasData);
   const ciudadesConCentros = new Set(clinicasData.map((c) => c.ciudad).filter(Boolean)).size;
-  const precios = rangoPrecios(clinicasData);
   const actualizado = new Date(tratamiento.updated_at).toLocaleDateString("es-ES", {
     day: "numeric",
     month: "long",
@@ -158,14 +156,6 @@ export default async function TratamientoPage({
       "tratamiento",
     );
   });
-  const desde = clinicasConTecnica
-    .map((c) => c.precio_desde)
-    .filter((p): p is number => p !== null);
-  const hasta = clinicasConTecnica
-    .map((c) => c.precio_hasta)
-    .filter((p): p is number => p !== null);
-  const precioMin = desde.length > 0 ? Math.min(...desde) : null;
-  const precioMax = hasta.length > 0 ? Math.max(...hasta) : null;
 
   const siteUrl =
     process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
@@ -182,19 +172,6 @@ export default async function TratamientoPage({
     url: `${siteUrl}/tratamientos/${tratamiento.slug}`,
     serviceType: "Tratamiento capilar",
     areaServed: "ES",
-    ...(precioMin !== null && {
-      offers: {
-        "@type": "Offer",
-        priceCurrency: "EUR",
-        price: precioMin,
-        priceSpecification: {
-          "@type": "PriceSpecification",
-          minPrice: precioMin,
-          maxPrice: precioMax ?? undefined,
-          priceCurrency: "EUR",
-        },
-      },
-    }),
   };
 
   const breadcrumbJsonLd = {
@@ -314,12 +291,6 @@ export default async function TratamientoPage({
                       <dd className="mt-1 text-sm font-semibold text-teal-dark">
                         {tratamiento.duracion_orientativa}
                       </dd>
-                    </div>
-                  )}
-                  {precios && (
-                    <div className="rounded-2xl bg-paper-dim p-4">
-                      <dt className="text-xs text-ink-soft">Precios publicados</dt>
-                      <dd className="mt-1 text-sm font-semibold text-teal-dark">{precios}</dd>
                     </div>
                   )}
                 </dl>
