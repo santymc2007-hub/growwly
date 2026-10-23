@@ -307,7 +307,10 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
         },
         body: JSON.stringify({
           model: modelo,
-          max_tokens: 900,
+          max_tokens: 2000,
+          // Sin razonamiento extendido: gastaba el presupuesto de tokens
+          // antes de escribir y la respuesta llegaba cortada o vacía.
+          thinking: { type: "disabled" },
           system: SISTEMA,
           messages: [{ role: "user", content: usuario }],
         }),
