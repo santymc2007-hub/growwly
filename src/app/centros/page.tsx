@@ -1,5 +1,5 @@
 import { paraListado } from "@/lib/clinica/para-listado";
-import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
+import { nombreVisibleTecnica, tecnicaDesdeParametro } from "@/lib/tecnicas-visibles";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { after } from "next/server";
@@ -67,11 +67,13 @@ export default async function CentrosPage({
   const centros = data ?? [];
 
   const ratingMinimo = rating ? Number(rating) : null;
+  // El filtro llega con el nombre visible (ver tecnicas-visibles.ts).
+  const tecnicaReal = tecnica ? tecnicaDesdeParametro(tecnica) : undefined;
 
   const filtrados = centros.filter((c) => {
     if (provincia && c.provincia !== provincia) return false;
     if (ciudad && c.ciudad !== ciudad) return false;
-    if (tecnica && !c.tecnicas.includes(tecnica)) return false;
+    if (tecnicaReal && !c.tecnicas.includes(tecnicaReal)) return false;
     if (tipo && c.tipo_negocio !== tipo) return false;
     if (idioma && !c.idiomas.includes(idioma)) return false;
     if (ubicacion === "palma" && c.ciudad !== "Palma") return false;
@@ -148,7 +150,7 @@ export default async function CentrosPage({
       .filter((c) => !provincia || c.provincia === provincia)
       .map((c) => c.ciudad),
   );
-  const tecnicas = uniqueSorted(centros.flatMap((c) => c.tecnicas));
+  const tecnicas = uniqueSorted(centros.flatMap((c) => c.tecnicas.map(nombreVisibleTecnica)));
   const tipos = ordenarTiposNegocio(uniqueSorted(centros.map((c) => c.tipo_negocio)));
 
   return (
@@ -249,7 +251,7 @@ export default async function CentrosPage({
                     clinicas={filtrados.map(paraListado)}
                     vista={vista === "mapa" ? "mapa" : "lista"}
                     idsDestacados={idsDestacados}
-                    resaltarTecnica={tecnica}
+                    resaltarTecnica={tecnicaReal ? nombreVisibleTecnica(tecnicaReal) : undefined}
                   />
                   <p className="mt-6 text-xs text-ink-soft">
                     <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
