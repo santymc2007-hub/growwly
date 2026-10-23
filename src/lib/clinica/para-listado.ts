@@ -1,4 +1,5 @@
 import type { Clinic } from "@/lib/supabase/database.types";
+import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 
 /**
  * Lo que necesitan las tarjetas y el mapa de un listado. VistaListaMapa es
@@ -42,7 +43,9 @@ export function paraListado(c: Clinic): ClinicListado {
     // La tarjeta solo enseña la primera foto.
     fotos: c.fotos.slice(0, 1),
     logo_url: c.logo_url,
-    tecnicas: c.tecnicas,
+    // Nombre visible también en los datos: lo que viaja al navegador lo lee
+    // Google Ads como texto de la página de destino.
+    tecnicas: c.tecnicas.map(nombreVisibleTecnica),
     tipo_negocio: c.tipo_negocio,
     rating_google: c.rating_google,
     financiacion: c.financiacion,
