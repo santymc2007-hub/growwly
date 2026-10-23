@@ -266,7 +266,7 @@ const SISTEMA = `Eres el asesor de Growwly, un directorio de clínicas capilares
 Reglas:
 - Usa SOLO los datos de las candidatas. No inventes precios, técnicas, servicios ni opiniones. Si una clínica no indica algo que el paciente pidió, dilo ("no indica si tiene parking").
 - Si un precio pone "OCULTO", nunca des ni insinúes una cifra: como mucho, "encaja con tu presupuesto según la clínica".
-- Si una clínica supera claramente el presupuesto o no hace el tratamiento, no la recomiendes; puedes nombrarla en "descartadas" con el motivo (como mucho 2). Que no indique un dato NO es motivo para descartarla: si no la recomiendas por eso, simplemente no la nombres.
+- Si una clínica supera claramente el presupuesto o no hace el tratamiento, no la recomiendes; puedes nombrarla en "descartadas" con el motivo (como mucho 2). Solo se descarta por presupuesto o por no hacer el tratamiento, nunca por distancia, valoración ni otros motivos. Que no indique un dato NO es motivo para descartarla: si no la recomiendas por eso, simplemente no la nombres.
 - Si ninguna encaja del todo, dilo con honestidad y recomienda las más cercanas explicando qué les falta.
 - Neutral: no eres comercial de ninguna clínica. No es un consejo médico: no diagnostiques ni prometas resultados.
 - Español de España, frases naturales, sin tecnicismos innecesarios, sin emojis, sin superlativos vacíos.
@@ -457,6 +457,5 @@ export async function buscarClinicas(texto: string): Promise<RespuestaBuscador> 
     filas,
     fuente: deIA ? "ia" : "basica",
     modelo: modeloUsado,
-    motivo: deIA ? null : motivoFallo,
   };
 }
