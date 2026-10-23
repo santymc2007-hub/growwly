@@ -1,3 +1,4 @@
+import { paraListado } from "@/lib/clinica/para-listado";
 import { cache } from "react";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
@@ -189,7 +190,7 @@ export default async function CiudadPage({
     >
       {clinicas.length > 0 ? (
         <VistaListaMapa
-          clinicas={clinicas}
+          clinicas={clinicas.map(paraListado)}
           vista={vista === "mapa" ? "mapa" : "lista"}
           idsDestacados={idsDestacados}
         />

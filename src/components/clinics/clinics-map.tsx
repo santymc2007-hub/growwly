@@ -21,7 +21,8 @@ const pinIcon = L.divIcon({
   popupAnchor: [0, -36],
 });
 
-type ClinicConCoords = Clinic & { lat: number; lng: number };
+type ClinicMapa = Pick<Clinic, "id" | "nombre" | "slug" | "provincia" | "ciudad" | "lat" | "lng">;
+type ClinicConCoords = ClinicMapa & { lat: number; lng: number };
 
 function AjustarVista({ clinicas }: { clinicas: ClinicConCoords[] }) {
   const map = useMap();
@@ -42,7 +43,7 @@ export function ClinicsMap({
   alto,
   ocultarEnlaceFicha,
 }: {
-  clinicas: Clinic[];
+  clinicas: ClinicMapa[];
   /** Alto del contenedor del mapa. Por defecto 420/480px (uso normal a
    * ancho completo); en el panel sticky del modo dividido se le pasa
    * "100%" para que llene el hueco disponible en pantalla. */

@@ -1,7 +1,7 @@
 import { nombreVisibleTecnica } from "@/lib/tecnicas-visibles";
 import Image from "next/image";
 import Link from "next/link";
-import type { Clinic } from "@/lib/supabase/database.types";
+import type { ClinicListado } from "@/lib/clinica/para-listado";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { ClinicBadges } from "./clinic-badges";
 import { EtiquetaDestacado } from "./etiqueta-destacado";
@@ -17,7 +17,7 @@ export function ClinicCardCompact({
   clinic,
   destacado = false,
 }: {
-  clinic: Clinic;
+  clinic: ClinicListado;
   /** Sale arriba por visibilidad pagada: muestra la etiqueta "Destacado". */
   destacado?: boolean;
 }) {
