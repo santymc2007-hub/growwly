@@ -151,6 +151,12 @@ export function CookieConsent() {
     consentimiento === null || (PUBLICIDAD_ACTIVA && consentimiento.publicidad === null);
   const visible = faltaDecidir || reabierta;
 
+  // Para que el botón flotante del buscador se coloque por encima de la
+  // franja mientras esté visible (ver .lanzador-ia en globals.css).
+  useEffect(() => {
+    document.documentElement.dataset.cookieBanner = visible ? "1" : "0";
+  }, [visible]);
+
   function abrirConfiguracion() {
     setBorradorAnalitica(analitica);
     setBorradorPublicidad(publicidad);
