@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { pieRecordatorio } from "@/lib/email/baja";
+import { envolverEmail, boton, ESTILO } from "@/lib/email/layout";
 
 /**
  * Vercel Cron llama a esta ruta una vez al día (ver vercel.json —
@@ -116,20 +117,16 @@ export async function GET(request: Request) {
 }
 
 function construirHtmlEmailSinCuenta(datos: { nombre: string | null; enlace: string }): string {
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #1f5568;">Tu valoración te está esperando</h1>
+  return envolverEmail({
+    audiencia: "paciente",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">Tu valoración te está esperando</h1>
       <p>Hola${datos.nombre ? ` ${esc(datos.nombre)}` : ""},</p>
       <p>Tu valoración capilar con IA está lista, pero todavía no la has visto completa. Entra, confirma tu email y la tendrás en un minuto, guardada para pedir presupuesto cuando quieras.</p>
-      <p style="margin-top: 24px;">
-        <a href="${datos.enlace}" style="background:#e8ef2d; color:#1f5568; padding:12px 20px; border-radius:999px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Ver mi valoración →
-        </a>
-      </p>
-      <p style="margin-top: 28px; font-size: 12px; color: #66756f;">Te escribimos porque dejaste este email al hacer tu valoración en Growwly. Es el único aviso que te enviaremos.</p>
-    </div>
-  `;
+      ${boton(`${datos.enlace}`, `Ver mi valoración →`)}
+      <p style="${ESTILO.nota} margin-top:20px;">Te escribimos porque dejaste este email al hacer tu valoración en Growwly. Es el único aviso que te enviaremos.</p>
+    `,
+  });
 }
 
 function construirHtmlEmail(datos: {
@@ -137,18 +134,14 @@ function construirHtmlEmail(datos: {
   enlace: string;
   pie: string;
 }): string {
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">¿Seguimos?</h1>
+  return envolverEmail({
+    audiencia: "paciente",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">¿Seguimos?</h1>
       <p>Hola${datos.nombrePaciente ? ` ${esc(datos.nombrePaciente)}` : ""},</p>
       <p>Vimos que ya tienes tu valoración capilar con IA, pero todavía no has pedido presupuesto a ninguna clínica. Es gratis y tarda menos de 2 minutos.</p>
-      <p style="margin-top: 24px;">
-        <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Pedir presupuesto gratis →
-        </a>
-      </p>
+      ${boton(`${datos.enlace}`, `Pedir presupuesto gratis →`)}
       ${datos.pie}
-    </div>
-  `;
+    `,
+  });
 }

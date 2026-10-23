@@ -4,6 +4,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { pieRecordatorio } from "@/lib/email/baja";
+import { envolverEmail, boton, ESTILO } from "@/lib/email/layout";
 
 /**
  * Vercel Cron llama a esta ruta una vez al día (ver vercel.json).
@@ -90,18 +91,14 @@ function construirHtmlEmail(datos: {
   enlace: string;
   pie: string;
 }): string {
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 480px; margin: 0 auto;">
-      <p style="color: #00768f; font-weight: bold; letter-spacing: 0.05em; text-transform: uppercase; font-size: 12px;">Growwly</p>
-      <h1 style="font-size: 20px; color: #00566b;">¿Cómo fue tu cita?</h1>
+  return envolverEmail({
+    audiencia: "paciente",
+    cuerpo: `
+      <h1 style="${ESTILO.h1}">¿Cómo fue tu cita?</h1>
       <p>Hola${datos.nombrePaciente ? ` ${esc(datos.nombrePaciente)}` : ""},</p>
       <p>Vimos que ya tuviste tu cita con ${esc(datos.nombreClinica)}. ¿Nos cuentas en 1 minuto cómo fue? Tu valoración ayuda a otros pacientes a elegir mejor.</p>
-      <p style="margin-top: 24px;">
-        <a href="${datos.enlace}" style="background:#00c2d6; color:#fff; padding:12px 20px; border-radius:8px; text-decoration:none; font-weight:bold; display:inline-block;">
-          Dejar mi valoración →
-        </a>
-      </p>
+      ${boton(`${datos.enlace}`, `Dejar mi valoración →`)}
       ${datos.pie}
-    </div>
-  `;
+    `,
+  });
 }

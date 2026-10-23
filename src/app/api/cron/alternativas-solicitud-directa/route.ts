@@ -5,6 +5,7 @@ import { buscarClinicasAlternativas, type ClinicaAlternativa } from "@/lib/leads
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { randomUUID } from "crypto";
+import { envolverEmail, ESTILO, COLOR } from "@/lib/email/layout";
 
 const HORAS_ESPERA = 48;
 
@@ -98,8 +99,6 @@ function construirHtmlAviso(datos: {
   alternativas: (ClinicaAlternativa & { token: string })[];
   siteUrl: string;
 }): string {
-  const logoUrl = `${datos.siteUrl}/brand/growwly-logo-white.png`;
-
   const filas = datos.alternativas
     .map((alt) => {
       const enlace = `${datos.siteUrl}/solicitudes/reenviar/${alt.token}`;
@@ -109,37 +108,33 @@ function construirHtmlAviso(datos: {
           : "";
       const tiempo =
         alt.tiempoRespuestaPromedioMinutos != null
-          ? `<div style="font-size: 11px; color: #1f6b43; background: #cfebdc; display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px;">Responde en ~${Math.max(1, Math.round(alt.tiempoRespuestaPromedioMinutos / 60))} h</div>`
+          ? `<div style="font-size: 11px; color: ${COLOR.bosque}; background: ${COLOR.lima}; display: inline-block; margin-top: 6px; padding: 3px 10px; border-radius: 999px;">Responde en ~${Math.max(1, Math.round(alt.tiempoRespuestaPromedioMinutos / 60))} h</div>`
           : "";
       const foto = alt.fotoUrl
         ? `<img src="${esc(alt.fotoUrl)}" alt="" width="56" height="56" style="width:56px;height:56px;border-radius:12px;object-fit:cover;flex-shrink:0;" />`
-        : `<div style="width:56px;height:56px;border-radius:12px;background:#cfebdc;flex-shrink:0;"></div>`;
+        : `<div style="width:56px;height:56px;border-radius:12px;background:${COLOR.menta};flex-shrink:0;"></div>`;
       return `
-        <a href="${enlace}" style="display:flex;align-items:center;gap:14px;text-decoration:none;border:1px solid #e1e8e6;border-radius:16px;padding:14px 18px;margin-bottom:14px;">
+        <a href="${enlace}" style="display:flex;align-items:center;gap:14px;text-decoration:none;border:1px solid ${COLOR.linea};border-radius:16px;padding:14px 18px;margin-bottom:14px;">
           ${foto}
           <div style="flex:1;min-width:0;">
-            <div style="font-size:14px;font-weight:600;color:#33403f;">${esc(alt.nombre)}</div>
-            <div style="font-size:12px;color:#66756f;margin-top:2px;">${esc(alt.ciudad ?? "")}${rating ? ` · ${rating}` : ""}</div>
+            <div style="font-size:14px;font-weight:600;color:${COLOR.tinta};">${esc(alt.nombre)}</div>
+            <div style="font-size:12px;color:${COLOR.suave};margin-top:2px;">${esc(alt.ciudad ?? "")}${rating ? ` · ${rating}` : ""}</div>
             ${tiempo}
           </div>
-          <div style="flex-shrink:0;background:#e8ef2d;color:#1f5568;font-weight:700;font-size:13px;padding:10px 16px;border-radius:999px;white-space:nowrap;">
+          <div style="flex-shrink:0;background:${COLOR.bosque};color:#ffffff;font-weight:600;font-size:13px;padding:10px 16px;border-radius:12px;white-space:nowrap;">
             Enviarles mi solicitud →
           </div>
         </a>`;
     })
     .join("");
 
-  return `
-    <div style="font-family: Arial, sans-serif; color: #33403f; max-width: 560px; margin: 0 auto;">
-      <div style="background:#1f5568;padding:20px 28px;border-radius:12px 12px 0 0;">
-        <img src="${logoUrl}" alt="Growwly" height="24" style="height:24px;display:block;" />
-      </div>
-      <div style="border:1px solid #e1e8e6;border-top:none;border-radius:0 0 12px 12px;padding:28px;">
-        <h1 style="font-size:20px;color:#00566b;margin-top:0;">Esta clínica todavía no ha respondido</h1>
+  return envolverEmail({
+    audiencia: "paciente",
+    cuerpo: `
+        <h1 style="${ESTILO.h1}">Esta clínica todavía no ha respondido</h1>
         <p>Han pasado más de 48 horas desde que enviamos tu solicitud a <strong>${esc(datos.clinicaOriginalNombre)}</strong> y todavía no ha contestado. Mientras esperas, aquí tienes otras clínicas de tu zona que suelen responder rápido — puedes enviarles tu solicitud sin volver a rellenar nada.</p>
         ${filas}
-        <p style="font-size:13px;color:#66756f;margin-top:16px;">Tu solicitud original sigue activa — si ${esc(datos.clinicaOriginalNombre)} responde más tarde, también lo sabrás.</p>
-      </div>
-    </div>
-  `;
+        <p style="${ESTILO.nota} margin-top:16px;">Tu solicitud original sigue activa — si ${esc(datos.clinicaOriginalNombre)} responde más tarde, también lo sabrás.</p>
+    `,
+  });
 }

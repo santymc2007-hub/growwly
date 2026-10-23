@@ -3,6 +3,7 @@ import type { Database } from "@/lib/supabase/database.types";
 import { enviarEmail } from "@/lib/email/resend";
 import { esc } from "@/lib/email/escapar";
 import { clinicaEstaRegistrada } from "@/lib/clinica/registrada";
+import { envolverEmail, ESTILO } from "@/lib/email/layout";
 
 /**
  * Aviso interno a Growwly por cada solicitud nueva, para que ninguna se
@@ -64,7 +65,7 @@ export async function avisarAdminNuevoLead(
         <p>${esc(aviso.paciente.nombre)}<br>
         Tel.: ${esc(aviso.paciente.telefono)}<br>
         ${aviso.paciente.email ? `Email: ${esc(aviso.paciente.email)}` : "Sin email"}</p>
-        <p style="color:#666;font-size:13px">No pases los datos del paciente a una clínica sin cuenta: primero tiene que registrarse y aceptar las condiciones de datos.</p>
+        <p style="${ESTILO.nota}">No pases los datos del paciente a una clínica sin cuenta: primero tiene que registrarse y aceptar las condiciones de datos.</p>
       `),
     });
     return;
@@ -97,7 +98,7 @@ export async function avisarAdminNuevoLead(
       <p>${esc(perfil?.nombre ?? "Sin nombre")}<br>
       ${perfil?.email ? `Email: ${esc(perfil.email)}<br>` : ""}
       ${perfil?.telefono ? `Tel.: ${esc(perfil.telefono)}` : ""}</p>
-      <p style="color:#666;font-size:13px">Ref. solicitud: ${esc(aviso.solicitudId)} · <a href="${esc(siteUrl)}/admin/leads">Panel de leads</a></p>
+      <p style="${ESTILO.nota}">Ref. solicitud: ${esc(aviso.solicitudId)} · <a href="${esc(siteUrl)}/admin/leads">Panel de leads</a></p>
     `),
   });
 }
@@ -120,10 +121,10 @@ function bloqueClinica(
     ${clinica?.telefono ? `Tel.: <a href="tel:${esc(clinica.telefono)}">${esc(clinica.telefono)}</a><br>` : ""}
     ${clinica?.email ? `Email: ${esc(clinica.email)}` : "Sin email en la ficha"}</p>
     ${mailto ? `<p><a href="${esc(mailto)}">Escribir a la clínica con el texto preparado</a></p>` : ""}
-    <p style="background:#f3f6f5;padding:12px;border-radius:8px;font-size:14px">${esc(texto)}</p>
+    <p style="${ESTILO.caja} font-size:14px;">${esc(texto)}</p>
   `;
 }
 
 function plantilla(cuerpo: string): string {
-  return `<div style="font-family:Arial,sans-serif;font-size:15px;line-height:1.5;color:#1f2a2e;max-width:600px">${cuerpo}</div>`;
+  return envolverEmail({ audiencia: "interno", cuerpo });
 }
