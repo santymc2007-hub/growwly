@@ -9,8 +9,6 @@ import {
   TECNICAS_POR_CATEGORIA,
   IDIOMAS_DISPONIBLES,
   ACCESIBILIDAD_OPCIONES,
-  PRECIO_OPCIONES,
-  formatearPrecio,
 } from "@/lib/clinic-options";
 import { getRawSocialValue } from "@/lib/social-links";
 import type { Clinic } from "@/lib/supabase/database.types";
@@ -22,6 +20,13 @@ import { comprimirFormData } from "@/lib/comprimir-imagen";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 import { EmailsLeadsField } from "@/components/clinica/emails-leads-field";
 import { EditorDescripcion } from "@/components/clinica/editor-descripcion";
+import { EditorPrecios } from "@/components/clinica/editor-precios";
+import {
+  CamposComparables,
+  type PropuestaPendiente,
+  type VentajaOpcion,
+} from "@/components/clinica/campos-comparables";
+import type { FilaPrecio } from "@/lib/clinica/comparables";
 
 type Props = {
   clinic: Clinic;
@@ -30,6 +35,14 @@ type Props = {
   action: (formData: FormData) => void;
   municipios: { provincia: string; nombre: string }[];
   zonas: { municipio: string; nombre: string }[];
+  /** Datos comparables (buscador con IA): precios y valores añadidos. */
+  comparables: {
+    precios: FilaPrecio[];
+    sugerenciasTratamientos: string[];
+    ventajas: VentajaOpcion[];
+    seleccionadas: string[];
+    propuestas: PropuestaPendiente[];
+  };
 };
 
 const inputClass =
@@ -45,6 +58,7 @@ export function FichaClinicaForm({
   action,
   municipios,
   zonas,
+  comparables,
 }: Props) {
   const [estado, setEstado] = useState<"idle" | "comprimiendo" | "enviando">("idle");
   const [numAntesDespues, setNumAntesDespues] = useState(() =>
@@ -304,85 +318,45 @@ export function FichaClinicaForm({
         </div>
       </SeccionFicha>
 
-      <SeccionFicha titulo="Servicios y precios">
+      <SeccionFicha titulo="Tratamientos y precios">
+        <p className="text-sm text-ink-soft">
+          Añade los tratamientos que hacéis, como los buscaría un paciente, y su precio
+          orientativo. El precio es opcional y puedes ocultarlo: aunque no se vea, tu clínica
+          entra en las comparativas y te llegan las solicitudes.
+        </p>
+        <EditorPrecios
+          iniciales={comparables.precios}
+          sugerencias={comparables.sugerenciasTratamientos}
+        />
+      </SeccionFicha>
+
+      <SeccionFicha titulo="Lo que os diferencia">
+        <p className="mb-4 text-sm text-ink-soft">
+          Es lo que más comparan los pacientes al elegir clínica. Lo usa el buscador con IA de
+          Growwly: si no lo indicas, tu clínica sale menos cuando alguien lo pide.
+        </p>
+        <CamposComparables
+          valores={{
+            financiacion_tipo: clinic.financiacion_tipo,
+            parking: clinic.parking,
+            quien_opera: clinic.quien_opera,
+            revisiones_num: clinic.revisiones_num,
+            seguimiento_meses: clinic.seguimiento_meses,
+            garantia: clinic.garantia,
+            garantia_condiciones: clinic.garantia_condiciones,
+            max_uf_sesion: clinic.max_uf_sesion,
+            anios_experiencia: clinic.anios_experiencia,
+            injertos_anio: clinic.injertos_anio,
+          }}
+          ventajas={comparables.ventajas}
+          seleccionadas={comparables.seleccionadas}
+          propuestas={comparables.propuestas}
+        />
+      </SeccionFicha>
+
+      <SeccionFicha titulo="Tipo de centro, horario y accesibilidad">
         <div className="grid gap-4">
           <SelectorCategoriaCentro valorInicial={clinic.tipo_negocio} />
-          <div>
-            <label className={labelClass} htmlFor="servicios_adicionales">
-              Otros servicios (uno por línea)
-            </label>
-            <p className="mt-0.5 text-xs text-ink-soft">
-              Lo que hacéis además de las técnicas, como lo buscaría un paciente. Ej.: Injerto
-              sin rasurado completo · Reparación de cicatrices · Corrección de injertos previos.
-              No repitas las técnicas.
-            </p>
-            <textarea
-              id="servicios_adicionales"
-              name="servicios_adicionales"
-              rows={6}
-              placeholder={"Injerto sin rasurado completo\nReparación de cicatrices\nCorrección de injertos previos"}
-              defaultValue={clinic.servicios_adicionales?.join("\n") ?? undefined}
-              className={`${inputClass} mt-1`}
-            />
-          </div>
-          <div>
-            <p className={labelClass}>Rango de precios (solo injerto capilar)</p>
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <label
-                  htmlFor="precio_desde"
-                  className="block text-xs text-ink-soft"
-                >
-                  Desde
-                </label>
-                <select
-                  id="precio_desde"
-                  name="precio_desde"
-                  defaultValue={clinic.precio_desde ?? ""}
-                  className={inputClass}
-                >
-                  <option value="">Sin especificar</option>
-                  {PRECIO_OPCIONES.map((valor) => (
-                    <option key={valor} value={valor}>
-                      {formatearPrecio(valor)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label
-                  htmlFor="precio_hasta"
-                  className="block text-xs text-ink-soft"
-                >
-                  Hasta
-                </label>
-                <select
-                  id="precio_hasta"
-                  name="precio_hasta"
-                  defaultValue={clinic.precio_hasta ?? ""}
-                  className={inputClass}
-                >
-                  <option value="">Sin especificar</option>
-                  {PRECIO_OPCIONES.map((valor) => (
-                    <option key={valor} value={valor}>
-                      {formatearPrecio(valor)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-          </div>
-          <div>
-            <label className={labelClass} htmlFor="rango_precios">
-              Notas de precio (opcional)
-            </label>
-            <input
-              id="rango_precios"
-              name="rango_precios"
-              defaultValue={clinic.rango_precios ?? undefined}
-              className={inputClass}
-            />
-          </div>
           <div>
             <label className={labelClass}>Horario</label>
             <div className="mt-2 rounded-xl border border-line bg-white p-3 sm:p-4">
@@ -421,14 +395,6 @@ export function FichaClinicaForm({
         </div>
 
         <div className="mt-4 flex flex-col gap-2">
-          <label className="flex items-center gap-2 text-sm">
-            <input
-              type="checkbox"
-              name="financiacion"
-              defaultChecked={clinic.financiacion}
-            />
-            Ofrecemos financiación
-          </label>
           <label className="flex items-center gap-2 text-sm">
             <input
               type="checkbox"

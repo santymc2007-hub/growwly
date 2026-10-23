@@ -1,6 +1,5 @@
 "use server";
 
-import { parsearServicios } from "@/lib/clinica/servicios";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -11,6 +10,10 @@ import { slugify } from "@/lib/slugify";
 import { tipoNegocioValido } from "@/lib/clinic-options";
 import { normalizarEmailsLeads } from "@/lib/clinica/emails-leads";
 import { limpiarDescripcion } from "@/lib/clinica/descripcion";
+import {
+  camposComparablesDeFormulario,
+  guardarTablasComparables,
+} from "@/lib/clinica/comparables-servidor";
 
 function isRealFile(value: FormDataEntryValue | null): value is File {
   return value instanceof File && value.size > 0;
@@ -37,7 +40,8 @@ export async function actualizarMiFicha(formData: FormData) {
     }
   }
 
-  const servicios = parsearServicios(formData.get("servicios_adicionales"));
+  // Precios por tratamiento y datos comparables (buscador con IA).
+  const comparables = camposComparablesDeFormulario(formData);
 
   const detalleOferta = str("detalle_oferta");
 
@@ -144,14 +148,10 @@ export async function actualizarMiFicha(formData: FormData) {
     tecnicas: formData.getAll("tecnicas").map(String),
     idiomas: formData.getAll("idiomas").map(String),
     tipo_negocio: tipoNegocioValido(str("tipo_negocio")),
-    servicios_adicionales: servicios,
-    precio_desde: num("precio_desde"),
-    precio_hasta: num("precio_hasta"),
-    rango_precios: str("rango_precios"),
     horarios_estructurados: horariosEstructurados,
     accesibilidad: str("accesibilidad"),
     accesibilidad_checks: formData.getAll("accesibilidad_checks").map(String),
-    financiacion: formData.get("financiacion") === "on",
+    ...comparables.columnas,
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
     acepta_videoconsulta: formData.get("acepta_videoconsulta") === "on",
   };
@@ -277,6 +277,16 @@ export async function actualizarMiFicha(formData: FormData) {
 
   if (error) {
     redirect(`/clinica?error=${encodeURIComponent(error.message)}`);
+  }
+
+  const errorComparables = await guardarTablasComparables(
+    admin,
+    clinicId,
+    comparables.filas,
+    formData,
+  );
+  if (errorComparables) {
+    redirect(`/clinica?error=${encodeURIComponent(errorComparables)}`);
   }
 
   // Emails que reciben los leads: dato privado, va a clinic_privado
