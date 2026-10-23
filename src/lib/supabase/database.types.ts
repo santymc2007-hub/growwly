@@ -239,6 +239,48 @@ export type Database = {
           },
         ]
       }
+      clinic_precios: {
+        Row: {
+          id: string
+          clinic_id: string
+          tratamiento: string
+          modalidad: string
+          desde: number | null
+          hasta: number | null
+          norwood: Json | null
+          nota: string | null
+          visible: boolean
+          orden: number
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          clinic_id: string
+          tratamiento: string
+          modalidad?: string
+          desde?: number | null
+          hasta?: number | null
+          norwood?: Json | null
+          nota?: string | null
+          visible?: boolean
+          orden?: number
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          clinic_id?: string
+          tratamiento?: string
+          modalidad?: string
+          desde?: number | null
+          hasta?: number | null
+          norwood?: Json | null
+          nota?: string | null
+          visible?: boolean
+          orden?: number
+          created_at?: string
+        }
+        Relationships: []
+      }
       clinic_privado: {
         Row: {
           alta_email: string | null
@@ -279,6 +321,24 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      clinic_ventajas: {
+        Row: {
+          clinic_id: string
+          ventaja_id: string
+          created_at: string
+        }
+        Insert: {
+          clinic_id: string
+          ventaja_id: string
+          created_at?: string
+        }
+        Update: {
+          clinic_id?: string
+          ventaja_id?: string
+          created_at?: string
+        }
+        Relationships: []
       }
       clinic_visibilidad_log: {
         Row: {
@@ -323,6 +383,16 @@ export type Database = {
       }
       clinics: {
         Row: {
+          financiacion_tipo: string | null
+          parking: string | null
+          quien_opera: string | null
+          revisiones_num: number | null
+          seguimiento_meses: number | null
+          garantia: boolean | null
+          garantia_condiciones: string | null
+          max_uf_sesion: number | null
+          anios_experiencia: number | null
+          injertos_anio: number | null
           accesibilidad: string | null
           accesibilidad_checks: string[]
           acepta_videoconsulta: boolean
@@ -395,6 +465,16 @@ export type Database = {
           zona: string | null
         }
         Insert: {
+          financiacion_tipo?: string | null
+          parking?: string | null
+          quien_opera?: string | null
+          revisiones_num?: number | null
+          seguimiento_meses?: number | null
+          garantia?: boolean | null
+          garantia_condiciones?: string | null
+          max_uf_sesion?: number | null
+          anios_experiencia?: number | null
+          injertos_anio?: number | null
           accesibilidad?: string | null
           accesibilidad_checks?: string[]
           acepta_videoconsulta?: boolean
@@ -467,6 +547,16 @@ export type Database = {
           zona?: string | null
         }
         Update: {
+          financiacion_tipo?: string | null
+          parking?: string | null
+          quien_opera?: string | null
+          revisiones_num?: number | null
+          seguimiento_meses?: number | null
+          garantia?: boolean | null
+          garantia_condiciones?: string | null
+          max_uf_sesion?: number | null
+          anios_experiencia?: number | null
+          injertos_anio?: number | null
           accesibilidad?: string | null
           accesibilidad_checks?: string[]
           acepta_videoconsulta?: boolean
@@ -1335,6 +1425,39 @@ export type Database = {
         }
         Relationships: []
       }
+      ventajas: {
+        Row: {
+          id: string
+          nombre: string
+          categoria: string
+          destacada: boolean
+          orden: number
+          estado: string
+          propuesta_por: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          nombre: string
+          categoria?: string
+          destacada?: boolean
+          orden?: number
+          estado?: string
+          propuesta_por?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          nombre?: string
+          categoria?: string
+          destacada?: boolean
+          orden?: number
+          estado?: string
+          propuesta_por?: string | null
+          created_at?: string
+        }
+        Relationships: []
+      }
       zonas: {
         Row: {
           created_at: string
@@ -1502,3 +1625,5 @@ export type EstudioCapilar =
 export type BlogPost = Database["public"]["Tables"]["blog_posts"]["Row"]
 export type Tratamiento = Database["public"]["Tables"]["tratamientos"]["Row"]
 export type HeroSlide = Database["public"]["Tables"]["hero_slides"]["Row"]
+export type ClinicPrecio = Database["public"]["Tables"]["clinic_precios"]["Row"]
+export type Ventaja = Database["public"]["Tables"]["ventajas"]["Row"]

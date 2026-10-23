@@ -22,7 +22,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import ReactMarkdown from "react-markdown";
 import { getSocialLinks } from "@/lib/social-links";
 import {
-  formatearPrecio,
   slugifyCiudad,
   slugifyProvincia,
   ACCESIBILIDAD_OPCIONES,
@@ -57,6 +56,9 @@ import {
   MIN_CENTROS_LANDING,
 } from "@/lib/seo/landings";
 import { BotonCompartir } from "@/components/ui/boton-compartir";
+import { LoQueOfrece } from "@/components/clinics/lo-que-ofrece";
+import { PreciosClinica } from "@/components/clinics/precios-clinica";
+import { parsearFilasPrecio } from "@/lib/clinica/comparables";
 
 type Params = { provincia: string; ciudad: string; slug: string };
 
@@ -302,6 +304,30 @@ export default async function ClinicaPage({
     .eq("clinic_status", "aprobado")
     .maybeSingle();
   const yaReclamada = Boolean(perfilAprobado);
+
+  // Datos comparables: precios por tratamiento (solo visibles) y valores
+  // añadidos que la clínica ha marcado (solo los aprobados).
+  const adminLectura = createAdminClient();
+  const [{ data: preciosData }, { data: marcasVentajas }] = await Promise.all([
+    adminLectura
+      .from("clinic_precios")
+      .select("tratamiento, modalidad, desde, hasta, norwood, nota, visible")
+      .eq("clinic_id", clinic.id)
+      .eq("visible", true)
+      .order("orden"),
+    adminLectura.from("clinic_ventajas").select("ventaja_id").eq("clinic_id", clinic.id),
+  ]);
+  const filasPrecio = parsearFilasPrecio(JSON.stringify(preciosData ?? []));
+  const idsVentajas = (marcasVentajas ?? []).map((m) => m.ventaja_id);
+  const { data: ventajasData } = idsVentajas.length
+    ? await adminLectura
+        .from("ventajas")
+        .select("nombre, categoria")
+        .in("id", idsVentajas)
+        .eq("estado", "aprobada")
+        .order("orden")
+    : { data: [] as { nombre: string; categoria: string }[] };
+  const ventajasFicha = ventajasData ?? [];
 
   const socialLinks = getSocialLinks(clinic.redes_sociales);
   const tecnicasMin = new Set(clinic.tecnicas.map((t) => t.toLowerCase()));
@@ -637,6 +663,12 @@ export default async function ClinicaPage({
                 </section>
               )}
 
+              <LoQueOfrece
+                clinic={clinic}
+                ventajas={ventajasFicha}
+                className="mt-8 lg:order-75"
+              />
+
               {clinic.idiomas.length > 0 && (
                 <section className="mt-8 lg:order-80">
                   <h2 className="font-display text-lg text-teal-dark">
@@ -952,33 +984,18 @@ export default async function ClinicaPage({
                 )}
 
                 {esPremium ? (
-                  (clinic.precio_desde !== null ||
-                    clinic.precio_hasta !== null ||
-                    clinic.rango_precios) && (
+                  filasPrecio.length > 0 && (
                     <>
                       <h2 className="mt-6 font-display text-lg text-teal-dark">
-                        Precios (injerto capilar)
+                        Precios orientativos
                       </h2>
-                      {(clinic.precio_desde !== null || clinic.precio_hasta !== null) && (
-                        <p className="mt-2 text-sm font-medium text-ink">
-                          {clinic.precio_desde !== null && clinic.precio_hasta !== null
-                            ? `${formatearPrecio(clinic.precio_desde)} - ${formatearPrecio(clinic.precio_hasta)}`
-                            : clinic.precio_desde !== null
-                              ? `Desde ${formatearPrecio(clinic.precio_desde)}`
-                              : `Hasta ${formatearPrecio(clinic.precio_hasta!)}`}
-                        </p>
-                      )}
-                      {clinic.rango_precios && (
-                        <p className="mt-1 break-words text-sm text-ink-soft">
-                          {clinic.rango_precios}
-                        </p>
-                      )}
+                      <PreciosClinica filas={filasPrecio} />
                     </>
                   )
                 ) : (
                   <>
                     <h2 className="mt-6 font-display text-lg text-teal-dark">
-                      Precios (injerto capilar)
+                      Precios orientativos
                     </h2>
                     <p className="mt-2 text-sm text-ink-soft">
                       Este centro no publica precio orientativo — pide presupuesto

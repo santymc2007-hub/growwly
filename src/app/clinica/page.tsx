@@ -18,6 +18,7 @@ import { SelloGrowwlyScore } from "@/components/clinica/sello-growwly-score";
 import { obtenerNombreGestor } from "@/lib/clinica/perfil-gestor";
 import { AvisoSolicitudesPendientes } from "@/components/clinica/aviso-solicitudes-pendientes";
 import { Toast } from "@/components/ui/toast";
+import { leerComparablesFicha } from "@/lib/clinica/comparables-servidor";
 
 type SearchParams = { error?: string; guardado?: string };
 
@@ -135,6 +136,7 @@ export default async function ClinicaPanelPage({
     .maybeSingle();
 
   const { municipios, zonas } = await getMunicipiosYZonas();
+  const comparables = await leerComparablesFicha(admin, clinicId);
   const solicitudesPendientes = await contarSolicitudesPendientes(clinicId);
   const nombreGestor = await obtenerNombreGestor(profileId);
   const fotoPrincipal = clinic.logo_url ?? clinic.fotos?.[0] ?? null;
@@ -204,6 +206,7 @@ export default async function ClinicaPanelPage({
           action={actualizarMiFicha}
           municipios={municipios}
           zonas={zonas}
+          comparables={comparables}
         />
       </div>
     </main>

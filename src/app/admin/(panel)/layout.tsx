@@ -35,6 +35,11 @@ export default async function PanelLayout({
     (solicitudesProvincia ?? 0) +
     (solicitudesPremium ?? 0);
 
+  const { count: valoresPropuestos } = await supabase
+    .from("ventajas")
+    .select("id", { count: "exact", head: true })
+    .eq("estado", "propuesta");
+
   const { count: leadsNuevos } = await supabase
     .from("leads_clinica")
     .select("id", { count: "exact", head: true })
@@ -82,6 +87,17 @@ export default async function PanelLayout({
                 {Boolean(leadsNuevos) && (
                   <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
                     {leadsNuevos}
+                  </span>
+                )}
+              </Link>
+              <Link
+                href="/admin/valores"
+                className="flex items-center gap-1.5 hover:text-cyan"
+              >
+                Valores
+                {Boolean(valoresPropuestos) && (
+                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
+                    {valoresPropuestos}
                   </span>
                 )}
               </Link>
