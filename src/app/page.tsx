@@ -161,15 +161,17 @@ export default async function HomePage() {
       <div className="mx-auto max-w-[1400px] px-3 pb-8 sm:px-6 sm:pb-10">
         <div className="overflow-hidden rounded-3xl bg-white shadow-sm">
           {/* Qué es Growwly */}
-          <div className="px-6 py-5 sm:px-10 sm:py-6">
-            <div data-reveal className="rounded-3xl bg-paper-dim px-6 py-6 text-center sm:px-10 sm:py-8">
-              <h2 className="font-display text-2xl font-extrabold text-teal-dark sm:text-3xl lg:text-4xl">
-                El directorio de centros capilares verificados
-              </h2>
-              <p className="mt-3 text-base text-ink-soft sm:text-lg">
-                Tratamientos, opiniones reales y precios sin fricción
-              </p>
-              <div className="mt-4 flex justify-center">
+          <div className="px-4 py-3 sm:px-10 sm:py-4">
+            <div data-reveal className="flex flex-col items-center gap-2 rounded-3xl bg-paper-dim px-5 py-4 text-center sm:px-8 lg:flex-row lg:justify-between lg:gap-8 lg:py-5 lg:text-left">
+              <div>
+                <h2 className="font-display text-xl font-extrabold leading-tight text-teal-dark sm:text-2xl">
+                  El directorio y comparador de centros de salud capilar verificados
+                </h2>
+                <p className="mt-1 text-sm text-ink-soft sm:text-base">
+                  Tratamientos, opiniones reales y precios sin fricción
+                </p>
+              </div>
+              <div className="flex shrink-0 justify-center">
                 <span className="relative inline-block px-3 py-1.5">
                   <svg
                     aria-hidden
@@ -182,7 +184,7 @@ export default async function HomePage() {
                       d="M8,32 C4,18 14,8 34,9 C70,6 150,4 195,10 C214,12 216,26 210,34 C214,42 210,54 190,52 C140,56 60,58 20,50 C4,47 3,40 8,32 Z"
                     />
                   </svg>
-                  <span className="relative font-display text-2xl font-bold text-teal-dark sm:text-3xl">
+                  <span className="relative font-display text-xl font-bold text-teal-dark sm:text-2xl">
                     Hair we go!
                   </span>
                 </span>
