@@ -29,4 +29,6 @@ export type RespuestaBuscador = {
   recomendadas: ClinicaResultado[];
   descartadas: { nombre: string; motivo: string }[];
   filas: FilaComparativa[];
+  /** "basica" si la IA no respondió y se usó la explicación por reglas. */
+  fuente: "ia" | "basica";
 };

@@ -289,38 +289,55 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
     tambien_le_importa: d.activas,
   })}\n\nClínicas candidatas:\n${JSON.stringify(candidatas.map((c) => resumenParaIA(c, d)))}`;
 
-  try {
-    const r = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": apiKey,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-5",
-        max_tokens: 1200,
-        system: SISTEMA,
-        messages: [{ role: "user", content: usuario }],
-      }),
-      signal: AbortSignal.timeout(25000),
-    });
-    if (!r.ok) return null;
-    const data = await r.json();
-    const raw = String(data.content?.find((b: { type: string }) => b.type === "text")?.text ?? "")
-      .trim()
-      .replace(/^```(?:json)?\s*/i, "")
-      .replace(/\s*```$/, "");
-    return JSON.parse(raw) as {
-      titulo?: string;
-      texto?: string;
-      nota?: string | null;
-      recomendadas?: { id?: string; encaja?: string[]; dudas?: string[] }[];
-      descartadas?: { nombre?: string; motivo?: string }[];
-    };
-  } catch {
-    return null;
+  // Modelo rápido primero (la respuesta es corta); si falla, el de la valoración.
+  for (const modelo of ["claude-haiku-5-5", "claude-sonnet-5"]) {
+    try {
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": apiKey,
+          "anthropic-version": "2023-06-01",
+        },
+        body: JSON.stringify({
+          model: modelo,
+          max_tokens: 2000,
+          system: SISTEMA,
+          messages: [{ role: "user", content: usuario }],
+        }),
+        signal: AbortSignal.timeout(modelo.includes("haiku") ? 12000 : 15000),
+      });
+      if (!r.ok) {
+        console.error(`[buscador] IA ${modelo} respondió ${r.status}: ${(await r.text()).slice(0, 300)}`);
+        continue;
+      }
+      const data = await r.json();
+      const bruto = String(
+        (data.content as { type: string; text?: string }[] | undefined)
+          ?.filter((b) => b.type === "text")
+          .map((b) => b.text ?? "")
+          .join("") ?? "",
+      );
+      // Aunque se pide solo JSON, a veces llega con texto o ``` alrededor:
+      // se toma del primer "{" al último "}".
+      const ini = bruto.indexOf("{");
+      const fin = bruto.lastIndexOf("}");
+      if (ini === -1 || fin <= ini) {
+        console.error(`[buscador] IA ${modelo} sin JSON: ${bruto.slice(0, 300)}`);
+        continue;
+      }
+      return JSON.parse(bruto.slice(ini, fin + 1)) as {
+        titulo?: string;
+        texto?: string;
+        nota?: string | null;
+        recomendadas?: { id?: string; encaja?: string[]; dudas?: string[] }[];
+        descartadas?: { nombre?: string; motivo?: string }[];
+      };
+    } catch (e) {
+      console.error(`[buscador] IA ${modelo} falló:`, e instanceof Error ? e.message : e);
+    }
   }
+  return null;
 }
 
 const corto = (xs: unknown, n = 4) =>
@@ -331,7 +348,9 @@ const corto = (xs: unknown, n = 4) =>
 
 /** Explicación sin IA (si falla o no hay clave): sencilla y honesta. */
 function explicacionBasica(d: Deteccion, elegidas: Perfil[]) {
-  const t = d.tratamiento ? NOMBRE_TRATAMIENTO[d.tratamiento].toLowerCase() : "lo que buscas";
+  const t = d.tratamiento
+    ? NOMBRE_TRATAMIENTO[d.tratamiento].replace(/\p{Lu}\p{Ll}+/gu, (w) => w.toLowerCase())
+    : "lo que buscas";
   return {
     titulo: elegidas.length
       ? `Te encajan ${elegidas.length} ${elegidas.length === 1 ? "clínica" : "clínicas"}`
@@ -354,7 +373,8 @@ export async function buscarClinicas(texto: string): Promise<RespuestaBuscador> 
     .sort((a, b) => b.s - a.s);
   const candidatas = ordenadas.slice(0, 8).map((x) => x.p);
 
-  const ia = (await pedirIA(texto, d, candidatas)) ?? explicacionBasica(d, candidatas.slice(0, 2));
+  const deIA = await pedirIA(texto, d, candidatas);
+  const ia = deIA ?? explicacionBasica(d, candidatas.slice(0, 2));
   const porId = new Map(candidatas.map((c) => [c.id, c]));
 
   let recomendadas = (ia.recomendadas ?? [])
@@ -415,5 +435,6 @@ export async function buscarClinicas(texto: string): Promise<RespuestaBuscador> 
       .filter((x) => x.nombre && x.motivo)
       .slice(0, 3),
     filas,
+    fuente: deIA ? "ia" : "basica",
   };
 }
