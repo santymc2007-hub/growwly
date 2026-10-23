@@ -279,9 +279,11 @@ Responde SOLO con este JSON (sin backticks):
  "descartadas": [{"nombre": "nombre", "motivo": "frase corta"}]}`;
 
 let modeloUsado: string | null = null;
+let motivoFallo: string | null = null;
 
 async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
   modeloUsado = null;
+  motivoFallo = null;
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
   const usuario = `Lo que busca el paciente:\n"""${texto}"""\n\nCriterios detectados: ${JSON.stringify({
@@ -312,7 +314,8 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
         signal: AbortSignal.timeout(26000),
       });
       if (!r.ok) {
-        console.error(`[buscador] IA ${modelo} respondió ${r.status}: ${(await r.text()).slice(0, 300)}`);
+        motivoFallo = `http ${r.status}: ${(await r.text()).slice(0, 200)}`;
+        console.error(`[buscador] IA ${modelo} ${motivoFallo}`);
         continue;
       }
       const data = await r.json();
@@ -327,11 +330,19 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
       const ini = bruto.indexOf("{");
       const fin = bruto.lastIndexOf("}");
       if (ini === -1 || fin <= ini) {
-        console.error(`[buscador] IA ${modelo} sin JSON: ${bruto.slice(0, 300)}`);
+        motivoFallo = `sin JSON: ${bruto.slice(0, 200)}`;
+        console.error(`[buscador] IA ${modelo} ${motivoFallo}`);
         continue;
       }
       modeloUsado = modelo;
-      return JSON.parse(bruto.slice(ini, fin + 1)) as {
+      const trozo = bruto.slice(ini, fin + 1);
+      try {
+        JSON.parse(trozo);
+      } catch (e) {
+        motivoFallo = `JSON inválido (${e instanceof Error ? e.message : ""}) stop=${data.stop_reason}: ${trozo.slice(-200)}`;
+        throw e;
+      }
+      return JSON.parse(trozo) as {
         titulo?: string;
         texto?: string;
         nota?: string | null;
@@ -339,7 +350,8 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
         descartadas?: { nombre?: string; motivo?: string }[];
       };
     } catch (e) {
-      console.error(`[buscador] IA ${modelo} falló:`, e instanceof Error ? e.message : e);
+      motivoFallo ??= e instanceof Error ? e.message : String(e);
+      console.error(`[buscador] IA ${modelo} falló:`, motivoFallo);
     }
   }
   return null;
@@ -442,5 +454,6 @@ export async function buscarClinicas(texto: string): Promise<RespuestaBuscador> 
     filas,
     fuente: deIA ? "ia" : "basica",
     modelo: modeloUsado,
+    motivo: deIA ? null : motivoFallo,
   };
 }
