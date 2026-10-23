@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CamposSeo } from "@/components/admin/campos-seo";
 import type { BlogPost } from "@/lib/supabase/database.types";
 import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
 import { EditorContenido } from "@/components/admin/editor-contenido";
@@ -39,12 +40,14 @@ export function BlogForm({ action, post, error }: Props) {
             defaultValue={post?.titulo ?? undefined}
             className={inputClass}
           />
-          {post?.slug && (
-            <p className="mt-1 text-xs text-ink-soft">
-              URL: /blog/{post.slug} (no cambia aunque edites el título)
-            </p>
-          )}
         </div>
+
+        <CamposSeo
+          base="/blog"
+          slugActual={post?.slug}
+          seoTitleActual={post?.seo_title}
+          placeholderTitle="Vacío = se usa el título del post"
+        />
 
         <CampoMetaDescripcion
           id="resumen"

@@ -1,8 +1,9 @@
 import { serializarJsonLd } from "@/lib/json-ld";
+import { slugActualDesdeAntiguo } from "@/lib/seo/slug-editable";
 import Link from "next/link";
 import Image from "next/image";
 import { cache } from "react";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
 import { tituloSeo, textoTitle, metaSeo, primerasFrases, OG_BASE } from "@/lib/seo/meta";
@@ -60,6 +61,7 @@ export async function generateMetadata({
   const n = centros.length;
   const lugar = centros.length > 0 ? nombreProvinciaBuscable(centros[0].provincia, centros) : null;
   const title = tituloSeo(
+    tratamiento.seo_title,
     `${tratamiento.nombre}: qué es, precio y clínicas`,
     `${tratamiento.nombre}: guía y clínicas`,
     `${tratamiento.nombre}: guía completa`,
@@ -99,6 +101,8 @@ export default async function TratamientoPage({
   const tratamiento = await findTratamiento(slug);
 
   if (!tratamiento) {
+    const nuevo = await slugActualDesdeAntiguo("tratamientos", slug);
+    if (nuevo) permanentRedirect(`/tratamientos/${nuevo}`);
     notFound();
   }
 

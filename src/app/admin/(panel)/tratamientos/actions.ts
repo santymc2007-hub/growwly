@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { slugify } from "@/lib/slugify";
+import { resolverSlug } from "@/lib/seo/slug-editable";
 import { uploadBlogPhoto, deleteBlogPhoto } from "@/lib/supabase/blog-storage";
 
 const MAX_FAQS = 6;
@@ -73,7 +73,13 @@ export async function createTratamiento(formData: FormData) {
     );
   }
 
-  const slug = slugify(fields.nombre);
+  const resSlug = await resolverSlug(supabase, "tratamientos", {
+    slugPedido: String(formData.get("slug") ?? ""),
+    textoBase: fields.nombre,
+  });
+  if ("error" in resSlug) redirect(`/admin/tratamientos/nuevo?error=${encodeURIComponent(resSlug.error)}`);
+  const slug = resSlug.slug;
+  const seoTitle = String(formData.get("seo_title") ?? "").trim() || null;
 
   let imagenPortada: string | null = null;
   const foto = formData.get("imagen_portada");
@@ -91,6 +97,7 @@ export async function createTratamiento(formData: FormData) {
 
   const { error } = await supabase.from("tratamientos").insert({
     slug,
+    seo_title: seoTitle,
     nombre: fields.nombre,
     tecnica_relacionada: fields.tecnica_relacionada,
     categoria: fields.categoria,
@@ -155,9 +162,19 @@ export async function updateTratamiento(id: string, formData: FormData) {
     }
   }
 
+  const resSlug = await resolverSlug(supabase, "tratamientos", {
+    id,
+    slugPedido: String(formData.get("slug") ?? ""),
+    textoBase: fields.nombre,
+  });
+  if ("error" in resSlug) redirect(`/admin/tratamientos/${id}/editar?error=${encodeURIComponent(resSlug.error)}`);
+
   const { error } = await supabase
     .from("tratamientos")
     .update({
+      slug: resSlug.slug,
+      ...(resSlug.slugs_antiguos && { slugs_antiguos: resSlug.slugs_antiguos }),
+      seo_title: String(formData.get("seo_title") ?? "").trim() || null,
       nombre: fields.nombre,
       tecnica_relacionada: fields.tecnica_relacionada,
     categoria: fields.categoria,

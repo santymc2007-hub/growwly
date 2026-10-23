@@ -4,7 +4,7 @@ import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { slugify } from "@/lib/slugify";
+import { resolverSlug } from "@/lib/seo/slug-editable";
 import { uploadBlogPhoto, deleteBlogPhoto } from "@/lib/supabase/blog-storage";
 
 const MAX_FAQS = 6;
@@ -78,7 +78,13 @@ export async function createPost(formData: FormData) {
     );
   }
 
-  const slug = slugify(fields.titulo);
+  const resSlug = await resolverSlug(supabase, "blog_posts", {
+    slugPedido: String(formData.get("slug") ?? ""),
+    textoBase: fields.titulo,
+  });
+  if ("error" in resSlug) redirect(`/admin/blog/nuevo?error=${encodeURIComponent(resSlug.error)}`);
+  const slug = resSlug.slug;
+  const seoTitle = String(formData.get("seo_title") ?? "").trim() || null;
 
   let imagenPortada: string | null = null;
   const foto = formData.get("imagen_portada");
@@ -96,6 +102,7 @@ export async function createPost(formData: FormData) {
 
   const { error } = await supabase.from("blog_posts").insert({
     slug,
+    seo_title: seoTitle,
     titulo: fields.titulo,
     resumen: fields.resumen,
     contenido: fields.contenido,
@@ -164,9 +171,19 @@ export async function updatePost(id: string, formData: FormData) {
   // Si se publica por primera vez ahora, fijamos la fecha de publicación.
   const sePublicaPorPrimeraVez = fields.publicado && !actual?.publicado_en;
 
+  const resSlug = await resolverSlug(supabase, "blog_posts", {
+    id,
+    slugPedido: String(formData.get("slug") ?? ""),
+    textoBase: fields.titulo,
+  });
+  if ("error" in resSlug) redirect(`/admin/blog/${id}/editar?error=${encodeURIComponent(resSlug.error)}`);
+
   const { error } = await supabase
     .from("blog_posts")
     .update({
+      slug: resSlug.slug,
+      ...(resSlug.slugs_antiguos && { slugs_antiguos: resSlug.slugs_antiguos }),
+      seo_title: String(formData.get("seo_title") ?? "").trim() || null,
       titulo: fields.titulo,
       resumen: fields.resumen,
       contenido: fields.contenido,

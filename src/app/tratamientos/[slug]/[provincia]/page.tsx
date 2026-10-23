@@ -1,4 +1,5 @@
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
+import { slugActualDesdeAntiguo } from "@/lib/seo/slug-editable";
 import type { Metadata } from "next";
 import { tituloSeo, textoTitle, metaSeo, OG_BASE } from "@/lib/seo/meta";
 import { getLanding } from "@/lib/seo/landing-datos";
@@ -45,7 +46,11 @@ export default async function LandingProvinciaPage({
   const { slug, provincia } = await params;
   const { vista } = await searchParams;
   const d = await getLanding(slug, provincia);
-  if (!d) notFound();
+  if (!d) {
+    const nuevo = await slugActualDesdeAntiguo("tratamientos", slug);
+    if (nuevo) permanentRedirect(`/tratamientos/${nuevo}/${provincia}`);
+    notFound();
+  }
 
   const lugar = nombreProvinciaBuscable(d.provinciaReal, d.centros);
   const url = `/tratamientos/${slug}/${provincia}`;
