@@ -363,3 +363,34 @@ html[data-buscando] [data-resultados] {
     animation: none;
   }
 }
+
+/* Buscador con IA: la W de Growwly late y las estrellas parpadean. */
+@keyframes ia-chispa {
+  0%, 100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  50% { transform: scale(0.6) rotate(28deg); opacity: 0.5; }
+}
+@keyframes ia-latido {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.14); }
+  24% { transform: scale(1); }
+  36% { transform: scale(1.09); }
+  52% { transform: scale(1); }
+}
+@keyframes ia-entra {
+  from { transform: translateY(8px) scale(0.96); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+.ia-ch1 { animation: ia-chispa 2.2s ease-in-out infinite; transform-origin: 50% 50%; transform-box: fill-box; }
+.ia-ch2 { animation: ia-chispa 1.7s ease-in-out 0.4s infinite; transform-origin: 50% 50%; transform-box: fill-box; }
+.ia-ch3 { animation: ia-chispa 2.6s ease-in-out 0.9s infinite; transform-origin: 50% 50%; transform-box: fill-box; }
+.ia-latido { animation: ia-latido 2.4s ease-in-out infinite; transform-origin: 50% 60%; }
+.ia-entra { animation: ia-entra 0.35s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+@media (prefers-reduced-motion: reduce) {
+  .ia-ch1, .ia-ch2, .ia-ch3, .ia-latido, .ia-entra { animation: none; }
+}
+/* Con la franja de cookies visible, el botón flotante sube por encima. */
+.lanzador-ia { transition: bottom 0.25s ease; }
+html[data-cookie-banner="1"] .lanzador-ia { bottom: 190px; }
+@media (min-width: 768px) {
+  html[data-cookie-banner="1"] .lanzador-ia { bottom: 112px; }
+}

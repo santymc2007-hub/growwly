@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieConsent } from "@/components/analytics/cookie-consent";
+import { BuscadorIA } from "@/components/buscador/buscador-ia";
 import { CapturaAtribucion } from "@/components/analytics/captura-atribucion";
 import "@fontsource/geist/400.css";
 import "@fontsource/geist/500.css";
@@ -71,6 +72,7 @@ export default function RootLayout({
       )}
       <body className="min-h-full flex flex-col bg-paper font-sans text-ink">
         {children}
+        <BuscadorIA />
         {ANIMACIONES_ACTIVAS && <RevealObserver />}
         <CookieConsent />
         <CapturaAtribucion />
