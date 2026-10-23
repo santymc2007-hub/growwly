@@ -31,4 +31,5 @@ export type RespuestaBuscador = {
   filas: FilaComparativa[];
   /** "basica" si la IA no respondió y se usó la explicación por reglas. */
   fuente: "ia" | "basica";
+  modelo?: string | null;
 };

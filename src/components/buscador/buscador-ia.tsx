@@ -31,6 +31,13 @@ const RUTAS_SIN_BOTON = [
 
 const CLAVE_BURBUJA = "growwly_ia_burbuja_cerrada";
 
+const PASOS_CARGA = [
+  "Leyendo lo que buscas…",
+  "Revisando las fichas de las clínicas…",
+  "Comparando precios y servicios…",
+  "Escribiendo por qué te encajan…",
+];
+
 type Fase = "escribir" | "cargando" | "respuesta" | "comparar";
 
 /** **negrita** → <strong>, sin HTML del modelo. */
@@ -61,6 +68,7 @@ export function BuscadorIA() {
   const [respuesta, setRespuesta] = useState<RespuestaBuscador | null>(null);
   const [error, setError] = useState<string | null>(null);
   const campo = useRef<HTMLTextAreaElement>(null);
+  const [paso, setPaso] = useState(0);
 
   const deteccion = useMemo(() => detectar(texto), [texto]);
 
@@ -93,6 +101,13 @@ export function BuscadorIA() {
     };
   }, [abierto]);
 
+  // Mensajes mientras la IA piensa (tarda unos segundos).
+  useEffect(() => {
+    if (fase !== "cargando") return;
+    const t = setInterval(() => setPaso((p) => Math.min(p + 1, PASOS_CARGA.length - 1)), 3500);
+    return () => clearInterval(t);
+  }, [fase]);
+
   if (oculto) return null;
 
   function cerrarBurbuja() {
@@ -117,6 +132,7 @@ export function BuscadorIA() {
       return;
     }
     setError(null);
+    setPaso(0);
     setFase("cargando");
     trackEvent("buscador_ia_busqueda", {
       tratamiento: deteccion.tratamiento ?? "ninguno",
@@ -307,7 +323,7 @@ export function BuscadorIA() {
                       disabled={fase === "cargando"}
                       className="press inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-yellow px-6 text-base font-bold text-logo disabled:opacity-70"
                     >
-                      {fase === "cargando" ? "Buscando las que mejor encajan…" : "Buscar con IA →"}
+                      {fase === "cargando" ? PASOS_CARGA[paso] : "Buscar con IA →"}
                     </button>
                   </div>
                 </div>
