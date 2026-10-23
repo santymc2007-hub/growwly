@@ -227,7 +227,7 @@ function resumenParaIA(p: Perfil, d: Deteccion) {
     nombre: p.nombre,
     ciudad: p.ciudad,
     tecnicas: p.tecnicas,
-    tratamientos: p.tratamientos.slice(0, 12),
+    tratamientos: p.tratamientos.slice(0, 8),
     precio_tratamiento_buscado: pr
       ? pr.visible
         ? textoRango(pr.desde, pr.hasta)
@@ -266,7 +266,7 @@ const SISTEMA = `Eres el asesor de Growwly, un directorio de clínicas capilares
 Reglas:
 - Usa SOLO los datos de las candidatas. No inventes precios, técnicas, servicios ni opiniones. Si una clínica no indica algo que el paciente pidió, dilo ("no indica si tiene parking").
 - Si un precio pone "OCULTO", nunca des ni insinúes una cifra: como mucho, "encaja con tu presupuesto según la clínica".
-- Si una clínica supera claramente el presupuesto o no hace el tratamiento, no la recomiendes; puedes nombrarla en "descartadas" con el motivo.
+- Si una clínica supera claramente el presupuesto o no hace el tratamiento, no la recomiendes; puedes nombrarla en "descartadas" con el motivo (como mucho 2). Que no indique un dato NO es motivo para descartarla: si no la recomiendas por eso, simplemente no la nombres.
 - Si ninguna encaja del todo, dilo con honestidad y recomienda las más cercanas explicando qué les falta.
 - Neutral: no eres comercial de ninguna clínica. No es un consejo médico: no diagnostiques ni prometas resultados.
 - Español de España, frases naturales, sin tecnicismos innecesarios, sin emojis, sin superlativos vacíos.
@@ -278,7 +278,10 @@ Responde SOLO con este JSON (sin backticks):
  "recomendadas": [{"id": "id exacto de la candidata", "encaja": ["frases muy cortas de lo que cumple"], "dudas": ["frases muy cortas de lo que no indica o no cumple"]}],
  "descartadas": [{"nombre": "nombre", "motivo": "frase corta"}]}`;
 
+let modeloUsado: string | null = null;
+
 async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
+  modeloUsado = null;
   const apiKey = process.env.ANTHROPIC_API_KEY;
   if (!apiKey) return null;
   const usuario = `Lo que busca el paciente:\n"""${texto}"""\n\nCriterios detectados: ${JSON.stringify({
@@ -301,7 +304,7 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
         },
         body: JSON.stringify({
           model: modelo,
-          max_tokens: 2000,
+          max_tokens: 900,
           system: SISTEMA,
           messages: [{ role: "user", content: usuario }],
         }),
@@ -326,6 +329,7 @@ async function pedirIA(texto: string, d: Deteccion, candidatas: Perfil[]) {
         console.error(`[buscador] IA ${modelo} sin JSON: ${bruto.slice(0, 300)}`);
         continue;
       }
+      modeloUsado = modelo;
       return JSON.parse(bruto.slice(ini, fin + 1)) as {
         titulo?: string;
         texto?: string;
@@ -371,7 +375,7 @@ export async function buscarClinicas(texto: string): Promise<RespuestaBuscador> 
     .map((p) => ({ p, s: puntuar(p, d) }))
     .filter((x) => !d.tratamiento || haceTratamiento(x.p, d.tratamiento))
     .sort((a, b) => b.s - a.s);
-  const candidatas = ordenadas.slice(0, 8).map((x) => x.p);
+  const candidatas = ordenadas.slice(0, 6).map((x) => x.p);
 
   const deIA = await pedirIA(texto, d, candidatas);
   const ia = deIA ?? explicacionBasica(d, candidatas.slice(0, 2));
@@ -436,5 +440,6 @@ export async function buscarClinicas(texto: string): Promise<RespuestaBuscador> 
       .slice(0, 3),
     filas,
     fuente: deIA ? "ia" : "basica",
+    modelo: modeloUsado,
   };
 }
