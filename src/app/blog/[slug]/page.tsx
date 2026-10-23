@@ -1,7 +1,8 @@
 import { serializarJsonLd } from "@/lib/json-ld";
+import { slugActualDesdeAntiguo } from "@/lib/seo/slug-editable";
 import Image from "next/image";
 import { cache } from "react";
-import { notFound } from "next/navigation";
+import { notFound, permanentRedirect } from "next/navigation";
 import type { Metadata } from "next";
 import { tituloSeo, textoTitle, metaSeo, primerasFrases, OG_BASE } from "@/lib/seo/meta";
 import { createClient } from "@/lib/supabase/server";
@@ -49,7 +50,7 @@ export async function generateMetadata({
   // Meta: el resumen del post (o, sin resumen, las primeras frases del
   // artículo), solo frases completas que quepan.
   const description = metaSeo(primerasFrases(post.resumen || post.contenido, 158));
-  const title = tituloSeo(post.titulo);
+  const title = tituloSeo(post.seo_title, post.titulo);
   return {
     title,
     description,
@@ -75,6 +76,8 @@ export default async function BlogPostPage({
   const post = await findPost(slug);
 
   if (!post) {
+    const nuevo = await slugActualDesdeAntiguo("blog_posts", slug);
+    if (nuevo) permanentRedirect(`/blog/${nuevo}`);
     notFound();
   }
 

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { CamposSeo } from "@/components/admin/campos-seo";
 import type { Tratamiento } from "@/lib/supabase/database.types";
 import { TECNICAS_DISPONIBLES, CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
@@ -40,12 +41,14 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
             defaultValue={tratamiento?.nombre ?? undefined}
             className={inputClass}
           />
-          {tratamiento?.slug && (
-            <p className="mt-1 text-xs text-ink-soft">
-              URL: /tratamientos/{tratamiento.slug}
-            </p>
-          )}
         </div>
+
+        <CamposSeo
+          base="/tratamientos"
+          slugActual={tratamiento?.slug}
+          seoTitleActual={tratamiento?.seo_title}
+          placeholderTitle="Vacío = «{Tratamiento}: qué es, precio y clínicas»"
+        />
 
         <div>
           <label className={labelClass} htmlFor="categoria">

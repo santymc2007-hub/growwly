@@ -43,6 +43,8 @@ export type Database = {
       }
       blog_posts: {
         Row: {
+          seo_title: string | null
+          slugs_antiguos: string[]
           autor: string
           autor_cargo: string | null
           contenido: string
@@ -60,6 +62,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          seo_title?: string | null
+          slugs_antiguos?: string[]
           autor?: string
           autor_cargo?: string | null
           contenido?: string
@@ -77,6 +81,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          seo_title?: string | null
+          slugs_antiguos?: string[]
           autor?: string
           autor_cargo?: string | null
           contenido?: string
@@ -1286,6 +1292,8 @@ export type Database = {
       }
       tratamientos: {
         Row: {
+          seo_title: string | null
+          slugs_antiguos: string[]
           categoria: string | null
           contenido: string
           created_at: string
@@ -1302,6 +1310,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          seo_title?: string | null
+          slugs_antiguos?: string[]
           categoria?: string | null
           contenido?: string
           created_at?: string
@@ -1318,6 +1328,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          seo_title?: string | null
+          slugs_antiguos?: string[]
           categoria?: string | null
           contenido?: string
           created_at?: string
