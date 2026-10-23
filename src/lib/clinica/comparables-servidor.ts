@@ -6,26 +6,32 @@ import {
   QUIEN_OPERA_OPCIONES,
   parsearFilasPrecio,
   rangoDeFila,
+  type ComparablesFicha,
   type FilaPrecio,
 } from "./comparables";
 
 type Admin = SupabaseClient<Database>;
 
 /** Lo que necesita el formulario de la ficha (panel de clínica). */
-export async function leerComparablesFicha(admin: Admin, clinicId: string) {
+export async function leerComparablesFicha(
+  admin: Admin,
+  clinicId: string | null,
+): Promise<ComparablesFicha> {
+  // Clínica nueva (alta desde el admin): sin filas propias todavía.
+  const id = clinicId ?? "00000000-0000-0000-0000-000000000000";
   const [{ data: precios }, { data: ventajas }, { data: marcadas }, { data: tratamientos }] =
     await Promise.all([
       admin
         .from("clinic_precios")
         .select("tratamiento, modalidad, desde, hasta, norwood, nota, visible")
-        .eq("clinic_id", clinicId)
+        .eq("clinic_id", id)
         .order("orden"),
       admin
         .from("ventajas")
         .select("id, nombre, categoria, estado, propuesta_por")
         .in("estado", ["aprobada", "propuesta"])
         .order("orden"),
-      admin.from("clinic_ventajas").select("ventaja_id").eq("clinic_id", clinicId),
+      admin.from("clinic_ventajas").select("ventaja_id").eq("clinic_id", id),
       admin.from("tratamientos").select("nombre").order("nombre"),
     ]);
 

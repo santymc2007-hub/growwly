@@ -2,6 +2,8 @@ import Link from "next/link";
 import { ClinicForm } from "../clinic-form";
 import { createClinic } from "../actions";
 import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { leerComparablesFicha } from "@/lib/clinica/comparables-servidor";
 
 // Subir fotos/logo a Supabase Storage desde la Server Action puede
 // tardar más que el límite por defecto en alguna conexión lenta.
@@ -16,6 +18,7 @@ export default async function NuevaClinicaPage({
 }) {
   const { error } = await searchParams;
   const { municipios, zonas } = await getMunicipiosYZonas();
+  const comparables = await leerComparablesFicha(createAdminClient(), null);
 
   return (
     <div>
@@ -30,7 +33,13 @@ export default async function NuevaClinicaPage({
       </h1>
 
       <div className="mt-6">
-        <ClinicForm action={createClinic} error={error} municipios={municipios} zonas={zonas} />
+        <ClinicForm
+          action={createClinic}
+          error={error}
+          municipios={municipios}
+          zonas={zonas}
+          comparables={comparables}
+        />
       </div>
     </div>
   );
