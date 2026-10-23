@@ -81,8 +81,14 @@ function leerSnapshot(): string | null {
   }
 }
 
+// En el servidor (y durante la hidratación) no se sabe si ya decidió:
+// se devuelve un marcador para NO pintar la franja. Si se devolviera
+// null, el HTML llegaría con la franja visible y desaparecería al
+// leer localStorage: un parpadeo en cada recarga.
+const PENDIENTE = "__pendiente__";
+
 function leerSnapshotServidor(): string | null {
-  return null;
+  return PENDIENTE;
 }
 
 function parsear(texto: string | null): Consentimiento | null {
@@ -149,7 +155,7 @@ export function CookieConsent() {
   // esta persona decidió antes de que existiera la categoría.
   const faltaDecidir =
     consentimiento === null || (PUBLICIDAD_ACTIVA && consentimiento.publicidad === null);
-  const visible = faltaDecidir || reabierta;
+  const visible = snapshot !== PENDIENTE && (faltaDecidir || reabierta);
 
   // Para que el botón flotante del buscador se coloque por encima de la
   // franja mientras esté visible (ver .lanzador-ia en globals.css).
