@@ -186,7 +186,7 @@ export function BuscadorIA() {
     <>
       {!abierto && (
         <div
-          className="lanzador-ia fixed bottom-4 right-4 z-[90] flex items-end gap-3 sm:bottom-6 sm:right-6"
+          className="lanzador-ia fixed bottom-14 right-4 z-[90] flex items-end gap-3 sm:bottom-16 sm:right-6"
           onMouseEnter={() => setEncima(true)}
           onMouseLeave={() => setEncima(false)}
         >
@@ -238,7 +238,7 @@ export function BuscadorIA() {
             if (e.target === e.currentTarget) setAbierto(false);
           }}
         >
-          <div className="mx-auto flex w-full max-w-[860px] flex-col gap-4 px-3 pb-10 pt-5 sm:px-6 sm:pt-16">
+          <div className="capa-ia-contenido mx-auto flex w-full max-w-[860px] flex-col gap-4 px-3 pb-10 pt-5 sm:px-6 sm:pt-16">
             <div className="flex items-end justify-between gap-3">
               <div className="flex items-end gap-3 sm:gap-4">
                 <MarcaIA tamano={37} />
