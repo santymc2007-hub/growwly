@@ -1,6 +1,9 @@
 "use server";
 
-import { parsearServicios } from "@/lib/clinica/servicios";
+import {
+  camposComparablesDeFormulario,
+  guardarTablasComparables,
+} from "@/lib/clinica/comparables-servidor";
 import { requireAdmin } from "@/lib/auth/require-admin";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
@@ -258,16 +261,12 @@ function readClinicFields(formData: FormData): ClinicWrite {
     redes_sociales: redesSociales,
     tecnicas: formData.getAll("tecnicas").map(String),
     idiomas: formData.getAll("idiomas").map(String),
-    financiacion: formData.get("financiacion") === "on",
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
     verificado: formData.get("verificado") === "on",
     publicado: formData.get("publicado") === "on",
     verificado_admin: formData.get("verificado_admin") === "on",
     leads_enabled: formData.get("leads_enabled") === "on",
     direccion: str("direccion"),
-    rango_precios: str("rango_precios"),
-    precio_desde: num("precio_desde"),
-    precio_hasta: num("precio_hasta"),
     accesibilidad: str("accesibilidad"),
     accesibilidad_checks: formData.getAll("accesibilidad_checks").map(String),
     acepta_videoconsulta: formData.get("acepta_videoconsulta") === "on",
@@ -281,7 +280,10 @@ function readClinicFields(formData: FormData): ClinicWrite {
     rating_doctoralia: num("rating_doctoralia"),
     resenas_doctoralia: num("resenas_doctoralia"),
     tipo_negocio: tipoNegocioValido(str("tipo_negocio")),
-    servicios_adicionales: parsearServicios(formData.get("servicios_adicionales")),
+    // Precios por tratamiento y datos comparables: las columnas antiguas
+    // (financiacion, servicios_adicionales, precio_desde/hasta…) se
+    // calculan a partir de lo nuevo.
+    ...camposComparablesDeFormulario(formData).columnas,
     tiene_oferta: Boolean(str("detalle_oferta")),
     detalle_oferta: str("detalle_oferta"),
     descripcion_extendida: str("descripcion_extendida"),
@@ -343,16 +345,31 @@ export async function createClinic(formData: FormData) {
       // tabla lo detectaría al insertar y se mostraría como error normal.
     }
 
-    const { error } = await supabase.from("clinics").insert({
-      ...fields,
-      ...contenidoPremium,
-      slug,
-      fotos,
-      ...(logoUrl ? { logo_url: logoUrl } : {}),
-    });
+    const { data: creada, error } = await supabase
+      .from("clinics")
+      .insert({
+        ...fields,
+        ...contenidoPremium,
+        slug,
+        fotos,
+        ...(logoUrl ? { logo_url: logoUrl } : {}),
+      })
+      .select("id")
+      .single();
 
-    if (error) {
-      redirect(`/admin/clinicas/nueva?error=${encodeURIComponent(error.message)}`);
+    if (error || !creada) {
+      redirect(
+        `/admin/clinicas/nueva?error=${encodeURIComponent(error?.message ?? "No se pudo crear.")}`,
+      );
+    }
+    const errorComparables = await guardarTablasComparables(
+      supabase,
+      creada.id,
+      camposComparablesDeFormulario(formData).filas,
+      formData,
+    );
+    if (errorComparables) {
+      redirect(`/admin/clinicas/${creada.id}/editar?error=${encodeURIComponent(errorComparables)}`);
     }
   } catch (e) {
     if (esErrorDeRedirect(e)) throw e;
@@ -507,6 +524,15 @@ export async function updateClinic(id: string, formData: FormData) {
       redirect(
         `/admin/clinicas/${id}/editar?error=${encodeURIComponent(error.message)}`,
       );
+    }
+    const errorComparables = await guardarTablasComparables(
+      supabase,
+      id,
+      camposComparablesDeFormulario(formData).filas,
+      formData,
+    );
+    if (errorComparables) {
+      redirect(`/admin/clinicas/${id}/editar?error=${encodeURIComponent(errorComparables)}`);
     }
   } catch (e) {
     if (esErrorDeRedirect(e)) throw e;

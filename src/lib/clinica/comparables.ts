@@ -61,6 +61,15 @@ export type FilaPrecio = {
 
 export const MAX_FILAS_PRECIO = 30;
 
+/** Lo que reciben los formularios de ficha (clínica y admin). */
+export type ComparablesFicha = {
+  precios: FilaPrecio[];
+  sugerenciasTratamientos: string[];
+  ventajas: { id: string; nombre: string; categoria: string }[];
+  seleccionadas: string[];
+  propuestas: { id: string; nombre: string }[];
+};
+
 function etiqueta<T extends readonly { valor: string; etiqueta: string }[]>(
   lista: T,
   valor: string | null | undefined,

@@ -103,11 +103,14 @@ export function CamposComparables({
   ventajas,
   seleccionadas,
   propuestas,
+  permitirPropuestas = true,
 }: {
   valores: ValoresComparables;
   ventajas: VentajaOpcion[];
   seleccionadas: string[];
   propuestas: PropuestaPendiente[];
+  /** En el admin no: los valores nuevos se crean en /admin/valores. */
+  permitirPropuestas?: boolean;
 }) {
   const [nuevas, setNuevas] = useState<string[]>([]);
   const [borrador, setBorrador] = useState("");
@@ -230,6 +233,7 @@ export function CamposComparables({
         })}
       </div>
 
+      {permitirPropuestas && (
       <div className="rounded-xl bg-paper-dim/60 p-4">
         <label htmlFor="propuesta_ventaja" className={labelClass}>
           ¿Ofrecéis algo que no está en la lista?
@@ -292,6 +296,7 @@ export function CamposComparables({
           </ul>
         )}
       </div>
+      )}
     </div>
   );
 }

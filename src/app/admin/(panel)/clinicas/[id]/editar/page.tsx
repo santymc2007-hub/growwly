@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server";
 import { ClinicForm } from "../../clinic-form";
 import { updateClinic } from "../../actions";
 import { getMunicipiosYZonas } from "@/lib/clinica/geografia";
+import { createAdminClient } from "@/lib/supabase/admin";
+import { leerComparablesFicha } from "@/lib/clinica/comparables-servidor";
 
 // Subir fotos/logo a Supabase Storage desde la Server Action puede
 // tardar más que el límite por defecto en alguna conexión lenta.
@@ -34,6 +36,7 @@ export default async function EditarClinicaPage({
   }
 
   const { municipios, zonas } = await getMunicipiosYZonas();
+  const comparables = await leerComparablesFicha(createAdminClient(), clinic.id);
   const updateThisClinic = updateClinic.bind(null, clinic.id);
 
   return (
@@ -62,6 +65,7 @@ export default async function EditarClinicaPage({
           guardado={guardado === "1"}
           municipios={municipios}
           zonas={zonas}
+          comparables={comparables}
         />
       </div>
     </div>
