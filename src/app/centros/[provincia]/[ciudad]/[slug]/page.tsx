@@ -51,7 +51,6 @@ import { getDestinosTratamiento } from "@/lib/seo/enlaces-internos";
 import {
   enFrase,
   nombreCiudadBuscable,
-  rangoPrecios,
   recortar,
   MIN_CENTROS_LANDING,
 } from "@/lib/seo/landings";
@@ -104,8 +103,10 @@ export async function generateMetadata({
   if (!clinic) return {};
 
   // Meta description con datos de la ficha (no la descripción que escribe
-  // el centro): categoría, técnicas, precio y nota. Más relevante para la
-  // búsqueda y siempre del largo correcto.
+  // el centro): categoría, técnicas y nota. Más relevante para la
+  // búsqueda y siempre del largo correcto. Sin precio: Google lo mostraba
+  // aunque la clínica no lo publique (los precios solo se ven en Premium
+  // y si la clínica los marca visibles).
   // Cómo se nombra cada categoría en la meta: en positivo y como lo
   // buscaría el paciente ("no médico" es útil en el filtro, no aquí).
   const CATEGORIA_META: Record<string, string> = {
@@ -116,7 +117,6 @@ export async function generateMetadata({
     ? (CATEGORIA_META[clinic.tipo_negocio] ?? enFrase(clinic.tipo_negocio))
     : "centro capilar";
   const lugar = clinic.ciudad ? nombreCiudadBuscable(clinic.ciudad, clinic.provincia) : clinic.provincia;
-  const precio = rangoPrecios([clinic]);
   const nota =
     clinic.rating_google != null
       ? `${String(clinic.rating_google).replace(".", ",")}★ en Google${clinic.resenas_google ? ` (${clinic.resenas_google} reseñas)` : ""}.`
@@ -126,7 +126,6 @@ export async function generateMetadata({
     [
       nota,
       clinic.tecnicas.length > 0 ? `${clinic.tecnicas.slice(0, 3).join(", ")}.` : null,
-      precio ? `Precios ${precio}.` : null,
       clinic.idiomas.length > 1 ? `Atención en ${clinic.idiomas.slice(0, 3).join(", ").toLowerCase()}.` : null,
     ],
     "Compara y pide presupuesto gratis.",
