@@ -6,14 +6,16 @@ import { Importador } from "./importador";
 // fotos puede tardar bastante más que el límite por defecto.
 export const maxDuration = 60;
 
-type SearchParams = { clinica?: string };
+type SearchParams = { clinica?: string; candidato?: string; nombre?: string; web?: string; maps?: string };
 
 export default async function ImportarClinicaPage({
   searchParams,
 }: {
   searchParams: Promise<SearchParams>;
 }) {
-  const { clinica: clinicaId } = await searchParams;
+  const { clinica: clinicaId, candidato, nombre, web, maps } = await searchParams;
+  // Viene de "Importar provincia": se precarga la búsqueda con ese centro.
+  const prefill = clinicaId ? null : { candidato: candidato ?? null, nombre: nombre ?? "", web: web ?? "", maps: maps ?? "" };
   const supabase = createAdminClient();
 
   const [{ data: municipios }, { data: clinica }] = await Promise.all([
@@ -41,7 +43,7 @@ export default async function ImportarClinicaPage({
       </p>
 
       <div className="mt-6">
-        <Importador clinica={clinica ?? null} municipios={municipios ?? []} />
+        <Importador clinica={clinica ?? null} municipios={municipios ?? []} prefill={prefill} />
       </div>
     </div>
   );
