@@ -24,6 +24,7 @@ const PROSE_CLASS = [
   // Texto y énfasis en los colores de la ficha.
   "prose-p:text-ink-soft prose-li:text-ink-soft prose-strong:font-semibold prose-strong:text-ink",
   "prose-a:font-medium prose-a:text-cyan prose-a:underline prose-a:decoration-cyan/30 prose-a:underline-offset-2 hover:prose-a:text-cyan-dark",
+  "prose-table:my-4 prose-table:text-sm prose-th:text-teal-dark prose-td:text-ink-soft",
   "prose-blockquote:my-4 prose-blockquote:font-serif prose-blockquote:text-lg prose-blockquote:not-italic prose-blockquote:text-ink",
 ].join(" ");
 
@@ -42,6 +43,12 @@ const ALLOWED_TAGS = [
   "a",
   "code",
   "pre",
+  "table",
+  "thead",
+  "tbody",
+  "tr",
+  "th",
+  "td",
 ];
 const ALLOWED_ATTR = ["style", "href", "target", "rel", "data-estilo"];
 
