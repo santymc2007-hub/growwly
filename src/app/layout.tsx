@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     template: "%s | Growwly",
   },
   description:
-    "El directorio de clínicas y centros capilares verificados de España — tratamientos, opiniones y precios reales, para hombres y mujeres.",
+    "El directorio de clínicas y centros capilares de España — tratamientos, opiniones y precios reales, para hombres y mujeres.",
   openGraph: {
     siteName: "Growwly",
     type: "website",

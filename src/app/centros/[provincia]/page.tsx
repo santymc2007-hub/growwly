@@ -46,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       `Clínicas capilares en ${lugar}`,
     ),
     description: metaSeo(
-      `Compara ${centros.length} clínicas y centros capilares verificados en ${lugar}.`,
+      `Compara ${centros.length} clínicas y centros capilares en ${lugar}.`,
       [tecnicas ? `${tecnicas}.` : null, "Opiniones y ubicación."],
       "Pide presupuesto gratis.",
     ),
@@ -115,7 +115,7 @@ export default async function ProvinciaPage({
       intro={
         clinicas.length === 0
           ? `Todavía no tenemos centros registrados en ${lugar}.`
-          : `${clinicas.length} centros capilares verificados en ${lugar}.`
+          : `${clinicas.length} centros capilares en ${lugar}.`
       }
       cabecera={
         ciudades.length > 0 ? (

@@ -7,6 +7,7 @@ import { OrderControls } from "./order-controls";
 import { DeleteClinicButton } from "./delete-button";
 import { setPublicadoBatch, deleteClinicsBatch } from "./actions";
 import type { Clinic } from "@/lib/supabase/database.types";
+import { datosVerificacionCompletos } from "@/lib/clinica/verificacion";
 import type { EstadoReclamo } from "@/lib/admin/email-reclamo";
 import { BotonEmailReclamo } from "./boton-email-reclamo";
 
@@ -164,6 +165,13 @@ export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
                   )}
                   {clinic.verificado ? (
                     <VerifiedBadge />
+                  ) : datosVerificacionCompletos(clinic) ? (
+                    <Link
+                      href={`/admin/clinicas/${clinic.id}/editar`}
+                      className="rounded-full bg-yellow/40 px-2.5 py-1 text-xs font-semibold text-ink hover:bg-yellow/60"
+                    >
+                      Pide verificación
+                    </Link>
                   ) : (
                     <span className="rounded-full bg-paper-dim px-2.5 py-1 text-xs font-medium text-ink-soft">
                       Pendiente

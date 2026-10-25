@@ -83,8 +83,8 @@ export async function generateMetadata({
     ),
     description: metaSeo(
       clinicas.length === 1
-        ? `Centro capilar verificado en ${lugar}: técnicas, precios y opiniones.`
-        : `Compara ${clinicas.length} clínicas y centros capilares verificados en ${lugar}.`,
+        ? `Centro capilar en ${lugar}: técnicas, precios y opiniones.`
+        : `Compara ${clinicas.length} clínicas y centros capilares en ${lugar}.`,
       [tecnicas ? `${tecnicas}.` : null, "Opiniones y ubicación."],
       "Pide presupuesto gratis.",
     ),

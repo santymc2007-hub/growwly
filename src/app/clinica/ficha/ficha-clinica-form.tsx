@@ -27,6 +27,7 @@ import {
   type VentajaOpcion,
 } from "@/components/clinica/campos-comparables";
 import type { FilaPrecio } from "@/lib/clinica/comparables";
+import { RecuadroVerificacion } from "@/components/clinica/recuadro-verificacion";
 
 type Props = {
   clinic: Clinic;
@@ -188,22 +189,6 @@ export function FichaClinicaForm({
           </p>
           <EmailsLeadsField iniciales={emailsLeads} emailFicha={clinic.email} />
           <div>
-            <label className={labelClass} htmlFor="registro_sanitario">
-              Nº de registro sanitario
-            </label>
-            <p className="mt-0.5 text-xs text-ink-soft">
-              El número de autorización de tu centro en el registro de centros
-              sanitarios de tu comunidad. Obligatorio si haces tratamientos
-              médicos (injerto, PRP, mesoterapia…). Se muestra en tu ficha.
-            </p>
-            <input
-              id="registro_sanitario"
-              name="registro_sanitario"
-              defaultValue={clinic.registro_sanitario ?? undefined}
-              className={`${inputClass} mt-2`}
-            />
-          </div>
-          <div>
             <label className={labelClass} htmlFor="direccion">
               Dirección
             </label>
@@ -223,6 +208,7 @@ export function FichaClinicaForm({
               zonaInicial={clinic.zona}
             />
           </div>
+          <RecuadroVerificacion clinic={clinic} />
           <div>
             <label className={labelClass}>
               Fotos de la clínica{" "}

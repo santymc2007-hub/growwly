@@ -6,11 +6,13 @@ type VerifiedBadgeProps = {
 };
 
 /**
- * Qué significa "Verificada" (auditoría oct 2026): el paciente puede
- * leerlo como un sello de calidad médica, y no lo es.
+ * Qué significa "Verificado por Growwly" (decidido 25 oct 2026): Growwly
+ * ha comprobado el registro sanitario del centro, el nº de colegiado de
+ * su médico responsable y sus datos de contacto. No es un sello de
+ * calidad médica, y se dice.
  */
 export const EXPLICACION_VERIFICADA =
-  "Growwly ha comprobado que este centro existe y que sus datos de contacto son correctos. No es una valoración de su calidad médica.";
+  "Growwly ha comprobado el registro sanitario del centro, el número de colegiado de su médico responsable y sus datos de contacto. No es una valoración de su calidad médica.";
 
 export function VerifiedBadge({
   variant = "inline",
@@ -38,7 +40,7 @@ export function VerifiedBadge({
       >
         <path d="M5 13l4 4L19 7" />
       </svg>
-      Verificada
+      {variant === "photo" ? "Verificada" : "Verificado por Growwly"}
     </span>
   );
 }

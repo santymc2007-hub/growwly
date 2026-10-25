@@ -34,7 +34,7 @@ const ENTIDAD_JSON_LD = {
       logo: `${SITE_URL}/brand/logo-home.png`,
       email: "hola@growwly.es",
       description:
-        "Directorio y comparador de clínicas y centros capilares verificados en España.",
+        "Directorio y comparador de clínicas y centros capilares en España.",
       areaServed: "ES",
     },
     {
@@ -49,9 +49,9 @@ const ENTIDAD_JSON_LD = {
 };
 
 export const metadata: Metadata = {
-  title: { absolute: "Growwly: compara clínicas capilares verificadas" },
+  title: { absolute: "Growwly: compara clínicas capilares" },
   description:
-    "Compara clínicas capilares verificadas: injerto FUE y DHI, PRP, mesoterapia y más. Precios, opiniones reales y valoración capilar gratis con IA en segundos.",
+    "Compara clínicas capilares: injerto FUE y DHI, PRP, mesoterapia y más. Precios, opiniones reales y valoración capilar gratis con IA en segundos.",
   alternates: { canonical: "/" },
 };
 
@@ -165,7 +165,7 @@ export default async function HomePage() {
             <div data-reveal className="flex flex-col items-center gap-2 rounded-3xl bg-paper-dim px-5 py-4 text-center sm:px-8 lg:flex-row lg:justify-between lg:gap-8 lg:py-5 lg:text-left">
               <div>
                 <h2 className="font-display text-xl font-extrabold leading-tight text-teal-dark sm:text-2xl">
-                  El directorio y comparador de centros de salud capilar verificados
+                  El directorio y comparador de centros de salud capilar
                 </h2>
                 <p className="mt-1 text-sm text-ink-soft sm:text-base">
                   Tratamientos, opiniones reales y precios sin fricción
@@ -204,8 +204,8 @@ export default async function HomePage() {
                 {relleno.length === 0
                   ? "Centros que pagan por aparecer aquí."
                   : destacadas.length > 0
-                    ? "Los marcados como «Destacado» pagan por aparecer aquí; el resto es una selección de centros verificados que cambia cada día."
-                    : "Una selección de centros verificados que cambia cada día."}{" "}
+                    ? "Los marcados como «Destacado» pagan por aparecer aquí; el resto es una selección de centros que cambia cada día."
+                    : "Una selección de centros que cambia cada día."}{" "}
                 <Link href="/como-ordenamos" className="underline hover:text-teal-dark">
                   Cómo ordenamos
                 </Link>

@@ -21,12 +21,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const sitio = d.ciudadReal!;
   const n = d.centros.length;
   const title = tituloSeo(
-    `${d.tratamiento.nombre} en ${sitio}: ${n} centros verificados`,
+    `${d.tratamiento.nombre} en ${sitio}: ${n} centros`,
     `${d.tratamiento.nombre} en ${sitio}: centros`,
     `${d.tratamiento.nombre} en ${sitio}`,
   );
   const description = metaSeo(
-    `Compara ${n} centros verificados que ofrecen ${enFrase(d.tratamiento.nombre)} en ${lugar}.`,
+    `Compara ${n} centros que ofrecen ${enFrase(d.tratamiento.nombre)} en ${lugar}.`,
     ["Opiniones, técnicas y ubicación."],
     "Pide presupuesto gratis.",
   );

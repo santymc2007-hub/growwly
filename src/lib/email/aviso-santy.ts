@@ -87,6 +87,31 @@ export async function avisarSolicitudVisibilidad(opciones: {
   );
 }
 
+/** Una clínica ha enviado sus datos para el sello, o ha cambiado datos ya comprobados. */
+export async function avisarSolicitudVerificacion(opciones: { clinicId: string; retirada: boolean }) {
+  const { data: c } = await createAdminClient()
+    .from("clinics")
+    .select("nombre, ciudad, registro_sanitario, medico_responsable, colegiado_responsable")
+    .eq("id", opciones.clinicId)
+    .maybeSingle();
+  const nombre = c?.nombre ?? "Clínica";
+  await enviar(
+    opciones.retirada ? `Sello retirado (datos cambiados): ${nombre}` : `Solicitud de verificación: ${nombre}`,
+    `<p><strong>${esc(nombre)}</strong> ${
+      opciones.retirada
+        ? "ha cambiado datos que ya estaban comprobados. Se le ha retirado el sello hasta que los vuelvas a revisar."
+        : "ha enviado sus datos para el sello «Verificado por Growwly»."
+    }</p>
+     ${tablaDatos(
+       filaDato("Ciudad", esc(c?.ciudad ?? "Sin indicar")) +
+         filaDato("Registro sanitario", esc(c?.registro_sanitario ?? "—")) +
+         filaDato("Médico responsable", esc(c?.medico_responsable ?? "—")) +
+         filaDato("Nº de colegiado", esc(c?.colegiado_responsable ?? "—")),
+     )}
+     ${boton(`${SITE}/admin/clinicas/${opciones.clinicId}/editar`, "Revisar y verificar")}`,
+  );
+}
+
 /** Valoración capilar nueva (sin ningún dato de salud). */
 export async function avisarNuevaValoracion(opciones: {
   estado: "listo" | "error";

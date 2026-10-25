@@ -262,7 +262,22 @@ function readClinicFields(formData: FormData): ClinicWrite {
     tecnicas: formData.getAll("tecnicas").map(String),
     idiomas: formData.getAll("idiomas").map(String),
     primera_consulta_gratis: formData.get("primera_consulta_gratis") === "on",
-    verificado: formData.get("verificado") === "on",
+    // Sello «Verificado por Growwly»: solo con las tres comprobaciones.
+    ...(() => {
+      const verif_registro = formData.get("verif_registro") === "on";
+      const verif_colegiado = formData.get("verif_colegiado") === "on";
+      const verif_contacto = formData.get("verif_contacto") === "on";
+      const verificado = verif_registro && verif_colegiado && verif_contacto;
+      return {
+        verif_registro,
+        verif_colegiado,
+        verif_contacto,
+        verificado,
+        verificado_en: verificado ? (str("verificado_en_actual") ?? new Date().toISOString()) : null,
+      };
+    })(),
+    medico_responsable: str("medico_responsable"),
+    colegiado_responsable: str("colegiado_responsable"),
     publicado: formData.get("publicado") === "on",
     verificado_admin: formData.get("verificado_admin") === "on",
     leads_enabled: formData.get("leads_enabled") === "on",

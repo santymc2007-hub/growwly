@@ -73,7 +73,7 @@ export async function generateMetadata({
       : `Qué es ${enFrase(tratamiento.nombre)}, para quién está indicado, cómo es el proceso y la recuperación.`,
     [
       n > 0 && lugar
-        ? `${n} ${n === 1 ? "centro verificado lo ofrece" : "centros verificados lo ofrecen"} en ${lugar}.`
+        ? `${n} ${n === 1 ? "centro lo ofrece" : "centros lo ofrecen"} en ${lugar}.`
         : null,
     ],
     "Guía clara y sin letra pequeña.",
@@ -280,7 +280,7 @@ export default async function TratamientoPage({
                     Solo datos reales; si no hay, no se muestra la casilla. */}
                 <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
                   <div className="rounded-2xl bg-paper-dim p-4">
-                    <dt className="text-xs text-ink-soft">Centros verificados</dt>
+                    <dt className="text-xs text-ink-soft">Centros</dt>
                     <dd className="mt-1 font-display text-2xl text-teal-dark">{clinicasData.length}</dd>
                   </div>
                   {ciudadesConCentros > 0 && (
