@@ -6,7 +6,7 @@ import { GROWWLY_SCORE_WEIGHTS } from "@/lib/leads/growwly-score";
 export const metadata: Metadata = {
   title: "Cómo ordenamos los centros capilares",
   description:
-    "Qué decide el orden de los centros en Growwly, qué posiciones son de pago y cómo se reparte tu solicitud de presupuesto entre clínicas verificadas.",
+    "Qué decide el orden de los centros en Growwly, qué posiciones son de pago y cómo se reparte tu solicitud de presupuesto entre clínicas.",
   alternates: { canonical: "/como-ordenamos" },
 };
 
@@ -38,10 +38,16 @@ export default function ComoOrdenamosPage() {
 
       <h2>Qué centros aparecen</h2>
       <p>
-        Solo los centros publicados y revisados por Growwly. Revisar quiere
-        decir que hemos comprobado que el centro existe y que sus datos de
-        contacto son correctos (la etiqueta «Verificada»). No es una
-        valoración de su calidad médica.
+        Solo los centros publicados y revisados por Growwly: comprobamos que
+        el centro existe antes de mostrarlo.
+      </p>
+      <p>
+        Además, algunos centros llevan el sello «Verificado por Growwly»:
+        hemos comprobado su número de registro sanitario, el número de
+        colegiado de su médico responsable y sus datos de contacto, con la
+        fecha de esa comprobación. El sello no es de pago ni una valoración
+        de su calidad médica, y se retira si alguno de esos datos cambia
+        hasta que lo volvemos a comprobar.
       </p>
 
       <h2>Posiciones de pago: «Destacado»</h2>
@@ -70,7 +76,7 @@ export default function ComoOrdenamosPage() {
       </p>
       <p>
         Si no hay suficientes centros destacados para llenar esa sección de la
-        portada, completamos los huecos con centros verificados elegidos al
+        portada, completamos los huecos con centros elegidos al
         azar cada día. Esos centros no pagan y no llevan etiqueta.
       </p>
       <p>

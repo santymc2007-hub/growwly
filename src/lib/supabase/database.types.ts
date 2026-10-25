@@ -465,6 +465,12 @@ export type Database = {
           updated_at: string
           verificado: boolean
           verificado_admin: boolean
+          verificado_en: string | null
+          verif_registro: boolean
+          verif_colegiado: boolean
+          verif_contacto: boolean
+          medico_responsable: string | null
+          colegiado_responsable: string | null
           video_url: string | null
           visibilidad_fechas: Json
           web: string | null
@@ -547,6 +553,12 @@ export type Database = {
           updated_at?: string
           verificado?: boolean
           verificado_admin?: boolean
+          verificado_en?: string | null
+          verif_registro?: boolean
+          verif_colegiado?: boolean
+          verif_contacto?: boolean
+          medico_responsable?: string | null
+          colegiado_responsable?: string | null
           video_url?: string | null
           visibilidad_fechas?: Json
           web?: string | null
@@ -629,6 +641,12 @@ export type Database = {
           updated_at?: string
           verificado?: boolean
           verificado_admin?: boolean
+          verificado_en?: string | null
+          verif_registro?: boolean
+          verif_colegiado?: boolean
+          verif_contacto?: boolean
+          medico_responsable?: string | null
+          colegiado_responsable?: string | null
           video_url?: string | null
           visibilidad_fechas?: Json
           web?: string | null

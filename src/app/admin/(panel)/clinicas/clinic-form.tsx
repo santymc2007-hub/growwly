@@ -374,6 +374,28 @@ export function ClinicForm({
               className={inputClass}
             />
           </div>
+          <div>
+            <label className={labelClass} htmlFor="medico_responsable">
+              Médico responsable
+            </label>
+            <input
+              id="medico_responsable"
+              name="medico_responsable"
+              defaultValue={clinic?.medico_responsable ?? undefined}
+              className={inputClass}
+            />
+          </div>
+          <div>
+            <label className={labelClass} htmlFor="colegiado_responsable">
+              Nº de colegiado
+            </label>
+            <input
+              id="colegiado_responsable"
+              name="colegiado_responsable"
+              defaultValue={clinic?.colegiado_responsable ?? undefined}
+              className={inputClass}
+            />
+          </div>
         </div>
       </section>
 
@@ -891,15 +913,42 @@ export function ClinicForm({
           />
           Aceptamos videoconsulta
         </label>
-        <label className="flex items-center gap-2 text-sm">
-          <input
-            type="checkbox"
-            name="verificado"
-            defaultChecked={clinic?.verificado}
-          />
-          Verificada por Growwly{" "}
-          <span className="text-xs text-ink-soft">(solo uso interno)</span>
-        </label>
+        <fieldset className="rounded-xl border border-teal/30 bg-sage/40 p-3 text-sm">
+          <legend className="px-1 font-medium text-teal-dark">
+            Sello «Verificado por Growwly»{" "}
+            {clinic?.verificado && clinic.verificado_en && (
+              <span className="font-normal text-ink-soft">
+                — concedido el{" "}
+                {new Date(clinic.verificado_en).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}
+              </span>
+            )}
+          </legend>
+          <input type="hidden" name="verificado_en_actual" value={clinic?.verificado_en ?? ""} />
+          <p className="mb-2 text-xs text-ink-soft">
+            Se concede solo con las tres marcadas. Si la clínica cambia alguno de estos datos desde su
+            panel, la comprobación se desmarca sola y te llega un email.
+          </p>
+          <label className="flex items-center gap-2">
+            <input type="checkbox" name="verif_registro" defaultChecked={clinic?.verif_registro} />
+            Registro sanitario comprobado{" "}
+            <a
+              href="https://www.sanidad.gob.es/areas/saludDigital/regCess/home.htm"
+              target="_blank"
+              rel="noreferrer"
+              className="text-xs text-teal underline"
+            >
+              (REGCESS)
+            </a>
+          </label>
+          <label className="mt-1 flex items-center gap-2">
+            <input type="checkbox" name="verif_colegiado" defaultChecked={clinic?.verif_colegiado} />
+            Nº de colegiado del médico responsable comprobado
+          </label>
+          <label className="mt-1 flex items-center gap-2">
+            <input type="checkbox" name="verif_contacto" defaultChecked={clinic?.verif_contacto} />
+            Dirección, teléfono, email y web comprobados
+          </label>
+        </fieldset>
         <label className="flex items-center gap-2 text-sm">
           <input
             type="checkbox"

@@ -80,7 +80,7 @@ export async function LandingTratamiento({
         }
         intro={
           <>
-            {`En Growwly hay ${clinicas.length} centros verificados que ofrecen ${nombreMin} en ${lugarNombre}`}
+            {`En Growwly hay ${clinicas.length} centros que ofrecen ${nombreMin} en ${lugarNombre}`}
             {"."}{" "}
             {tratamiento.resumen}{" "}
             <Link

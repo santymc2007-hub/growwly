@@ -2,6 +2,12 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { after } from "next/server";
+import { avisarSolicitudVerificacion } from "@/lib/email/aviso-santy";
+import {
+  camposVerificacionTrasCambio,
+  datosVerificacionCompletos,
+} from "@/lib/clinica/verificacion";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { uploadClinicPhotos, deleteClinicPhotos } from "@/lib/supabase/storage";
 import type { Json } from "@/lib/supabase/database.types";
@@ -51,7 +57,9 @@ export async function actualizarMiFicha(formData: FormData) {
   // es Premium) vive en la página pública de la ficha, no aquí.
   const { data: clinicaActual } = await admin
     .from("clinics")
-    .select("nombre, slug, slugs_antiguos, fotos, fotos_antes_despues, opiniones, certificados")
+    .select(
+      "nombre, slug, slugs_antiguos, fotos, fotos_antes_despues, opiniones, certificados, registro_sanitario, medico_responsable, colegiado_responsable, direccion, telefono, email, web, verificado, verif_registro, verif_colegiado, verif_contacto",
+    )
     .eq("id", clinicId)
     .maybeSingle();
 
@@ -140,6 +148,8 @@ export async function actualizarMiFicha(formData: FormData) {
     email: str("email"),
     web: str("web"),
     registro_sanitario: str("registro_sanitario"),
+    medico_responsable: str("medico_responsable"),
+    colegiado_responsable: str("colegiado_responsable"),
     direccion: str("direccion"),
     ciudad: str("ciudad"),
     provincia: str("provincia") ?? "Illes Balears",
@@ -264,11 +274,23 @@ export async function actualizarMiFicha(formData: FormData) {
     }
   }
 
+  // Sello «Verificado por Growwly»: si cambia un dato ya comprobado, se
+  // retira esa comprobación (y el sello) hasta que se vuelva a revisar.
+  const cambiosVerificacion = camposVerificacionTrasCambio(clinicaActual, camposComunes);
+  const pideVerificacion =
+    !clinicaActual?.verificado &&
+    datosVerificacionCompletos(camposComunes) &&
+    (!clinicaActual ||
+      !datosVerificacionCompletos(clinicaActual) ||
+      clinicaActual.registro_sanitario !== camposComunes.registro_sanitario ||
+      clinicaActual.colegiado_responsable !== camposComunes.colegiado_responsable);
+
   const { error } = await admin
     .from("clinics")
     .update({
       ...camposComunes,
       ...camposPremium,
+      ...cambiosVerificacion,
       fotos,
       ...(logoUrl ? { logo_url: logoUrl } : {}),
       ...(nuevoSlug ? { slug: nuevoSlug, slugs_antiguos: slugsAntiguos } : {}),
@@ -301,6 +323,12 @@ export async function actualizarMiFicha(formData: FormData) {
   if (errorEmails) {
     redirect(
       `/clinica?error=${encodeURIComponent("No se pudieron guardar los emails para solicitudes.")}`,
+    );
+  }
+
+  if (pideVerificacion || cambiosVerificacion.verificado === false) {
+    after(() =>
+      avisarSolicitudVerificacion({ clinicId, retirada: cambiosVerificacion.verificado === false }),
     );
   }
 

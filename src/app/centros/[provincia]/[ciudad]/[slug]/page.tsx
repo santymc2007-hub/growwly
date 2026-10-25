@@ -550,8 +550,12 @@ export default async function ClinicaPage({
                   {clinic.verificado && (
                     <div className="flex flex-col items-end gap-1">
                       <VerifiedBadge />
-                      <p className="max-w-[13rem] text-right text-[11px] leading-snug text-ink-soft">
-                        Hemos comprobado que existe y que sus datos de contacto son correctos.
+                      <p className="max-w-[14rem] text-right text-[11px] leading-snug text-ink-soft">
+                        Registro sanitario, médico colegiado y datos de contacto comprobados
+                        {clinic.verificado_en
+                          ? ` el ${new Date(clinic.verificado_en).toLocaleDateString("es-ES", { timeZone: "Europe/Madrid" })}`
+                          : ""}
+                        .
                       </p>
                     </div>
                   )}
@@ -910,6 +914,13 @@ export default async function ClinicaPage({
                   <p className="mt-4 text-xs text-ink-soft">
                     Nº de registro sanitario:{" "}
                     <span className="font-medium text-ink">{clinic.registro_sanitario}</span>
+                  </p>
+                )}
+                {clinic.verificado && clinic.medico_responsable && (
+                  <p className="mt-1 text-xs text-ink-soft">
+                    Médico responsable:{" "}
+                    <span className="font-medium text-ink">{clinic.medico_responsable}</span>
+                    {clinic.colegiado_responsable && ` (nº de colegiado ${clinic.colegiado_responsable})`}
                   </p>
                 )}
 

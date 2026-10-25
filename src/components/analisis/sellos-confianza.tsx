@@ -5,7 +5,7 @@ import Image from "next/image";
 // cuadrado y deformarlo.
 export const CARACTERISTICAS = [
   { icono: "/analisis/ic-rapido.svg", texto: "Rápido y fácil", w: 34, h: 63 },
-  { icono: "/analisis/ic-verificado.svg", texto: "Centros verificados", w: 56, h: 53 },
+  { icono: "/analisis/ic-verificado.svg", texto: "Comparador de centros", w: 56, h: 53 },
   { icono: "/analisis/ic-gratuito.svg", texto: "100% Gratuito", w: 44, h: 63 },
   { icono: "/analisis/ic-seguro.svg", texto: "Seguro y confidencial", w: 63, h: 60 },
 ] as const;
