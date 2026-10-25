@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PROVINCIAS_ESPANA } from "@/lib/clinic-options";
-import { lanzarBusqueda, estadoRun, resultadosDataset } from "@/lib/importador/apify";
+import { lanzarBusqueda, estadoRun, resultadosDataset, describirZona, type ZonaBusqueda } from "@/lib/importador/apify";
 import { clasificar, municipioDe } from "@/lib/importador/provincia";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -36,14 +36,15 @@ export async function lanzarImportacion(formData: FormData) {
     await requireAdmin();
     const provincia = String(formData.get("provincia") ?? "");
     if (!(PROVINCIAS_ESPANA as readonly string[]).includes(provincia)) throw new Error("Elige una provincia.");
-    const zona = String(formData.get("zona") ?? "").trim() || `Provincia de ${provincia}, España`;
+    const texto = String(formData.get("zona") ?? "").trim();
+    const zona: ZonaBusqueda = texto ? { texto } : { provincia };
     const maxPorBusqueda = Math.min(Math.max(Number(formData.get("max_por_busqueda")) || 100, 10), 500);
     const maxGasto = Math.min(Math.max(Number(formData.get("max_gasto")) || 15, 1), 100);
 
     const run = await lanzarBusqueda(zona, maxPorBusqueda, maxGasto);
     const { data, error } = await createAdminClient()
       .from("importaciones_provincia")
-      .insert({ provincia, zona_busqueda: zona, run_id: run.id, dataset_id: run.defaultDatasetId })
+      .insert({ provincia, zona_busqueda: describirZona(zona), run_id: run.id, dataset_id: run.defaultDatasetId })
       .select("id")
       .single();
     if (error || !data) throw new Error(error?.message ?? "No se pudo guardar la importación.");

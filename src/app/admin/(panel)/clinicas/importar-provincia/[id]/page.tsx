@@ -53,6 +53,22 @@ export default async function ImportacionPage({
       </p>
 
       {error && <p className="mt-4 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">{error}</p>}
+      <p className="mt-1 text-sm">
+        <a
+          href={`https://console.apify.com/view/runs/${imp.run_id}`}
+          target="_blank"
+          rel="noopener"
+          className="text-cyan hover:underline"
+        >
+          Ver ejecución en Apify
+        </a>
+      </p>
+      {imp.estado === "cargada" && imp.total_resultados === 0 && (
+        <p className="mt-4 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
+          Apify no encontró nada. Revisa en su log la línea «Location GEOLOCATED»: si la zona no es la
+          provincia, relanza indicando la zona a mano (ej. «Asturias, Spain»).
+        </p>
+      )}
 
       {imp.estado !== "cargada" ? (
         <form action={actualizarImportacion} className="mt-6 rounded-2xl border border-line bg-white p-5">

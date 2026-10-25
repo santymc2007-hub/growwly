@@ -53,18 +53,44 @@ async function apify<T>(ruta: string, init?: RequestInit): Promise<T> {
 
 type RunApify = { id: string; status: string; defaultDatasetId: string };
 
+// Provincias que en OpenStreetMap son a la vez comunidad autónoma: se
+// buscan como "state"; el resto como "county" (provincia). Con texto libre
+// ("Provincia de Asturias") Apify geolocalizaba un pueblo y buscaba solo
+// en 60 km².
+const UNIPROVINCIALES = new Set([
+  "Asturias",
+  "Cantabria",
+  "Madrid",
+  "Murcia",
+  "Navarra",
+  "La Rioja",
+  "Illes Balears",
+]);
+
+export type ZonaBusqueda = { provincia: string } | { texto: string };
+
+export function describirZona(zona: ZonaBusqueda): string {
+  return "texto" in zona ? zona.texto : `Provincia completa: ${zona.provincia}`;
+}
+
 /**
  * Lanza la búsqueda (asíncrona: no espera a que termine).
  * `maxGastoUsd` corta la ejecución si se pasa de ese coste.
  */
 export async function lanzarBusqueda(
-  zona: string,
+  zona: ZonaBusqueda,
   maxPorBusqueda: number,
   maxGastoUsd: number,
 ): Promise<RunApify> {
+  const ubicacion =
+    "texto" in zona
+      ? { locationQuery: zona.texto }
+      : UNIPROVINCIALES.has(zona.provincia)
+        ? { state: zona.provincia }
+        : { county: zona.provincia };
   const input = {
     searchStringsArray: BUSQUEDAS_CAPILARES,
-    locationQuery: zona,
+    ...ubicacion,
     language: "es",
     countryCode: "es",
     maxCrawledPlacesPerSearch: maxPorBusqueda,
