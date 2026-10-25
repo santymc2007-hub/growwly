@@ -29,18 +29,31 @@ function cpDe(l: LugarApify): string | null {
   return m ? m[1] : null;
 }
 
-// Categorías de Google que nunca son un centro capilar.
-const CATEGORIA_AJENA =
-  /farmacia|parafarmacia|tienda|supermercado|droguer|perfumer|dentist|odontolog|veterinar|gimnasio|spa\b|masaje|fisioterap|optic|óptic|tatuaje|barber/;
-// Peluquerías: solo valen si la ficha habla de pérdida de cabello/prótesis.
-const PELUQUERIA = /peluquer|sal[oó]n de belleza|hair salon|estilista/;
+// Todo se compara sin acentos y en minúsculas (sinAcentos).
+
+// Señal clara de salud capilar en el nombre o en las categorías de Google.
 const SENAL_CAPILAR =
-  /capilar|tricolog|alopecia|injerto|trasplante|pr[oó]tesis|peluca|micropigment|ca[ií]da del (pelo|cabello)|integraci[oó]n/;
+  /capilar|tricolog|alopecia|injerto|trasplante (de )?(pelo|cabello|capilar)|hair (transplant|clinic|loss|restoration)|implante capilar|micropigmentacion capilar|caida del (pelo|cabello)|pelo|cabello|trichol/;
+
+// Centros médicos donde es razonable que traten la alopecia aunque Google
+// no lo diga: entran como pendientes, marcados para comprobar en su web.
+const MEDICO_PLAUSIBLE =
+  /dermatolog|medicina estetica|cirujano plastico|cirugia plastica|cirugia estetica|clinica medica|centro medico|hospital|policlinic|medico general|consultorio medico|clinica de estetica medica/;
+
+// Especialidades médicas que nunca tratan el cabello (aunque digan "estética").
+const MEDICO_AJENO =
+  /maxilofacial|dental|dentist|odontolog|ortodonc|implante dental|oftalmolog|ginecolog|fisioterap|podolog|psicolog|nutricion|veterinar|optic|audiolog|logoped|traumatolog/;
 
 export type Clasificacion =
-  | { estado: "pendiente"; motivo: null }
+  | { estado: "pendiente"; motivo: string | null }
   | { estado: "descartado"; motivo: string };
 
+/**
+ * Regla: solo pasa lo que tenga señal capilar clara, o un centro médico
+ * plausible (dermatología, medicina estética, cirugía plástica…) que se
+ * marca para comprobar. Peluquerías, uñas, estética facial, maquillaje,
+ * barberías, etc. sin señal capilar se descartan (se pueden recuperar).
+ */
 export function clasificar(l: LugarApify, provincia: string): Clasificacion {
   if (l.permanentlyClosed) return { estado: "descartado", motivo: "Cerrado permanentemente" };
   if (l.countryCode && l.countryCode.toUpperCase() !== "ES")
@@ -52,14 +65,25 @@ export function clasificar(l: LugarApify, provincia: string): Clasificacion {
     return { estado: "descartado", motivo: `Fuera de la provincia (CP ${cp})` };
 
   const categorias = sinAcentos([l.categoryName ?? "", ...(l.categories ?? [])].join(" | "));
-  const texto = sinAcentos(`${l.title ?? ""} ${categorias}`);
+  const nombre = sinAcentos(l.title ?? "");
+  const etiqueta = l.categoryName ?? "sin categoría";
 
-  if (CATEGORIA_AJENA.test(categorias) && !SENAL_CAPILAR.test(texto))
-    return { estado: "descartado", motivo: `Categoría ajena (${l.categoryName ?? "?"})` };
-  if (PELUQUERIA.test(categorias) && !SENAL_CAPILAR.test(texto))
-    return { estado: "descartado", motivo: "Peluquería sin señales capilares" };
+  if (MEDICO_AJENO.test(categorias) && !SENAL_CAPILAR.test(nombre))
+    return { estado: "descartado", motivo: `Especialidad ajena (${etiqueta})` };
 
-  return { estado: "pendiente", motivo: null };
+  // "pelo"/"cabello" en una peluquería no es señal: ahí solo valen las fuertes.
+  const esPeluqueria = /peluquer|barber|salon de belleza|hair salon|estilista/.test(categorias);
+  const senalFuerte = /capilar|tricolog|alopecia|injerto|trasplante|implante capilar|protesis|peluca|micropigment|hair (transplant|loss|restoration)/;
+  if (esPeluqueria)
+    return senalFuerte.test(`${nombre} ${categorias}`)
+      ? { estado: "pendiente", motivo: "Peluquería con servicio capilar: comprobar" }
+      : { estado: "descartado", motivo: `Peluquería sin servicio capilar (${etiqueta})` };
+
+  if (SENAL_CAPILAR.test(`${nombre} ${categorias}`)) return { estado: "pendiente", motivo: null };
+  if (MEDICO_PLAUSIBLE.test(categorias))
+    return { estado: "pendiente", motivo: `Comprobar en su web si trata el cabello (${etiqueta})` };
+
+  return { estado: "descartado", motivo: `Sin relación capilar (${etiqueta})` };
 }
 
 /** Municipio tal como lo da Google (para sembrar la tabla `municipios`). */
