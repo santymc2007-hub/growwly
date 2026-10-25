@@ -8,17 +8,14 @@ const API = "https://api.apify.com/v2";
 /** Búsquedas que cubren todo lo capilar (ver skill growwly-scrapear-provincia). */
 export const BUSQUEDAS_CAPILARES = [
   "injerto capilar",
-  "trasplante capilar",
   "clínica capilar",
   "tricólogo",
   "tricología",
   "dermatólogo alopecia",
+  "dermatólogo capilar",
   "mesoterapia capilar",
   "PRP capilar",
-  "plasma rico en plaquetas capilar",
   "micropigmentación capilar",
-  "prótesis capilar",
-  "pelucas oncológicas",
   "caída del cabello tratamiento",
 ] as const;
 
