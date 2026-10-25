@@ -5,7 +5,7 @@ import { revalidatePath } from "next/cache";
 import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PROVINCIAS_ESPANA } from "@/lib/clinic-options";
-import { lanzarBusqueda, estadoRun, resultadosDataset, describirZona, type ZonaBusqueda } from "@/lib/importador/apify";
+import { lanzarBusqueda, estadoRun, resultadosDataset, totalDataset, describirZona, type ZonaBusqueda } from "@/lib/importador/apify";
 import { clasificar, municipioDe } from "@/lib/importador/provincia";
 import type { Json } from "@/lib/supabase/database.types";
 
@@ -55,91 +55,105 @@ export async function lanzarImportacion(formData: FormData) {
   redirect(`${RUTA}/${id}`);
 }
 
-/** Consulta Apify y, si ha terminado, guarda los candidatos filtrados. */
-export async function actualizarImportacion(formData: FormData) {
-  const id = String(formData.get("id") ?? "");
-  const ruta = `${RUTA}/${id}`;
+export type Progreso =
+  | { estado: "en_curso"; encontrados: number; mensaje: string | null }
+  | { estado: "cargada"; total: number }
+  | { estado: "fallida"; mensaje: string };
+
+/**
+ * Consulta Apify; si ha terminado, guarda los candidatos filtrados.
+ * La pantalla lo llama sola cada pocos segundos mientras busca.
+ */
+async function procesar(id: string): Promise<Progreso> {
+  const supabase = createAdminClient();
+  const { data: imp } = await supabase.from("importaciones_provincia").select("*").eq("id", id).single();
+  if (!imp) throw new Error("Importación no encontrada.");
+  if (imp.estado === "cargada") return { estado: "cargada", total: imp.total_resultados ?? 0 };
+
+  const run = await estadoRun(imp.run_id);
+  if (["READY", "RUNNING"].includes(run.status)) {
+    const encontrados = await totalDataset(run.defaultDatasetId).catch(() => 0);
+    return { estado: "en_curso", encontrados, mensaje: run.statusMessage ?? null };
+  }
+  if (run.status !== "SUCCEEDED" && run.status !== "TIMED-OUT" && run.status !== "ABORTED") {
+    await supabase.from("importaciones_provincia").update({ estado: "fallida" }).eq("id", id);
+    return { estado: "fallida", mensaje: `La búsqueda en Apify terminó con estado ${run.status}.` };
+  }
+  // TIMED-OUT / ABORTED (p. ej. al llegar al tope de gasto) también
+  // dejan resultados válidos: se cargan los que haya.
+
+  const lugares = await resultadosDataset(run.defaultDatasetId);
+
+  const { data: existentes } = await supabase
+    .from("clinics")
+    .select("id, google_place_id")
+    .not("google_place_id", "is", null);
+  const yaEnGrowwly = new Map((existentes ?? []).map((c) => [c.google_place_id!, c.id]));
+
+  const vistos = new Set<string>();
+  const filas = [];
+  const municipios = new Set<string>();
+  for (const l of lugares) {
+    if (!l.placeId || !l.title || vistos.has(l.placeId)) continue;
+    vistos.add(l.placeId);
+    const c = clasificar(l, imp.provincia);
+    const clinicId = yaEnGrowwly.get(l.placeId) ?? null;
+    const municipio = municipioDe(l);
+    if (c.estado === "pendiente" && municipio) municipios.add(municipio);
+    filas.push({
+      importacion_id: id,
+      place_id: l.placeId,
+      nombre: l.title,
+      categoria: l.categoryName ?? null,
+      direccion: l.address ?? null,
+      municipio,
+      telefono: l.phoneUnformatted ?? l.phone ?? null,
+      web: l.website ?? null,
+      rating: l.totalScore ?? null,
+      resenas: l.reviewsCount ?? null,
+      maps_url: l.url ?? null,
+      datos: l as unknown as Json,
+      estado: clinicId ? "ya_en_growwly" : c.estado,
+      motivo: clinicId ? "Ya existe en Growwly" : c.motivo,
+      clinic_id: clinicId,
+    });
+  }
+
+  for (let i = 0; i < filas.length; i += 500) {
+    const { error } = await supabase
+      .from("importacion_candidatos")
+      .upsert(filas.slice(i, i + 500), { onConflict: "importacion_id,place_id", ignoreDuplicates: true });
+    if (error) throw new Error(error.message);
+  }
+
+  // Municipios con centros, para que la ficha pueda elegirlos en el desplegable.
+  if (municipios.size) {
+    await supabase
+      .from("municipios")
+      .upsert(
+        Array.from(municipios).map((nombre) => ({ provincia: imp.provincia, nombre })),
+        { onConflict: "provincia,nombre", ignoreDuplicates: true },
+      );
+  }
+
+  await supabase
+    .from("importaciones_provincia")
+    .update({ estado: "cargada", total_resultados: filas.length, cargada_at: new Date().toISOString() })
+    .eq("id", id);
+  return { estado: "cargada", total: filas.length };
+}
+
+export async function comprobarProgreso(id: string): Promise<Progreso> {
   try {
     await requireAdmin();
-    const supabase = createAdminClient();
-    const { data: imp } = await supabase.from("importaciones_provincia").select("*").eq("id", id).single();
-    if (!imp) throw new Error("Importación no encontrada.");
-    if (imp.estado === "cargada") return;
-
-    const run = await estadoRun(imp.run_id);
-    if (["READY", "RUNNING"].includes(run.status)) {
-      revalidatePath(ruta);
-      return;
-    }
-    if (run.status !== "SUCCEEDED" && run.status !== "TIMED-OUT" && run.status !== "ABORTED") {
-      await supabase.from("importaciones_provincia").update({ estado: "fallida" }).eq("id", id);
-      throw new Error(`La búsqueda en Apify terminó con estado ${run.status}.`);
-    }
-    // TIMED-OUT / ABORTED (p. ej. al llegar al tope de gasto) también
-    // dejan resultados válidos: se cargan los que haya.
-
-    const lugares = await resultadosDataset(run.defaultDatasetId);
-
-    const { data: existentes } = await supabase
-      .from("clinics")
-      .select("id, google_place_id")
-      .not("google_place_id", "is", null);
-    const yaEnGrowwly = new Map((existentes ?? []).map((c) => [c.google_place_id!, c.id]));
-
-    const vistos = new Set<string>();
-    const filas = [];
-    const municipios = new Set<string>();
-    for (const l of lugares) {
-      if (!l.placeId || !l.title || vistos.has(l.placeId)) continue;
-      vistos.add(l.placeId);
-      const c = clasificar(l, imp.provincia);
-      const clinicId = yaEnGrowwly.get(l.placeId) ?? null;
-      const municipio = municipioDe(l);
-      if (c.estado === "pendiente" && municipio) municipios.add(municipio);
-      filas.push({
-        importacion_id: id,
-        place_id: l.placeId,
-        nombre: l.title,
-        categoria: l.categoryName ?? null,
-        direccion: l.address ?? null,
-        municipio,
-        telefono: l.phoneUnformatted ?? l.phone ?? null,
-        web: l.website ?? null,
-        rating: l.totalScore ?? null,
-        resenas: l.reviewsCount ?? null,
-        maps_url: l.url ?? null,
-        datos: l as unknown as Json,
-        estado: clinicId ? "ya_en_growwly" : c.estado,
-        motivo: clinicId ? "Ya existe en Growwly" : c.motivo,
-        clinic_id: clinicId,
-      });
-    }
-
-    for (let i = 0; i < filas.length; i += 500) {
-      const { error } = await supabase
-        .from("importacion_candidatos")
-        .upsert(filas.slice(i, i + 500), { onConflict: "importacion_id,place_id", ignoreDuplicates: true });
-      if (error) throw new Error(error.message);
-    }
-
-    // Municipios con centros, para que la ficha pueda elegirlos en el desplegable.
-    if (municipios.size) {
-      await supabase
-        .from("municipios")
-        .upsert(
-          Array.from(municipios).map((nombre) => ({ provincia: imp.provincia, nombre })),
-          { onConflict: "provincia,nombre", ignoreDuplicates: true },
-        );
-    }
-
-    await supabase
-      .from("importaciones_provincia")
-      .update({ estado: "cargada", total_resultados: filas.length, cargada_at: new Date().toISOString() })
-      .eq("id", id);
+    const p = await procesar(id);
+    if (p.estado !== "en_curso") revalidatePath(`${RUTA}/${id}`);
+    return p;
   } catch (e) {
-    conError(ruta, e);
+    // Un fallo puntual de red no corta el seguimiento: se reintenta en la siguiente vuelta.
+    console.error(e);
+    return { estado: "en_curso", encontrados: 0, mensaje: e instanceof Error ? e.message : null };
   }
-  revalidatePath(ruta);
 }
 
 export async function cambiarEstadoCandidato(formData: FormData) {

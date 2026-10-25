@@ -51,7 +51,7 @@ async function apify<T>(ruta: string, init?: RequestInit): Promise<T> {
   return (await res.json()) as T;
 }
 
-type RunApify = { id: string; status: string; defaultDatasetId: string };
+type RunApify = { id: string; status: string; defaultDatasetId: string; statusMessage?: string | null };
 
 // Provincias que en OpenStreetMap son a la vez comunidad autónoma: se
 // buscan como "state"; el resto como "county" (provincia). Con texto libre
@@ -110,6 +110,12 @@ export async function lanzarBusqueda(
 export async function estadoRun(runId: string): Promise<RunApify> {
   const { data } = await apify<{ data: RunApify }>(`/actor-runs/${encodeURIComponent(runId)}`);
   return data;
+}
+
+/** Nº de resultados que lleva el dataset (para mostrar el progreso). */
+export async function totalDataset(datasetId: string): Promise<number> {
+  const { data } = await apify<{ data: { itemCount?: number } }>(`/datasets/${encodeURIComponent(datasetId)}`);
+  return data.itemCount ?? 0;
 }
 
 /** Un resultado del actor (solo los campos que usamos). */
