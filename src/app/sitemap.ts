@@ -2,6 +2,7 @@ import type { MetadataRoute } from "next";
 import { createClient } from "@/lib/supabase/server";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { todasLasLandings } from "@/lib/seo/landings";
+import { todasLasPaginasRanking } from "@/lib/seo/mejores-datos";
 
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL || "https://www.growwly.es";
@@ -64,6 +65,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Rankings «Las mejores clínicas de … en …» (≥3 centros).
+  const paginasRanking: MetadataRoute.Sitemap = (await todasLasPaginasRanking()).map((ruta) => ({
+    url: `${siteUrl}${ruta}`,
+    changeFrequency: "weekly",
+    priority: 0.8,
+  }));
+
   const paginasClinicas: MetadataRoute.Sitemap = (clinicas ?? [])
     .filter((c) => c.ciudad)
     .map((c) => ({
@@ -92,6 +100,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...paginasProvincia,
     ...paginasCiudad,
     ...paginasLanding,
+    ...paginasRanking,
     ...paginasClinicas,
     ...paginasBlog,
     ...paginasTratamientos,

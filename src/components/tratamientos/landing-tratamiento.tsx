@@ -10,6 +10,8 @@ import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { EnlacesEnLinea, PaginaListado } from "@/components/clinics/pagina-listado";
 import { hrefFicha, enFrase, type LugarLanding } from "@/lib/seo/landings";
 import { SITE_URL } from "@/lib/site-url";
+import { MIN_CENTROS_RANKING } from "@/lib/seo/mejores";
+import { slugifyProvincia } from "@/lib/clinic-options";
 import type { Clinic } from "@/lib/supabase/database.types";
 
 /**
@@ -89,6 +91,17 @@ export async function LandingTratamiento({
             >
               Lee la guía completa de {nombreMin} →
             </Link>
+            {ciudades && clinicas.length >= MIN_CENTROS_RANKING && (
+              <>
+                {" "}
+                <Link
+                  href={`/mejores/${tratamiento.slug}/${slugifyProvincia(provinciaReal)}`}
+                  className="font-medium text-cyan hover:text-cyan-dark"
+                >
+                  Ver el ranking de las mejores →
+                </Link>
+              </>
+            )}
           </>
         }
         cabecera={

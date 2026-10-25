@@ -1,5 +1,7 @@
 import { paraListado } from "@/lib/clinica/para-listado";
 import { cache } from "react";
+import Link from "next/link";
+import { MIN_CENTROS_RANKING, TEMA_GENERAL } from "@/lib/seo/mejores";
 import { notFound } from "next/navigation";
 import { after } from "next/server";
 import type { Metadata } from "next";
@@ -15,6 +17,7 @@ import {
   nombreProvinciaBuscable,
   tecnicasMasComunes,
   lugaresConLanding,
+  enFrase,
 } from "@/lib/seo/landings";
 
 type Params = { provincia: string };
@@ -115,7 +118,19 @@ export default async function ProvinciaPage({
       intro={
         clinicas.length === 0
           ? `Todavía no tenemos centros registrados en ${lugar}.`
-          : `${clinicas.length} centros capilares en ${lugar}.`
+          : (
+            <>
+              {`${clinicas.length} centros capilares en ${lugar}. `}
+              {clinicas.length >= MIN_CENTROS_RANKING && (
+                <Link
+                  href={`/mejores/${TEMA_GENERAL}/${provincia}`}
+                  className="font-medium text-cyan hover:text-cyan-dark"
+                >
+                  Ver las mejores clínicas capilares en {lugar} →
+                </Link>
+              )}
+            </>
+          )
       }
       cabecera={
         ciudades.length > 0 ? (
@@ -136,6 +151,15 @@ export default async function ProvinciaPage({
             href: `/tratamientos/${t.slug}/${provincia}`,
             texto: `${t.nombre} (${t.n})`,
           })),
+        },
+        {
+          titulo: `Rankings en ${lugar}`,
+          enlaces: tratamientosConLanding
+            .filter((t) => t.n >= MIN_CENTROS_RANKING)
+            .map((t) => ({
+              href: `/mejores/${t.slug}/${provincia}`,
+              texto: `Mejores clínicas de ${enFrase(t.nombre)}`,
+            })),
         },
       ]}
     >
