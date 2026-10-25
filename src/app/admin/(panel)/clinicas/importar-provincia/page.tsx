@@ -64,7 +64,7 @@ export default async function ImportarProvinciaPage({
           <input
             id="zona"
             name="zona"
-            placeholder="Por defecto: «Provincia de [provincia], España». Ej. para afinar: «Gandia, Valencia, España»"
+            placeholder="Vacío = toda la provincia. Para afinar a una zona: «Gandia, Valencia, España»"
             className={inputClass}
           />
         </div>
