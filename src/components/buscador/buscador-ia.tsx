@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ArrowLeft, Check, Columns2, HelpCircle, RotateCcw, ShieldCheck, Star, X } from "lucide-react";
+import { ArrowLeft, Check, Columns2, HelpCircle, Mic, RotateCcw, ShieldCheck, Square, Star, X } from "lucide-react";
 import { trackEvent } from "@/lib/analytics/events";
 import {
   EJEMPLOS_BUSQUEDA,
@@ -15,6 +15,7 @@ import {
 } from "@/lib/buscador/palabras";
 import type { RespuestaBuscador } from "@/lib/buscador/tipos";
 import { MarcaIA } from "./marca-ia";
+import { useDictado } from "./use-dictado";
 
 // Donde no sale el botón: embudos de conversión y zonas privadas.
 const RUTAS_SIN_BOTON = [
@@ -73,6 +74,7 @@ export function BuscadorIA() {
   const [paso, setPaso] = useState(0);
 
   const deteccion = useMemo(() => detectar(texto), [texto]);
+  const dictado = useDictado(texto, setTexto);
 
   // La burbuja aparece a los pocos segundos, salvo que ya la cerrara.
   useEffect(() => {
@@ -110,6 +112,12 @@ export function BuscadorIA() {
     return () => clearInterval(t);
   }, [fase]);
 
+  // Al cerrar la capa se deja de escuchar.
+  const pararDictado = dictado.parar;
+  useEffect(() => {
+    if (!abierto) pararDictado();
+  }, [abierto, pararDictado]);
+
   if (oculto) return null;
 
   function cerrarBurbuja() {
@@ -140,6 +148,7 @@ export function BuscadorIA() {
   }
 
   async function buscar() {
+    dictado.parar();
     if (texto.trim().length < 4) {
       setError("Cuéntanos un poco más lo que buscas.");
       return;
@@ -269,6 +278,7 @@ export function BuscadorIA() {
                   <label htmlFor="buscador-ia-texto" className="sr-only">
                     Describe lo que buscas
                   </label>
+                  <div className="relative">
                   <textarea
                     id="buscador-ia-texto"
                     ref={campo}
@@ -284,8 +294,46 @@ export function BuscadorIA() {
                     }}
                     disabled={fase === "cargando"}
                     placeholder="Ej.: Busco hacerme un injerto en Palma, que no supere los 4.000 € y con las técnicas más avanzadas"
-                    className="min-h-[150px] w-full resize-none border-0 bg-transparent text-[17px] font-medium leading-relaxed text-ink outline-none placeholder:text-[15px] placeholder:font-normal placeholder:text-ink-soft/45 sm:min-h-0 sm:text-[21px] sm:placeholder:text-[19px]"
+                    className="min-h-[150px] w-full resize-none pb-14 border-0 bg-transparent text-[17px] font-medium leading-relaxed text-ink outline-none placeholder:text-[15px] placeholder:font-normal placeholder:text-ink-soft/45 sm:min-h-0 sm:text-[21px] sm:placeholder:text-[19px]"
                   />
+                  {dictado.soportado && fase === "escribir" && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (dictado.escuchando) {
+                          dictado.parar();
+                        } else {
+                          dictado.empezar();
+                          trackEvent("buscador_ia_dictado");
+                        }
+                      }}
+                      aria-label={dictado.escuchando ? "Parar el dictado" : "Dictar con la voz"}
+                      aria-pressed={dictado.escuchando}
+                      className={`absolute bottom-1 right-0 flex items-center gap-2 rounded-full pl-3 pr-1 text-sm font-semibold transition ${
+                        dictado.escuchando ? "text-red-700" : "text-teal-dark"
+                      }`}
+                    >
+                      <span className="hidden sm:inline">
+                        {dictado.escuchando ? "Escuchando… toca para parar" : "o díctalo"}
+                      </span>
+                      <span
+                        className={`flex h-12 w-12 items-center justify-center rounded-full shadow-md ${
+                          dictado.escuchando ? "animate-pulse bg-red-600 text-white" : "bg-logo text-white hover:bg-teal-dark"
+                        }`}
+                      >
+                        {dictado.escuchando ? (
+                          <Square className="h-4 w-4 fill-current" aria-hidden />
+                        ) : (
+                          <Mic className="h-5 w-5" aria-hidden />
+                        )}
+                      </span>
+                    </button>
+                  )}
+                  </div>
+                  {dictado.escuchando && (
+                    <p className="mt-1 text-xs font-medium text-red-700 sm:hidden">Escuchando… toca para parar</p>
+                  )}
+                  {dictado.error && <p className="mt-1 text-xs font-medium text-red-700">{dictado.error}</p>}
 
                   <div className="mt-2 border-t border-line/70 pt-3">
                     <div className="flex flex-wrap items-center justify-between gap-2">
