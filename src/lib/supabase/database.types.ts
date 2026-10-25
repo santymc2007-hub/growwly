@@ -1470,6 +1470,110 @@ export type Database = {
         }
         Relationships: []
       }
+      importacion_candidatos: {
+        Row: {
+          categoria: string | null
+          clinic_id: string | null
+          created_at: string
+          datos: Json
+          direccion: string | null
+          estado: string
+          id: string
+          importacion_id: string
+          maps_url: string | null
+          motivo: string | null
+          municipio: string | null
+          nombre: string
+          place_id: string
+          rating: number | null
+          resenas: number | null
+          telefono: string | null
+          web: string | null
+        }
+        Insert: {
+          categoria?: string | null
+          clinic_id?: string | null
+          created_at?: string
+          datos?: Json
+          direccion?: string | null
+          estado?: string
+          id?: string
+          importacion_id: string
+          maps_url?: string | null
+          motivo?: string | null
+          municipio?: string | null
+          nombre: string
+          place_id: string
+          rating?: number | null
+          resenas?: number | null
+          telefono?: string | null
+          web?: string | null
+        }
+        Update: {
+          categoria?: string | null
+          clinic_id?: string | null
+          created_at?: string
+          datos?: Json
+          direccion?: string | null
+          estado?: string
+          id?: string
+          importacion_id?: string
+          maps_url?: string | null
+          motivo?: string | null
+          municipio?: string | null
+          nombre?: string
+          place_id?: string
+          rating?: number | null
+          resenas?: number | null
+          telefono?: string | null
+          web?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "importacion_candidatos_importacion_id_fkey"
+            columns: ["importacion_id"]
+            isOneToOne: false
+            referencedRelation: "importaciones_provincia"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      importaciones_provincia: {
+        Row: {
+          cargada_at: string | null
+          created_at: string
+          dataset_id: string | null
+          estado: string
+          id: string
+          provincia: string
+          run_id: string
+          total_resultados: number | null
+          zona_busqueda: string
+        }
+        Insert: {
+          cargada_at?: string | null
+          created_at?: string
+          dataset_id?: string | null
+          estado?: string
+          id?: string
+          provincia: string
+          run_id: string
+          total_resultados?: number | null
+          zona_busqueda: string
+        }
+        Update: {
+          cargada_at?: string | null
+          created_at?: string
+          dataset_id?: string | null
+          estado?: string
+          id?: string
+          provincia?: string
+          run_id?: string
+          total_resultados?: number | null
+          zona_busqueda?: string
+        }
+        Relationships: []
+      }
       zonas: {
         Row: {
           created_at: string

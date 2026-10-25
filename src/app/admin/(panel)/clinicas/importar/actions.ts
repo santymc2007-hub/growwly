@@ -412,6 +412,15 @@ export async function guardarImportacion(
         };
       }
 
+      // Viene de "Importar provincia": se marca el candidato como importado.
+      const candidatoId = str(formData, "candidato_id");
+      if (candidatoId) {
+        await supabase
+          .from("importacion_candidatos")
+          .update({ estado: "importado", clinic_id: creada.id, motivo: null })
+          .eq("id", candidatoId);
+      }
+
       const aviso = fallos ? `${fallos} foto(s) no se pudieron descargar.` : "";
       destino = `/admin/clinicas/${creada.id}/editar${aviso ? `?error=${encodeURIComponent(aviso)}` : ""}`;
     }

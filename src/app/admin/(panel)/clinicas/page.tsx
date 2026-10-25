@@ -112,6 +112,12 @@ export default async function AdminClinicasPage({
             Importar desde web
           </Link>
           <Link
+            href="/admin/clinicas/importar-provincia"
+            className="rounded-lg border border-teal px-4 py-2 text-sm font-medium text-teal hover:bg-sage/40"
+          >
+            Importar provincia
+          </Link>
+          <Link
             href="/admin/clinicas/nueva"
             className="rounded-lg bg-teal px-4 py-2 text-sm font-medium text-paper hover:bg-teal-dark"
           >

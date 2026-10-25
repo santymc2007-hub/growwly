@@ -28,13 +28,16 @@ const MAX_FOTOS = 10;
 const FOTOS_POR_DEFECTO = 5;
 
 type Municipio = { provincia: string; nombre: string };
+type Prefill = { candidato: string | null; nombre: string; web: string; maps: string } | null;
 
 export function Importador({
   clinica,
   municipios,
+  prefill = null,
 }: {
   clinica: Clinic | null;
   municipios: Municipio[];
+  prefill?: Prefill;
 }) {
   const [resultado, analizar, analizando] = useActionState<ResultadoAnalisis | null, FormData>(
     analizarClinica,
@@ -71,7 +74,7 @@ export function Importador({
               <input
                 id="web"
                 name="web"
-                defaultValue={clinica?.web?.split(/\s/)[0] ?? undefined}
+                defaultValue={clinica?.web?.split(/\s/)[0] ?? (prefill?.web || undefined)}
                 placeholder="clinicaejemplo.com"
                 className={inputClass}
               />
@@ -84,7 +87,7 @@ export function Importador({
                 <input
                   id="nombre"
                   name="nombre"
-                  defaultValue={clinica?.nombre}
+                  defaultValue={clinica?.nombre ?? (prefill?.nombre || undefined)}
                   placeholder="Para buscarla en Google Maps"
                   className={inputClass}
                 />
@@ -115,7 +118,7 @@ export function Importador({
               <input
                 id="maps_url"
                 name="maps_url"
-                defaultValue={clinica?.google_maps_url ?? undefined}
+                defaultValue={clinica?.google_maps_url ?? (prefill?.maps || undefined)}
                 placeholder="https://maps.app.goo.gl/…"
                 className={inputClass}
               />
@@ -155,6 +158,7 @@ export function Importador({
           propuesta={propuesta}
           clinica={clinica}
           municipios={municipios}
+          candidatoId={prefill?.candidato ?? null}
           onNuevaBusqueda={() => setVerBusqueda(true)}
         />
       )}
@@ -182,11 +186,13 @@ function Revision({
   propuesta,
   clinica,
   municipios,
+  candidatoId,
   onNuevaBusqueda,
 }: {
   propuesta: PropuestaImportacion;
   clinica: Clinic | null;
   municipios: Municipio[];
+  candidatoId: string | null;
   onNuevaBusqueda: () => void;
 }) {
   const [estadoGuardado, guardar, guardando] = useActionState(guardarImportacion, null);
@@ -213,6 +219,7 @@ function Revision({
       {estadoGuardado?.error && <p className={avisoClass}>{estadoGuardado.error}</p>}
 
       {clinica && <input type="hidden" name="clinica_id" value={clinica.id} />}
+      {candidatoId && <input type="hidden" name="candidato_id" value={candidatoId} />}
       <input type="hidden" name="google" value={g ? JSON.stringify(g) : ""} />
       <input type="hidden" name="provincia" value={provincia} />
 
