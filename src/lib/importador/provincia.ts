@@ -71,9 +71,16 @@ export function clasificar(l: LugarApify, provincia: string): Clasificacion {
   if (MEDICO_AJENO.test(categorias) && !SENAL_CAPILAR.test(nombre))
     return { estado: "descartado", motivo: `Especialidad ajena (${etiqueta})` };
 
+  const senalFuerte = /capilar|tricolog|alopecia|injerto|trasplante|implante capilar|protesis|peluca|micropigment|hair (transplant|loss|restoration)/;
+
+  // Tiendas (electrodomésticos, cosmética, tatuajes…): fuera, salvo que el
+  // nombre diga claramente que es capilar (p. ej. "Micropigmentación capilar").
+  const principal = sinAcentos(l.categoryName ?? "");
+  if (/^tienda|electrodomest|supermercado|farmacia|perfumeria|drogueria/.test(principal) && !senalFuerte.test(nombre))
+    return { estado: "descartado", motivo: `Tienda (${etiqueta})` };
+
   // "pelo"/"cabello" en una peluquería no es señal: ahí solo valen las fuertes.
   const esPeluqueria = /peluquer|barber|salon de belleza|hair salon|estilista/.test(categorias);
-  const senalFuerte = /capilar|tricolog|alopecia|injerto|trasplante|implante capilar|protesis|peluca|micropigment|hair (transplant|loss|restoration)/;
   if (esPeluqueria)
     return senalFuerte.test(`${nombre} ${categorias}`)
       ? { estado: "pendiente", motivo: "Peluquería con servicio capilar: comprobar" }
