@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { actualizarImportacion, cambiarEstadoCandidato } from "../actions";
+import { cambiarEstadoCandidato } from "../actions";
+import { Seguimiento } from "./seguimiento";
 
 export const dynamic = "force-dynamic";
 // Descargar y guardar cientos de resultados de Apify puede tardar.
@@ -71,17 +72,13 @@ export default async function ImportacionPage({
       )}
 
       {imp.estado !== "cargada" ? (
-        <form action={actualizarImportacion} className="mt-6 rounded-2xl border border-line bg-white p-5">
-          <input type="hidden" name="id" value={imp.id} />
-          <p className="text-sm text-ink">
-            {imp.estado === "fallida"
-              ? "La búsqueda falló en Apify."
-              : "Apify está buscando. Suele tardar entre 5 y 30 minutos según la provincia."}
+        imp.estado === "fallida" ? (
+          <p className="mt-6 rounded-lg bg-error/10 px-4 py-3 text-sm text-error-dark">
+            La búsqueda falló en Apify. Mira el log en el enlace de arriba y relánzala.
           </p>
-          <button className="press mt-3 rounded-full bg-teal px-5 py-2 text-sm font-medium text-paper hover:bg-teal-dark">
-            Comprobar y cargar resultados
-          </button>
-        </form>
+        ) : (
+          <Seguimiento id={imp.id} provincia={imp.provincia} inicio={imp.created_at} />
+        )
       ) : (
         <>
           <nav className="mt-6 flex flex-wrap gap-2">
