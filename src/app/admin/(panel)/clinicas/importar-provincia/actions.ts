@@ -6,7 +6,9 @@ import { createClient } from "@/lib/supabase/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { PROVINCIAS_ESPANA } from "@/lib/clinic-options";
 import { lanzarBusqueda, estadoRun, resultadosDataset, totalDataset, describirZona, type ZonaBusqueda } from "@/lib/importador/apify";
-import { clasificar, municipioDe } from "@/lib/importador/provincia";
+import { clasificar, municipioDe, comunidadDe, telefonoNacional, horariosTexto } from "@/lib/importador/provincia";
+import { slugify } from "@/lib/slugify";
+import type { LugarApify } from "@/lib/importador/apify";
 import type { Json } from "@/lib/supabase/database.types";
 
 const RUTA = "/admin/clinicas/importar-provincia";
@@ -172,4 +174,123 @@ export async function cambiarEstadoCandidato(formData: FormData) {
     conError(`${RUTA}/${importacionId}`, e);
   }
   revalidatePath(`${RUTA}/${importacionId}`);
+}
+
+export type ResultadoRevision = { ok: true; creadas: number; eliminadas: number; avisos: string[] } | { ok: false; error: string };
+
+/**
+ * Aplica de golpe la revisión hecha en pantalla: los "viables" se crean
+ * como fichas sin publicar con los datos de Google Maps (luego se
+ * completan desde su web) y los marcados para eliminar se borran.
+ */
+export async function aplicarRevision(
+  importacionId: string,
+  viables: string[],
+  eliminar: string[],
+): Promise<ResultadoRevision> {
+  try {
+    await requireAdmin();
+    const supabase = createAdminClient();
+    const { data: imp } = await supabase
+      .from("importaciones_provincia")
+      .select("provincia")
+      .eq("id", importacionId)
+      .single();
+    if (!imp) throw new Error("Importación no encontrada.");
+
+    let eliminadas = 0;
+    if (eliminar.length) {
+      const { data, error } = await supabase
+        .from("importacion_candidatos")
+        .delete()
+        .eq("importacion_id", importacionId)
+        .in("id", eliminar)
+        .in("estado", ["pendiente", "descartado"])
+        .select("id");
+      if (error) throw new Error(error.message);
+      eliminadas = data?.length ?? 0;
+    }
+
+    const avisos: string[] = [];
+    let creadas = 0;
+    if (viables.length) {
+      const { data: candidatos } = await supabase
+        .from("importacion_candidatos")
+        .select("*")
+        .eq("importacion_id", importacionId)
+        .in("id", viables)
+        .in("estado", ["pendiente", "descartado"]);
+
+      const { data: existentes } = await supabase.from("clinics").select("slug, google_place_id");
+      const slugs = new Set((existentes ?? []).map((c) => c.slug));
+      const placeIds = new Set((existentes ?? []).map((c) => c.google_place_id).filter(Boolean));
+
+      for (const c of candidatos ?? []) {
+        if (placeIds.has(c.place_id)) {
+          avisos.push(`${c.nombre}: ya estaba en Growwly.`);
+          continue;
+        }
+        const l = (c.datos ?? {}) as LugarApify;
+        const base = slugify(`${c.nombre}${c.municipio ? `-${c.municipio}` : ""}`) || "centro";
+        let slug = slugify(c.nombre) || base;
+        if (slugs.has(slug)) slug = base;
+        for (let n = 2; slugs.has(slug); n++) slug = `${base}-${n}`;
+        slugs.add(slug);
+
+        const telefono = telefonoNacional(c.telefono);
+        const redes: Record<string, string> = {};
+        if (l.instagrams?.[0]) redes.instagram = l.instagrams[0];
+        if (l.facebooks?.[0]) redes.facebook = l.facebooks[0];
+        if (l.tiktoks?.[0]) redes.tiktok = l.tiktoks[0];
+
+        const { data: creada, error } = await supabase
+          .from("clinics")
+          .insert({
+            nombre: c.nombre,
+            slug,
+            provincia: imp.provincia,
+            comunidad_autonoma: comunidadDe(imp.provincia),
+            ciudad: c.municipio,
+            direccion: c.direccion,
+            telefono,
+            telefono_es_movil: telefono ? /^[67]/.test(telefono) : true,
+            email: l.emails?.[0] ?? null,
+            web: c.web,
+            redes_sociales: redes,
+            lat: l.location?.lat ?? null,
+            lng: l.location?.lng ?? null,
+            google_place_id: c.place_id,
+            google_maps_url: c.maps_url,
+            rating_google: c.rating,
+            resenas_google: c.resenas,
+            google_synced_at: new Date().toISOString(),
+            horarios: horariosTexto(l),
+            // Siempre entra oculta: se completa desde su web y se publica a mano.
+            publicado: false,
+            verificado: false,
+            verificado_admin: false,
+            leads_enabled: false,
+          })
+          .select("id")
+          .single();
+        if (error || !creada) {
+          avisos.push(`${c.nombre}: ${error?.message ?? "no se pudo crear"}`);
+          continue;
+        }
+        placeIds.add(c.place_id);
+        await supabase
+          .from("importacion_candidatos")
+          .update({ estado: "importado", clinic_id: creada.id, motivo: null })
+          .eq("id", c.id);
+        creadas++;
+      }
+    }
+
+    revalidatePath(`${RUTA}/${importacionId}`);
+    revalidatePath("/admin/clinicas");
+    return { ok: true, creadas, eliminadas, avisos };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, error: e instanceof Error ? e.message : "Error inesperado." };
+  }
 }

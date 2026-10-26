@@ -142,6 +142,7 @@ export type LugarApify = {
   instagrams?: string[] | null;
   facebooks?: string[] | null;
   tiktoks?: string[] | null;
+  openingHours?: { day?: string; hours?: string }[] | null;
 };
 
 export async function resultadosDataset(datasetId: string): Promise<LugarApify[]> {
