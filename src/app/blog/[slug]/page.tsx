@@ -62,7 +62,7 @@ export async function generateMetadata({
       description,
       type: "article",
       publishedTime: post.publicado_en ?? undefined,
-      images: post.imagen_portada ? [post.imagen_portada] : undefined,
+      images: post.imagen_portada ? [post.imagen_portada] : OG_BASE.images,
     },
   };
 }

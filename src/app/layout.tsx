@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { OG_IMAGEN_DEFECTO } from "@/lib/seo/meta";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { CookieConsent } from "@/components/analytics/cookie-consent";
 import { BuscadorIA } from "@/components/buscador/buscador-ia";
@@ -43,9 +44,11 @@ export const metadata: Metadata = {
     siteName: "Growwly",
     type: "website",
     locale: "es_ES",
+    images: [OG_IMAGEN_DEFECTO],
   },
   twitter: {
     card: "summary_large_image",
+    images: [OG_IMAGEN_DEFECTO.url],
   },
   // Verificación del dominio en el porfolio empresarial de Meta (no quitar:
   // Meta la revisa periódicamente y, si desaparece, el dominio deja de estar verificado).
