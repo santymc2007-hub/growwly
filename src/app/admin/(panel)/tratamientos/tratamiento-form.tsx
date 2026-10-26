@@ -4,6 +4,7 @@ import type { Tratamiento } from "@/lib/supabase/database.types";
 import { TECNICAS_DISPONIBLES, CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
 import { CampoMetaDescripcion } from "@/components/admin/campo-meta-description";
 import { EditorContenido } from "@/components/admin/editor-contenido";
+import { INFO_NIVEL, MAX_FUENTES, NIVELES_EVIDENCIA, leerFuentes } from "@/lib/tratamientos/evidencia";
 
 type Props = {
   action: (formData: FormData) => void;
@@ -174,6 +175,75 @@ export function TratamientoForm({ action, tratamiento, error }: Props) {
             </div>
           ))}
         </div>
+
+        <fieldset className="rounded-xl border border-teal/30 bg-sage/30 p-4">
+          <legend className="px-1 text-sm font-semibold text-teal-dark">
+            Evidencia científica frente a la alopecia
+          </legend>
+          <p className="mb-3 text-xs text-ink-soft">
+            Se muestra en la ficha solo si marcas «Revisado» y hay al menos una fuente. Déjalo
+            vacío en cirugía, diagnóstico y estética: ahí no aplica.
+          </p>
+          <label className={labelClass} htmlFor="evidencia">
+            Nivel
+          </label>
+          <select
+            id="evidencia"
+            name="evidencia"
+            defaultValue={tratamiento?.evidencia ?? ""}
+            className={inputClass}
+          >
+            <option value="">No aplica / sin indicador</option>
+            {NIVELES_EVIDENCIA.map((n) => (
+              <option key={n} value={n}>
+                {INFO_NIVEL[n].etiqueta}
+              </option>
+            ))}
+          </select>
+          <label className={`${labelClass} mt-3 block`} htmlFor="evidencia_texto">
+            Qué se sabe (2-3 frases, sin promesas)
+          </label>
+          <textarea
+            id="evidencia_texto"
+            name="evidencia_texto"
+            rows={3}
+            defaultValue={tratamiento?.evidencia_texto ?? undefined}
+            className={inputClass}
+          />
+          <p className={`${labelClass} mt-3`}>Fuentes (estudios o guías, con enlace https)</p>
+          {Array.from({ length: MAX_FUENTES }, (_, i) => {
+            const f = leerFuentes(tratamiento?.evidencia_fuentes)[i];
+            return (
+              <div key={i} className="mt-2 grid gap-2 sm:grid-cols-2">
+                <input
+                  name={`evidencia_fuente_titulo_${i}`}
+                  placeholder="Título del estudio"
+                  defaultValue={f?.titulo}
+                  className={inputClass}
+                />
+                <input
+                  name={`evidencia_fuente_url_${i}`}
+                  placeholder="https://pubmed.ncbi.nlm.nih.gov/…"
+                  defaultValue={f?.url}
+                  className={inputClass}
+                />
+              </div>
+            );
+          })}
+          <input
+            type="hidden"
+            name="evidencia_actualizada"
+            value={tratamiento?.evidencia_actualizada ?? ""}
+          />
+          <label className="mt-3 flex items-center gap-2 text-sm">
+            <input
+              type="checkbox"
+              name="evidencia_revisada"
+              defaultChecked={tratamiento?.evidencia_revisada}
+            />
+            Revisado por una persona con criterio médico — publicar el indicador
+          </label>
+        </fieldset>
 
         <label className="flex items-center gap-2 text-sm">
           <input

@@ -16,6 +16,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { NavTratamientos } from "@/components/tratamientos/nav-tratamientos";
 import { ContenidoEnriquecido } from "@/components/contenido-enriquecido";
+import { EvidenciaTratamiento } from "@/components/tratamientos/evidencia-tratamiento";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import { getDestinosTratamiento, getDestinosCiudad } from "@/lib/seo/enlaces-internos";
@@ -298,6 +299,8 @@ export default async function TratamientoPage({
                     </div>
                   )}
                 </dl>
+
+                <EvidenciaTratamiento tratamiento={tratamiento} />
 
                 <ContenidoEnriquecido
                   contenido={tratamiento.contenido}

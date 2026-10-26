@@ -1,6 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/lib/auth/require-admin";
+import { MAX_FUENTES, nivelValido } from "@/lib/tratamientos/evidencia";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { createAdminClient } from "@/lib/supabase/admin";
@@ -51,6 +52,27 @@ function readFields(formData: FormData) {
     publicado: formData.get("publicado") === "on",
     preguntas_frecuentes: faqs,
     destacado_home: formData.get("destacado_home") === "on",
+    ...camposEvidencia(formData, str),
+  };
+}
+
+/** Indicador de evidencia: nivel, texto, fuentes y si está revisado. */
+function camposEvidencia(formData: FormData, str: (k: string) => string | null) {
+  const fuentes: { titulo: string; url: string }[] = [];
+  for (let i = 0; i < MAX_FUENTES; i++) {
+    const titulo = str(`evidencia_fuente_titulo_${i}`);
+    const url = str(`evidencia_fuente_url_${i}`);
+    if (titulo && url && /^https:\/\//.test(url)) fuentes.push({ titulo, url });
+  }
+  const revisada = formData.get("evidencia_revisada") === "on";
+  return {
+    evidencia: nivelValido(str("evidencia")),
+    evidencia_texto: str("evidencia_texto"),
+    evidencia_fuentes: fuentes,
+    evidencia_revisada: revisada,
+    evidencia_actualizada: revisada
+      ? (str("evidencia_actualizada") ?? new Date().toISOString().slice(0, 10))
+      : str("evidencia_actualizada"),
   };
 }
 
@@ -108,6 +130,11 @@ export async function createTratamiento(formData: FormData) {
     preguntas_frecuentes: fields.preguntas_frecuentes,
     imagen_portada: imagenPortada,
     destacado_home: fields.destacado_home,
+    evidencia: fields.evidencia,
+    evidencia_texto: fields.evidencia_texto,
+    evidencia_fuentes: fields.evidencia_fuentes,
+    evidencia_revisada: fields.evidencia_revisada,
+    evidencia_actualizada: fields.evidencia_actualizada,
   });
 
   if (error) {
@@ -185,6 +212,11 @@ export async function updateTratamiento(id: string, formData: FormData) {
       preguntas_frecuentes: fields.preguntas_frecuentes,
       imagen_portada: imagenPortada,
       destacado_home: fields.destacado_home,
+      evidencia: fields.evidencia,
+      evidencia_texto: fields.evidencia_texto,
+      evidencia_fuentes: fields.evidencia_fuentes,
+      evidencia_revisada: fields.evidencia_revisada,
+      evidencia_actualizada: fields.evidencia_actualizada,
     })
     .eq("id", id);
 
