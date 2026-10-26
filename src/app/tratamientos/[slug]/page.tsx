@@ -280,10 +280,12 @@ export default async function TratamientoPage({
                 {/* Datos clave: lo que más citan los buscadores con IA.
                     Solo datos reales; si no hay, no se muestra la casilla. */}
                 <dl className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
-                  <div className="rounded-2xl bg-paper-dim p-4">
-                    <dt className="text-xs text-ink-soft">Centros</dt>
-                    <dd className="mt-1 font-display text-2xl text-teal-dark">{clinicasData.length}</dd>
-                  </div>
+                  {clinicasData.length > 0 && (
+                    <div className="rounded-2xl bg-paper-dim p-4">
+                      <dt className="text-xs text-ink-soft">Centros</dt>
+                      <dd className="mt-1 font-display text-2xl text-teal-dark">{clinicasData.length}</dd>
+                    </div>
+                  )}
                   {ciudadesConCentros > 0 && (
                     <div className="rounded-2xl bg-paper-dim p-4">
                       <dt className="text-xs text-ink-soft">Ciudades</dt>
