@@ -253,7 +253,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    tecnicas: ["Consulta tricológica", "Analítica capilar", "Minoxidil", "PRP", "Mesoterapia capilar"],
+    tecnicas: ["Consulta tricológica", "Consulta dermatológica", "Analítica capilar", "Minoxidil", "PRP", "Mesoterapia capilar"],
   },
 
   efluvio_telogeno: {
@@ -315,7 +315,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    tecnicas: ["Consulta tricológica", "Analítica capilar", "Minoxidil", "Mesoterapia capilar", "PRP"],
+    tecnicas: ["Consulta tricológica", "Consulta dermatológica", "Analítica capilar", "Minoxidil", "Mesoterapia capilar", "PRP"],
   },
 
   alopecia_areata: {
@@ -378,7 +378,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide cita a las 5 clínicas que mejor encajan contigo", boton: "Solicitar cita" },
-    tecnicas: ["Consulta tricológica", "Analítica capilar"],
+    tecnicas: ["Consulta tricológica", "Consulta dermatológica", "Analítica capilar"],
   },
 
   alopecia_por_traccion: {
@@ -443,7 +443,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    tecnicas: ["Consulta tricológica", "Minoxidil", "Mesoterapia capilar", "PRP"],
+    tecnicas: ["Consulta tricológica", "Consulta dermatológica", "Minoxidil", "Mesoterapia capilar", "PRP"],
   },
 
   cuero_cabelludo: {
@@ -504,7 +504,7 @@ export const CONTENIDO_FLUJOS: Record<Flujo, ContenidoFlujo> = {
       ],
     },
     cta: { titulo: "Pide consulta a las 5 clínicas que mejor encajan contigo", boton: "Solicitar consulta" },
-    tecnicas: ["Consulta tricológica", "Analítica capilar"],
+    tecnicas: ["Consulta tricológica", "Consulta dermatológica", "Analítica capilar"],
   },
 
   sin_signos: {
