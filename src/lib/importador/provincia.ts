@@ -98,3 +98,39 @@ export function municipioDe(l: LugarApify): string | null {
   const c = l.city?.trim();
   return c ? c : null;
 }
+
+/** Comunidad autónoma de cada provincia (campo `clinics.comunidad_autonoma`). */
+const CCAA: Record<string, string> = {
+  "Almería": "Andalucía", "Cádiz": "Andalucía", "Córdoba": "Andalucía", Granada: "Andalucía",
+  Huelva: "Andalucía", "Jaén": "Andalucía", "Málaga": "Andalucía", Sevilla: "Andalucía",
+  Huesca: "Aragón", Teruel: "Aragón", Zaragoza: "Aragón",
+  Asturias: "Principado de Asturias", "Illes Balears": "Illes Balears",
+  "Las Palmas": "Canarias", "Santa Cruz de Tenerife": "Canarias", Cantabria: "Cantabria",
+  Albacete: "Castilla-La Mancha", "Ciudad Real": "Castilla-La Mancha", Cuenca: "Castilla-La Mancha",
+  Guadalajara: "Castilla-La Mancha", Toledo: "Castilla-La Mancha",
+  "Ávila": "Castilla y León", Burgos: "Castilla y León", "León": "Castilla y León",
+  Palencia: "Castilla y León", Salamanca: "Castilla y León", Segovia: "Castilla y León",
+  Soria: "Castilla y León", Valladolid: "Castilla y León", Zamora: "Castilla y León",
+  Barcelona: "Cataluña", Girona: "Cataluña", Lleida: "Cataluña", Tarragona: "Cataluña",
+  Alicante: "Comunitat Valenciana", "Castellón": "Comunitat Valenciana", Valencia: "Comunitat Valenciana",
+  Badajoz: "Extremadura", "Cáceres": "Extremadura",
+  "A Coruña": "Galicia", Lugo: "Galicia", Ourense: "Galicia", Pontevedra: "Galicia",
+  Madrid: "Comunidad de Madrid", Murcia: "Región de Murcia", Navarra: "Comunidad Foral de Navarra",
+  "Álava": "País Vasco", Bizkaia: "País Vasco", Gipuzkoa: "País Vasco", "La Rioja": "La Rioja",
+};
+
+export function comunidadDe(provincia: string): string | null {
+  return CCAA[provincia] ?? null;
+}
+
+/** Teléfono español a 9 cifras (sin +34 ni espacios); null si no lo es. */
+export function telefonoNacional(t: string | null | undefined): string | null {
+  if (!t) return null;
+  const d = t.replace(/\D/g, "").replace(/^0034|^34(?=\d{9}$)/, "");
+  return /^\d{9}$/.test(d) ? d : null;
+}
+
+export function horariosTexto(l: LugarApify): string | null {
+  const h = (l.openingHours ?? []).filter((x) => x.day && x.hours);
+  return h.length ? h.map((x) => `${x.day}: ${x.hours}`).join("; ") : null;
+}
