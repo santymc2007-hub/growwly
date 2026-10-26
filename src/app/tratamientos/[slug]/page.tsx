@@ -87,7 +87,7 @@ export async function generateMetadata({
       url: `/tratamientos/${tratamiento.slug}`,
       title: textoTitle(title),
       description,
-      images: tratamiento.imagen_portada ? [tratamiento.imagen_portada] : undefined,
+      images: tratamiento.imagen_portada ? [tratamiento.imagen_portada] : OG_BASE.images,
     },
   };
 }

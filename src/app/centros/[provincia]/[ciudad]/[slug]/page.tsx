@@ -149,7 +149,7 @@ export async function generateMetadata({
       url: `/centros/${provinciaSlug}/${ciudadSlug}/${clinic.slug}`,
       title: textoTitle(title),
       description: descripcion,
-      images: clinic.fotos.length > 0 ? [clinic.fotos[0]] : undefined,
+      images: clinic.fotos.length > 0 ? [clinic.fotos[0]] : OG_BASE.images,
     },
   };
 }

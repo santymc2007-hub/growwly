@@ -88,8 +88,21 @@ export function primerasFrases(texto: string, max = MAX_META): string {
  * su propio `openGraph` REEMPLAZA el del layout (Next no los fusiona), así
  * que siteName/locale/type se perdían en fichas, landings y posts.
  */
+/**
+ * Imagen por defecto al compartir un enlace (WhatsApp, Facebook, LinkedIn,
+ * X…). Sin ella WhatsApp solo enseña el título y la URL. Las fichas, los
+ * posts y los tratamientos con foto propia la sustituyen por la suya.
+ */
+export const OG_IMAGEN_DEFECTO = {
+  url: "/brand/og-growwly.jpg",
+  width: 1200,
+  height: 630,
+  alt: "Growwly: valoración capilar gratis con IA y clínicas capilares verificadas",
+};
+
 export const OG_BASE = {
   siteName: "Growwly",
   locale: "es_ES",
   type: "website" as const,
+  images: [OG_IMAGEN_DEFECTO],
 };
