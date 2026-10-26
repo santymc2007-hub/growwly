@@ -36,8 +36,17 @@ const REGLAS_TECNICAS: ReglaTecnica[] = [
   { tecnica: "Carboxiterapia capilar", patron: /carboxiterapia|carboxiterapy|carboxitherapy/ },
   { tecnica: "PRP", patron: /\bprp\b|plasma|plaquetas|platelet/ },
   {
-    tecnica: "Láser de baja intensidad",
-    patron: /laser|\bled\b|fotobiomodula|lllt/,
+    tecnica: "Láser y LED de baja intensidad",
+    patron: /laser|\bled\b|fotobiomodula|lllt|cromotecnia/,
+  },
+  // Solo la de uso capilar: la radiofrecuencia facial o corporal no cuenta.
+  {
+    tecnica: "Radiofrecuencia capilar",
+    patron: /radiofrecuencia capilar|indiba capilar|recuperador capilar/,
+  },
+  {
+    tecnica: "Cuidado del cuero cabelludo",
+    patron: /higiene capilar|limpieza (profunda )?(capilar|del cuero cabelludo)|vacumterapia|phytodren|detox capilar/,
   },
   { tecnica: "Minoxidil", patron: /minoxidil/ },
   { tecnica: "Finasteride / Dutasteride", patron: /finasteri|dutasteri/ },

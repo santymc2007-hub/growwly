@@ -1406,6 +1406,11 @@ export type Database = {
           contenido: string
           created_at: string
           destacado_home: boolean
+          evidencia: string | null
+          evidencia_texto: string | null
+          evidencia_fuentes: Json
+          evidencia_revisada: boolean
+          evidencia_actualizada: string | null
           duracion_orientativa: string | null
           id: string
           imagen_portada: string | null
@@ -1424,6 +1429,11 @@ export type Database = {
           contenido?: string
           created_at?: string
           destacado_home?: boolean
+          evidencia?: string | null
+          evidencia_texto?: string | null
+          evidencia_fuentes?: Json
+          evidencia_revisada?: boolean
+          evidencia_actualizada?: string | null
           duracion_orientativa?: string | null
           id?: string
           imagen_portada?: string | null
@@ -1442,6 +1452,11 @@ export type Database = {
           contenido?: string
           created_at?: string
           destacado_home?: boolean
+          evidencia?: string | null
+          evidencia_texto?: string | null
+          evidencia_fuentes?: Json
+          evidencia_revisada?: boolean
+          evidencia_actualizada?: string | null
           duracion_orientativa?: string | null
           id?: string
           imagen_portada?: string | null

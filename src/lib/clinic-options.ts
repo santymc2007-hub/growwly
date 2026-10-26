@@ -215,7 +215,8 @@ export const TECNICAS_POR_CATEGORIA: Record<
     "Mesoterapia capilar",
     "Carboxiterapia capilar",
     "PRP",
-    "Láser de baja intensidad",
+    "Láser y LED de baja intensidad",
+    "Radiofrecuencia capilar",
   ],
   "Injerto capilar": [
     "Injerto FUE",
@@ -229,6 +230,7 @@ export const TECNICAS_POR_CATEGORIA: Record<
     "Micropigmentación capilar",
     "Extensiones de cabello",
     "Pelucas y prótesis capilares",
+    "Cuidado del cuero cabelludo",
   ],
 } as const;
 
