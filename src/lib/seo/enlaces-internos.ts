@@ -13,6 +13,7 @@ export * from "./enlaces-internos-html";
  */
 const SINONIMOS: Record<string, string[]> = {
   "Consulta tricológica": ["consulta tricológica", "diagnóstico tricológico", "consulta capilar"],
+  "Consulta dermatológica": ["consulta dermatológica", "dermatólogo capilar", "dermatología capilar", "dermatólogo"],
   "Analítica capilar": ["analítica capilar", "tricograma", "tricoscopia"],
   Minoxidil: ["minoxidil"],
   "Finasteride / Dutasteride": ["finasteride", "finasterida", "dutasteride", "dutasterida"],

@@ -94,9 +94,16 @@ export const CATEGORIAS_CENTRO = [
   {
     valor: "Clínica de tricología",
     descripcion:
-      "Dermatólogos o tricólogos: diagnóstico médico de la caída y tratamiento, con o sin injerto.",
+      "Clínica capilar con tricólogo: diagnóstico médico de la caída y tratamiento, con o sin injerto.",
     schemaType: "MedicalClinic",
     palabraSeo: "clinica-tricologia",
+  },
+  {
+    valor: "Dermatólogo capilar",
+    descripcion:
+      "Consulta o clínica de dermatología que trata la caída del cabello, la alopecia y el cuero cabelludo.",
+    schemaType: "Physician",
+    palabraSeo: "dermatologo-capilar",
   },
   {
     valor: "Clínica estética con unidad capilar",
@@ -201,7 +208,7 @@ export const TECNICAS_POR_CATEGORIA: Record<
   (typeof CATEGORIAS_TRATAMIENTO)[number],
   readonly string[]
 > = {
-  "Diagnóstico y consulta": ["Consulta tricológica", "Analítica capilar"],
+  "Diagnóstico y consulta": ["Consulta tricológica", "Consulta dermatológica", "Analítica capilar"],
   "Tratamientos médicos": [
     "Minoxidil",
     "Finasteride / Dutasteride",
