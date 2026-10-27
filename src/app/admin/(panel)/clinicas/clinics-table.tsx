@@ -6,6 +6,8 @@ import { VerifiedBadge } from "@/components/clinics/verified-badge";
 import { OrderControls } from "./order-controls";
 import { DeleteClinicButton } from "./delete-button";
 import { setPublicadoBatch, deleteClinicsBatch } from "./actions";
+import { completarDesdeWebAuto, type ResultadoAuto } from "./importar/actions";
+import { useRouter } from "next/navigation";
 import type { Clinic } from "@/lib/supabase/database.types";
 import { datosVerificacionCompletos } from "@/lib/clinica/verificacion";
 import type { EstadoReclamo } from "@/lib/admin/email-reclamo";
@@ -20,6 +22,30 @@ export type ClinicRow = Clinic & {
 export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
   const [seleccionadas, setSeleccionadas] = useState<Set<string>>(new Set());
   const [pending, startTransition] = useTransition();
+  const router = useRouter();
+  // "Completar desde su web" en bloque: una clínica cada vez (cada una
+  // lee su web y tarda unos segundos), con progreso visible.
+  const [completando, setCompletando] = useState<{ hecho: number; total: number; actual: string } | null>(null);
+  const [resultadosWeb, setResultadosWeb] = useState<ResultadoAuto[]>([]);
+
+  async function completarDesdeWeb() {
+    const ids = Array.from(seleccionadas);
+    const nombres = new Map(rows.map((r) => [r.id, r.nombre]));
+    setResultadosWeb([]);
+    for (let i = 0; i < ids.length; i++) {
+      setCompletando({ hecho: i, total: ids.length, actual: nombres.get(ids[i]) ?? "" });
+      let r: ResultadoAuto;
+      try {
+        r = await completarDesdeWebAuto(ids[i]);
+      } catch {
+        r = { ok: false, nombre: nombres.get(ids[i]) ?? "Clínica", motivo: "Se cortó la conexión o tardó demasiado." };
+      }
+      setResultadosWeb((prev) => [...prev, r]);
+    }
+    setCompletando(null);
+    setSeleccionadas(new Set());
+    router.refresh();
+  }
 
   function alternarUna(id: string) {
     setSeleccionadas((prev) => {
@@ -75,7 +101,16 @@ export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
           <span className="font-medium text-teal-dark">
             {seleccionadas.size} {seleccionadas.size === 1 ? "seleccionada" : "seleccionadas"}
           </span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={pending || Boolean(completando)}
+              onClick={completarDesdeWeb}
+              title="Lee la web que ya tiene guardada cada clínica y rellena lo que falte"
+              className="rounded-lg bg-teal px-3 py-1.5 font-medium text-paper shadow-sm hover:bg-teal-dark disabled:opacity-60"
+            >
+              Completar desde su web
+            </button>
             <button
               type="button"
               disabled={pending}
@@ -101,6 +136,41 @@ export function ClinicsTable({ rows }: { rows: ClinicRow[] }) {
               Eliminar
             </button>
           </div>
+        </div>
+      )}
+
+      {(completando || resultadosWeb.length > 0) && (
+        <div className="border-b border-line bg-paper-dim/60 px-4 py-3 text-sm">
+          {completando && (
+            <p className="font-medium text-teal-dark">
+              Completando {completando.hecho + 1} de {completando.total}: {completando.actual}… (no cierres esta
+              página)
+            </p>
+          )}
+          {resultadosWeb.length > 0 && (
+            <ul className="mt-1 flex flex-col gap-0.5">
+              {resultadosWeb.map((r, i) => (
+                <li key={i} className={r.ok ? "text-ink" : "text-error-dark"}>
+                  {r.ok ? "✓" : "✕"} <strong>{r.nombre}</strong>:{" "}
+                  {r.ok
+                    ? r.cambios.length
+                      ? `añadido ${r.cambios.join(", ")}`
+                      : "no había nada nuevo que añadir"
+                    : r.motivo}
+                  {r.ok && r.aviso ? ` (${r.aviso})` : ""}
+                </li>
+              ))}
+            </ul>
+          )}
+          {!completando && (
+            <button
+              type="button"
+              onClick={() => setResultadosWeb([])}
+              className="mt-2 text-xs font-medium text-teal hover:underline"
+            >
+              Cerrar
+            </button>
+          )}
         </div>
       )}
 
