@@ -2,7 +2,8 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
-import { GripVertical, Star, X } from "lucide-react";
+import { Check, GripVertical, Star, X } from "lucide-react";
+import type { GrupoFotosSugeridas } from "@/lib/clinica/fotos-sugeridas";
 
 type Entrada =
   | { id: string; tipo: "existente"; url: string }
@@ -25,10 +26,14 @@ type Entrada =
 export function FotosClinicaField({
   fotosIniciales,
   max = 10,
+  sugeridas,
 }: {
   fotosIniciales: string[];
   max?: number;
+  /** Banco de fotos orientativas por tratamiento (solo en el admin). */
+  sugeridas?: GrupoFotosSugeridas[];
 }) {
+  const [verTodasSugeridas, setVerTodasSugeridas] = useState(false);
   const [entradas, setEntradas] = useState<Entrada[]>(() =>
     fotosIniciales.map((url) => ({ id: url, tipo: "existente", url })),
   );
@@ -103,6 +108,19 @@ export function FotosClinicaField({
       return copia;
     });
   }
+
+  function alternarSugerida(url: string) {
+    setEntradas((prev) => {
+      if (prev.some((e) => e.tipo === "existente" && e.url === url)) {
+        return prev.filter((e) => !(e.tipo === "existente" && e.url === url));
+      }
+      if (prev.length >= max) return prev;
+      return [...prev, { id: url, tipo: "existente", url }];
+    });
+  }
+
+  const urlsActuales = new Set(entradas.flatMap((e) => (e.tipo === "existente" ? [e.url] : [])));
+  const gruposVisibles = (sugeridas ?? []).filter((g) => verTodasSugeridas || g.deLaClinica);
 
   const orden = entradas.map((e) =>
     e.tipo === "existente" ? { t: "e", url: e.url } : { t: "n" },
@@ -198,6 +216,63 @@ export function FotosClinicaField({
         >
           + Añadir fotos ({entradas.length}/{max})
         </button>
+      )}
+
+      {sugeridas && sugeridas.length > 0 && (
+        <div className="mt-5 rounded-xl border border-line bg-paper-dim/60 p-4">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <p className="text-sm font-medium text-ink">
+              Fotos sugeridas{" "}
+              <span className="font-normal text-ink-soft">
+                · llevan la marca «Imagen orientativa». Clic para añadir o quitar.
+              </span>
+            </p>
+            <button
+              type="button"
+              onClick={() => setVerTodasSugeridas((v) => !v)}
+              className="text-xs font-medium text-cyan-dark hover:underline"
+            >
+              {verTodasSugeridas ? "Solo sus tratamientos" : "Ver todos los tratamientos"}
+            </button>
+          </div>
+          {gruposVisibles.length === 0 ? (
+            <p className="mt-2 text-xs text-ink-soft">
+              La ficha no tiene técnicas con fotos sugeridas. Marca sus técnicas o pulsa «Ver todos los tratamientos».
+            </p>
+          ) : (
+            gruposVisibles.map((g) => (
+              <div key={g.slug} className="mt-3">
+                <p className="text-xs font-medium text-ink-soft">{g.titulo}</p>
+                <div className="mt-1 grid grid-cols-5 gap-2 sm:grid-cols-10">
+                  {g.urls.map((url) => {
+                    const puesta = urlsActuales.has(url);
+                    const llena = !puesta && entradas.length >= max;
+                    return (
+                      <button
+                        key={url}
+                        type="button"
+                        onClick={() => alternarSugerida(url)}
+                        disabled={llena}
+                        aria-pressed={puesta}
+                        aria-label={puesta ? "Quitar foto sugerida" : "Añadir foto sugerida"}
+                        className={`press relative aspect-[3/2] overflow-hidden rounded-md border-2 transition ${
+                          puesta ? "border-green" : "border-transparent hover:border-cyan/60"
+                        } disabled:cursor-not-allowed disabled:opacity-40`}
+                      >
+                        <Image src={url} alt="" fill sizes="120px" className="object-cover" />
+                        {puesta && (
+                          <span className="absolute right-1 top-1 flex h-5 w-5 items-center justify-center rounded-full bg-green text-white">
+                            <Check className="h-3 w-3" aria-hidden />
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+            ))
+          )}
+        </div>
       )}
     </div>
   );
