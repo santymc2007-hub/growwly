@@ -28,21 +28,21 @@ export type Plazas = { ocupadas: number; total: number; libres: number };
 
 /**
  * Precios con IVA incluido (decisión de Santy, 20 oct 2026; bajados un
- * 40 % el 27 oct 2026, redondeados al euro). Dos formas
+ * 40 % el 27 oct 2026 y ajustados a precios acabados en 9). Dos formas
  * de pago: mensual, sin permanencia, o anual (pago de 12 meses, con el
  * precio por mes rebajado). Si cambian, cambiar también /precios.
  */
 export const PRECIO_MENSUAL: Record<TipoVisibilidad, number> = {
   destacado: 29,
-  destacado_provincia: 36,
-  premium: 51,
+  destacado_provincia: 39,
+  premium: 49,
 };
 
 /** Precio por mes en pago anual. */
 export const PRECIO_ANUAL_MES: Record<TipoVisibilidad, number> = {
-  destacado: 23,
+  destacado: 19,
   destacado_provincia: 29,
-  premium: 41,
+  premium: 39,
 };
 
 export type Periodo = "mensual" | "anual";
