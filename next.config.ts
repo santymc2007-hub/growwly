@@ -26,6 +26,8 @@ const nextConfig: NextConfig = {
       // Fotos reales subidas al bucket "clinic-photos" de Supabase Storage
       // (cubre cualquier proyecto, sea cual sea su project-ref).
       { protocol: "https", hostname: "*.supabase.co" },
+      // Banco de fotos orientativas (public/fotos-sugeridas), guardadas con URL absoluta.
+      { protocol: "https", hostname: "www.growwly.es" },
     ],
   },
   async headers() {

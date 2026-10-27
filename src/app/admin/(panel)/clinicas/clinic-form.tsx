@@ -14,6 +14,7 @@ import type { Clinic } from "@/lib/supabase/database.types";
 import { HorarioSemanal } from "@/components/clinica/horario-semanal";
 import { UbicacionCascada } from "@/components/clinica/ubicacion-cascada";
 import { FotosClinicaField } from "@/components/clinica/fotos-clinica-field";
+import { fotosSugeridas } from "@/lib/clinica/fotos-sugeridas";
 import { CampoSlug } from "./campo-slug";
 import { InterruptorVisibilidad } from "../visibilidad/interruptor-visibilidad";
 import { TIPO_LABEL, type TipoVisibilidad } from "../visibilidad/tipos-visibilidad";
@@ -260,7 +261,11 @@ export function ClinicForm({
           />
         )}
 
-        <FotosClinicaField fotosIniciales={clinic?.fotos ?? []} max={10} />
+        <FotosClinicaField
+          fotosIniciales={clinic?.fotos ?? []}
+          max={10}
+          sugeridas={fotosSugeridas(clinic?.tecnicas ?? [])}
+        />
       </section>
 
       <section className="mt-8">
