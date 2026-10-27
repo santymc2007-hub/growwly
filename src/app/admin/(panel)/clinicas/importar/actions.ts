@@ -433,3 +433,118 @@ export async function guardarImportacion(
   revalidatePath("/centros");
   redirect(destino);
 }
+
+export type ResultadoAuto =
+  | { ok: true; nombre: string; cambios: string[]; aviso: string | null }
+  | { ok: false; nombre: string; motivo: string };
+
+const ETIQUETA_CAMPO: Record<string, string> = {
+  descripcion: "descripción",
+  email: "email",
+  telefono: "teléfono",
+  direccion: "dirección",
+  tecnicas: "tratamientos",
+  idiomas: "idiomas",
+  redes_sociales: "redes",
+  financiacion: "financiación",
+  primera_consulta_gratis: "1.ª consulta gratis",
+  logo_url: "logo",
+  fotos: "fotos",
+};
+
+/**
+ * "Completar desde su web" en bloque (listado de clínicas, varias
+ * seleccionadas): usa la web y la ficha de Google que la clínica ya
+ * tiene guardadas, sin formulario. Solo rellena lo vacío, igual que el
+ * modo completar del importador; las técnicas e idiomas se suman. Los
+ * precios y ofertas de la web NO se copian (decisión 24 oct 2026).
+ * Se llama una vez por clínica desde el navegador.
+ */
+export async function completarDesdeWebAuto(clinicaId: string): Promise<ResultadoAuto> {
+  let nombre = "Clínica";
+  try {
+    await requireAdmin();
+    const supabase = createAdminClient();
+    const { data: actual } = await supabase.from("clinics").select("*").eq("id", clinicaId).single();
+    if (!actual) return { ok: false, nombre, motivo: "No se encontró la ficha." };
+    nombre = actual.nombre;
+
+    const webGuardada = actual.web?.split(/\s/)[0] ?? null;
+    if (!webGuardada || !normalizarUrlWeb(webGuardada)) {
+      return { ok: false, nombre, motivo: "No tiene web guardada." };
+    }
+
+    let web: DatosWeb;
+    try {
+      web = await extraerDatosWeb(webGuardada);
+    } catch (e) {
+      return { ok: false, nombre, motivo: e instanceof Error ? e.message : "No se pudo leer la web." };
+    }
+
+    const cambios: ClinicUpdate = {};
+    const descActual = descripcionTextoPlano(actual.descripcion);
+    if (web.descripcion && descActual.length < DESCRIPCION_MIN_CARACTERES) cambios.descripcion = web.descripcion;
+    if (vacio(actual.email) && web.email) cambios.email = web.email;
+    if (vacio(actual.telefono) && web.telefono) cambios.telefono = web.telefono;
+    if (vacio(actual.direccion) && web.direccion) cambios.direccion = web.direccion;
+
+    const tecnicas = Array.from(new Set([...(actual.tecnicas ?? []), ...web.tecnicas])).filter((t) =>
+      (TECNICAS_DISPONIBLES as readonly string[]).includes(t),
+    );
+    if (tecnicas.length > (actual.tecnicas ?? []).length) cambios.tecnicas = tecnicas;
+    const idiomas = Array.from(new Set([...(actual.idiomas ?? []), ...web.idiomas])).filter((i) =>
+      (IDIOMAS_DISPONIBLES as readonly string[]).includes(i),
+    );
+    if (idiomas.length > (actual.idiomas ?? []).length) cambios.idiomas = idiomas;
+
+    const redesActuales = (actual.redes_sociales ?? {}) as Record<string, string>;
+    const redes = { ...redesActuales };
+    for (const [red, url] of Object.entries(web.redes)) if (url && !redes[red]) redes[red] = url;
+    if (Object.keys(redes).length > Object.keys(redesActuales).length) cambios.redes_sociales = redes;
+
+    if (web.financiacion && !actual.financiacion) cambios.financiacion = true;
+    if (web.primeraConsultaGratis && !actual.primera_consulta_gratis) cambios.primera_consulta_gratis = true;
+
+    const prefijo = slugify(actual.nombre) || "clinica";
+    let fallos = 0;
+    if (!actual.logo_url && web.logos[0]) {
+      const r = await subirDesdeUrls([web.logos[0]], `${prefijo}-logo`);
+      if (r.subidas[0]) cambios.logo_url = r.subidas[0];
+    }
+    // Fotos: solo si tiene menos de 3; las 5 primeras reales (no de banco
+    // de imágenes). Sin poder medirlas aquí, se descartan las muy ligeras
+    // (iconos, miniaturas).
+    if ((actual.fotos?.length ?? 0) < 3) {
+      const candidatas = web.fotos.filter((f) => !f.stock).map((f) => f.url).slice(0, 8);
+      const descargas = await Promise.allSettled(
+        candidatas.map((u, i) => descargarImagen(u, `${prefijo}-${i + 1}`)),
+      );
+      const buenas = descargas
+        .filter((r): r is PromiseFulfilledResult<File> => r.status === "fulfilled")
+        .map((r) => r.value)
+        .filter((f) => f.size >= 30_000)
+        .slice(0, 5);
+      fallos = candidatas.length - descargas.filter((r) => r.status === "fulfilled").length;
+      if (buenas.length) {
+        const subidas = await uploadClinicPhotos(supabase, buenas);
+        cambios.fotos = [...(actual.fotos ?? []), ...subidas];
+      }
+    }
+
+    const claves = Object.keys(cambios);
+    if (claves.length) {
+      const { error } = await supabase.from("clinics").update(cambios).eq("id", clinicaId);
+      if (error) return { ok: false, nombre, motivo: error.message };
+    }
+    revalidatePath("/admin/clinicas");
+    return {
+      ok: true,
+      nombre,
+      cambios: claves.map((k) => ETIQUETA_CAMPO[k] ?? k),
+      aviso: fallos ? `${fallos} foto(s) no se pudieron descargar` : null,
+    };
+  } catch (e) {
+    console.error(e);
+    return { ok: false, nombre, motivo: e instanceof Error ? e.message : "Error inesperado." };
+  }
+}

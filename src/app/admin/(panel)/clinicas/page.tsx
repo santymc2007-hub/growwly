@@ -5,6 +5,9 @@ import type { EstadoReclamo } from "@/lib/admin/email-reclamo";
 import { AdminClinicFilters } from "./admin-clinic-filters";
 import { ClinicsTable, type ClinicRow } from "./clinics-table";
 
+// "Completar desde su web" en bloque lee una web por llamada (hasta ~40 s).
+export const maxDuration = 60;
+
 type SearchParams = {
   error?: string;
   q?: string;
@@ -109,7 +112,7 @@ export default async function AdminClinicasPage({
             href="/admin/clinicas/importar"
             className="rounded-lg border border-teal px-4 py-2 text-sm font-medium text-teal hover:bg-sage/40"
           >
-            Importar desde web
+            Importar una clínica nueva
           </Link>
           <Link
             href="/admin/clinicas/importar-provincia"
