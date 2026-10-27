@@ -14,7 +14,7 @@ const COLOR_TONO: Record<Tono, string> = {
   neutro: "text-teal-dark",
 };
 
-const COLOR_NIVEL = { Baja: "#f08a24", Media: "#ffba1f", Alta: "#96ceb7" } as const;
+const COLOR_NIVEL = { Baja: "#f08a24", Media: "#ffba1f", Alta: "#cfebdc" } as const;
 const NIVELES = ["Baja", "Media", "Alta"] as const;
 
 function Etiqueta({ children, azul }: { children: React.ReactNode; azul?: boolean }) {
@@ -146,9 +146,9 @@ export function InformeCapilarVista({
                             style={{
                               background:
                                 o.tono === "donante"
-                                  ? "#61c5f1"
+                                  ? "#00768f"
                                   : o.tono === "conservada"
-                                    ? "#96ceb7"
+                                    ? "#cfebdc"
                                     : COLOR_INTENSIDAD[o.tono],
                             }}
                           />
@@ -249,7 +249,7 @@ export function InformeCapilarVista({
                           className={`h-6 w-6 rounded-full ${
                             s.aqui
                               ? "bg-orange shadow-[0_0_0_4px_#fff,0_0_0_6px_#ffba1f]"
-                              : "border-[3px] border-dashed border-brand-green bg-white"
+                              : "border-[3px] border-dashed border-sage bg-white"
                           }`}
                         />
                         <span className={`text-[13px] font-bold leading-tight ${s.aqui ? "text-[#8a5a00]" : "text-teal-dark"}`}>
@@ -274,7 +274,7 @@ export function InformeCapilarVista({
                   {t.medidor != null && (
                     <div className="grid grid-cols-4 gap-1.5" aria-hidden>
                       {[1, 2, 3, 4].map((i) => (
-                        <span key={i} className={`h-2 rounded-full ${i <= t.medidor! ? "bg-brand-blue" : "bg-line"}`} />
+                        <span key={i} className={`h-2 rounded-full ${i <= t.medidor! ? "bg-teal" : "bg-line"}`} />
                       ))}
                     </div>
                   )}
@@ -464,7 +464,7 @@ export function InformeCapilarVista({
         >
           <span
             aria-hidden
-            className="absolute left-[8%] right-[8%] top-[15px] hidden h-1 rounded-full bg-gradient-to-r from-brand-green to-brand-blue sm:block"
+            className="absolute left-[8%] right-[8%] top-[15px] hidden h-1 rounded-full bg-yellow sm:block"
           />
           {contenido.esperar.pasos.map((s) => (
             <li key={s.when} className="relative flex items-start gap-4 sm:flex-col sm:items-center sm:gap-2.5 sm:text-center">

@@ -175,7 +175,7 @@ export default async function EstadisticasAdminPage({
           <div className="rounded-2xl border border-line bg-white p-5">
             <h2 className="font-display text-lg text-teal-dark">Leads recibidos</h2>
             <div className="mt-2">
-              <GraficoLineas datos={stats.leadsPorDia} color="#1f5568" etiqueta="Leads" />
+              <GraficoLineas datos={stats.leadsPorDia} color="#015042" etiqueta="Leads" />
             </div>
           </div>
           <div className="rounded-2xl border border-line bg-white p-5">
@@ -305,7 +305,7 @@ export default async function EstadisticasAdminPage({
                   etiqueta={c.ciudad}
                   valor={c.total}
                   total={stats.solicitudesCreadas}
-                  color="#0098a8"
+                  color="#00768f"
                 />
               ))}
             </div>

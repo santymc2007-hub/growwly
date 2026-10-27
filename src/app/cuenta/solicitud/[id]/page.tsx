@@ -402,7 +402,7 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
               />
               <span
                 aria-hidden
-                className="absolute left-[12.5%] top-[21px] hidden h-1 rounded-full bg-gradient-to-r from-brand-green to-brand-blue md:block"
+                className="absolute left-[12.5%] top-[21px] hidden h-1 rounded-full bg-yellow md:block"
                 style={{ width: `${progreso}%` }}
               />
               {pasos.map((p, i) => (
@@ -410,9 +410,9 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
                   <span
                     className={`flex h-[46px] w-[46px] items-center justify-center rounded-full font-display text-lg font-extrabold ${
                       p.estado === "hecho"
-                        ? "bg-brand-green text-teal-dark"
+                        ? "bg-sage text-teal-dark"
                         : p.estado === "actual"
-                          ? "border-2 border-brand-green bg-[#f4f9f7] text-teal-dark"
+                          ? "border-2 border-sage bg-[#f4f9f7] text-teal-dark"
                           : "border-2 border-dashed border-[#b9c9c4] bg-white text-[#9aa9a4]"
                     }`}
                   >
@@ -463,7 +463,7 @@ export default async function SolicitudDetallePage({ params }: { params: Promise
               {leadElegido &&
                 (citaConfirmada ||
                   !(estadoElegido === "cita_pendiente" && opcionesCita.length > 0 && !leadElegido.otras_fechas_pedidas_en)) && (
-                  <section className="flex flex-col gap-6 rounded-3xl border-2 border-brand-green bg-[#f4fbf7] p-6 sm:p-8">
+                  <section className="flex flex-col gap-6 rounded-3xl border-2 border-sage bg-[#f4fbf7] p-6 sm:p-8">
                     <div className="flex items-center gap-4">
                       {clinicaElegida?.logo_url ? (
                         <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-full bg-sage">

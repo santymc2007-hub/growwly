@@ -253,7 +253,7 @@ export default async function TratamientoPage({
                   />
                 </div>
               ) : (
-                <div className="-mx-6 -mt-8 mb-6 flex aspect-[2/1] items-center justify-center bg-gradient-to-br from-brand-green to-brand-blue sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/9] lg:rounded-2xl">
+                <div className="-mx-6 -mt-8 mb-6 flex aspect-[2/1] items-center justify-center bg-logo sm:-mx-10 sm:aspect-[21/7] lg:mx-0 lg:mt-0 lg:aspect-[21/9] lg:rounded-2xl">
                   <span className="font-display text-2xl font-bold text-white">
                     {tratamiento.nombre}
                   </span>

@@ -30,7 +30,7 @@ const VARIANTE: Record<Variant, Config> = {
     claim: "Tu pelo en buenas manos",
     mensaje: "Pide presupuesto a clínicas sin moverte de casa",
     halo:
-      "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-blue) 35%, transparent), transparent), radial-gradient(closest-side at 30% 30%, color-mix(in srgb, var(--color-brand-green) 45%, transparent), transparent)",
+      "radial-gradient(closest-side, color-mix(in srgb, var(--color-lima) 35%, transparent), transparent), radial-gradient(closest-side at 30% 30%, color-mix(in srgb, var(--color-sage) 45%, transparent), transparent)",
   },
   clinica: {
     acceso: "Acceso clínicas",
@@ -42,7 +42,7 @@ const VARIANTE: Record<Variant, Config> = {
     claim: "Pacientes que ya te están buscando",
     mensaje: "Gestiona tu ficha y atrae nuevos pacientes",
     halo:
-      "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-green) 45%, transparent), transparent), radial-gradient(closest-side at 70% 70%, color-mix(in srgb, var(--color-brand-blue) 35%, transparent), transparent)",
+      "radial-gradient(closest-side, color-mix(in srgb, var(--color-sage) 45%, transparent), transparent), radial-gradient(closest-side at 70% 70%, color-mix(in srgb, var(--color-lima) 35%, transparent), transparent)",
   },
   admin: {
     acceso: "Acceso admin",
@@ -51,7 +51,7 @@ const VARIANTE: Record<Variant, Config> = {
     claim: "Panel de administración",
     mensaje: null,
     halo:
-      "radial-gradient(closest-side, color-mix(in srgb, var(--color-brand-blue) 30%, transparent), transparent)",
+      "radial-gradient(closest-side, color-mix(in srgb, var(--color-lima) 30%, transparent), transparent)",
   },
 };
 
@@ -124,7 +124,7 @@ export function AuthCard({
             </p>
           </div>
         ) : (
-          <div className="entra hidden aspect-[4/5] max-h-[560px] flex-col justify-end overflow-hidden rounded-[28px] bg-gradient-to-br from-brand-green to-brand-blue p-10 lg:flex">
+          <div className="entra hidden aspect-[4/5] max-h-[560px] flex-col justify-end overflow-hidden rounded-[28px] bg-logo p-10 lg:flex">
             <Image
               src="/brand/growwly-logo-white.png"
               alt=""

@@ -57,16 +57,11 @@
 
   /* Marca: teal profundo (fondos de cabecera, nav) */
   --color-teal: #00768f;
-  --color-teal-dark: #1f5568;
+  --color-teal-dark: #015042; /* = verde logo (unificados 27 oct 2026) */
 
   /* Acento: cian vivo (CTAs, enlaces activos) */
   --color-cyan: #00c2d6;
-  --color-cyan-dark: #0098a8;
-
-  /* Degradado de marca (logo, botón "Acceso Clínicas" y similares)
-     — paleta exacta dada por Santy */
-  --color-brand-green: #96ceb7;
-  --color-brand-blue: #61c5f1;
+  --color-cyan-dark: #00768f; /* = teal (unificados 27 oct 2026) */
 
   /* Verde del logo (degradado "wly"): del check de verificación a detalles */
   --color-green: #2fbf6b;
@@ -83,7 +78,7 @@
 
   /* Colores exactos del logo (oct 2026): verde de "Growwly" y lima de
      la chispa y del "Hair we go!" */
-  --color-logo: #185a5a;
+  --color-logo: #015042;
   --color-lima: #b0cf0c;
 
   /* Líneas y bordes */
@@ -109,8 +104,6 @@
   --color-teal-dark: var(--color-teal-dark);
   --color-cyan: var(--color-cyan);
   --color-cyan-dark: var(--color-cyan-dark);
-  --color-brand-green: var(--color-brand-green);
-  --color-brand-blue: var(--color-brand-blue);
   --color-green: var(--color-green);
   --color-mint: var(--color-mint);
   --color-sage: var(--color-sage);

@@ -175,7 +175,7 @@ export default async function ClinicaPanelPage({
             </div>
             <div className="mt-2 h-2 overflow-hidden rounded-full bg-paper-dim">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-brand-green to-brand-blue transition-all"
+                className="h-full rounded-full bg-yellow transition-all"
                 style={{ width: `${porcentaje}%` }}
               />
             </div>
