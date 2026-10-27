@@ -2,7 +2,7 @@ import type { InformeCapilar, Intensidad } from "@/lib/informe/tipos";
 
 export const COLOR_INTENSIDAD: Record<Intensidad, string> = {
   conservada: "#cfebdc",
-  leve: "#e8ef2d",
+  leve: "#defb90",
   moderada: "#ffba1f",
   marcada: "#f08a24",
 };
@@ -71,7 +71,7 @@ export function MapaCabeza({
         <text x="165" y="16" textAnchor="middle" fontSize="12" fontWeight="600" letterSpacing="1.5" fill="#66756f">
           FRENTE
         </text>
-        <ellipse cx="165" cy="210" rx="135" ry="178" fill={esAreata ? COLOR_INTENSIDAD.conservada : "#eef6f1"} stroke="#1f5568" strokeWidth="2" />
+        <ellipse cx="165" cy="210" rx="135" ry="178" fill={esAreata ? COLOR_INTENSIDAD.conservada : "#eef6f1"} stroke="#015042" strokeWidth="2" />
         {!esAreata && (
           <>
             <path d="M62 118 Q82 62 128 46 Q116 92 98 132 Z" fill={COLOR_INTENSIDAD[z.entradas]} stroke="#fff" strokeWidth="2" />
@@ -82,15 +82,15 @@ export function MapaCabeza({
             {conRaya && (
               <>
                 <ellipse cx="165" cy="185" rx="34" ry="118" fill={COLOR_INTENSIDAD[z.raya]} />
-                <line x1="165" y1="62" x2="165" y2="300" stroke="#1f5568" strokeWidth="1.5" strokeDasharray="4 5" />
+                <line x1="165" y1="62" x2="165" y2="300" stroke="#015042" strokeWidth="1.5" strokeDasharray="4 5" />
               </>
             )}
           </>
         )}
         {mostrarDonante && (
           <>
-            <path d="M50 292 Q165 420 280 292" fill="none" stroke="#61c5f1" strokeWidth="26" strokeLinecap="round" opacity="0.55" />
-            <path d="M50 292 Q165 420 280 292" fill="none" stroke="#1f5568" strokeWidth="1.5" strokeDasharray="5 5" />
+            <path d="M50 292 Q165 420 280 292" fill="none" stroke="#00768f" strokeWidth="26" strokeLinecap="round" opacity="0.55" />
+            <path d="M50 292 Q165 420 280 292" fill="none" stroke="#015042" strokeWidth="1.5" strokeDasharray="5 5" />
           </>
         )}
         {PLACAS.slice(0, numPlacas).map(([cx, cy, r], i) => (
@@ -102,12 +102,12 @@ export function MapaCabeza({
           ))}
         {!esAreata && !conRaya && (
           <>
-            <text x="165" y="176" textAnchor="middle" fontSize="13" fontWeight="600" fill="#1f5568">Zona media</text>
-            <text x="165" y="255" textAnchor="middle" fontSize="13" fontWeight="600" fill="#1f5568">Coronilla</text>
+            <text x="165" y="176" textAnchor="middle" fontSize="13" fontWeight="600" fill="#015042">Zona media</text>
+            <text x="165" y="255" textAnchor="middle" fontSize="13" fontWeight="600" fill="#015042">Coronilla</text>
           </>
         )}
         {mostrarDonante && (
-          <text x="165" y="382" textAnchor="middle" fontSize="12" fontWeight="600" fill="#1f5568">Zona donante</text>
+          <text x="165" y="382" textAnchor="middle" fontSize="12" fontWeight="600" fill="#015042">Zona donante</text>
         )}
         <text x="165" y="404" textAnchor="middle" fontSize="12" fontWeight="600" letterSpacing="1.5" fill="#66756f">
           NUCA

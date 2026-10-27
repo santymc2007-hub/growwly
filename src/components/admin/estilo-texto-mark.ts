@@ -10,9 +10,9 @@ export type TipoEstiloTexto = "titulo" | "subtitulo" | "comentado";
  */
 export const ESTILOS_TEXTO: Record<TipoEstiloTexto, string> = {
   titulo:
-    "font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.5em;line-height:1.25;color:#1f5568;",
+    "font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:1.5em;line-height:1.25;color:#015042;",
   subtitulo:
-    "font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2em;line-height:1.3;color:#1f5568;",
+    "font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:1.2em;line-height:1.3;color:#015042;",
   comentado:
     "font-family:'Lora',Georgia,serif;font-style:italic;color:#33403f;",
 };

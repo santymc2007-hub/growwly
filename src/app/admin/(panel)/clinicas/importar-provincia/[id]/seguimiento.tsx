@@ -79,7 +79,7 @@ export function Seguimiento({ id, provincia, inicio }: { id: string; provincia: 
             </p>
           </div>
           <div className="mt-3 h-2 overflow-hidden rounded-full bg-paper-dim">
-            <div className="barra-indeterminada h-full w-1/3 rounded-full bg-gradient-to-r from-brand-green to-brand-blue" />
+            <div className="barra-indeterminada h-full w-1/3 rounded-full bg-yellow" />
           </div>
           {progreso?.estado === "en_curso" && progreso.mensaje && (
             <p className="mt-2 truncate text-xs text-ink-soft">{progreso.mensaje}</p>

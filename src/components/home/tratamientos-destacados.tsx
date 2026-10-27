@@ -18,12 +18,12 @@ const ICONO_POR_CATEGORIA: Record<string, LucideIcon> = {
 };
 
 const GRADIENTE_POR_CATEGORIA: Record<string, string> = {
-  "Diagnóstico y consulta": "from-teal-dark to-cyan-dark",
-  "Tratamientos médicos": "from-cyan-dark to-brand-blue",
-  "Injerto capilar": "from-brand-green to-teal-dark",
+  "Diagnóstico y consulta": "from-logo to-teal",
+  "Tratamientos médicos": "from-teal to-logo",
+  "Injerto capilar": "from-logo to-teal",
   "Estética capilar": "from-orange to-teal-dark",
 };
-const GRADIENTE_DEFECTO = "from-teal-dark to-cyan-dark";
+const GRADIENTE_DEFECTO = "from-logo to-teal";
 
 export function TratamientosDestacados({
   tratamientos,

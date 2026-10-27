@@ -401,7 +401,7 @@ export function FichaClinicaForm({
       </SeccionFicha>
 
       {clinic.plan !== "premium" && (
-        <div className="rounded-3xl bg-gradient-to-r from-brand-green to-brand-blue p-6 shadow-lg shadow-teal/10 sm:p-7">
+        <div className="rounded-3xl bg-yellow p-6 shadow-lg shadow-teal/10 sm:p-7">
           <div className="flex flex-wrap items-center justify-between gap-5">
             <div>
               <div className="inline-flex items-center gap-1.5 rounded-full bg-white/70 px-3 py-1 text-xs font-bold uppercase tracking-wide text-teal-dark">
@@ -723,7 +723,7 @@ export function FichaClinicaForm({
           </div>
 
           {clinic.plan !== "premium" && (
-            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-gradient-to-r from-brand-green to-brand-blue px-5 py-4 shadow-md shadow-teal/10">
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-yellow px-5 py-4 shadow-md shadow-teal/10">
               <p className="text-sm font-bold text-teal-dark">
                 Todo esto ya está guardado — actívalo para que lo vean tus
                 pacientes.

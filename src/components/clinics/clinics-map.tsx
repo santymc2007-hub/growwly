@@ -13,7 +13,7 @@ import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 const pinIcon = L.divIcon({
   className: "",
   html: `<svg width="30" height="40" viewBox="0 0 30 40" xmlns="http://www.w3.org/2000/svg">
-    <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 25 15 25s15-14.5 15-25C30 6.7 23.3 0 15 0z" fill="#1f5568"/>
+    <path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 25 15 25s15-14.5 15-25C30 6.7 23.3 0 15 0z" fill="#015042"/>
     <circle cx="15" cy="15" r="6" fill="white"/>
   </svg>`,
   iconSize: [30, 40],

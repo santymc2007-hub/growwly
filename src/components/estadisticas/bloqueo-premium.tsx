@@ -23,7 +23,7 @@ export function BloqueoPremium({ children }: { children: React.ReactNode }) {
         <p className="text-sm font-semibold text-teal-dark">Solo con perfil PREMIUM</p>
         <Link
           href="/clinica/visibilidad"
-          className="press rounded-full bg-gradient-to-r from-brand-green to-brand-blue px-4 py-1.5 text-xs font-bold text-teal-dark transition hover:opacity-90"
+          className="press rounded-full bg-yellow px-4 py-1.5 text-xs font-bold text-teal-dark transition hover:opacity-90"
         >
           Ver cómo activarlo
         </Link>

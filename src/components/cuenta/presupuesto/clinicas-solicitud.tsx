@@ -41,7 +41,7 @@ const CHIP: Record<TipoFilaClinica, { texto: string; clase: string } | null> = {
 
 const LEYENDA = [
   { t: "Pendiente de ver", d: "aún no ha abierto tu caso", punto: "border border-[#b9c9c4] bg-white" },
-  { t: "Preparando propuesta", d: "ya ha visto tu caso", punto: "bg-brand-blue" },
+  { t: "Preparando propuesta", d: "ya ha visto tu caso", punto: "bg-teal" },
   { t: "Propuesta nueva", d: "te está esperando", punto: "bg-yellow" },
 ];
 
@@ -242,7 +242,7 @@ function Oferta({
       )}
 
       {oferta.mensaje && (
-        <div className="flex flex-col gap-1.5 rounded-r-2xl border-l-[3px] border-brand-green bg-[#f4f9f7] px-4 py-4">
+        <div className="flex flex-col gap-1.5 rounded-r-2xl border-l-[3px] border-sage bg-[#f4f9f7] px-4 py-4">
           <span className="text-xs font-bold text-sage-ink">Mensaje de {nombreClinica}</span>
           <p className="whitespace-pre-line text-[15px] leading-relaxed text-ink">
             “{oferta.mensaje}”
