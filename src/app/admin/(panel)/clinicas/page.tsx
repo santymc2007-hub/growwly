@@ -11,6 +11,7 @@ export const maxDuration = 60;
 type SearchParams = {
   error?: string;
   q?: string;
+  /** Varias ciudades separadas por "|". */
   ciudad?: string;
   estado?: string;
   publicado?: string;
@@ -62,11 +63,27 @@ export default async function AdminClinicasPage({
     return { estado, enviadoEn: aviso?.enviado_en ?? null };
   }
 
-  const ciudades = uniqueSorted(clinicas.map((c) => c.ciudad));
+  // Ciudades agrupadas por provincia (con cuántos centros tiene cada una)
+  // para el filtro de ciudades con acordeón.
+  const porProvincia = new Map<string, Map<string, number>>();
+  for (const c of clinicas) {
+    if (!c.ciudad) continue;
+    const ciudadesProv = porProvincia.get(c.provincia) ?? new Map<string, number>();
+    ciudadesProv.set(c.ciudad, (ciudadesProv.get(c.ciudad) ?? 0) + 1);
+    porProvincia.set(c.provincia, ciudadesProv);
+  }
+  const provincias = uniqueSorted(Array.from(porProvincia.keys())).map((provincia) => ({
+    provincia,
+    ciudades: uniqueSorted(Array.from(porProvincia.get(provincia)!.keys())).map((nombre) => ({
+      nombre,
+      n: porProvincia.get(provincia)!.get(nombre)!,
+    })),
+  }));
+  const ciudadesElegidas = new Set((ciudad ?? "").split("|").filter(Boolean));
 
   const clinicasFiltradas = clinicas.filter((c) => {
     if (q && !c.nombre.toLowerCase().includes(q.toLowerCase())) return false;
-    if (ciudad && c.ciudad !== ciudad) return false;
+    if (ciudadesElegidas.size && !(c.ciudad && ciudadesElegidas.has(c.ciudad))) return false;
     if (estado === "verificada" && !c.verificado) return false;
     if (estado === "pendiente" && c.verificado) return false;
     if (publicado === "si" && !c.publicado) return false;
@@ -129,7 +146,7 @@ export default async function AdminClinicasPage({
         </div>
       </div>
 
-      <AdminClinicFilters ciudades={ciudades} />
+      <AdminClinicFilters provincias={provincias} />
 
       <ClinicsTable
         rows={clinicasFiltradas.map(
