@@ -38,7 +38,7 @@ export function FeedbackForm({
             onClick={() => setPuntuacion(n)}
             aria-label={`${n} estrellas`}
             className={`text-2xl leading-none transition ${
-              n <= puntuacion ? "text-orange" : "text-line hover:text-orange/60"
+              n <= puntuacion ? "text-yellow" : "text-line hover:text-yellow/60"
             }`}
           >
             ★

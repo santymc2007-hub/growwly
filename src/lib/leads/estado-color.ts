@@ -7,7 +7,7 @@ import type { EstadoLead } from "@/lib/leads/estados-lead";
  * que releer la leyenda.
  */
 export const ESTADO_COLOR: Record<EstadoLead, string> = {
-  enviado: "#defb90",
+  enviado: "#e8ef2d",
   visto: "#ffba1f",
   propuesta_enviada: "#00768f",
   seleccionado: "#1f6b43",

@@ -1,6 +1,6 @@
 function Estrellas({ valor }: { valor: number }) {
   return (
-    <span className="text-2xl text-orange" aria-hidden>
+    <span className="text-2xl text-yellow" aria-hidden>
       {Array.from({ length: 5 }, (_, i) => (i < Math.round(valor) ? "★" : "☆")).join("")}
     </span>
   );

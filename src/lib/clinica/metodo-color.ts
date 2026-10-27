@@ -9,5 +9,5 @@ export const METODO_COLOR: Record<string, string> = {
   web: "#00c2d6",
   ver_mapa: "#00c2d6",
   reserva_online: "#00768f",
-  pedir_cita: "#defb90",
+  pedir_cita: "#e8ef2d",
 };

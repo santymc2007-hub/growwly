@@ -29,7 +29,7 @@ function TarjetaOpinion({ opinion }: { opinion: Opinion }) {
               size={14}
               className={
                 s < opinion.puntuacion!
-                  ? "fill-orange text-orange"
+                  ? "fill-yellow text-yellow"
                   : "fill-transparent text-line"
               }
             />

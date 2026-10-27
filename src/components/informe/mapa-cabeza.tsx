@@ -2,7 +2,7 @@ import type { InformeCapilar, Intensidad } from "@/lib/informe/tipos";
 
 export const COLOR_INTENSIDAD: Record<Intensidad, string> = {
   conservada: "#cfebdc",
-  leve: "#defb90",
+  leve: "#e8ef2d",
   moderada: "#ffba1f",
   marcada: "#f08a24",
 };

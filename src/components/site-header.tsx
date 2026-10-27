@@ -54,7 +54,7 @@ export async function SiteHeader() {
           />
           {/* Separador y "Hair we go!" con los colores del logo */}
           <span className="h-7 w-[2px] rounded-full bg-logo sm:h-9" aria-hidden />
-          <span className="font-sans text-sm font-medium text-logo sm:text-[22px]">
+          <span className="font-sans text-sm font-medium text-lima sm:text-[22px]">
             Hair we go!
           </span>
         </Link>

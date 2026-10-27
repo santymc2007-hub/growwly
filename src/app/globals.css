@@ -73,13 +73,13 @@
 
   /* CTA principal (botón "Subir fotos" y similares): degradado cálido
      — valores extraídos en píxeles del mockup, no estimados */
-  --color-yellow: #defb90; /* = lima (unificados 27 oct 2026) */
+  --color-yellow: #e8ef2d;
   --color-orange: #ffba1f;
 
   /* Colores exactos del logo (oct 2026): verde de "Growwly" y lima de
      la chispa y del "Hair we go!" */
   --color-logo: #015042;
-  --color-lima: #defb90;
+  --color-lima: #b0cf0c;
 
   /* Líneas y bordes */
   --color-line: #e1e8e6;
