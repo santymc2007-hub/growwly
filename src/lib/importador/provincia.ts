@@ -51,8 +51,9 @@ export type Clasificacion =
 /**
  * Regla: solo pasa lo que tenga señal capilar clara, o un centro médico
  * plausible (dermatología, medicina estética, cirugía plástica…) que se
- * marca para comprobar. Peluquerías, uñas, estética facial, maquillaje,
- * barberías, etc. sin señal capilar se descartan (se pueden recuperar).
+ * marca para comprobar. Peluquerías, barberías, dentistas y maxilofaciales
+ * siempre fuera; uñas, estética facial, maquillaje, etc. sin señal capilar
+ * también (todo se puede recuperar a mano).
  */
 export function clasificar(l: LugarApify, provincia: string): Clasificacion {
   if (l.permanentlyClosed) return { estado: "descartado", motivo: "Cerrado permanentemente" };
@@ -68,6 +69,9 @@ export function clasificar(l: LugarApify, provincia: string): Clasificacion {
   const nombre = sinAcentos(l.title ?? "");
   const etiqueta = l.categoryName ?? "sin categoría";
 
+  // Dentistas y maxilofaciales: siempre fuera (decisión de Santy, 27 oct 2026).
+  if (/maxilofacial|dental|dentist|odontolog|ortodonc/.test(`${nombre} ${categorias}`))
+    return { estado: "descartado", motivo: `Dental / maxilofacial (${etiqueta})` };
   if (MEDICO_AJENO.test(categorias) && !SENAL_CAPILAR.test(nombre))
     return { estado: "descartado", motivo: `Especialidad ajena (${etiqueta})` };
 
@@ -81,10 +85,9 @@ export function clasificar(l: LugarApify, provincia: string): Clasificacion {
 
   // "pelo"/"cabello" en una peluquería no es señal: ahí solo valen las fuertes.
   const esPeluqueria = /peluquer|barber|salon de belleza|hair salon|estilista/.test(categorias);
-  if (esPeluqueria)
-    return senalFuerte.test(`${nombre} ${categorias}`)
-      ? { estado: "pendiente", motivo: "Peluquería con servicio capilar: comprobar" }
-      : { estado: "descartado", motivo: `Peluquería sin servicio capilar (${etiqueta})` };
+  // Peluquerías y barberías: siempre fuera (decisión de Santy, 27 oct 2026),
+  // aunque anuncien algún servicio capilar. Se pueden recuperar a mano.
+  if (esPeluqueria) return { estado: "descartado", motivo: `Peluquería (${etiqueta})` };
 
   if (SENAL_CAPILAR.test(`${nombre} ${categorias}`)) return { estado: "pendiente", motivo: null };
   if (MEDICO_PLAUSIBLE.test(categorias))
