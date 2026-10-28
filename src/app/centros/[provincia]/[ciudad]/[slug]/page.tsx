@@ -51,6 +51,8 @@ import { getDestinosTratamiento } from "@/lib/seo/enlaces-internos";
 import {
   enFrase,
   nombreCiudadBuscable,
+  nombreCortoTitulo,
+  nombreIncluyeCiudad,
   recortar,
   MIN_CENTROS_LANDING,
 } from "@/lib/seo/landings";
@@ -130,12 +132,20 @@ export async function generateMetadata({
     ],
     "Compara y pide presupuesto gratis.",
   );
-  const title = tituloSeo(
-    clinic.ciudad && `${clinic.nombre} en ${clinic.ciudad}: opiniones y precios`,
-    clinic.ciudad && `${clinic.nombre} en ${clinic.ciudad}: opiniones`,
-    clinic.ciudad && `${clinic.nombre} en ${clinic.ciudad}`,
-    clinic.nombre,
-  );
+  // Title: nombre + ciudad (sin repetirla si el nombre ya la lleva, p. ej.
+  // "Svenson - Gijón"). Si el nombre completo no deja sitio a la marca,
+  // se prueba con su versión corta antes de quitar " | Growwly".
+  const variantes = (nombre: string) => {
+    const enCiudad =
+      clinic.ciudad && !nombreIncluyeCiudad(nombre, clinic.ciudad) ? ` en ${clinic.ciudad}` : "";
+    return [
+      `${nombre}${enCiudad}: opiniones y precios`,
+      `${nombre}${enCiudad}: opiniones`,
+      `${nombre}${enCiudad}`,
+    ];
+  };
+  const corto = nombreCortoTitulo(clinic.nombre);
+  const title = tituloSeo(...variantes(clinic.nombre), clinic.nombre, ...(corto ? variantes(corto) : []));
 
   const ciudadSlug = clinic.ciudad ? slugifyCiudad(clinic.ciudad) : "clinica";
   const provinciaSlug = slugifyProvincia(clinic.provincia);
@@ -812,7 +822,6 @@ export default async function ClinicaPage({
                 <Link
                   href={`/denunciar?url=${encodeURIComponent(`/centros/${provincia}/${ciudad}/${slug}`)}`}
                   className="underline hover:text-teal-dark"
-                  rel="nofollow"
                 >
                   Denunciar contenido
                 </Link>

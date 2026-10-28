@@ -7,7 +7,11 @@ import { enviarDenuncia } from "./actions";
 
 export const metadata: Metadata = {
   title: "Denunciar un contenido",
-  robots: { index: false, follow: false },
+  // Fuera del índice, pero sin cortar el rastreo: los enlaces a esta
+  // página van sin nofollow (Google desaconseja nofollow interno) y las
+  // variantes ?url=… de cada ficha apuntan a la misma canónica.
+  robots: { index: false, follow: true },
+  alternates: { canonical: "/denunciar" },
 };
 
 const inputClass =

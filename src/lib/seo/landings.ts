@@ -169,3 +169,30 @@ export function hrefFicha(c: Pick<Clinic, "provincia" | "ciudad" | "slug">): str
 export function enFrase(nombre: string): string {
   return nombre.replace(/\p{Lu}\p{Ll}+/gu, (palabra) => palabra.toLowerCase());
 }
+
+const sinTildes = (t: string) => t.normalize("NFD").replace(/\p{M}/gu, "").toLowerCase();
+
+/** ¿El nombre del centro ya lleva la ciudad? ("Svenson - Gijón" en Gijón). */
+export function nombreIncluyeCiudad(nombre: string, ciudad: string): boolean {
+  return sinTildes(nombre).includes(sinTildes(ciudad));
+}
+
+/**
+ * Versión corta del nombre para el title cuando el completo no deja
+ * sitio a " | Growwly". Si acaba en un paréntesis con un nombre propio de
+ * varias palabras, ese es el nombre por el que se busca ("Unidad de
+ * Tricología y Trasplante Capilar (Clínica Rotger)" → "Clínica Rotger");
+ * si no, se quita la coletilla tras " - " / " | " y el paréntesis final
+ * ("Clínica Dr. Sebastián Contreras - Medicina estética y capilar" →
+ * "Clínica Dr. Sebastián Contreras"). Null si no hay nada que recortar.
+ */
+export function nombreCortoTitulo(nombre: string): string | null {
+  const limpio = nombre.trim();
+  const parentesis = limpio.match(/\(([^)]+)\)\s*$/)?.[1]?.trim();
+  if (parentesis && parentesis.split(/\s+/).length >= 2) return parentesis;
+  const corto = limpio
+    .split(/\s+[-–—|]\s+/)[0]
+    .replace(/\s*\([^)]*\)\s*$/, "")
+    .trim();
+  return corto !== limpio && corto.length >= 4 ? corto : null;
+}
