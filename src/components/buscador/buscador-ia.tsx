@@ -45,6 +45,7 @@ type Fase = "escribir" | "cargando" | "respuesta" | "comparar";
 /** **negrita** → <strong>, sin HTML del modelo. */
 function TextoConNegritas({ texto }: { texto: string }) {
   const partes = texto.split("**");
+
   return (
     <>
       {partes.map((p, i) => (i % 2 === 1 ? <strong key={i}>{p}</strong> : <span key={i}>{p}</span>))}
@@ -192,6 +193,9 @@ export function BuscadorIA() {
   })).filter((p) => p.principal || p.activa || verMas);
   const ocultas = PALABRAS_CLAVE.filter((p) => !p.principal && !deteccion.activas.includes(p.id)).length;
 
+  // Mientras carga se sigue viendo el formulario, atenuado bajo el cargador.
+  const enFormulario = fase === "escribir" || fase === "cargando";
+
   return (
     <>
       {!abierto && (
@@ -248,6 +252,11 @@ export function BuscadorIA() {
             if (e.target === e.currentTarget) setAbierto(false);
           }}
         >
+          {fase === "cargando" && (
+            <div className="ia-entra fixed inset-0 z-[96] flex items-center justify-center bg-[rgba(16,58,58,0.6)] backdrop-blur-[2px]">
+              <CargadorW tamano={150} tono="oscuro" etiqueta={PASOS_CARGA[paso]} />
+            </div>
+          )}
           <div className="capa-ia-contenido mx-auto flex w-full max-w-[860px] flex-col gap-4 px-3 pb-10 pt-5 sm:px-6 sm:pt-16">
             <div className="flex items-end justify-between gap-3">
               <div className="flex items-end gap-3 sm:gap-4">
@@ -256,7 +265,7 @@ export function BuscadorIA() {
                   <p className="font-display text-2xl font-extrabold leading-tight text-white sm:text-[34px]">
                     {fase === "comparar" ? "Lado a lado" : "¿Qué estás buscando?"}
                   </p>
-                  {fase === "escribir" && (
+                  {enFormulario && (
                     <p className="mt-0.5 text-sm text-white/85 sm:text-[15px]">
                       Cuéntanoslo con tus palabras. La IA encuentra y compara las clínicas por ti.
                     </p>
@@ -273,13 +282,7 @@ export function BuscadorIA() {
               </button>
             </div>
 
-            {fase === "cargando" && (
-              <div className="ia-entra flex justify-center py-12 sm:py-16">
-                <CargadorW tamano={150} tono="oscuro" etiqueta={PASOS_CARGA[paso]} />
-              </div>
-            )}
-
-            {fase === "escribir" && (
+            {(fase === "escribir" || fase === "cargando") && (
               <>
                 <div className="rounded-[26px] bg-white p-4 shadow-[0_24px_60px_rgba(0,0,0,0.25)] sm:p-5">
                   <label htmlFor="buscador-ia-texto" className="sr-only">
@@ -302,7 +305,7 @@ export function BuscadorIA() {
                     placeholder="Ej.: Busco hacerme un injerto en Palma, que no supere los 4.000 € y con las técnicas más avanzadas"
                     className="min-h-[150px] w-full resize-none pb-14 border-0 bg-transparent text-[17px] font-medium leading-relaxed text-ink outline-none placeholder:text-[15px] placeholder:font-normal placeholder:text-ink-soft/45 sm:min-h-0 sm:text-[21px] sm:placeholder:text-[19px]"
                   />
-                  {dictado.soportado && fase === "escribir" && (
+                  {dictado.soportado && enFormulario && (
                     <button
                       type="button"
                       onClick={() => {
@@ -384,7 +387,7 @@ export function BuscadorIA() {
                     </div>
                   </div>
 
-                  {texto && fase === "escribir" && (
+                  {texto && enFormulario && (
                     <button
                       type="button"
                       onClick={nuevaBusqueda}
@@ -412,7 +415,7 @@ export function BuscadorIA() {
                   </div>
                 </div>
 
-                {fase === "escribir" && !texto && (
+                {enFormulario && !texto && (
                   <div>
                     <p className="text-[13px] font-semibold text-white/85">Prueba con un ejemplo</p>
                     <div className="mt-2 flex flex-col gap-2 sm:flex-row sm:flex-wrap">
