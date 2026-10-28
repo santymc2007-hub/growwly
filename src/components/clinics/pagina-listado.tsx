@@ -39,6 +39,7 @@ export function PaginaListado({
   cabecera,
   conResultados,
   relacionados,
+  resumen,
   children,
 }: {
   migas: BreadcrumbItem[];
@@ -48,6 +49,8 @@ export function PaginaListado({
   /** Si hay centros: muestra el selector Lista/Mapa y el enlace a «Cómo ordenamos». */
   conResultados: boolean;
   relacionados?: GrupoEnlaces[];
+  /** Bloque de datos del lugar (DatosZona), entre los resultados y los enlaces. */
+  resumen?: ReactNode;
   children: ReactNode;
 }) {
   const grupos = (relacionados ?? []).filter((g) => g.enlaces.length > 0);
@@ -82,6 +85,8 @@ export function PaginaListado({
                 </Link>
               </p>
             )}
+
+            {resumen}
 
             {grupos.length > 0 && (
               <div className="mt-10 flex flex-col gap-3 border-t border-line pt-6">

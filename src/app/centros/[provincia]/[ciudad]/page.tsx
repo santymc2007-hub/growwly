@@ -9,6 +9,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { registrarImpresionesListado } from "@/lib/clinica/registrar-impresiones-listado";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { EnlacesEnLinea, PaginaListado, SinCentros } from "@/components/clinics/pagina-listado";
+import { DatosZona, ciudadesCercanas } from "@/components/clinics/datos-zona";
 import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import {
   provinciaDesdeSlug,
@@ -46,7 +47,13 @@ const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: stri
   );
   const ciudadReal = municipioDesdeSlugGenerico(ciudadSlug, ciudadesDeProvincia);
   if (!ciudadReal)
-    return { ciudadReal: null, clinicas: [], idsDestacados: [] as string[], otrasCiudades: [] };
+    return {
+      ciudadReal: null,
+      clinicas: [],
+      idsDestacados: [] as string[],
+      otrasCiudades: [],
+      todas: [] as typeof todas,
+    };
 
   // La página de una ciudad es una búsqueda en su provincia: primero
   // los destacados de la provincia que estén en esta ciudad, y el resto
@@ -58,7 +65,7 @@ const getClinicasDeCiudad = cache(async (provinciaReal: string, ciudadSlug: stri
   const otrasCiudades = ciudadesDeProvincia
     .filter((c) => c !== ciudadReal)
     .sort((a, b) => a.localeCompare(b, "es"));
-  return { ciudadReal, clinicas, idsDestacados, otrasCiudades };
+  return { ciudadReal, clinicas, idsDestacados, otrasCiudades, todas };
 });
 
 export async function generateMetadata({
@@ -108,7 +115,7 @@ export default async function CiudadPage({
     notFound();
   }
 
-  const { ciudadReal, clinicas, idsDestacados, otrasCiudades } = await getClinicasDeCiudad(
+  const { ciudadReal, clinicas, idsDestacados, otrasCiudades, todas } = await getClinicasDeCiudad(
     provinciaReal,
     ciudad,
   );
@@ -178,6 +185,14 @@ export default async function CiudadPage({
         ) : undefined
       }
       conResultados={clinicas.length > 0}
+      resumen={
+        <DatosZona
+          lugar={ciudadReal}
+          centros={clinicas}
+          conTecnicas
+          cercanas={ciudadesCercanas(ciudadReal, todas, (c) => `/centros/${provincia}/${slugifyCiudad(c)}`)}
+        />
+      }
       relacionados={[
         {
           titulo: `Tratamientos en ${ciudadReal}`,

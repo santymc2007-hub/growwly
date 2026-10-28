@@ -8,6 +8,7 @@ import { ordenarConDestacados } from "@/lib/visibilidad/destacados";
 import type { BreadcrumbItem } from "@/components/breadcrumbs";
 import { VistaListaMapa } from "@/components/clinics/vista-lista-mapa";
 import { EnlacesEnLinea, PaginaListado } from "@/components/clinics/pagina-listado";
+import { DatosZona } from "@/components/clinics/datos-zona";
 import { hrefFicha, enFrase, type LugarLanding } from "@/lib/seo/landings";
 import { SITE_URL } from "@/lib/site-url";
 import { MIN_CENTROS_RANKING } from "@/lib/seo/mejores";
@@ -30,7 +31,7 @@ export async function LandingTratamiento({
   vista,
   ciudades,
 }: {
-  tratamiento: { slug: string; nombre: string; resumen: string | null };
+  tratamiento: { slug: string; nombre: string; resumen: string | null; tecnica_relacionada?: string | null };
   lugarNombre: string;
   provinciaReal: string;
   centros: Clinic[];
@@ -116,6 +117,13 @@ export async function LandingTratamiento({
           ) : undefined
         }
         conResultados
+        resumen={
+          <DatosZona
+            lugar={`${tratamiento.nombre} en ${lugarNombre}`}
+            centros={clinicas}
+            excluirTecnica={tratamiento.tecnica_relacionada ?? undefined}
+          />
+        }
       >
         <VistaListaMapa
           clinicas={clinicas.map(paraListado)}
