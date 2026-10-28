@@ -822,7 +822,6 @@ export default async function ClinicaPage({
                 <Link
                   href={`/denunciar?url=${encodeURIComponent(`/centros/${provincia}/${ciudad}/${slug}`)}`}
                   className="underline hover:text-teal-dark"
-                  rel="nofollow"
                 >
                   Denunciar contenido
                 </Link>

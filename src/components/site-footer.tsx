@@ -108,7 +108,6 @@ export async function SiteFooter() {
                   <Link
                     href={l.href}
                     className="hover:text-white"
-                    rel={l.href === "/denunciar" ? "nofollow" : undefined}
                   >
                     {l.texto}
                   </Link>
