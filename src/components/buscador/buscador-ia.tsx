@@ -16,6 +16,7 @@ import {
 import type { RespuestaBuscador } from "@/lib/buscador/tipos";
 import { MarcaIA } from "./marca-ia";
 import { useDictado } from "./use-dictado";
+import { CargandoIA } from "./cargando-ia";
 
 // Donde no sale el botón: embudos de conversión y zonas privadas.
 const RUTAS_SIN_BOTON = [
@@ -272,7 +273,9 @@ export function BuscadorIA() {
               </button>
             </div>
 
-            {(fase === "escribir" || fase === "cargando") && (
+            {fase === "cargando" && <CargandoIA mensaje={PASOS_CARGA[paso]} texto={texto} />}
+
+            {fase === "escribir" && (
               <>
                 <div className="rounded-[26px] bg-white p-4 shadow-[0_24px_60px_rgba(0,0,0,0.25)] sm:p-5">
                   <label htmlFor="buscador-ia-texto" className="sr-only">
@@ -292,7 +295,6 @@ export function BuscadorIA() {
                         buscar();
                       }
                     }}
-                    disabled={fase === "cargando"}
                     placeholder="Ej.: Busco hacerme un injerto en Palma, que no supere los 4.000 € y con las técnicas más avanzadas"
                     className="min-h-[150px] w-full resize-none pb-14 border-0 bg-transparent text-[17px] font-medium leading-relaxed text-ink outline-none placeholder:text-[15px] placeholder:font-normal placeholder:text-ink-soft/45 sm:min-h-0 sm:text-[21px] sm:placeholder:text-[19px]"
                   />
@@ -399,10 +401,9 @@ export function BuscadorIA() {
                     <button
                       type="button"
                       onClick={buscar}
-                      disabled={fase === "cargando"}
                       className="press inline-flex min-h-[50px] items-center justify-center gap-2 rounded-full bg-yellow px-6 text-base font-bold text-logo disabled:opacity-70"
                     >
-                      {fase === "cargando" ? PASOS_CARGA[paso] : "Buscar con IA →"}
+                      Buscar con IA →
                     </button>
                   </div>
                 </div>
