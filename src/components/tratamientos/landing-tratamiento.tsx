@@ -31,7 +31,7 @@ export async function LandingTratamiento({
   vista,
   ciudades,
 }: {
-  tratamiento: { slug: string; nombre: string; resumen: string | null };
+  tratamiento: { slug: string; nombre: string; resumen: string | null; tecnica_relacionada?: string | null };
   lugarNombre: string;
   provinciaReal: string;
   centros: Clinic[];
@@ -117,7 +117,13 @@ export async function LandingTratamiento({
           ) : undefined
         }
         conResultados
-        resumen={<DatosZona lugar={`${tratamiento.nombre} en ${lugarNombre}`} centros={clinicas} />}
+        resumen={
+          <DatosZona
+            lugar={`${tratamiento.nombre} en ${lugarNombre}`}
+            centros={clinicas}
+            excluirTecnica={tratamiento.tecnica_relacionada ?? undefined}
+          />
+        }
       >
         <VistaListaMapa
           clinicas={clinicas.map(paraListado)}

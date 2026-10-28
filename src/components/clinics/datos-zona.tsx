@@ -66,16 +66,21 @@ export function DatosZona({
   lugar,
   centros,
   conTecnicas = false,
+  excluirTecnica,
   cercanas = [],
 }: {
   lugar: string;
   centros: Clinic[];
   /** Listar las técnicas que se ofrecen (no en la landing de un tratamiento). */
   conTecnicas?: boolean;
+  /** En la landing de un tratamiento: lista el resto de técnicas, sin la suya. */
+  excluirTecnica?: string;
   cercanas?: CiudadCercana[];
 }) {
   const n = centros.length;
   if (n === 0) return null;
+  // Con un solo centro, "(1)" detrás de cada dato sobra.
+  const lista = (pares: [string, number][]) => pares.map(([t, k]) => (n > 1 ? `${t} (${k})` : t)).join(", ");
 
   const filas: { etiqueta: string; valor: ReactNode }[] = [];
 
@@ -105,7 +110,7 @@ export function DatosZona({
   if (idiomas.length > 0) {
     filas.push({
       etiqueta: "Atienden en otros idiomas",
-      valor: idiomas.map(([i, k]) => `${i.toLowerCase()} (${k})`).join(", "),
+      valor: lista(idiomas.map(([i, k]) => [i.toLowerCase(), k])),
     });
   }
 
@@ -113,16 +118,16 @@ export function DatosZona({
   if (tipos.length > 0) {
     filas.push({
       etiqueta: "Tipo de centro",
-      valor: tipos.map(([t, k]) => `${enFrase(t)} (${k})`).join(", "),
+      valor: lista(tipos.map(([t, k]) => [enFrase(t), k])),
     });
   }
 
-  if (conTecnicas) {
-    const tecnicas = contar(centros.flatMap((c) => c.tecnicas));
+  if (conTecnicas || excluirTecnica) {
+    const tecnicas = contar(centros.flatMap((c) => c.tecnicas).filter((t) => t !== excluirTecnica));
     if (tecnicas.length > 0) {
       filas.push({
-        etiqueta: "Tratamientos que ofrecen",
-        valor: tecnicas.map(([t, k]) => `${nombreVisibleTecnica(t)} (${k})`).join(", "),
+        etiqueta: excluirTecnica ? "Estos centros también ofrecen" : "Tratamientos que ofrecen",
+        valor: lista(tecnicas.map(([t, k]) => [nombreVisibleTecnica(t), k])),
       });
     }
   }
@@ -152,12 +157,12 @@ export function DatosZona({
     <section className="mt-10 border-t border-line pt-6">
       <h2 className="font-display text-2xl text-ink">{lugar} en cifras</h2>
       <p className="mt-1 text-sm text-ink-soft">
-        Calculado con los datos de {n === 1 ? "el centro listado" : `los ${n} centros listados`} en Growwly.
+        Calculado con los datos {n === 1 ? "del centro listado" : `de los ${n} centros listados`} en Growwly.
       </p>
-      <dl className="mt-4 grid gap-x-8 gap-y-3 text-sm sm:grid-cols-[max-content_1fr]">
+      <dl className="mt-4 grid gap-x-8 gap-y-0.5 text-sm sm:gap-y-3 sm:grid-cols-[max-content_1fr]">
         {filas.map((f) => (
           <div key={f.etiqueta} className="contents">
-            <dt className="font-medium text-ink">{f.etiqueta}</dt>
+            <dt className="mt-2 font-medium text-ink sm:mt-0">{f.etiqueta}</dt>
             <dd className="text-ink-soft">{f.valor}</dd>
           </div>
         ))}
