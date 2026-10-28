@@ -16,7 +16,7 @@ import {
 import type { RespuestaBuscador } from "@/lib/buscador/tipos";
 import { MarcaIA } from "./marca-ia";
 import { useDictado } from "./use-dictado";
-import { CargandoIA } from "./cargando-ia";
+import { CargadorW } from "@/components/ui/cargador-w";
 
 // Donde no sale el botón: embudos de conversión y zonas privadas.
 const RUTAS_SIN_BOTON = [
@@ -273,7 +273,11 @@ export function BuscadorIA() {
               </button>
             </div>
 
-            {fase === "cargando" && <CargandoIA mensaje={PASOS_CARGA[paso]} texto={texto} />}
+            {fase === "cargando" && (
+              <div className="ia-entra flex justify-center py-12 sm:py-16">
+                <CargadorW tamano={150} tono="oscuro" etiqueta={PASOS_CARGA[paso]} />
+              </div>
+            )}
 
             {fase === "escribir" && (
               <>
