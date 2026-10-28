@@ -185,7 +185,7 @@ export default async function AnalisisPendientePage({
             <div className="mx-auto max-w-md px-6 py-16 text-center">
               {estudio.estado === "procesando" && (
                 <>
-                  <LogoCargando ancho={200} etiqueta="Analizando tus fotos" className="mb-8" />
+                  <LogoCargando ancho={140} etiqueta="Analizando tus fotos" className="mb-8" />
                   <h1 className="font-display text-3xl font-extrabold text-teal-dark">
                     Estamos analizando tus fotos…
                   </h1>

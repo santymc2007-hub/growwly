@@ -13,7 +13,7 @@ import { LogoCargando } from "./logo-cargando";
 export function OverlayCargando({ mensaje }: { mensaje: string }) {
   return (
     <div className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-white/85 px-6 backdrop-blur-sm">
-      <LogoCargando ancho={200} etiqueta={mensaje} />
+      <LogoCargando ancho={130} etiqueta={mensaje} />
       <p className="max-w-xs text-center text-sm font-medium text-teal-dark">
         {mensaje}
       </p>

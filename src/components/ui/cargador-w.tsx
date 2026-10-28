@@ -1,56 +1,79 @@
+import { useId } from "react";
+
 /**
- * Carga del buscador con IA: la W de Growwly en contorno blanco que se
- * va llenando de blanco desde abajo, con las estrellas del logo
- * brillando encima y estrellitas que salen de ella. Va sobre el fondo
- * oscuro de la capa del buscador.
+ * Cargador de Growwly (decidido 28 oct 2026, el mismo en toda la web):
+ * la W en contorno que se va llenando de abajo arriba, y las estrellas
+ * verdes del logo saliendo de ella y desvaneciéndose al alejarse.
+ *
+ * - tono "claro" (por defecto): sobre fondos claros, W en verde.
+ * - tono "oscuro": sobre fondos oscuros (buscador con IA), W en blanco.
  *
  * El trazado de la W sale de /brand/w-blanca.png (vectorizado).
  */
 const W_PATH =
   "M114.0 140.8C113.4 140.7 111.9 140.4 110.6 140.2C109.4 140.0 108.0 139.6 107.4 139.4C106.9 139.2 106.3 139.0 106.0 139.0C105.7 139.0 105.0 138.8 104.3 138.5C103.7 138.2 102.6 137.7 102.0 137.5C100.6 136.9 98.5 135.8 98.0 135.4C97.8 135.2 97.3 135.0 97.0 134.8C96.7 134.6 96.1 134.3 95.7 134.1C95.3 133.8 94.4 133.2 93.6 132.8C92.0 131.9 89.9 130.2 87.2 127.6C87.0 127.5 86.3 126.9 85.7 126.3L84.5 125.2L83.4 125.8C82.8 126.1 81.8 126.7 81.2 127.2C80.5 127.6 79.9 128.0 79.9 128.0C79.8 128.0 79.1 128.4 78.3 129.0C77.5 129.5 76.7 130.0 76.6 130.0C76.4 130.0 75.8 130.2 75.2 130.5C74.6 130.7 73.5 131.2 72.8 131.5C72.0 131.8 70.9 132.3 70.3 132.5C69.8 132.8 69.1 133.0 68.9 133.0C68.6 133.0 67.6 133.2 66.5 133.5C65.5 133.7 63.8 134.1 62.9 134.4C58.8 135.4 45.9 135.4 42.3 134.4C41.5 134.2 40.6 134.0 40.1 134.0C39.7 134.0 38.8 133.8 38.1 133.5C37.4 133.3 36.0 132.8 35.0 132.5C34.0 132.1 32.3 131.5 31.3 130.9C30.3 130.4 29.4 130.0 29.3 130.0C28.8 130.0 22.8 125.9 20.9 124.2C19.4 122.9 15.5 118.9 15.1 118.3C15.0 118.1 14.3 117.0 13.5 116.0C12.0 114.0 11.8 113.7 11.0 112.2C10.7 111.8 10.2 110.9 9.9 110.4C9.5 109.8 9.2 109.2 9.1 109.0C9.0 108.8 8.5 107.7 8.0 106.6C6.7 104.0 6.0 102.1 6.0 101.6C6.0 101.3 5.8 100.7 5.5 100.1C5.2 99.6 5.0 99.0 5.0 98.8C5.0 98.6 4.6 97.1 4.0 95.4C3.5 93.7 2.8 91.0 2.5 89.4C2.2 87.7 1.8 85.1 1.5 83.6C1.3 82.1 1.0 79.1 0.9 77.0C0.8 74.8 0.6 72.4 0.3 71.5C-0.1 69.8 -0.0 64.3 0.5 58.5C0.6 56.8 0.8 52.6 1.0 49.2C1.3 42.6 1.8 35.8 2.4 31.1C2.6 29.5 2.9 26.7 3.0 24.9C3.1 23.1 3.4 21.0 3.5 20.2C3.6 19.5 3.9 17.3 4.0 15.4C4.2 13.4 4.4 11.0 4.6 10.0L4.9 8.1L6.2 8.0C7.0 8.0 9.1 8.2 10.9 8.4C12.7 8.6 15.9 8.9 18.0 9.0C20.1 9.2 22.6 9.4 23.4 9.5C24.2 9.6 26.7 9.9 29.0 10.0C31.3 10.1 33.8 10.4 34.6 10.5C35.5 10.6 37.9 10.9 40.1 11.0C47.5 11.5 47.2 11.3 46.6 14.9C46.4 16.3 46.2 18.3 46.1 19.4C46.1 20.5 45.8 23.4 45.5 25.9C45.2 28.4 44.9 31.6 44.8 33.0C44.6 34.4 44.4 36.8 44.3 38.1C44.1 39.5 43.9 42.3 43.8 44.4C43.6 46.4 43.4 49.3 43.2 50.7C43.1 52.1 43.0 58.6 42.9 65.2L42.9 77.1L43.6 80.8C43.9 82.8 44.4 84.7 44.6 85.1C44.8 85.5 45.0 86.0 45.0 86.2C45.0 86.9 46.7 89.5 47.9 90.7C51.6 94.2 57.6 93.3 60.9 88.8C62.1 87.1 64.0 83.1 64.0 82.2C64.0 81.9 64.2 80.7 64.5 79.5C65.8 73.6 65.9 72.2 65.8 61.4C65.8 55.7 65.7 49.9 65.6 48.4C65.4 46.8 65.4 45.5 65.5 45.3C65.7 45.2 67.5 45.0 70.3 44.9C72.8 44.8 76.5 44.6 78.4 44.5C80.3 44.4 85.7 44.1 90.4 44.0C95.0 43.9 100.8 43.6 103.1 43.5C107.1 43.2 107.3 43.2 107.7 43.6C107.9 44.0 108.0 45.4 108.0 49.8C108.0 53.1 108.1 55.7 108.2 56.0C108.4 56.2 108.5 59.8 108.6 64.0C108.8 73.7 109.1 81.2 109.5 82.0C109.6 82.4 109.8 83.6 110.0 84.7C110.1 85.7 110.6 87.6 111.0 88.8C111.4 89.9 111.9 91.2 112.0 91.6C112.4 93.3 113.6 95.2 115.0 96.5C117.5 99.0 120.9 99.3 123.8 97.3C125.0 96.5 127.0 93.6 127.0 92.6C127.0 92.3 127.2 91.8 127.4 91.4C127.6 91.0 127.9 89.6 128.0 88.2C128.1 86.9 128.4 85.1 128.5 84.2C129.1 81.0 128.4 60.0 127.5 53.6C127.2 51.6 127.0 49.5 127.0 48.9C127.0 47.7 126.2 41.4 125.5 37.0C125.2 35.4 124.9 33.3 124.8 32.4C124.6 31.4 124.4 29.8 124.2 28.8C124.1 27.7 123.8 25.6 123.5 24.1C123.2 22.6 123.0 21.0 123.0 20.6C123.0 20.1 122.8 19.0 122.6 18.0C122.4 17.0 122.1 15.2 122.0 14.0C121.9 12.7 121.6 11.0 121.3 10.1C121.0 8.7 121.0 8.4 121.3 8.1C121.7 7.8 124.8 7.0 125.8 7.0C126.1 7.0 127.5 6.8 128.9 6.5C130.2 6.3 132.7 5.8 134.4 5.5C136.0 5.2 138.1 4.9 139.0 4.7C139.9 4.6 141.2 4.3 142.0 4.2C142.8 4.1 144.1 3.9 144.9 3.7C145.7 3.6 147.0 3.3 147.8 3.2C149.1 3.0 150.4 2.8 153.5 2.2C159.3 1.2 160.5 1.0 161.6 1.0C162.6 1.0 162.8 1.1 162.8 1.6C162.9 1.9 163.2 3.8 163.5 5.9C163.8 7.9 164.3 10.9 164.5 12.4C164.8 13.9 165.0 15.5 165.0 15.9C165.0 16.3 165.2 17.9 165.5 19.4C165.7 20.9 166.2 23.8 166.5 25.9C166.8 27.9 167.2 30.9 167.5 32.5C168.1 36.0 168.4 38.7 168.8 41.7C169.3 46.3 169.5 48.7 169.7 50.8C170.4 56.5 170.5 58.7 170.8 65.1C171.3 79.4 170.9 90.9 169.5 97.4C169.3 98.6 168.9 100.2 168.8 100.9C168.4 102.6 167.8 104.7 167.4 105.7C167.2 106.1 167.0 106.6 167.0 106.8C167.0 107.2 166.1 109.6 165.3 111.2C163.1 115.6 162.1 117.3 161.1 118.7C160.5 119.4 159.6 120.7 159.0 121.5C157.4 123.7 151.9 129.0 149.8 130.4C148.8 131.1 147.7 131.8 147.4 132.0C144.1 134.2 144.0 134.3 140.5 135.9C136.1 138.0 133.4 138.9 127.0 140.4C125.0 140.9 116.0 141.1 114.0 140.8Z";
 
-const ESTRELLA = "M0-10c.9 5.3 3.3 7.7 8.6 8.6-5.3.9-7.7 3.3-8.6 8.6-.9-5.3-3.3-7.7-8.6-8.6 5.3-.9 7.7-3.3 8.6-8.6z";
+const ESTRELLA =
+  "M0-12c1.1 6.4 4 9.2 10.3 10.3C4-.6 1.1 2.3 0 8.6-1.1 2.3-4-.6-10.3-1.7-4-2.8-1.1-5.6 0-12z";
 
-export function CargandoIA({ mensaje, texto }: { mensaje: string; texto?: string }) {
+const ESTRELLAS = [
+  { x: 52, y: 22, dx: "-26px", s: 1, d: "0s", t: "2.8s" },
+  { x: 92, y: 30, dx: "6px", s: 1.5, d: "0.9s", t: "3.2s" },
+  { x: 128, y: 18, dx: "24px", s: 0.85, d: "1.7s", t: "2.6s" },
+  { x: 76, y: 38, dx: "-10px", s: 0.65, d: "2.3s", t: "2.9s" },
+] as const;
+
+export function CargadorW({
+  tamano = 120,
+  tono = "claro",
+  etiqueta = "Cargando",
+  className = "",
+}: {
+  /** Ancho en px. */
+  tamano?: number;
+  tono?: "claro" | "oscuro";
+  /** Texto para lectores de pantalla. */
+  etiqueta?: string;
+  className?: string;
+}) {
+  const id = useId().replace(/:/g, "");
+  const color = tono === "oscuro" ? "#ffffff" : "#015042";
   return (
-    <div role="status" aria-live="polite" className="ia-entra flex flex-col items-center px-4 py-10 text-center sm:py-14">
+    <span role="status" aria-label={etiqueta} className={`inline-block ${className}`}>
       <svg
-        viewBox="-10 -70 192 222"
-        width="150"
-        height="173"
+        viewBox="-14 -96 200 248"
+        width={tamano}
+        height={Math.round((tamano * 248) / 200)}
         aria-hidden="true"
         className="overflow-visible"
       >
         <defs>
-          <clipPath id="ia-w-recorte">
+          <clipPath id={`cw-${id}`}>
             <path d={W_PATH} />
           </clipPath>
         </defs>
-        {/* Relleno que sube desde abajo, recortado con la forma de la W */}
-        <g clipPath="url(#ia-w-recorte)">
-          <rect className="ia-w-relleno" x="-10" y="0" width="200" height="150" fill="#ffffff" />
+        <g clipPath={`url(#cw-${id})`}>
+          <rect className="cw-relleno" x="-14" y="0" width="200" height="150" fill={color} />
         </g>
-        {/* Contorno */}
-        <path d={W_PATH} fill="none" stroke="#ffffff" strokeWidth="3.5" strokeLinejoin="round" />
-        {/* Estrellas del logo, encima de la W */}
-        <g transform="translate(34 -52) scale(1.55)">
-          <path className="ia-ch1" fill="#b0cf0c" d="M34 2c1.6 9.4 5.8 13.6 15 15.2-9.2 1.6-13.4 5.8-15 15.2-1.6-9.4-5.8-13.6-15-15.2 9.2-1.6 13.4-5.8 15-15.2z" />
-          <path className="ia-ch2" fill="#b0cf0c" d="M10 24c.8 4.6 2.8 6.6 7.2 7.4-4.4.8-6.4 2.8-7.2 7.4-.8-4.6-2.8-6.6-7.2-7.4 4.4-.8 6.4-2.8 7.2-7.4z" />
-          <path className="ia-ch3" fill="#b0cf0c" d="M24 38c.5 3 1.8 4.3 4.6 4.8-2.8.5-4.1 1.8-4.6 4.8-.5-3-1.8-4.3-4.6-4.8 2.8-.5 4.1-1.8 4.6-4.8z" />
-        </g>
-        {/* Estrellitas que salen de la W */}
-        <g fill="#ffffff">
-          <path className="ia-sube ia-sube-1" transform="translate(30 40)" d={ESTRELLA} />
-          <path className="ia-sube ia-sube-2" transform="translate(86 60)" d={ESTRELLA} />
-          <path className="ia-sube ia-sube-3" transform="translate(142 35)" d={ESTRELLA} />
-          <path className="ia-sube ia-sube-4" transform="translate(110 70)" d={ESTRELLA} />
-          <path className="ia-sube ia-sube-5" transform="translate(58 75)" d={ESTRELLA} />
+        <path d={W_PATH} fill="none" stroke={color} strokeWidth="4" strokeLinejoin="round" />
+        <g fill="#b0cf0c">
+          {ESTRELLAS.map((e, i) => (
+            <g key={i} transform={`translate(${e.x} ${e.y}) scale(${e.s})`}>
+              <path
+                className="cw-estrella"
+                d={ESTRELLA}
+                style={
+                  {
+                    "--cw-dx": e.dx,
+                    animationDelay: e.d,
+                    animationDuration: e.t,
+                  } as React.CSSProperties
+                }
+              />
+            </g>
+          ))}
         </g>
       </svg>
-      <p className="mt-6 font-display text-xl font-bold text-white sm:text-2xl">{mensaje}</p>
-      {texto && (
-        <p className="mt-2 line-clamp-2 max-w-lg text-sm italic text-white/70">«{texto}»</p>
-      )}
-    </div>
+    </span>
   );
 }
