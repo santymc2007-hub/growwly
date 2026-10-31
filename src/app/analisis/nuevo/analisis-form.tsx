@@ -1,11 +1,19 @@
 "use client";
 
 import Image from "next/image";
+import dynamic from "next/dynamic";
 import { useRef, useState } from "react";
-import { Camera, Check, CloudUpload, ImagePlus, X } from "lucide-react";
+import { Check, CloudUpload, ImagePlus, ScanFace, X } from "lucide-react";
 import { comprimirImagen } from "@/lib/comprimir-imagen";
 import { SellosConfianza } from "@/components/analisis/sellos-confianza";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
+import { trackEvent } from "@/lib/analytics/events";
+
+// La cámara guiada (y su detector de caras) solo se descarga al abrirla.
+const CamaraGuiada = dynamic(
+  () => import("@/components/analisis/camara-guiada/camara-guiada").then((m) => m.CamaraGuiada),
+  { ssr: false },
+);
 
 const GUIA = [
   { imagen: "/analisis/guia-frontal.png", etiqueta: "Frontal" },
@@ -53,8 +61,10 @@ export function AnalisisForm({
   // que no es un diagnóstico.
   const [consiente, setConsiente] = useState(false);
   const [entiendeAviso, setEntiendeAviso] = useState(false);
+  const [camaraAbierta, setCamaraAbierta] = useState(false);
+  // Para medir cuántas valoraciones se completan por cada vía.
+  const [via, setVia] = useState<"camara" | "subida">("subida");
   const inputRef = useRef<HTMLInputElement>(null);
-  const camaraRef = useRef<HTMLInputElement>(null);
   const fotosAnadidasRef = useRef<HTMLDivElement>(null);
 
   async function agregarArchivos(lista: FileList | File[]) {
@@ -98,6 +108,7 @@ export function AnalisisForm({
     if (fotos.length === 0 || !consiente || !entiendeAviso) return;
 
     setEstado("enviando");
+    trackEvent("analisis_enviado", { via, fotos: fotos.length });
     try {
       const formData = new FormData();
       for (const foto of fotos) formData.append("adicionales", foto.file);
@@ -123,6 +134,17 @@ export function AnalisisForm({
         />
       )}
 
+      {camaraAbierta && (
+        <CamaraGuiada
+          onCerrar={() => setCamaraAbierta(false)}
+          onTerminar={(archivos) => {
+            setCamaraAbierta(false);
+            setVia("camara");
+            void agregarArchivos(archivos);
+          }}
+        />
+      )}
+
       {/* Hero: presentación + zona para añadir fotos */}
       <div className="relative">
         <div className="relative mx-auto max-w-[1400px] px-6 py-14 sm:py-16 lg:px-12 lg:py-0">
@@ -145,6 +167,26 @@ export function AnalisisForm({
               </p>
             )}
 
+            <button
+              type="button"
+              onClick={() => {
+                trackEvent("analisis_camara_abierta");
+                setCamaraAbierta(true);
+              }}
+              className="press mt-7 flex w-full max-w-md items-center gap-3.5 rounded-[22px] bg-teal-dark px-[18px] py-5 text-left text-white shadow-sm lg:max-w-[22.25rem]"
+            >
+              <span className="flex h-[52px] w-[52px] shrink-0 items-center justify-center rounded-2xl bg-lima">
+                <ScanFace className="h-7 w-7 text-teal-dark" aria-hidden />
+              </span>
+              <span className="flex flex-1 flex-col gap-0.5">
+                <span className="flex flex-wrap items-center gap-2">
+                  <span className="font-display text-[19px] font-bold">Hazlo con la cámara</span>
+                  <span className="rounded-full bg-yellow px-2 py-0.5 text-[11px] font-semibold text-teal-dark">Recomendado</span>
+                </span>
+                <span className="text-sm leading-snug text-sage">Te guiamos foto a foto y se hacen solas</span>
+              </span>
+            </button>
+
             <div
               onDragOver={(e) => {
                 e.preventDefault();
@@ -156,7 +198,7 @@ export function AnalisisForm({
                 setArrastrando(false);
                 agregarArchivos(e.dataTransfer.files);
               }}
-              className={`mt-7 max-w-md overflow-hidden rounded-2xl border-2 border-dashed shadow-sm transition lg:max-w-[22.25rem] lg:rounded-[18px] ${
+              className={`mt-4 max-w-md overflow-hidden rounded-2xl border-2 border-dashed shadow-sm transition lg:max-w-[22.25rem] lg:rounded-[18px] ${
                 arrastrando ? "border-teal bg-sage/40" : "border-line bg-white"
               }`}
             >
@@ -177,23 +219,6 @@ export function AnalisisForm({
                 </p>
               </div>
 
-              <div className="px-8 pb-8 text-center lg:bg-paper-dim lg:px-7 lg:pb-6 lg:pt-5">
-                <div className="mb-4 flex items-center gap-3 text-xs font-medium text-ink-soft lg:mb-4">
-                  <span className="h-px flex-1 bg-line" />
-                  o
-                  <span className="h-px flex-1 bg-line" />
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() => camaraRef.current?.click()}
-                  className="press inline-flex items-center gap-2 rounded-full border border-line bg-white px-5 py-2.5 text-sm font-semibold text-teal-dark transition hover:bg-paper-dim"
-                >
-                  <Camera className="h-4 w-4" aria-hidden />
-                  Hacer una foto
-                </button>
-              </div>
-
               <input
                 ref={inputRef}
                 type="file"
@@ -205,17 +230,7 @@ export function AnalisisForm({
                   e.target.value = "";
                 }}
               />
-              <input
-                ref={camaraRef}
-                type="file"
-                accept="image/*"
-                capture="environment"
-                className="hidden"
-                onChange={(e) => {
-                  if (e.target.files) agregarArchivos(e.target.files);
-                  e.target.value = "";
-                }}
-              />
+
             </div>
           </div>
 
