@@ -33,7 +33,7 @@ const GUIA_INICIAL: Guia = {
 
 // Óvalo guía, relativo al contenedor (ancho/alto de la pantalla).
 const OVALO = { cx: 0.5, cy: 0.45, rxAncho: 0.36, proporcion: 1.32 };
-const MANTENER_MS = 700;
+const MANTENER_MS = 450;
 const MANTENER_LIBRE_MS = 1300;
 const ESPERA_LIBRE_MS = { ayuda: 1500, solo: 4500 };
 
@@ -53,7 +53,6 @@ export function CamaraGuiada({
   const [guia, setGuia] = useState<Guia>(GUIA_INICIAL);
   const [detectorFallo, setDetectorFallo] = useState(false);
   const [espejo, setEspejo] = useState(true);
-  const [mostrarManual, setMostrarManual] = useState(false);
 
   const videoRef = useRef<HTMLVideoElement>(null);
   const contRef = useRef<HTMLDivElement>(null);
@@ -94,7 +93,7 @@ export function CamaraGuiada({
     cargarDetector().catch(() => setDetectorFallo(true));
   }, []);
 
-  // Abre la cámara que toca (delantera para cara, trasera para coronilla y nuca).
+  // Abre la cámara delantera (todas las fotos se hacen con ella).
   useEffect(() => {
     if (!camara) return;
     let cancelado = false;
@@ -129,15 +128,6 @@ export function CamaraGuiada({
     };
   }, [camara]);
 
-  // Si en 15 s no se ha hecho sola, se ofrece el disparo manual más visible.
-  useEffect(() => {
-    if (!enToma) return;
-    const t = setTimeout(() => setMostrarManual(true), 15000);
-    return () => {
-      clearTimeout(t);
-      setMostrarManual(false);
-    };
-  }, [enToma, indice]);
 
   const siguiente = useCallback(
     (desde: number) => {
@@ -484,14 +474,14 @@ export function CamaraGuiada({
               <p className="font-display text-2xl font-extrabold leading-tight">{guia.texto}</p>
               {guia.sub && <p className="mt-1.5 text-sm text-ink-soft">{guia.sub}</p>}
             </div>
+            {/* Disparador manual, siempre visible: la foto también se hace sola. */}
             <button
               type="button"
               onClick={() => capturar(!calidadOkRef.current)}
-              className={`min-h-11 rounded-full px-5 text-sm font-semibold ${
-                mostrarManual || detectorFallo ? "bg-yellow text-teal-dark" : "text-white underline underline-offset-4"
-              }`}
+              aria-label="Hacer la foto ahora"
+              className="press flex h-[72px] w-[72px] items-center justify-center rounded-full border-4 border-white/90 bg-white/20"
             >
-              {mostrarManual || detectorFallo ? "Hacer la foto ahora" : "¿No se dispara? Hacer la foto yo"}
+              <span className="h-[54px] w-[54px] rounded-full bg-white" />
             </button>
           </div>
         </div>
@@ -585,15 +575,15 @@ function guiaFrente(
     };
   const { g, x, y, alto } = enPantalla(cara, cont, v, espejo);
   const relAlto = alto / (g.ry * 2);
-  if (relAlto < 0.5) return { ...base, encuadre: false, texto: "Acércate un poco", sub: "Que la cara llene el óvalo." };
+  if (relAlto < 0.45) return { ...base, encuadre: false, texto: "Acércate un poco", sub: "Que la cara llene el óvalo." };
   if (relAlto > 0.95) return { ...base, encuadre: false, texto: "Aléjate un poco", sub: "Que se vea toda la cabeza dentro del óvalo." };
   const dx = (x - g.cx) / g.rx;
   const dy = (y - g.cy) / g.ry;
-  if (Math.abs(dx) > 0.22)
+  if (Math.abs(dx) > 0.3)
     return { ...base, encuadre: false, texto: dx < 0 ? "Muévete un poco a tu derecha" : "Muévete un poco a tu izquierda", sub: "Mete la cara dentro del óvalo." };
-  if (Math.abs(dy) > 0.22)
+  if (Math.abs(dy) > 0.3)
     return { ...base, encuadre: false, texto: dy < 0 ? "Sube un poco el móvil" : "Baja un poco el móvil", sub: "Mete la cara dentro del óvalo." };
-  if (cara.giro < 0.38 || cara.giro > 0.62)
+  if (cara.giro < 0.34 || cara.giro > 0.66)
     return { ...base, encuadre: false, texto: "Mira de frente a la pantalla", sub: "Sin girar la cabeza." };
   if (cara.cabeceo < 0.25 || cara.cabeceo > 0.65)
     return { ...base, encuadre: false, texto: "Pon la cabeza recta", sub: "Mirando al frente, ni arriba ni abajo." };
@@ -629,12 +619,12 @@ function guiaPerfil(
   const { g, alto } = enPantalla(cara, cont, v, false);
   const relAlto = alto / (g.ry * 2);
   const desvio = Math.abs(cara.giro - 0.5);
-  const avance = Math.min(1, desvio / 0.3);
+  const avance = Math.min(1, desvio / 0.25);
   const lado: "a" | "b" = cara.giro < 0.5 ? "a" : "b";
   if (ladoPrevio && lado === ladoPrevio && desvio > 0.12)
     return { ...base, encuadre: false, progreso: 0, texto: "Hacia el otro lado", sub: "Este perfil ya lo tenemos." };
   if (relAlto < 0.4) return { ...base, encuadre: false, progreso: avance, texto: "Acércate un poco", sub: "Que la cabeza llene el óvalo." };
-  if (desvio < 0.3) return { ...base, encuadre: false, progreso: avance, texto: pedir, sub: desvio > 0.15 ? "Un poco más…" : "Despacio, sin mover el móvil." };
+  if (desvio < 0.25) return { ...base, encuadre: false, progreso: avance, texto: pedir, sub: desvio > 0.15 ? "Un poco más…" : "Despacio, sin mover el móvil." };
   if (!quieto || !nitidezOk) return { ...base, encuadre: true, progreso: 1, texto: "Quieto…", sub: "Aguanta así un momento." };
   return { ...base, encuadre: true, progreso: 1, texto: "¡Así, quieto!", sub: "La foto se hace sola.", listo: true };
 }
@@ -743,7 +733,7 @@ function Preparacion({ onEmpezar, onSubir }: { onEmpezar: () => void; onSubir: (
 function ElegirCoronilla({ onElegir }: { onElegir: (m: ModoCoronilla | "saltada") => void }) {
   const opciones: { modo: ModoCoronilla | "saltada"; icono: typeof Users; titulo: string; texto: string; destacada?: boolean }[] = [
     { modo: "ayuda", icono: Users, titulo: "Me ayuda alguien", texto: "Le pasas el móvil y la pantalla le dice dónde apuntar", destacada: true },
-    { modo: "solo", icono: Volume2, titulo: "Lo hago yo solo", texto: "Con la cámara trasera. Te guiamos con la voz y pitidos" },
+    { modo: "solo", icono: Volume2, titulo: "Lo hago yo solo", texto: "Te guiamos con la voz y pitidos, sin tener que mirar la pantalla" },
     { modo: "saltada", icono: ArrowRight, titulo: "Saltar estas dos", texto: "La valoración será menos precisa en la coronilla" },
   ];
   return (

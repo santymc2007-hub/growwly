@@ -14,8 +14,8 @@ export const PASOS: Paso[] = [
   { id: "frontal", nombre: "Frontal", archivo: "frontal", camara: "user", tipo: "frente" },
   { id: "perfil1", nombre: "Perfil", archivo: "perfil-1", camara: "user", tipo: "perfil" },
   { id: "perfil2", nombre: "Otro perfil", archivo: "perfil-2", camara: "user", tipo: "perfil" },
-  { id: "coronilla", nombre: "Coronilla", archivo: "coronilla", camara: "environment", tipo: "libre" },
-  { id: "nuca", nombre: "Nuca", archivo: "nuca", camara: "environment", tipo: "libre" },
+  { id: "coronilla", nombre: "Coronilla", archivo: "coronilla", camara: "user", tipo: "libre" },
+  { id: "nuca", nombre: "Nuca", archivo: "nuca", camara: "user", tipo: "libre" },
 ];
 
 export const TITULO_PASO: Record<PasoId, string> = {
@@ -35,8 +35,8 @@ export const INSTRUCCION_LIBRE: Record<"coronilla" | "nuca", Record<ModoCoronill
     },
     solo: {
       texto: "Sube el móvil por encima de la cabeza",
-      sub: "Pantalla hacia arriba, cámara apuntando a tu coronilla. Te avisamos con la voz.",
-      voz: "Sube el móvil por encima de la cabeza, con la cámara apuntando a tu coronilla. Cuando te quedes quieto, hago la foto.",
+      sub: "Con la pantalla mirando hacia tu cabeza. Te avisamos con la voz.",
+      voz: "Sube el móvil por encima de la cabeza, con la pantalla mirando hacia tu coronilla. Cuando te quedes quieto, hago la foto.",
     },
   },
   nuca: {
@@ -46,8 +46,8 @@ export const INSTRUCCION_LIBRE: Record<"coronilla" | "nuca", Record<ModoCoronill
     },
     solo: {
       texto: "Pon el móvil detrás de la cabeza",
-      sub: "A la altura de la nuca, a un palmo, con la cámara mirando hacia ti.",
-      voz: "Ahora la nuca. Pon el móvil detrás de la cabeza, a la altura de la nuca y a un palmo, con la cámara mirando hacia ti. Quédate quieto.",
+      sub: "A la altura de la nuca, a un palmo, con la pantalla mirando hacia tu nuca.",
+      voz: "Ahora la nuca. Pon el móvil detrás de la cabeza, a la altura de la nuca y a un palmo, con la pantalla mirando hacia tu nuca. Quédate quieto.",
     },
   },
 };

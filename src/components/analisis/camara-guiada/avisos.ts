@@ -1,6 +1,6 @@
 /**
  * Avisos que no necesitan mirar la pantalla (coronilla y nuca con la
- * cámara trasera): voz, pitidos y vibración. En iOS la voz y el audio
+ * cámara mirando a la cabeza): voz, pitidos y vibración. En iOS la voz y el audio
  * solo funcionan si se "desbloquean" dentro de un toque del usuario:
  * por eso `activar()` se llama desde el botón que abre ese paso.
  */
