@@ -67,9 +67,20 @@ const MOTIVO: Record<Audiencia, string> = {
 };
 
 /** Fila de cabecera: logo sobre blanco. */
-export function cabeceraEmail(): string {
+export function cabeceraEmail(opciones: { eslogan?: boolean } = {}): string {
+  const logo = `<a href="${SITE()}" style="text-decoration:none;"><img src="${SITE()}/brand/growwly-logo-verde.png" width="99" height="34" alt="Growwly" style="display:block; border:0;"></a>`;
+  if (!opciones.eslogan) {
+    return `<tr><td style="padding:20px 28px; border-bottom:4px solid ${COLOR.lima};">
+    ${logo}
+  </td></tr>`;
+  }
+  // Logo + separador + eslogan, como en la cabecera de la web.
   return `<tr><td style="padding:20px 28px; border-bottom:4px solid ${COLOR.lima};">
-    <a href="${SITE()}" style="text-decoration:none;"><img src="${SITE()}/brand/growwly-logo-verde.png" width="99" height="34" alt="Growwly" style="display:block; border:0;"></a>
+    <table role="presentation" cellpadding="0" cellspacing="0"><tr>
+      <td valign="middle">${logo}</td>
+      <td valign="middle" style="padding:0 12px;"><div style="width:1px; height:24px; background:${COLOR.linea};"></div></td>
+      <td valign="middle" style="font-family:${FUENTE}; font-size:14px; font-weight:600; color:#7f9a00; white-space:nowrap;">Hair we go!</td>
+    </tr></table>
   </td></tr>`;
 }
 

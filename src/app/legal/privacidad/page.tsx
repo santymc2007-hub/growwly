@@ -237,6 +237,14 @@ export default function PrivacidadPage() {
         se ajusta a la normativa, puedes reclamar ante la Agencia Española de
         Protección de Datos (<a href="https://www.aepd.es">www.aepd.es</a>).
       </p>
+      <p>
+        <strong>Centros del directorio.</strong> Si sois un centro que
+        aparece en Growwly y queréis que retiremos vuestra ficha o que no os
+        volvamos a escribir, enviad un email a{" "}
+        <a href="mailto:hola@growwly.es">hola@growwly.es</a> desde una
+        dirección del centro, indicando su nombre y su ciudad. Lo haremos en
+        un plazo máximo de un mes.
+      </p>
 
       <h2>9. Seguridad</h2>
       <p>
