@@ -51,6 +51,7 @@ export function CamaraGuiada({
   const [recienHecha, setRecienHecha] = useState<PasoId | null>(null);
   const [repitiendo, setRepitiendo] = useState(false);
   const [guia, setGuia] = useState<Guia>(GUIA_INICIAL);
+  const [flash, setFlash] = useState(false);
   const [detectorFallo, setDetectorFallo] = useState(false);
   const [espejo, setEspejo] = useState(true);
 
@@ -141,13 +142,14 @@ export function CamaraGuiada({
         setFase("elegir-coronilla");
         return;
       }
-      if (desde >= PASOS.length - 1) {
+      // La nuca uno mismo no se puede hacer bien: en modo "solo" se salta.
+      if (desde >= PASOS.length - 1 || (PASOS[desde].id === "coronilla" && modo === "solo")) {
         setFase("revision");
         return;
       }
       setIndice(desde + 1);
     },
-    [repitiendo],
+    [repitiendo, modo],
   );
 
   const capturar = useCallback(
@@ -155,6 +157,8 @@ export function CamaraGuiada({
       const v = videoRef.current;
       if (!v || capturandoRef.current) return;
       capturandoRef.current = true;
+      setFlash(true);
+      setTimeout(() => setFlash(false), 180);
       try {
         const file = await capturarFotograma(v, PASOS[indice].archivo);
         if (!file) return;
@@ -178,7 +182,7 @@ export function CamaraGuiada({
   // Tras cada foto: tarjeta "¡Hecha!" y se pasa sola a la siguiente.
   useEffect(() => {
     if (!recienHecha) return;
-    const t = setTimeout(() => siguiente(indice), 1800);
+    const t = setTimeout(() => siguiente(indice), 1100);
     return () => clearTimeout(t);
   }, [recienHecha, indice, siguiente]);
 
@@ -196,7 +200,6 @@ export function CamaraGuiada({
     let raf = 0;
     let ultimo = 0;
     let okDesde = 0;
-    let mejorNitidez = 0;
     let ultimoPitido = 0;
     const inicio = performance.now();
     let detector: Awaited<ReturnType<typeof cargarDetector>> | null = null;
@@ -221,7 +224,8 @@ export function CamaraGuiada({
     const vuelta = (t: number) => {
       if (!vivo) return;
       raf = requestAnimationFrame(vuelta);
-      if (t - ultimo < 90) return;
+      // Mientras se hace una foto no se analiza nada: el disparo va primero.
+      if (capturandoRef.current || t - ultimo < 150) return;
       ultimo = t;
       const v = videoRef.current;
       const cont = contRef.current;
@@ -229,11 +233,11 @@ export function CamaraGuiada({
 
       const q = medidor.medir(v);
       if (!q) return;
-      mejorNitidez = Math.max(mejorNitidez, q.nitidez);
       const luzOk = q.luz >= UMBRAL.luzMin && q.luz <= UMBRAL.luzMax;
-      const nitidezOk = q.nitidez >= Math.max(25, mejorNitidez * 0.55);
+      // El enfoque no se exige: el móvil enfoca solo y medirlo retrasaba la foto.
+      const nitidezOk = true;
       const quieto = q.movimiento <= UMBRAL.movimientoMax;
-      calidadOkRef.current = luzOk && nitidezOk && quieto;
+      calidadOkRef.current = luzOk;
 
       let g: Guia;
       if (paso.tipo === "libre") {
@@ -371,6 +375,7 @@ export function CamaraGuiada({
           />
           {paso.tipo !== "libre" && <OvaloGuia listo={guia.listo || recienHecha === paso.id} />}
           {paso.tipo === "libre" && <CirculoGuia listo={guia.listo || recienHecha === paso.id} />}
+          {flash && <div className="pointer-events-none absolute inset-0 bg-white/80" aria-hidden />}
         </div>
       )}
 
@@ -443,7 +448,19 @@ export function CamaraGuiada({
       {fase === "elegir-coronilla" && <ElegirCoronilla onElegir={elegirModo} />}
 
       {fase === "revision" && (
-        <Revision capturas={capturas} onRepetir={repetir} onUsar={usarFotos} onFaltan={() => setFase("elegir-coronilla")} />
+        <Revision
+          capturas={capturas}
+          onRepetir={repetir}
+          onUsar={usarFotos}
+          onFaltan={() => setFase("elegir-coronilla")}
+          onAnadirNuca={() => {
+            setModo("ayuda");
+            setRepitiendo(true);
+            setGuia(GUIA_INICIAL);
+            setIndice(PASOS.findIndex((p) => p.id === "nuca"));
+            setFase("toma");
+          }}
+        />
       )}
 
       {/* Guía durante la toma */}
@@ -453,7 +470,6 @@ export function CamaraGuiada({
             {paso.tipo !== "libre" && (
               <div className="flex flex-wrap justify-center gap-2">
                 <Chip ok={guia.luz} texto="Luz" />
-                <Chip ok={guia.nitidez} texto="Nitidez" />
                 <Chip ok={guia.encuadre} texto="Encuadre" />
               </div>
             )}
@@ -733,7 +749,7 @@ function Preparacion({ onEmpezar, onSubir }: { onEmpezar: () => void; onSubir: (
 function ElegirCoronilla({ onElegir }: { onElegir: (m: ModoCoronilla | "saltada") => void }) {
   const opciones: { modo: ModoCoronilla | "saltada"; icono: typeof Users; titulo: string; texto: string; destacada?: boolean }[] = [
     { modo: "ayuda", icono: Users, titulo: "Me ayuda alguien", texto: "Le pasas el móvil y la pantalla le dice dónde apuntar", destacada: true },
-    { modo: "solo", icono: Volume2, titulo: "Lo hago yo solo", texto: "Te guiamos con la voz y pitidos, sin tener que mirar la pantalla" },
+    { modo: "solo", icono: Volume2, titulo: "Lo hago yo solo", texto: "La coronilla, guiado con la voz. La nuca solo se puede hacer con ayuda" },
     { modo: "saltada", icono: ArrowRight, titulo: "Saltar estas dos", texto: "La valoración será menos precisa en la coronilla" },
   ];
   return (
@@ -778,11 +794,13 @@ function Revision({
   onRepetir,
   onUsar,
   onFaltan,
+  onAnadirNuca,
 }: {
   capturas: Partial<Record<PasoId, Captura>>;
   onRepetir: (id: PasoId) => void;
   onUsar: () => void;
   onFaltan: () => void;
+  onAnadirNuca: () => void;
 }) {
   const faltanLibres = !capturas.coronilla && !capturas.nuca;
   return (
@@ -814,6 +832,12 @@ function Revision({
           <button type="button" onClick={onFaltan} className="mt-4 flex min-h-11 items-center gap-2 text-left text-sm font-semibold text-teal-dark underline underline-offset-4">
             <ChevronLeft className="h-4 w-4 rotate-180" aria-hidden />
             Añadir coronilla y nuca (más precisión)
+          </button>
+        )}
+        {!faltanLibres && capturas.coronilla && !capturas.nuca && (
+          <button type="button" onClick={onAnadirNuca} className="mt-4 flex min-h-11 items-center gap-2 text-left text-sm font-semibold text-teal-dark underline underline-offset-4">
+            <ChevronLeft className="h-4 w-4 rotate-180" aria-hidden />
+            Añadir la nuca con ayuda de alguien (más precisión)
           </button>
         )}
         <div className="mt-auto pt-8">

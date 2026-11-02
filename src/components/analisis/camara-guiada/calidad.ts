@@ -89,15 +89,17 @@ export class MedidorCalidad {
 
 /** Foto a resolución completa del fotograma actual (sin espejo). */
 export function capturarFotograma(video: HTMLVideoElement, nombre: string): Promise<File | null> {
+  // Máx. 1600 px de lado: de sobra para la valoración y mucho más rápido en el móvil.
+  const escala = Math.min(1, 1600 / Math.max(video.videoWidth, video.videoHeight));
   const lienzo = document.createElement("canvas");
-  lienzo.width = video.videoWidth;
-  lienzo.height = video.videoHeight;
-  lienzo.getContext("2d")!.drawImage(video, 0, 0);
+  lienzo.width = Math.round(video.videoWidth * escala);
+  lienzo.height = Math.round(video.videoHeight * escala);
+  lienzo.getContext("2d")!.drawImage(video, 0, 0, lienzo.width, lienzo.height);
   return new Promise((resolve) =>
     lienzo.toBlob(
       (b) => resolve(b ? new File([b], `${nombre}.jpg`, { type: "image/jpeg" }) : null),
       "image/jpeg",
-      0.92,
+      0.88,
     ),
   );
 }
