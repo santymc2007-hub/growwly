@@ -32,6 +32,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${siteUrl}/blog`, changeFrequency: "daily", priority: 0.7 },
     { url: `${siteUrl}/tratamientos`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${siteUrl}/analisis/nuevo`, changeFrequency: "monthly", priority: 0.6 },
+    { url: `${siteUrl}/como-ordenamos`, changeFrequency: "monthly", priority: 0.4 },
   ];
 
   const ciudadesConClinica = Array.from(
