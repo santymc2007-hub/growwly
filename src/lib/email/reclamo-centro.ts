@@ -12,8 +12,8 @@ import {
 /**
  * Email informativo a un centro que está en el directorio pero no ha
  * reclamado su ficha. NO es un email comercial: informa de la ficha
- * (RGPD art. 14, datos que no nos dio el centro) y ofrece gestionarla
- * o darse de baja. Se envía uno a uno desde /admin/clinicas.
+ * (RGPD art. 14, datos que no nos dio el centro) y ofrece gestionarla.
+ * La retirada de la ficha se pide por email (ver /legal/privacidad). Se envía uno a uno desde /admin/clinicas.
  *
  * HTML pensado para clientes de correo (Gmail, Outlook…): tablas,
  * estilos en línea, sin flex/grid, imágenes servidas desde la web.
@@ -115,9 +115,6 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
       </td>
     </tr>`;
 
-  const etiqueta = (texto: string) =>
-    `<span style="display:inline-block; margin:0 6px 8px 0; padding:6px 14px; border:1.5px solid ${C.salviaBorde}; background:#ffffff; border-radius:999px; font-family:${FUENTE}; font-size:13px; font-weight:700; color:${C.teal};">${texto}</span>`;
-
   const bloqueTrafico = d.trafico
     ? `
       <tr><td style="padding:0 28px 6px;">
@@ -155,22 +152,26 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
 <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:100%; max-width:600px; background:#ffffff; border-radius:24px; overflow:hidden;">
 
   <!-- Cabecera -->
-  ${cabeceraEmail()}
+  ${cabeceraEmail({ eslogan: true })}
   <tr><td><img src="${img("/email/reclamo-cabecera.jpg")}" width="600" alt="Especialista explicando un tratamiento capilar a una paciente" style="display:block; width:100%; height:auto; border:0;"></td></tr>
 
   <!-- 1. Ficha en el directorio -->
   <tr><td style="padding:28px 28px 0;">${etiquetaSeccion("Vuestra ficha en el directorio")}</td></tr>
-  <tr><td style="padding:12px 28px 0; font-family:${TITULAR}; font-weight:700; font-size:25px; line-height:31px; color:${C.teal};">Vuestro centro ya tiene su ficha en Growwly</td></tr>
+  <tr><td style="padding:12px 28px 0; font-family:${TITULAR}; font-weight:700; font-size:25px; line-height:31px; color:${C.teal};">Vuestro centro ya tiene su ficha en Growwly.es</td></tr>
   <tr><td style="padding:16px 28px 0; font-family:${FUENTE}; font-size:15px; line-height:24px; color:${C.tinta};">
     Hola, equipo de ${nombre}:<br><br>
-    Os escribimos desde Growwly para contaros que vuestro centro ya aparece en nuestro directorio. Hemos creado la ficha con la información pública de vuestra web y de Google, para que las personas que buscan tratamiento capilar puedan encontraros.
+    Os escribimos desde Growwly.es para contaros que vuestro centro ya aparece en nuestro directorio. Hemos creado la ficha con la información pública de vuestra web y de Google, para que las personas que buscan tratamiento capilar puedan encontraros.
   </td></tr>
   <tr><td style="padding:18px 28px 14px;">
     <div style="border:1px solid ${C.salviaBorde}; background:${C.salvia}; border-radius:12px; padding:16px 18px;">
       <div style="font-family:${FUENTE}; font-size:11px; letter-spacing:1px; text-transform:uppercase; color:${C.suave}; font-weight:700;">Vuestra ficha en Growwly</div>
       <div style="font-family:${TITULAR}; font-weight:700; font-size:19px; color:${C.teal}; padding-top:4px;">${nombre}</div>
       ${datosFicha ? `<div style="font-family:${FUENTE}; font-size:13px; color:${C.suave}; padding-top:2px;">${datosFicha}</div>` : ""}
-      <a href="${d.urlFicha}" style="display:inline-block; padding-top:8px; font-family:${FUENTE}; font-size:13px; color:${C.tealClaro}; font-weight:700; text-decoration:none;">Ver la ficha tal como la ven los pacientes &rarr;</a>
+      <table role="presentation" cellpadding="0" cellspacing="0" style="margin-top:14px;"><tr>
+        <td style="border-radius:10px; background:#ffffff; border:2px solid ${C.teal};">
+          <a href="${d.urlFicha}" style="display:inline-block; padding:10px 18px; font-family:${FUENTE}; font-size:15px; font-weight:700; color:${C.teal}; text-decoration:none;">Ver mi ficha en Growwly &rarr;</a>
+        </td>
+      </tr></table>
     </div>
   </td></tr>
   ${bloqueTrafico}
@@ -181,8 +182,8 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
   <tr><td style="padding:26px 28px 6px; font-family:${TITULAR}; font-weight:700; font-size:18px; color:${C.teal};">Qué podéis hacer con vuestra ficha una vez reclamada</td></tr>
   <tr><td style="padding:8px 28px 28px;">
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
-      ${check("Corregirla y completarla", ": horarios, tratamientos, fotos, equipo e idiomas.")}
-      ${check("Recibir los contactos", " de las personas que os escriben desde vuestra ficha.")}
+      ${check("Corregirla y completarla", ": horarios, tratamientos, fotos e idiomas.")}
+      ${check("Recibir los contactos", " que os llegan por los formularios de vuestra ficha en Growwly: peticiones de información, presupuestos y citas.")}
       ${check("Ver vuestras estadísticas", ": cuántas personas ven la ficha y cuántas os llaman, os escriben o piden cita.")}
     </table>
   </td></tr>
@@ -193,12 +194,9 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
     <div style="font-family:${TITULAR}; font-weight:700; font-size:23px; line-height:29px; color:${C.teal}; padding-top:12px;">Qué es Growwly</div>
     <div style="font-family:${FUENTE}; font-size:15px; line-height:24px; color:${C.tinta}; padding-top:12px;">
       Growwly es una plataforma especializada en salud capilar: un espacio donde cada centro tiene su sitio, y donde las personas que se preocupan por su cabello encuentran rápido a quién acudir en su ciudad.<br><br>
-      Pero no somos solo un directorio ni un comparador. <strong>Growwly es una plataforma de marketing que os ayuda a atraer pacientes</strong>: nosotros nos encargamos de atraer a las personas interesadas, y vosotros, de que vuestra ficha las convenza.
+      Pero no somos solo un directorio ni un comparador. <strong>Growwly es una plataforma de marketing que os ayuda a atraer pacientes</strong>: invertimos en posicionamiento en Google, redes sociales y campañas para que cada vez más personas que buscan solución para su pelo lleguen a Growwly. Esas visitas llegan a las fichas de los centros, y desde ahí a vuestra web, vuestro teléfono y vuestra consulta. Vosotros solo os tenéis que ocupar de que vuestra ficha las convenza.
     </div>
-    <div style="padding-top:16px;">
-      ${etiqueta("Posicionamiento en Google (SEO)")}${etiqueta("Redes sociales")}${etiqueta("Campañas en Google y Meta")}${etiqueta("Valoración capilar con IA")}
-    </div>
-    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:10px; background:${C.teal}; border-radius:14px; overflow:hidden;">
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin-top:20px; background:${C.teal}; border-radius:14px; overflow:hidden;">
       <tr><td><img src="${img("/email/reclamo-valoracion-ia.jpg")}" width="544" alt="Persona haciéndose una foto del cuero cabelludo con el móvil" style="display:block; width:100%; height:auto; border:0;"></td></tr>
       <tr><td style="padding:20px 22px 22px; font-family:${FUENTE}; color:${C.pieTexto};">
         <div style="font-family:${TITULAR}; font-weight:700; font-size:21px; line-height:27px; color:#ffffff;">Pacientes que llegan <span style="background:rgba(232,239,45,0.45);">con los deberes hechos</span></div>
@@ -222,7 +220,7 @@ export function construirEmailReclamo(d: DatosEmailReclamo): string {
   <!-- Pie -->
   ${pieEmail(
     "clinica",
-    `<strong style="color:#ffffff;">¿Por qué recibís este email?</strong> Vuestros datos de contacto son públicos y los usamos solo para informaros de vuestra ficha en Growwly.<br><br>¿Preferís no aparecer en Growwly o no recibir más emails? <a href="${d.urlBaja}" style="color:#ffffff;">Pulsad aquí</a> o responded con «BAJA» y lo hacemos.`,
+    `<strong style="color:#ffffff;">¿Por qué recibís este email?</strong> Vuestros datos de contacto son públicos y los usamos solo para informaros de vuestra ficha en Growwly. Cómo ejercer vuestros derechos sobre estos datos, en nuestra <a href="${d.siteUrl}/legal/privacidad" style="color:#ffffff;">política de privacidad</a>.`,
   )}
 
 </table>
