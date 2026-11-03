@@ -16,7 +16,43 @@ export const BUSQUEDAS_CAPILARES = [
   "mesoterapia capilar",
   "PRP capilar",
   "micropigmentación capilar",
-  "caída del cabello tratamiento",
+] as const;
+
+/**
+ * Solo se descargan centros de estas categorías de Google Maps (Apify
+ * `categoryFilterWords`): así peluquerías, estética, uñas, tatuajes,
+ * dentistas o nutricionistas ni se traen ni se pagan. Van en español y en
+ * inglés porque Google puede devolver la categoría en cualquiera de los dos.
+ */
+export const CATEGORIAS_PERMITIDAS = [
+  "trasplante capilar",
+  "tratamiento del cabello",
+  "tricólogo",
+  "dermatólogo",
+  "clínica dermatológica",
+  "medicina estética",
+  "cirujano plástico",
+  "cirugía plástica",
+  "maquillaje permanente",
+  "clínica especializada",
+  "clínica ambulatoria",
+  "centro médico",
+  "médico",
+  "hospital",
+  "hair transplantation clinic",
+  "hair replacement service",
+  "hair treatment",
+  "trichologist",
+  "dermatologist",
+  "skin care clinic",
+  "medical spa",
+  "plastic surgeon",
+  "plastic surgery clinic",
+  "permanent make-up clinic",
+  "medical clinic",
+  "medical center",
+  "doctor",
+  "hospital",
 ] as const;
 
 function token(): string {
@@ -96,7 +132,10 @@ export async function lanzarBusqueda(
     maxCrawledPlacesPerSearch: maxPorBusqueda,
     skipClosedPlaces: true,
     scrapePlaceDetailPage: true,
-    scrapeContacts: true,
+    // Emails y redes los saca Firecrawl al "Completar desde su web", y solo
+    // de los centros que se importan: aquí sería pagar por todos.
+    scrapeContacts: false,
+    categoryFilterWords: Array.from(new Set(CATEGORIAS_PERMITIDAS)),
     maxReviews: 0,
     maxImages: 0,
   };
