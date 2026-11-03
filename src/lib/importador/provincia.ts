@@ -69,9 +69,9 @@ export function clasificar(l: LugarApify, provincia: string): Clasificacion {
   const nombre = sinAcentos(l.title ?? "");
   const etiqueta = l.categoryName ?? "sin categoría";
 
-  // Dentistas y maxilofaciales: siempre fuera (decisión de Santy, 27 oct 2026).
-  if (/maxilofacial|dental|dentist|odontolog|ortodonc/.test(`${nombre} ${categorias}`))
-    return { estado: "descartado", motivo: `Dental / maxilofacial (${etiqueta})` };
+  // Dentistas, maxilofaciales y nutricionistas: siempre fuera (decisión de Santy).
+  if (/maxilofacial|dental|dentist|odontolog|ortodonc|nutricion|dietist/.test(`${nombre} ${categorias}`))
+    return { estado: "descartado", motivo: `Dental / maxilofacial / nutrición (${etiqueta})` };
   if (MEDICO_AJENO.test(categorias) && !SENAL_CAPILAR.test(nombre))
     return { estado: "descartado", motivo: `Especialidad ajena (${etiqueta})` };
 
