@@ -4,7 +4,7 @@ import { CARACTERISTICAS } from "@/components/analisis/sellos-confianza";
 
 export function Hero() {
   return (
-    <section className="mx-auto max-w-[1400px] px-6 pt-2.5 pb-10 sm:py-[26px]">
+    <section className="mx-auto max-w-[1400px] px-6 pt-2.5 pb-10 sm:py-[26px] lg:pb-0">
       <div className="grid items-center gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:gap-6">
         <div className="order-2 text-center lg:order-1 lg:text-left">
           <p className="entra text-xs font-bold uppercase tracking-widest text-teal">
@@ -50,13 +50,13 @@ export function Hero() {
         </div>
 
         {/* Dos imágenes que se alternan con fundido (CSS, ver .hero-fundido en globals.css). */}
-        <div className="entra relative order-1 -mx-6 aspect-[3/2] w-[calc(100%+3rem)] sm:mx-auto sm:w-full sm:max-w-[840px] lg:order-2">
+        <div className="entra relative order-1 -mx-6 aspect-[3/2] w-[calc(100%+3rem)] sm:mx-auto sm:w-full sm:max-w-[840px] lg:order-2 lg:self-end">
           <Image
             src="/brand/hero-ia-hombre.webp"
             alt="Hombre preocupado por su caída de pelo y análisis capilar con IA"
             fill
             sizes="(min-width: 1024px) 60vw, 100vw"
-            className="hero-fundido object-contain"
+            className="hero-fundido object-contain object-bottom"
             priority
           />
           <Image
@@ -64,7 +64,7 @@ export function Hero() {
             alt="Mujer preocupada por su caída de pelo y análisis capilar con IA"
             fill
             sizes="(min-width: 1024px) 60vw, 100vw"
-            className="hero-fundido hero-fundido-b object-contain"
+            className="hero-fundido hero-fundido-b object-contain object-bottom"
           />
         </div>
       </div>
