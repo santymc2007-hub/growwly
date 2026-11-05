@@ -49,14 +49,22 @@ export function Hero() {
           </div>
         </div>
 
-        <div className="entra relative order-1 -mx-6 aspect-[1140/894] w-[calc(100%+3rem)] sm:mx-auto sm:w-full sm:max-w-[840px] lg:order-2">
+        {/* Dos imágenes que se alternan con fundido (CSS, ver .hero-fundido en globals.css). */}
+        <div className="entra relative order-1 -mx-6 aspect-[3/2] w-[calc(100%+3rem)] sm:mx-auto sm:w-full sm:max-w-[840px] lg:order-2">
           <Image
-            src="/brand/hero-analisis-ia.png"
-            alt="Análisis capilar con IA a partir de una foto"
+            src="/brand/hero-ia-hombre.webp"
+            alt="Hombre preocupado por su caída de pelo y análisis capilar con IA"
             fill
             sizes="(min-width: 1024px) 60vw, 100vw"
-            className="object-contain"
+            className="hero-fundido object-contain"
             priority
+          />
+          <Image
+            src="/brand/hero-ia-mujer.webp"
+            alt="Mujer preocupada por su caída de pelo y análisis capilar con IA"
+            fill
+            sizes="(min-width: 1024px) 60vw, 100vw"
+            className="hero-fundido hero-fundido-b object-contain"
           />
         </div>
       </div>
