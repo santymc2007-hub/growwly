@@ -416,3 +416,21 @@ html[data-cookie-banner="1"] .capa-ia-contenido { padding-bottom: 210px; }
   html[data-cookie-banner="1"] .lanzador-ia { bottom: 120px; }
   html[data-cookie-banner="1"] .capa-ia-contenido { padding-bottom: 130px; }
 }
+
+/* Hero de la home: dos imágenes que se alternan con fundido.
+   Ciclo de 5 s: cada una se ve 2 s y el fundido dura 0,5 s. */
+@keyframes hero-fundido {
+  0%, 40% { opacity: 1; }
+  50%, 90% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.hero-fundido {
+  animation: hero-fundido 5s ease-in-out infinite;
+}
+.hero-fundido-b {
+  animation-delay: -2.5s;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero-fundido { animation: none; }
+  .hero-fundido-b { opacity: 0; }
+}
