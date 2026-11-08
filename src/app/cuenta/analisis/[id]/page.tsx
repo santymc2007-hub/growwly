@@ -71,7 +71,7 @@ export default async function ResultadoAnalisisPage({
 
     return (
       <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
-        <TrackOnceParam param="enviado" evento="analisis_completado" />
+        <TrackOnceParam param="enviado" evento="analisis_completado" pasoEmbudo="val_resultado_visto" detalleEmbudo="con cuenta" />
         <SiteHeader />
         <div className="mx-auto max-w-[1400px] px-3 pb-10 pt-8 sm:px-6">
           <div className="px-3 sm:px-0">
@@ -98,7 +98,7 @@ export default async function ResultadoAnalisisPage({
 
   return (
     <main className="flex-1 bg-gradient-to-b from-sage/25 to-transparent">
-      <TrackOnceParam param="enviado" evento="analisis_completado" />
+      <TrackOnceParam param="enviado" evento="analisis_completado" pasoEmbudo="val_resultado_visto" detalleEmbudo="con cuenta" />
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-6 pt-10">

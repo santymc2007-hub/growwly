@@ -2,6 +2,7 @@
 
 import type { AnchorHTMLAttributes } from "react";
 import { trackEvent } from "@/lib/analytics/events";
+import { leerAtribucion } from "@/lib/analytics/atribucion";
 
 /**
  * Como TrackedLink, pero además guarda el clic en nuestra propia base
@@ -33,7 +34,7 @@ export function BotonContactoClinica({
         fetch("/api/track/contacto-clinica", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clinicId, metodo }),
+          body: JSON.stringify({ clinicId, metodo, atribucion: leerAtribucion() }),
           keepalive: true,
         }).catch(() => {});
         onClick?.(e);

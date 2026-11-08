@@ -84,7 +84,12 @@ export default async function AnalisisPendientePage({
   return (
     <main className="relative flex-1">
       <FondoTextura />
-      <TrackOnceParam param="enviado" evento="analisis_completado" />
+      <TrackOnceParam
+        param="enviado"
+        evento="analisis_completado"
+        pasoEmbudo="val_resultado_visto"
+        detalleEmbudo={estudio.estado === "listo" ? "sin cuenta" : `sin cuenta, ${estudio.estado}`}
+      />
       <SiteHeader />
 
       <div className="mx-auto max-w-[1400px] px-3 pb-10 pt-8 sm:px-6 sm:pt-12">

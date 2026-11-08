@@ -2,12 +2,14 @@
 
 import Image from "next/image";
 import dynamic from "next/dynamic";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, CloudUpload, ImagePlus, ScanFace, X } from "lucide-react";
 import { comprimirImagen } from "@/lib/comprimir-imagen";
 import { SellosConfianza } from "@/components/analisis/sellos-confianza";
 import { OverlayCargando } from "@/components/ui/overlay-cargando";
 import { trackEvent } from "@/lib/analytics/events";
+import { leerAtribucion } from "@/lib/analytics/atribucion";
+import { registrarPaso } from "@/lib/analytics/embudo";
 
 // La cámara guiada (y su detector de caras) solo se descarga al abrirla.
 const CamaraGuiada = dynamic(
@@ -66,8 +68,17 @@ export function AnalisisForm({
   const [via, setVia] = useState<"camara" | "subida">("subida");
   const inputRef = useRef<HTMLInputElement>(null);
   const fotosAnadidasRef = useRef<HTMLDivElement>(null);
+  // Embudo propio: "añade fotos" se cuenta una vez por visita.
+  const fotosRegistradasRef = useRef(false);
 
-  async function agregarArchivos(lista: FileList | File[]) {
+  // Embudo propio: entrada en la valoración y, si el servidor la ha
+  // devuelto con un error, el motivo (para saber por qué se van).
+  useEffect(() => {
+    registrarPaso("val_formulario");
+    if (initialError) registrarPaso("val_rechazada", decodeURIComponent(initialError));
+  }, [initialError]);
+
+  async function agregarArchivos(lista: FileList | File[], viaFotos: "camara" | "subida" = "subida") {
     const archivos = Array.from(lista).filter((f) => f.type.startsWith("image/"));
     if (archivos.length === 0) return;
 
@@ -87,6 +98,10 @@ export function AnalisisForm({
         });
       }
       setFotos((prev) => [...prev, ...nuevas]);
+      if (!fotosRegistradasRef.current) {
+        fotosRegistradasRef.current = true;
+        registrarPaso("val_fotos", viaFotos);
+      }
       // Baja hasta "Tus fotos añadidas" para que se vean las miniaturas
       // y el botón de analizar sin tener que buscarlos manualmente.
       fotosAnadidasRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -109,8 +124,13 @@ export function AnalisisForm({
 
     setEstado("enviando");
     trackEvent("analisis_enviado", { via, fotos: fotos.length });
+    registrarPaso("val_enviada", `${via}, ${fotos.length} fotos`);
     try {
       const formData = new FormData();
+      // De qué anuncio o web viene (solo si aceptó la publicidad).
+      const atribucion = leerAtribucion();
+      if (atribucion) formData.append("atribucion", JSON.stringify(atribucion));
+      if (window.growwlyConsent?.publicidad) formData.append("consentimiento_publicidad", "on");
       for (const foto of fotos) formData.append("adicionales", foto.file);
       formData.append("consentimiento", consiente ? "on" : "");
       formData.append("aviso_no_diagnostico", entiendeAviso ? "on" : "");
@@ -140,7 +160,7 @@ export function AnalisisForm({
           onTerminar={(archivos) => {
             setCamaraAbierta(false);
             setVia("camara");
-            void agregarArchivos(archivos);
+            void agregarArchivos(archivos, "camara");
           }}
         />
       )}
@@ -171,6 +191,7 @@ export function AnalisisForm({
               type="button"
               onClick={() => {
                 trackEvent("analisis_camara_abierta");
+                registrarPaso("val_camara");
                 setCamaraAbierta(true);
               }}
               className="press mt-7 flex w-full max-w-md items-center gap-3.5 rounded-[22px] bg-teal-dark px-[18px] py-5 text-left text-white shadow-sm lg:max-w-[22.25rem]"

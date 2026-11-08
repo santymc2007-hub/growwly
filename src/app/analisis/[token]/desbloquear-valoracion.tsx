@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/events";
+import { registrarPaso } from "@/lib/analytics/embudo";
 import { entrarConGoogle } from "@/app/cuenta/google/actions";
 import {
   enviarCodigoValoracion,
@@ -48,6 +49,7 @@ export function DesbloquearValoracion({
       emailMedido.current = true;
       // Sin parámetros: a analítica y anuncios solo les llega que ha dejado el email.
       trackEvent("valoracion_email");
+      registrarPaso("val_email");
     }
     if (estadoEnvio.paso === "listo") router.push(estadoEnvio.destino);
   }, [estadoEnvio, router]);
@@ -55,6 +57,7 @@ export function DesbloquearValoracion({
   useEffect(() => {
     if (estadoCodigo.paso === "listo") {
       trackEvent("sign_up", { metodo: "codigo_email", tipo_cuenta: "paciente" });
+      registrarPaso("val_cuenta", "código por email");
       router.push(estadoCodigo.destino);
     }
   }, [estadoCodigo, router]);
@@ -186,7 +189,7 @@ export function DesbloquearValoracion({
         <span className="h-px flex-1 bg-line" />o<span className="h-px flex-1 bg-line" />
       </div>
 
-      <form action={entrarConGoogle}>
+      <form action={entrarConGoogle} onSubmit={() => registrarPaso("val_cuenta", "con Google (iniciado)")}>
         <input type="hidden" name="claim" value={token} />
         <input type="hidden" name="origen" value="registro" />
         <input type="hidden" name="area" value="paciente" />

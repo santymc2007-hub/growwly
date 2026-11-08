@@ -125,7 +125,7 @@ export const COOKIES_PUBLICIDAD: FilaCookie[] = [
           nombre: "growwly_atribucion (almacenamiento local)",
           proveedor: "Growwly",
           finalidad:
-            "Recordar desde qué anuncio o campaña llegaste, para saber qué anuncios traen solicitudes. No sale de Growwly.",
+            "Recordar desde qué anuncio, campaña o web (solo su dominio, p. ej. google.com) llegaste, para saber qué canales traen valoraciones y solicitudes. No sale de Growwly.",
           duracion: "90 días",
         },
       ]

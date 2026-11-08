@@ -20,6 +20,7 @@ import {
 import { crearSolicitud } from "../actions";
 import { trackEvent } from "@/lib/analytics/events";
 import { leerAtribucion } from "@/lib/analytics/atribucion";
+import { registrarPaso } from "@/lib/analytics/embudo";
 import { TECNICAS_POR_CATEGORIA } from "@/lib/clinic-options";
 import {
   PRESUPUESTO_PACIENTE_OPCIONES,
@@ -362,6 +363,12 @@ export function SolicitudWizard({
     consentimientoCompartir &&
     consentimientoTerminos;
 
+  // Embudo propio: apertura del asistente (una vez por visita).
+  useEffect(() => {
+    registrarPaso("sol_inicio", estudioId ? "con valoración" : "sin valoración");
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   // Al cambiar de paso, vuelve arriba del asistente (en móvil el paso
   // anterior suele dejar el scroll a media pantalla).
   useEffect(() => {
@@ -420,6 +427,7 @@ export function SolicitudWizard({
 
   function siguiente() {
     trackEvent("wizard_paso_completado", { wizard: "solicitud_presupuesto", paso });
+    registrarPaso("sol_paso", `${paso} · ${PASOS[paso - 1]?.corto ?? ""}`);
     setPaso((p) => Math.min(p + 1, TOTAL_PASOS));
   }
   function anterior() {
@@ -468,6 +476,7 @@ export function SolicitudWizard({
     if ("error" in resultado) {
       setErrorEnvio(resultado.error);
       setEnviando(false);
+      registrarPaso("sol_error", resultado.error);
       return;
     }
 
@@ -476,6 +485,7 @@ export function SolicitudWizard({
       tratamientos_interes: tratamientosInteres.length,
       ciudad: ciudad || undefined,
     });
+    registrarPaso("sol_enviada");
     router.push(`/cuenta/solicitud/${resultado.id}`);
   }
 

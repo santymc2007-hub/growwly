@@ -65,6 +65,9 @@ export default async function PanelLayout({
               <Link href="/admin/estadisticas" className="hover:text-cyan">
                 Estadísticas
               </Link>
+              <Link href="/admin/embudo" className="hover:text-cyan">
+                Embudo
+              </Link>
               <Link href="/admin/clinicas" className="hover:text-cyan">
                 Clínicas
               </Link>
