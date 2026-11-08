@@ -1,8 +1,6 @@
-import Image from "next/image";
-import Link from "next/link";
-import { logout } from "./actions";
+import { cookies } from "next/headers";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { AdminMobileMenu } from "./admin-mobile-menu";
+import { MenuLateral } from "./menu-lateral";
 
 export const dynamic = "force-dynamic";
 
@@ -45,110 +43,22 @@ export default async function PanelLayout({
     .select("id", { count: "exact", head: true })
     .eq("estado", "enviado");
 
-  return (
-    <div data-clarity-mask="true" className="min-h-screen bg-paper-dim">
-      <header className="relative border-b border-line bg-teal text-paper">
-        <div className="mx-auto flex max-w-[1600px] items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-5">
-            <Image
-              src="/brand/growwly-logo-white.png"
-              alt="Growwly"
-              width={97}
-              height={33}
-              className="h-7 w-auto"
-              priority
-            />
-            <span className="rounded-full bg-white/15 px-2 py-0.5 text-xs font-medium tracking-wide text-paper/80">
-              PANEL
-            </span>
-            <nav className="hidden gap-4 text-sm md:flex">
-              <Link href="/admin/estadisticas" className="hover:text-cyan">
-                Estadísticas
-              </Link>
-              <Link href="/admin/embudo" className="hover:text-cyan">
-                Embudo
-              </Link>
-              <Link href="/admin/clinicas" className="hover:text-cyan">
-                Clínicas
-              </Link>
-              <Link
-                href="/admin/visibilidad"
-                className="flex items-center gap-1.5 hover:text-cyan"
-              >
-                Visibilidad
-                {totalSolicitudes > 0 && (
-                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
-                    {totalSolicitudes}
-                  </span>
-                )}
-              </Link>
-              <Link
-                href="/admin/leads"
-                className="flex items-center gap-1.5 hover:text-cyan"
-              >
-                Leads
-                {Boolean(leadsNuevos) && (
-                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
-                    {leadsNuevos}
-                  </span>
-                )}
-              </Link>
-              <Link
-                href="/admin/valores"
-                className="flex items-center gap-1.5 hover:text-cyan"
-              >
-                Valores
-                {Boolean(valoresPropuestos) && (
-                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
-                    {valoresPropuestos}
-                  </span>
-                )}
-              </Link>
-              <Link href="/admin/personalizar" className="hover:text-cyan">
-                Personalizar
-              </Link>
-              <Link href="/admin/blog" className="hover:text-cyan">
-                Blog
-              </Link>
-              <Link href="/admin/tratamientos" className="hover:text-cyan">
-                Tratamientos
-              </Link>
-              <Link href="/admin/geografia" className="hover:text-cyan">
-                Geografía
-              </Link>
-              <Link href="/admin/seo" className="hover:text-cyan">
-                SEO
-              </Link>
-              <Link
-                href="/admin/clinicas-cuentas"
-                className="flex items-center gap-1.5 hover:text-cyan"
-              >
-                Cuentas de clínica
-                {Boolean(pendientes) && (
-                  <span className="rounded-full bg-cyan px-1.5 py-0.5 text-xs font-bold text-white">
-                    {pendientes}
-                  </span>
-                )}
-              </Link>
-            </nav>
-          </div>
-          <form action={logout} className="hidden md:block">
-            <button
-              type="submit"
-              className="text-sm text-paper/80 hover:text-paper"
-            >
-              Cerrar sesión
-            </button>
-          </form>
-          <AdminMobileMenu
-            pendientes={pendientes ?? 0}
-            totalSolicitudes={totalSolicitudes}
-            leadsNuevos={leadsNuevos ?? 0}
-          />
-        </div>
-      </header>
+  const contraido = (await cookies()).get("admin_menu")?.value === "contraido";
 
-      <main className="mx-auto max-w-[1600px] px-6 py-10">{children}</main>
+  return (
+    <div data-clarity-mask="true" className="min-h-screen bg-paper-dim md:flex">
+      <MenuLateral
+        contraidoInicial={contraido}
+        avisos={{
+          cuentas: pendientes ?? 0,
+          visibilidad: totalSolicitudes,
+          leads: leadsNuevos ?? 0,
+          valores: valoresPropuestos ?? 0,
+        }}
+      />
+      <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 md:py-10">
+        <div className="mx-auto max-w-[1600px]">{children}</div>
+      </main>
     </div>
   );
 }
