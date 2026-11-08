@@ -1,5 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "./database.types";
+import { sanearSvg } from "@/lib/seguridad/sanear-svg";
 
 const BUCKET = "clinic-photos";
 
@@ -14,11 +15,23 @@ export async function uploadClinicPhotos(
   const urls: string[] = [];
 
   for (const file of files) {
-    const ext = file.name.split(".").pop() || "jpg";
+    // Los SVG (logos, iconos) pueden llevar scripts: se sanean siempre en
+    // servidor antes de guardarlos, vengan con el tipo que vengan.
+    const esSvg = file.type === "image/svg+xml" || /\.svg$/i.test(file.name);
+    let contenido: File | Blob = file;
+    if (esSvg) {
+      const resultado = sanearSvg(await file.text());
+      if (!resultado.ok) {
+        throw new Error(`No se pudo subir "${file.name}": ${resultado.motivo}`);
+      }
+      contenido = new Blob([resultado.svg], { type: "image/svg+xml" });
+    }
+
+    const ext = esSvg ? "svg" : file.name.split(".").pop() || "jpg";
     const path = `${crypto.randomUUID()}.${ext}`;
 
-    const { error } = await supabase.storage.from(BUCKET).upload(path, file, {
-      contentType: file.type || undefined,
+    const { error } = await supabase.storage.from(BUCKET).upload(path, contenido, {
+      contentType: esSvg ? "image/svg+xml" : file.type || undefined,
       upsert: false,
     });
 
