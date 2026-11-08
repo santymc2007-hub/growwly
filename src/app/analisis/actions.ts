@@ -11,6 +11,8 @@ import { subirFotoEstudio } from "@/lib/supabase/estudios-storage";
 import { analizarFotosCapilares } from "@/lib/ai/analizar-fotos";
 import type { InformeCapilar } from "@/lib/informe/tipos";
 import type { Json } from "@/lib/supabase/database.types";
+import { sanearAtribucion } from "@/lib/analytics/atribucion";
+import { registrarPasoServidor } from "@/lib/analytics/embudo-servidor";
 
 const ANGULOS = [
   { key: "frontal", etiqueta: "Vista frontal" },
@@ -109,6 +111,9 @@ export async function crearEstudio(formData: FormData) {
   }
 
   const claimToken = crypto.randomUUID();
+  // De qué anuncio o web viene (solo llega si aceptó la publicidad).
+  const consentimientoPublicidad = formData.get("consentimiento_publicidad") === "on";
+  const atribucion = consentimientoPublicidad ? sanearAtribucion(formData.get("atribucion")) : null;
 
   let rutasAngulo: Record<string, string>;
   let rutasAdicionales: string[];
@@ -151,6 +156,7 @@ export async function crearEstudio(formData: FormData) {
       consentimiento_en: new Date().toISOString(),
       consentimiento_version: VERSION_TEXTOS_LEGALES,
       ip_hash: ipHash,
+      atribucion: atribucion as unknown as Json,
     })
     .select()
     .single();
@@ -227,6 +233,11 @@ export async function crearEstudio(formData: FormData) {
       .eq("id", estudio.id)
       .maybeSingle();
     const conCuenta = Boolean(user);
+    await registrarPasoServidor(admin, final?.estado === "listo" ? "val_lista" : "val_error", {
+      atribucion,
+      consentimiento: consentimientoPublicidad,
+      detalle: final?.estado === "listo" ? null : "fallo del análisis con IA",
+    });
     after(() =>
       avisarNuevaValoracion({ estado: final?.estado === "listo" ? "listo" : "error", conCuenta }),
     );

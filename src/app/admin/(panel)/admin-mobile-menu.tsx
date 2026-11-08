@@ -50,6 +50,7 @@ export function AdminMobileMenu({
         >
           <nav className="flex flex-col gap-1">
             {enlace("/admin/estadisticas", "Estadísticas")}
+            {enlace("/admin/embudo", "Embudo")}
             {enlace("/admin/clinicas", "Clínicas")}
             {enlace("/admin/visibilidad", "Visibilidad", totalSolicitudes)}
             {enlace("/admin/leads", "Leads", leadsNuevos)}

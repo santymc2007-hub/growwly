@@ -103,18 +103,21 @@ export type Database = {
       }
       clinic_contact_clicks: {
         Row: {
+          atribucion: Json | null
           clinic_id: string
           created_at: string
           id: string
           metodo: string
         }
         Insert: {
+          atribucion?: Json | null
           clinic_id: string
           created_at?: string
           id?: string
           metodo: string
         }
         Update: {
+          atribucion?: Json | null
           clinic_id?: string
           created_at?: string
           id?: string
@@ -696,8 +699,36 @@ export type Database = {
         }
         Relationships: []
       }
+      embudo_eventos: {
+        Row: {
+          campana: string | null
+          canal: string
+          created_at: string
+          detalle: string | null
+          id: number
+          paso: string
+        }
+        Insert: {
+          campana?: string | null
+          canal?: string
+          created_at?: string
+          detalle?: string | null
+          id?: never
+          paso: string
+        }
+        Update: {
+          campana?: string | null
+          canal?: string
+          created_at?: string
+          detalle?: string | null
+          id?: never
+          paso?: string
+        }
+        Relationships: []
+      }
       estudios_capilares: {
         Row: {
+          atribucion: Json | null
           claim_token: string
           consentimiento_en: string | null
           consentimiento_version: string | null
@@ -724,6 +755,7 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          atribucion?: Json | null
           claim_token?: string
           consentimiento_en?: string | null
           consentimiento_version?: string | null
@@ -750,6 +782,7 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          atribucion?: Json | null
           claim_token?: string
           consentimiento_en?: string | null
           consentimiento_version?: string | null

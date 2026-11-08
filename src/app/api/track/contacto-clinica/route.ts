@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { sanearAtribucion } from "@/lib/analytics/atribucion";
 
 const METODOS_VALIDOS = [
   "llamar",
@@ -26,7 +27,9 @@ export async function POST(request: Request) {
   }
 
   const admin = createAdminClient();
-  await admin.from("clinic_contact_clicks").insert({ clinic_id: clinicId, metodo });
+  // De qué anuncio o web venía (solo llega si aceptó la publicidad).
+  const atribucion = sanearAtribucion(body?.atribucion);
+  await admin.from("clinic_contact_clicks").insert({ clinic_id: clinicId, metodo, atribucion });
 
   return NextResponse.json({ ok: true });
 }

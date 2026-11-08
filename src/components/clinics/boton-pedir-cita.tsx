@@ -4,6 +4,7 @@ import { useState, useTransition, type FormEvent } from "react";
 import { solicitarCitaDirecta } from "@/lib/leads/solicitar-cita-directa";
 import { trackEvent } from "@/lib/analytics/events";
 import { leerAtribucion } from "@/lib/analytics/atribucion";
+import { registrarPaso } from "@/lib/analytics/embudo";
 
 /**
  * Único punto de entrada a "pedir cita/presupuesto a esta clínica
@@ -63,18 +64,20 @@ export function BotonPedirCita({
           tipo_lead: "cita_directa",
           clinic_id: clinicId,
         });
+        registrarPaso("cita_enviada");
         // Igual que BotonContactoClinica: registro propio para las
         // estadísticas de la clínica, sin depender de si se aceptaron
         // las cookies analíticas.
         fetch("/api/track/contacto-clinica", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ clinicId, metodo: "pedir_cita" }),
+          body: JSON.stringify({ clinicId, metodo: "pedir_cita", atribucion }),
           keepalive: true,
         }).catch(() => {});
       } else {
         setEstado("error");
         setErrorMsg(resultado.error);
+        registrarPaso("cita_error", resultado.error);
       }
     });
   }
@@ -91,6 +94,7 @@ export function BotonPedirCita({
           onClick={() => {
             setAbierto(true);
             trackEvent("clic_pedir_cita_directa", { clinic_id: clinicId });
+            registrarPaso("cita_formulario");
           }}
           className="press block w-full rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
         >
@@ -105,6 +109,7 @@ export function BotonPedirCita({
         onClick={() => {
           setAbierto(true);
           trackEvent("clic_pedir_cita_directa", { clinic_id: clinicId });
+          registrarPaso("cita_formulario");
         }}
         className="press mt-5 hidden w-full items-center justify-center rounded-full bg-yellow px-6 py-3.5 text-center font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90 lg:flex"
       >

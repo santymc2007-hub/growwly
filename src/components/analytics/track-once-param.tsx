@@ -3,6 +3,8 @@
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { trackEvent } from "@/lib/analytics/events";
+import { registrarPaso } from "@/lib/analytics/embudo";
+import type { PasoEmbudo } from "@/lib/analytics/embudo-pasos";
 
 type Parametros = Record<string, string | number | boolean | undefined>;
 
@@ -18,10 +20,15 @@ export function TrackOnceParam({
   param,
   evento,
   parametros,
+  pasoEmbudo,
+  detalleEmbudo,
 }: {
   param: string;
   evento: string;
   parametros?: Parametros;
+  /** Además, apunta este paso en el embudo propio (embudo_eventos). */
+  pasoEmbudo?: PasoEmbudo;
+  detalleEmbudo?: string;
 }) {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -31,12 +38,13 @@ export function TrackOnceParam({
     if (!searchParams.has(param)) return;
 
     trackEvent(evento, { ...parametros, [param]: searchParams.get(param) ?? undefined });
+    if (pasoEmbudo) registrarPaso(pasoEmbudo, detalleEmbudo);
 
     const restantes = new URLSearchParams(searchParams.toString());
     restantes.delete(param);
     const query = restantes.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
-  }, [searchParams, router, pathname, param, evento, parametros]);
+  }, [searchParams, router, pathname, param, evento, parametros, pasoEmbudo, detalleEmbudo]);
 
   return null;
 }
