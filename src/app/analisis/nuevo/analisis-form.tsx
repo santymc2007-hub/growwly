@@ -257,8 +257,8 @@ export function AnalisisForm({
 
           <div className="pointer-events-none absolute inset-y-0 right-0 hidden lg:block lg:w-[60%] xl:w-[56%]">
             <Image
-              src="/brand/analisis-pareja-fotos.webp"
-              alt="Pareja sujetando sus móviles, lista para subir sus fotos"
+              src="/brand/analisis-pareja-movil.webp"
+              alt="Pareja mirando en el móvil su valoración capilar con IA"
               fill
               sizes="45vw"
               className="object-contain"
