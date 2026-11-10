@@ -3,6 +3,7 @@ import Link from "next/link";
 import { slugifyCiudad, slugifyProvincia } from "@/lib/clinic-options";
 import { tratamientosMenu, ciudadesConClinicas } from "@/lib/nav-publica-cache";
 import { BotonPreferenciasCookies } from "@/components/analytics/boton-preferencias-cookies";
+import { REDES_GROWWLY } from "@/lib/redes-growwly";
 
 const LEGAL = [
   { href: "/legal/aviso-legal", texto: "Aviso legal" },
@@ -35,6 +36,22 @@ export async function SiteFooter() {
               <p className="mt-3 text-xs">
                 Directorio de centros capilares en España.
               </p>
+              <div className="mt-4 flex items-center gap-2">
+                {REDES_GROWWLY.map(({ nombre, href, path }) => (
+                  <a
+                    key={nombre}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`Growwly en ${nombre}`}
+                    className="flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white hover:bg-white/20"
+                  >
+                    <svg viewBox="0 0 24 24" className="h-4 w-4" fill="currentColor" aria-hidden>
+                      <path d={path} />
+                    </svg>
+                  </a>
+                ))}
+              </div>
             </div>
 
             <div>

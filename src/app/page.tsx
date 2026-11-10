@@ -15,6 +15,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { ClinicCard } from "@/components/clinics/clinic-card";
 import { Hero } from "@/components/home/hero";
 import { AnnouncementBar } from "@/components/home/announcement-bar";
+import { REDES_GROWWLY } from "@/lib/redes-growwly";
 import { TratamientosDestacados } from "@/components/home/tratamientos-destacados";
 import { BlogDestacado } from "@/components/home/blog-destacado";
 import { CATEGORIAS_TRATAMIENTO } from "@/lib/clinic-options";
@@ -22,7 +23,7 @@ import { serializarJsonLd } from "@/lib/json-ld";
 import { SITE_URL } from "@/lib/site-url";
 
 // Organization + WebSite: identifican la marca como entidad para Google
-// y los buscadores con IA. sameAs: añadir las redes cuando existan.
+// y los buscadores con IA.
 const ENTIDAD_JSON_LD = {
   "@context": "https://schema.org",
   "@graph": [
@@ -36,6 +37,7 @@ const ENTIDAD_JSON_LD = {
       description:
         "Directorio y comparador de clínicas y centros capilares en España.",
       areaServed: "ES",
+      sameAs: REDES_GROWWLY.map((r) => r.href),
     },
     {
       "@type": "WebSite",
