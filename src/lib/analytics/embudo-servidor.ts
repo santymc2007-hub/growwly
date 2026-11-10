@@ -18,12 +18,21 @@ export function canalDelPaso(atribucion: Atribucion | null, consentimiento: bool
 export async function registrarPasoServidor(
   admin: Admin,
   paso: PasoEmbudo,
-  opciones: { atribucion: Atribucion | null; consentimiento: boolean; detalle?: string | null },
+  opciones: {
+    atribucion: Atribucion | null;
+    consentimiento: boolean;
+    detalle?: string | null;
+    /** Canal cuando no hay atribución, si no vale el de por defecto. */
+    canalSinAtribucion?: string;
+  },
 ) {
   try {
     await admin.from("embudo_eventos").insert({
       paso,
-      canal: canalDelPaso(opciones.atribucion, opciones.consentimiento),
+      canal:
+        !opciones.atribucion && opciones.canalSinAtribucion
+          ? opciones.canalSinAtribucion
+          : canalDelPaso(opciones.atribucion, opciones.consentimiento),
       campana: opciones.atribucion?.utm_campaign?.slice(0, 120) ?? null,
       detalle: opciones.detalle ? opciones.detalle.slice(0, 120) : null,
     });

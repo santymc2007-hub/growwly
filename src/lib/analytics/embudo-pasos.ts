@@ -9,8 +9,13 @@
  *   sol_inicio → sol_paso (detalle = paso) → sol_enviada (o sol_error)
  * Pedir cita desde la ficha de un centro (contacto directo, otro valor):
  *   cita_formulario → cita_enviada (o cita_error)
+ * Llegadas y banner de cookies (para cruzar con los clics de los anuncios):
+ *   llegada_anuncio (la web ha cargado con parámetros de campaña en la URL)
+ *   → cookies_decision (detalle = lo que eligió en el banner)
  */
 export const PASOS_EMBUDO = [
+  "llegada_anuncio",
+  "cookies_decision",
   "val_formulario",
   "val_camara",
   "val_fotos",
@@ -38,6 +43,8 @@ export function esPasoEmbudo(valor: unknown): valor is PasoEmbudo {
 
 /** Nombres para el panel, en el orden del embudo. */
 export const ETIQUETA_PASO: Record<PasoEmbudo, string> = {
+  llegada_anuncio: "Llega desde un anuncio o enlace con campaña",
+  cookies_decision: "Decide en el banner de cookies",
   val_formulario: "Entra en la valoración",
   val_camara: "Abre la cámara guiada",
   val_fotos: "Añade fotos",
@@ -56,3 +63,10 @@ export const ETIQUETA_PASO: Record<PasoEmbudo, string> = {
   cita_enviada: "Envía «Pedir cita»",
   cita_error: "Error al enviar «Pedir cita»",
 };
+
+/**
+ * Pasos que se guardan con el origen leído de la URL de esa misma
+ * página (no del navegador): así se sabe de qué anuncio vienen aunque
+ * no se acepten las cookies, sin guardar nada en el dispositivo.
+ */
+export const PASOS_CON_ORIGEN_URL: readonly PasoEmbudo[] = ["llegada_anuncio", "cookies_decision"];

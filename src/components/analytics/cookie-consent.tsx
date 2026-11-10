@@ -13,6 +13,7 @@ import {
   PUBLICIDAD_ACTIVA,
 } from "@/lib/cookies/config";
 import { CLAVE_ATRIBUCION, capturarAtribucion } from "@/lib/analytics/atribucion";
+import { registrarDecisionCookies } from "@/lib/analytics/embudo";
 
 /**
  * Banner de cookies por categorías (auditoría oct 2026):
@@ -175,6 +176,7 @@ export function CookieConsent() {
       publicidad: PUBLICIDAD_ACTIVA ? nuevaPublicidad : (consentimiento?.publicidad ?? null),
       fecha: new Date().toISOString(),
     };
+    registrarDecisionCookies(nuevo.analitica, nuevo.publicidad);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(nuevo));
       localStorage.removeItem(STORAGE_KEY_V1);

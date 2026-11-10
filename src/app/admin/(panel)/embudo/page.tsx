@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { canalDeAtribucion, sanearAtribucion } from "@/lib/analytics/atribucion";
-import { ETIQUETA_PASO, type PasoEmbudo } from "@/lib/analytics/embudo-pasos";
+import { ETIQUETA_PASO, PASOS_CON_ORIGEN_URL, type PasoEmbudo } from "@/lib/analytics/embudo-pasos";
 
 export const dynamic = "force-dynamic";
 
@@ -41,6 +41,7 @@ const CANAL_LABEL: Record<string, string> = {
   directo: "Directo",
   sin_consentimiento: "Sin consentimiento",
   sin_dato: "Sin dato",
+  sin_campana: "Sin campaña en la URL",
 };
 
 function etiquetaCanal(canal: string) {
@@ -165,7 +166,7 @@ export default async function EmbudoAdminPage({ searchParams }: { searchParams: 
 
   const admin = createAdminClient();
   const [eventos, estudios, solicitudes, citas, contactos] = await Promise.all([
-    admin.from("embudo_eventos").select("paso, canal, detalle").gte("created_at", desde).limit(50000),
+    admin.from("embudo_eventos").select("paso, canal, campana, detalle").gte("created_at", desde).limit(50000),
     admin.from("estudios_capilares").select("estado, atribucion").gte("created_at", desde).limit(20000),
     admin.from("solicitudes_presupuesto").select("atribucion").gte("created_at", desde).limit(20000),
     admin.from("solicitudes_cita_directa").select("atribucion").gte("creado_en", desde).limit(20000),
@@ -178,8 +179,24 @@ export default async function EmbudoAdminPage({ searchParams }: { searchParams: 
   ]);
 
   const filas = eventos.data ?? [];
+
+  // Llegadas desde anuncios: por canal y por anuncio (utm_content va al
+  // principio del detalle, antes de " · ruta").
+  const llegadas = filas.filter((e) => e.paso === "llegada_anuncio");
+  const llegadasPorAnuncio = [
+    ...contar(llegadas, (e) => `${e.canal}|${e.campana ?? "—"}|${(e.detalle ?? "-").split(" · ")[0]}`).entries(),
+  ].sort((a, b) => b[1] - a[1]);
+  const decisiones = filas.filter((e) => e.paso === "cookies_decision");
+  const canalesDecision = [...contar(decisiones, (e) => e.canal).entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c);
+  const decisionPorCanal = contar(decisiones, (e) => `${e.canal}|${e.detalle ?? "?"}`);
+  const tiposDecision = [...new Set(decisiones.map((e) => e.detalle ?? "?"))].sort();
   const porPasoYCanal = contar(filas, (e) => `${e.paso}|${e.canal}`);
-  const totalPorCanal = contar(filas, (e) => e.canal);
+  // Las columnas de los embudos salen de sus propios pasos (las llegadas y
+  // el banner tienen su sección y otro modo de saber el canal).
+  const totalPorCanal = contar(
+    filas.filter((e) => !PASOS_CON_ORIGEN_URL.includes(e.paso as PasoEmbudo)),
+    (e) => e.canal,
+  );
   const canales = [...totalPorCanal.entries()].sort((a, b) => b[1] - a[1]).map(([c]) => c).slice(0, 8);
 
   const motivos = PASOS_CON_MOTIVO.map((paso) => ({
@@ -228,6 +245,80 @@ export default async function EmbudoAdminPage({ searchParams }: { searchParams: 
 
       {filas.length > 0 && (
         <>
+          <Seccion
+            titulo="Llegadas desde anuncios"
+            nota="Visitas en las que la web llegó a cargar con parámetros de campaña en la URL (no necesita cookies). Compáralo con los clics y las «visitas a la página de destino» que dicen Meta y Google Ads: la diferencia son clics que se pierden antes de que cargue la página."
+          >
+            {llegadas.length === 0 ? (
+              <p className="text-sm text-ink-soft">Ninguna en este periodo.</p>
+            ) : (
+              <table className="w-full min-w-[560px] text-sm">
+                <thead>
+                  <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-soft">
+                    <th className="py-2 pr-4 font-medium">Canal</th>
+                    <th className="py-2 pr-4 font-medium">Campaña</th>
+                    <th className="py-2 pr-4 font-medium">Anuncio (utm_content)</th>
+                    <th className="py-2 pr-4 text-right font-medium">Llegadas</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {llegadasPorAnuncio.map(([clave, n]) => {
+                    const [canal, campana, anuncio] = clave.split("|");
+                    return (
+                      <tr key={clave} className="border-b border-line/60 last:border-0">
+                        <td className="py-2 pr-4 text-ink">{etiquetaCanal(canal)}</td>
+                        <td className="py-2 pr-4 text-ink-soft">{campana}</td>
+                        <td className="py-2 pr-4 text-ink-soft">{anuncio}</td>
+                        <td className="py-2 pr-4 text-right font-semibold text-teal-dark">{n}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            )}
+          </Seccion>
+
+          <Seccion
+            titulo="Banner de cookies"
+            nota="Qué eligen, según el canal de la página donde deciden. Quien rechaza la analítica no aparece en Google Analytics."
+          >
+            {decisiones.length === 0 ? (
+              <p className="text-sm text-ink-soft">Nadie ha decidido todavía en este periodo.</p>
+            ) : (
+              <table className="w-full min-w-[560px] text-sm">
+                <thead>
+                  <tr className="border-b border-line text-left text-xs uppercase tracking-wide text-ink-soft">
+                    <th className="py-2 pr-4 font-medium">Elección</th>
+                    {canalesDecision.map((c) => (
+                      <th key={c} className="py-2 pr-4 text-right font-medium">
+                        {etiquetaCanal(c)}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {tiposDecision.map((tipo) => (
+                    <tr key={tipo} className="border-b border-line/60 last:border-0">
+                      <td className="py-2 pr-4 text-ink">{tipo}</td>
+                      {canalesDecision.map((c) => {
+                        const v = decisionPorCanal.get(`${c}|${tipo}`) ?? 0;
+                        const total = [...decisionPorCanal.entries()]
+                          .filter(([k]) => k.startsWith(`${c}|`))
+                          .reduce((s, [, x]) => s + x, 0);
+                        return (
+                          <td key={c} className="py-2 pr-4 text-right text-ink">
+                            {v || <span className="text-ink-soft">·</span>}
+                            {v > 0 && <span className="ml-1.5 text-xs text-ink-soft">{pct(v, total)}</span>}
+                          </td>
+                        );
+                      })}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </Seccion>
+
           <Seccion
             titulo="Valoración capilar"
             nota="Porcentaje sobre «Entra en la valoración» de la misma columna. Las pruebas de Santy también cuentan aquí."
