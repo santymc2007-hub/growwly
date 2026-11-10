@@ -21,6 +21,7 @@ export function Hero() {
 
           <Link
             href="/analisis/nuevo"
+            data-cta-principal
             className="entra d3 press mt-6 inline-block rounded-full bg-yellow px-6 py-3.5 font-display text-base font-bold text-teal-dark shadow-lg shadow-yellow/30 transition hover:opacity-90"
           >
             Haz tu valoración gratuita →

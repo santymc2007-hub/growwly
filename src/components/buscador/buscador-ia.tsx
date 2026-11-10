@@ -92,6 +92,28 @@ export function BuscadorIA() {
     return () => clearTimeout(t);
   }, [oculto]);
 
+  // La burbuja no puede tapar el botón principal de la página (p. ej. "Haz tu
+  // valoración gratuita" en la home): mientras ese botón está en pantalla,
+  // la burbuja se esconde, y vuelve a salir al seguir bajando.
+  const [ctaVisible, setCtaVisible] = useState(false);
+  useEffect(() => {
+    const ctas = Array.from(document.querySelectorAll("[data-cta-principal]"));
+    if (!ctas.length || typeof IntersectionObserver === "undefined") return;
+    const visibles = new Set<Element>();
+    const obs = new IntersectionObserver((entradas) => {
+      for (const e of entradas) {
+        if (e.isIntersecting) visibles.add(e.target);
+        else visibles.delete(e.target);
+      }
+      setCtaVisible(visibles.size > 0);
+    });
+    ctas.forEach((c) => obs.observe(c));
+    return () => {
+      obs.disconnect();
+      setCtaVisible(false);
+    };
+  }, [pathname]);
+
   // Escape cierra; el fondo no hace scroll con la capa abierta.
   useEffect(() => {
     if (!abierto) return;
@@ -204,7 +226,7 @@ export function BuscadorIA() {
           onMouseEnter={() => setEncima(true)}
           onMouseLeave={() => setEncima(false)}
         >
-          {(burbuja || encima) && (
+          {((burbuja && !ctaVisible) || encima) && (
             <div className="ia-entra relative max-w-[250px] rounded-[20px] rounded-br-md bg-white py-3 pl-4 pr-9 shadow-[0_12px_34px_rgba(16,58,58,0.22)] sm:max-w-[280px]">
               <button
                 type="button"
