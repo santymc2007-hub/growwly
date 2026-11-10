@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { sanearAtribucion } from "@/lib/analytics/atribucion";
-import { esPasoEmbudo } from "@/lib/analytics/embudo-pasos";
+import { esPasoEmbudo, PASOS_CON_ORIGEN_URL } from "@/lib/analytics/embudo-pasos";
 import { registrarPasoServidor } from "@/lib/analytics/embudo-servidor";
 
 /**
@@ -21,9 +21,24 @@ export async function POST(request: Request) {
   }
   if (!body || !esPasoEmbudo(body.paso)) return NextResponse.json({ ok: false }, { status: 400 });
 
+  const detalle = typeof body.detalle === "string" ? body.detalle : null;
+
+  // Llegadas y banner de cookies: el origen viene de la URL de esa misma
+  // página (no de lo guardado en el navegador), así que no depende del
+  // consentimiento. Sin parámetros de campaña queda como "sin_campana".
+  if (PASOS_CON_ORIGEN_URL.includes(body.paso)) {
+    const origen = sanearAtribucion(body.origen);
+    await registrarPasoServidor(createAdminClient(), body.paso, {
+      atribucion: origen,
+      consentimiento: false,
+      detalle,
+      canalSinAtribucion: "sin_campana",
+    });
+    return NextResponse.json({ ok: true });
+  }
+
   const consentimiento = body.consentimiento === true;
   const atribucion = consentimiento ? sanearAtribucion(body.atribucion) : null;
-  const detalle = typeof body.detalle === "string" ? body.detalle : null;
 
   await registrarPasoServidor(createAdminClient(), body.paso, { atribucion, consentimiento, detalle });
   return NextResponse.json({ ok: true });
