@@ -705,6 +705,7 @@ export type Database = {
           canal: string
           created_at: string
           detalle: string | null
+          dispositivo: string | null
           id: number
           paso: string
         }
@@ -713,6 +714,7 @@ export type Database = {
           canal?: string
           created_at?: string
           detalle?: string | null
+          dispositivo?: string | null
           id?: never
           paso: string
         }
@@ -721,6 +723,7 @@ export type Database = {
           canal?: string
           created_at?: string
           detalle?: string | null
+          dispositivo?: string | null
           id?: never
           paso?: string
         }

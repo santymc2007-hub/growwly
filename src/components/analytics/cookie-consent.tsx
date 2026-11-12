@@ -265,17 +265,19 @@ export function CookieConsent() {
       )}
 
       {visible && (
-        // Franja a todo el ancho con el verde de la marca al 80 %: se ve,
-        // pero deja intuir la página. Rechazar y Aceptar con el mismo peso
-        // visual (criterio AEPD).
+        // Móvil: franja abajo a todo el ancho con el verde de la marca al
+        // 80 %. Escritorio: tarjeta flotante abajo a la izquierda, más
+        // opaca y con texto mayor, porque como franja fina a 1400 px pasaba
+        // desapercibida. Rechazar y Aceptar con el mismo peso visual
+        // (criterio AEPD).
         <div
           role="dialog"
           aria-label="Preferencias de cookies"
-          className="fixed inset-x-0 bottom-0 z-[110] bg-logo/80 text-white shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md"
+          className="fixed inset-x-0 bottom-0 z-[110] bg-logo/80 text-white shadow-[0_-8px_30px_rgba(0,0,0,0.12)] backdrop-blur-md md:inset-x-auto md:bottom-6 md:left-6 md:w-[440px] md:rounded-2xl md:bg-logo/95 md:shadow-[0_20px_60px_rgba(0,0,0,0.35)] md:ring-1 md:ring-white/15"
         >
-          <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 sm:py-4">
+          <div className="mx-auto max-w-[1400px] px-4 py-3 sm:px-6 sm:py-4 md:px-6 md:py-5">
           {!configurando ? (
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:gap-6">
+            <div className="flex flex-col gap-3 md:gap-4">
               <div className="flex flex-1 items-center gap-3 sm:gap-4">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
@@ -285,7 +287,7 @@ export function CookieConsent() {
                   height={48}
                   className="h-10 w-10 shrink-0 sm:h-12 sm:w-12"
                 />
-              <p className="flex-1 text-[13px] leading-snug text-white sm:text-sm">
+              <p className="flex-1 text-[13px] leading-snug text-white sm:text-sm md:text-[15px]">
                 {PUBLICIDAD_ACTIVA
                   ? "Usamos cookies analíticas para entender cómo se usa Growwly y cookies de publicidad para medir nuestros anuncios. Solo las activamos si nos das tu consentimiento."
                   : "Usamos cookies analíticas para entender cómo se usa Growwly y mejorar el sitio. Solo las activamos si nos das tu consentimiento."}{" "}
@@ -305,14 +307,14 @@ export function CookieConsent() {
                 <button
                   type="button"
                   onClick={() => guardar(false, false)}
-                  className="press flex-1 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-logo transition hover:bg-yellow md:flex-none"
+                  className="press flex-1 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-logo transition hover:bg-yellow"
                 >
                   Rechazar
                 </button>
                 <button
                   type="button"
                   onClick={() => guardar(true, true)}
-                  className="press flex-1 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-logo transition hover:bg-yellow md:flex-none"
+                  className="press flex-1 rounded-full bg-white px-5 py-2.5 text-sm font-semibold text-logo transition hover:bg-yellow"
                 >
                   Aceptar
                 </button>

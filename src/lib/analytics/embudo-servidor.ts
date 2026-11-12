@@ -14,6 +14,20 @@ export function canalDelPaso(atribucion: Atribucion | null, consentimiento: bool
   return consentimiento ? "directo" : "sin_consentimiento";
 }
 
+/**
+ * Tipo de dispositivo a partir del user-agent, reducido a una de cuatro
+ * categorías (nunca se guarda el user-agent): sirve para ver si un paso
+ * falla en móvil, en escritorio o dentro del navegador de Instagram o
+ * Facebook, que es donde se abren los anuncios de Meta.
+ */
+export function tipoDispositivo(userAgent: string | null): string | null {
+  if (!userAgent) return null;
+  if (/Instagram/i.test(userAgent)) return "app_instagram";
+  if (/FBAN|FBAV|FB_IAB|FBIOS|FB4A/i.test(userAgent)) return "app_facebook";
+  if (/Mobi|Android|iPhone|iPod|iPad/i.test(userAgent)) return "movil";
+  return "escritorio";
+}
+
 /** Apunta un paso del embudo desde el servidor. Nunca hace fallar la petición. */
 export async function registrarPasoServidor(
   admin: Admin,
@@ -22,12 +36,14 @@ export async function registrarPasoServidor(
     atribucion: Atribucion | null;
     consentimiento: boolean;
     detalle?: string | null;
+    /** Categoría de dispositivo (ver tipoDispositivo). */
+    dispositivo?: string | null;
     /** Canal cuando no hay atribución, si no vale el de por defecto. */
     canalSinAtribucion?: string;
   },
 ) {
   try {
-    await admin.from("embudo_eventos").insert({
+    const fila = {
       paso,
       canal:
         !opciones.atribucion && opciones.canalSinAtribucion
@@ -35,7 +51,13 @@ export async function registrarPasoServidor(
           : canalDelPaso(opciones.atribucion, opciones.consentimiento),
       campana: opciones.atribucion?.utm_campaign?.slice(0, 120) ?? null,
       detalle: opciones.detalle ? opciones.detalle.slice(0, 120) : null,
-    });
+    };
+    const { error } = await admin
+      .from("embudo_eventos")
+      .insert({ ...fila, dispositivo: opciones.dispositivo ?? null });
+    // Si la columna dispositivo aún no existe en la base de datos (migración
+    // sin aplicar), se guarda el paso sin ella para no perder el embudo.
+    if (error) await admin.from("embudo_eventos").insert(fila);
   } catch {
     // El embudo es informativo: si falla, no se toca el flujo del usuario.
   }

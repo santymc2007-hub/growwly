@@ -4,8 +4,9 @@ import type { PasoEmbudo } from "@/lib/analytics/embudo-pasos";
 /**
  * Apunta un paso del embudo en nuestra propia base de datos
  * (embudo_eventos). No lleva ningún identificador de la persona, así que
- * se registra aunque no se acepten las cookies; el canal de origen solo
- * viaja si se aceptó la publicidad (es lo que permite guardarlo).
+ * se registra aunque no se acepten las cookies. El canal sale de la
+ * atribución guardada si se aceptó la publicidad; si no, de los
+ * parámetros de campaña de la URL de la página actual.
  */
 export function registrarPaso(paso: PasoEmbudo, detalle?: string | number) {
   if (typeof window === "undefined") return;
@@ -29,6 +30,11 @@ function enviar(paso: PasoEmbudo, detalle?: string | number) {
     paso,
     detalle: detalle === undefined ? undefined : String(detalle).slice(0, 120),
     atribucion: leerAtribucion(),
+    // Origen de la URL de esta misma página (sin cookies ni almacenamiento):
+    // el servidor lo usa cuando no hay atribución guardada, para que los
+    // pasos que ocurren en la página de llegada de un anuncio tengan canal
+    // aunque no se acepten las cookies.
+    origen: origenDeLaUrl(),
     consentimiento: window.growwlyConsent?.publicidad === true,
   });
   try {
